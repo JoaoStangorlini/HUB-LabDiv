@@ -1,11 +1,11 @@
-environmentVariables:
+env:
   - variable: NEXT_PUBLIC_SUPABASE_URL
-    value: "https://bqszadfunqgtfpaorwvx.supabase.co"
+    secret: SUPABASE_URL
   - variable: NEXT_PUBLIC_SUPABASE_ANON_KEY
-    value: "sb_publishable_xQINQGX7-gqwgXHqOF0RWw_ZebOhOoI"
+    secret: SUPABASE_ANON_KEY
   - variable: NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME
-    value: "dgpulbaqq"
+    secret: CLOUDINARY_CLOUD_NAME
   - variable: NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET
-    value: "ifusp_uploads"
+    secret: CLOUDINARY_UPLOAD_PRESET
   - variable: ADMIN_PASSWORD
-    value: "labdiv-tecla56"
+    secret: ADMIN_PASSWORD
