@@ -9,7 +9,7 @@ export function Header() {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
     const navLinks = [
-        { name: 'Início', href: '/' },
+        { name: 'Arquivo', href: '/' },
         { name: 'Iniciativas', href: '/iniciativas' },
         { name: 'Oportunidades', href: '/oportunidades' },
         { name: 'Criadores', href: '/criadores' },
