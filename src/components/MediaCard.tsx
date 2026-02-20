@@ -106,9 +106,10 @@ export const MediaCard = ({
     const displayUrl = urls.length > 0 ? urls[currentImageIndex] : '';
 
     let accentClass = 'border-t-4 border-t-gray-100 dark:border-t-gray-700';
-    if (category === 'Laboratórios') accentClass = 'card-accent-blue';
+    if (category === 'Laboratórios') accentClass = 'card-accent-yellow';
     else if (category === 'Pesquisadores') accentClass = 'card-accent-red';
     else if (category === 'Eventos') accentClass = 'card-accent-yellow';
+    else if (category === 'Convivência') accentClass = 'card-accent-red';
     else if (category) accentClass = 'card-accent-blue'; // Default for others
 
     return (
@@ -229,10 +230,11 @@ export const MediaCard = ({
                 <div className="flex flex-wrap items-center justify-between mb-3 gap-2">
                     {category && (
                         <div className={`px-3 py-1 text-xs font-bold rounded-full uppercase tracking-wide shadow-sm 
-                            ${category === 'Laboratórios' ? 'bg-brand-blue/90 text-white shadow-brand-blue/50' :
+                            ${category === 'Laboratórios' ? 'bg-brand-yellow/90 text-black shadow-brand-yellow/50' :
                                 category === 'Pesquisadores' ? 'bg-brand-red/90 text-white shadow-brand-red/50' :
                                     category === 'Eventos' ? 'bg-brand-yellow/90 text-black shadow-brand-yellow/50' :
-                                        'bg-brand-blue/90 text-white shadow-brand-blue/50'}`}
+                                        category === 'Convivência' ? 'bg-brand-red/90 text-white shadow-brand-red/50' :
+                                            'bg-brand-blue/90 text-white shadow-brand-blue/50'}`}
                         >
                             {category}
                         </div>
