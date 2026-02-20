@@ -107,75 +107,79 @@ export default function CriadoresPage() {
     };
 
     return (
-        <div className="min-h-screen bg-background-light dark:bg-background-dark font-sans text-gray-900 dark:text-gray-100 flex flex-col pt-24">
+        <div className="min-h-screen bg-background-light dark:bg-background-dark font-sans text-gray-900 dark:text-gray-100 flex flex-col pt-24 overflow-hidden">
             <Header />
 
-            <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 w-full">
-                <div className="text-center max-w-2xl mx-auto mb-16">
-                    <h1 className="font-display font-bold text-4xl md:text-5xl tracking-tight mb-4 text-gray-900 dark:text-white">
-                        Nossos <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-blue via-brand-red to-brand-yellow">Criadores</span>
-                    </h1>
-                    <p className="text-lg text-gray-600 dark:text-gray-400">
-                        Conheça os estudantes, professores e pesquisadores que estão por trás da curadoria e produção do acervo colaborativo.
-                    </p>
+            <main className="flex-1 py-12 w-full">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="text-center max-w-2xl mx-auto mb-16">
+                        <h1 className="font-display font-bold text-4xl md:text-5xl tracking-tight mb-4 text-gray-900 dark:text-white">
+                            Nossos <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-blue via-brand-red to-brand-yellow">Criadores</span>
+                        </h1>
+                        <p className="text-lg text-gray-600 dark:text-gray-400">
+                            Conheça os estudantes, professores e pesquisadores que estão por trás da curadoria e produção do acervo colaborativo.
+                        </p>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                        {creators.map((creator, index) => (
+                            <div key={index} className="flex flex-col items-center text-center group">
+                                <div className={`relative w-32 h-32 rounded-full mb-5 flex items-center justify-center text-4xl font-bold text-white bg-${creator.color} shadow-lg ring-4 ring-background-light dark:ring-background-dark outline outline-2 outline-gray-200 dark:outline-gray-800 transition-transform group-hover:scale-105 duration-300`}>
+                                    {creator.imagePlaceholder}
+                                    <div className="absolute inset-0 rounded-full bg-black/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                                </div>
+
+                                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-1">{creator.name}</h3>
+                                <p className={`text-sm font-semibold text-${creator.color} mb-3`}>{creator.role}</p>
+                                <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed max-w-[250px] mx-auto">
+                                    {creator.bio}
+                                </p>
+
+                                <div className="flex gap-3 mt-4 opacity-50 group-hover:opacity-100 transition-opacity">
+                                    <a href="#" className="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center hover:bg-brand-blue hover:text-white transition-colors">
+                                        <span className="material-symbols-outlined text-[18px]">open_in_new</span>
+                                    </a>
+                                    <a href="#" className="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center hover:bg-brand-blue hover:text-white transition-colors">
+                                        <span className="material-symbols-outlined text-[18px]">mail</span>
+                                    </a>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+
+                    <div className="mt-28 text-center max-w-2xl mx-auto mb-16">
+                        <h2 className="font-display font-bold text-3xl md:text-4xl tracking-tight mb-4 text-gray-900 dark:text-white">
+                            Influenciadores do <span className="text-brand-yellow">IF-USP</span>
+                        </h2>
+                        <p className="text-lg text-gray-600 dark:text-gray-400">
+                            Acompanhe nossos estudantes espalhando ciência criativa pelo TikTok, YouTube e outras plataformas.
+                        </p>
+                    </div>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-                    {creators.map((creator, index) => (
-                        <div key={index} className="flex flex-col items-center text-center group">
-                            <div className={`relative w-32 h-32 rounded-full mb-5 flex items-center justify-center text-4xl font-bold text-white bg-${creator.color} shadow-lg ring-4 ring-background-light dark:ring-background-dark outline outline-2 outline-gray-200 dark:outline-gray-800 transition-transform group-hover:scale-105 duration-300`}>
-                                {creator.imagePlaceholder}
-                                <div className="absolute inset-0 rounded-full bg-black/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                <div className="w-full">
+                    <div className="flex overflow-x-auto snap-x snap-mandatory gap-6 pb-8 no-scrollbar pl-4 sm:pl-6 lg:pl-8 xl:pl-[calc((100vw-80rem)/2+2rem)] pr-4 sm:pr-6 lg:pr-8 xl:pr-[calc((100vw-80rem)/2+2rem)]">
+                        {influencers.map((influencer, index) => (
+                            <div key={index} className="flex flex-col items-center text-center group snap-center shrink-0 w-[280px] p-6 bg-white dark:bg-card-dark rounded-3xl shadow-sm border border-gray-100 dark:border-gray-800 hover:-translate-y-2 hover:shadow-xl transition-all duration-300">
+                                <div className={`relative w-28 h-28 rounded-full mb-5 flex items-center justify-center text-4xl font-bold text-white bg-${influencer.color} shadow-lg ring-4 ring-background-light dark:ring-background-dark outline outline-2 outline-gray-200 dark:outline-gray-800 transition-transform group-hover:scale-105 duration-300`}>
+                                    {influencer.imagePlaceholder}
+                                    <div className="absolute inset-0 rounded-full bg-black/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                                </div>
+
+                                <h3 className="text-xl font-extrabold text-gray-900 dark:text-white mb-1 group-hover:text-brand-yellow transition-colors">{influencer.name}</h3>
+                                <p className={`text-xs font-bold uppercase tracking-wider text-${influencer.color} mb-4`}>{influencer.role}</p>
+                                <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed mb-6">
+                                    {influencer.bio}
+                                </p>
+
+                                <div className="mt-auto">
+                                    <a href="#" className={`w-10 h-10 rounded-full bg-gray-50 dark:bg-gray-800 flex items-center justify-center text-gray-400 hover:text-white hover:bg-${influencer.color} hover:shadow-lg hover:shadow-${influencer.color}/30 transition-all duration-300 transform group-hover:scale-110`} title={`Acessar ${influencer.platform}`}>
+                                        {getPlatformIcon(influencer.platform)}
+                                    </a>
+                                </div>
                             </div>
-
-                            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-1">{creator.name}</h3>
-                            <p className={`text-sm font-semibold text-${creator.color} mb-3`}>{creator.role}</p>
-                            <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed max-w-[250px] mx-auto">
-                                {creator.bio}
-                            </p>
-
-                            <div className="flex gap-3 mt-4 opacity-50 group-hover:opacity-100 transition-opacity">
-                                <a href="#" className="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center hover:bg-brand-blue hover:text-white transition-colors">
-                                    <span className="material-symbols-outlined text-[18px]">open_in_new</span>
-                                </a>
-                                <a href="#" className="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center hover:bg-brand-blue hover:text-white transition-colors">
-                                    <span className="material-symbols-outlined text-[18px]">mail</span>
-                                </a>
-                            </div>
-                        </div>
-                    ))}
-                </div>
-
-                <div className="mt-28 text-center max-w-2xl mx-auto mb-16">
-                    <h2 className="font-display font-bold text-3xl md:text-4xl tracking-tight mb-4 text-gray-900 dark:text-white">
-                        Influenciadores do <span className="text-brand-yellow">IF-USP</span>
-                    </h2>
-                    <p className="text-lg text-gray-600 dark:text-gray-400">
-                        Acompanhe nossos estudantes espalhando ciência criativa pelo TikTok, YouTube e outras plataformas.
-                    </p>
-                </div>
-
-                <div className="flex overflow-x-auto snap-x snap-mandatory gap-6 pb-8 no-scrollbar px-4 md:px-0">
-                    {influencers.map((influencer, index) => (
-                        <div key={index} className="flex flex-col items-center text-center group snap-center shrink-0 w-[280px] p-6 bg-white dark:bg-card-dark rounded-3xl shadow-sm border border-gray-100 dark:border-gray-800 hover:-translate-y-2 hover:shadow-xl transition-all duration-300">
-                            <div className={`relative w-28 h-28 rounded-full mb-5 flex items-center justify-center text-4xl font-bold text-white bg-${influencer.color} shadow-lg ring-4 ring-background-light dark:ring-background-dark outline outline-2 outline-gray-200 dark:outline-gray-800 transition-transform group-hover:scale-105 duration-300`}>
-                                {influencer.imagePlaceholder}
-                                <div className="absolute inset-0 rounded-full bg-black/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                            </div>
-
-                            <h3 className="text-xl font-extrabold text-gray-900 dark:text-white mb-1 group-hover:text-brand-yellow transition-colors">{influencer.name}</h3>
-                            <p className={`text-xs font-bold uppercase tracking-wider text-${influencer.color} mb-4`}>{influencer.role}</p>
-                            <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed mb-6">
-                                {influencer.bio}
-                            </p>
-
-                            <div className="mt-auto">
-                                <a href="#" className={`w-10 h-10 rounded-full bg-gray-50 dark:bg-gray-800 flex items-center justify-center text-gray-400 hover:text-white hover:bg-${influencer.color} hover:shadow-lg hover:shadow-${influencer.color}/30 transition-all duration-300 transform group-hover:scale-110`} title={`Acessar ${influencer.platform}`}>
-                                    {getPlatformIcon(influencer.platform)}
-                                </a>
-                            </div>
-                        </div>
-                    ))}
+                        ))}
+                    </div>
                 </div>
             </main>
 
