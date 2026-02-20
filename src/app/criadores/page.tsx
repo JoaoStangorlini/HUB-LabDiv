@@ -155,9 +155,9 @@ export default function CriadoresPage() {
                     </p>
                 </div>
 
-                <div className="flex overflow-x-auto snap-x snap-mandatory gap-6 pb-8 no-scrollbar md:w-full md:grid md:grid-cols-4 md:overflow-visible">
+                <div className="flex overflow-x-auto snap-x snap-mandatory gap-6 pb-8 no-scrollbar px-4 md:px-0">
                     {influencers.map((influencer, index) => (
-                        <div key={index} className="flex flex-col items-center text-center group snap-center shrink-0 w-[280px] md:w-auto p-6 bg-white dark:bg-card-dark rounded-3xl shadow-sm border border-gray-100 dark:border-gray-800 hover:-translate-y-2 hover:shadow-xl transition-all duration-300">
+                        <div key={index} className="flex flex-col items-center text-center group snap-center shrink-0 w-[280px] p-6 bg-white dark:bg-card-dark rounded-3xl shadow-sm border border-gray-100 dark:border-gray-800 hover:-translate-y-2 hover:shadow-xl transition-all duration-300">
                             <div className={`relative w-28 h-28 rounded-full mb-5 flex items-center justify-center text-4xl font-bold text-white bg-${influencer.color} shadow-lg ring-4 ring-background-light dark:ring-background-dark outline outline-2 outline-gray-200 dark:outline-gray-800 transition-transform group-hover:scale-105 duration-300`}>
                                 {influencer.imagePlaceholder}
                                 <div className="absolute inset-0 rounded-full bg-black/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
