@@ -1,4 +1,4 @@
-environmentVariables:
+env:
   - variable: NEXT_PUBLIC_SUPABASE_URL
     value: "https://bqszadfunqgtfpaorwvx.supabase.co"
   - variable: NEXT_PUBLIC_SUPABASE_ANON_KEY
