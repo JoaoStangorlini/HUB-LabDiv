@@ -8,4 +8,4 @@ environmentVariables:
   - variable: NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET
     value: "ifusp_uploads"
   - variable: ADMIN_PASSWORD
-    secret: ADMIN_PASSWORD
+    value: "labdiv-tecla56"
