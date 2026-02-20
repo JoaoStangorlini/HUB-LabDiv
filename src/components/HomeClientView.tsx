@@ -18,7 +18,7 @@ export const HomeClientView = ({ initialItems }: HomeClientViewProps) => {
     // Parallax Mouse State
     const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
 
-    const categories = ['Todos', 'Laboratórios', 'Pesquisadores', 'Eventos', 'Convivência', 'Outros'];
+    const categories = ['Todos', 'Laboratórios', 'Pesquisadores', 'Eventos', 'Uso Didático', 'Bastidores da Ciência', 'Convivência', 'Outros'];
 
     // Filter Logic
     let filteredItems = initialItems.filter(item => {

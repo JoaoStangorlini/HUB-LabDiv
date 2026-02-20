@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
 
 export default function SubmitPage() {
@@ -20,6 +21,7 @@ export default function SubmitPage() {
 
     const [isLoading, setIsLoading] = useState(false);
     const [errorMsg, setErrorMsg] = useState('');
+    const [acceptedCC, setAcceptedCC] = useState(false);
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files) {
@@ -160,9 +162,13 @@ export default function SubmitPage() {
                         <h1 className="font-display font-bold text-4xl md:text-5xl text-gray-900 dark:text-white tracking-tight">
                             Envie sua <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-red to-brand-yellow">Contribuição</span>
                         </h1>
-                        <p className="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto md:text-lg">
+                        <p className="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto md:text-lg mb-6">
                             Preencha o formulário abaixo para submeter fotos ou vídeos do seu trabalho para divulgação nos canais oficiais do Instituto de Física.
                         </p>
+                        <Link href="/guia" className="inline-flex items-center gap-2 group px-6 py-2.5 rounded-full bg-brand-blue/10 dark:bg-brand-blue/20 text-brand-blue hover:bg-brand-blue hover:text-white transition-all font-semibold">
+                            <span className="material-symbols-outlined text-[20px] group-hover:animate-bounce">menu_book</span>
+                            Confira nosso guia de boas práticas
+                        </Link>
                     </div>
 
                     {/* Form Card */}
@@ -359,12 +365,26 @@ export default function SubmitPage() {
                             </div>
                         </div>
 
-                        <div className="mt-12 pt-8 flex items-center justify-end border-t border-gray-100 dark:border-gray-800">
+                        <div className="mt-12 pt-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 border-t border-gray-100 dark:border-gray-800">
+                            <label className="flex items-start gap-3 cursor-pointer group max-w-2xl">
+                                <div className="relative flex items-center mt-1">
+                                    <input
+                                        type="checkbox"
+                                        className="w-5 h-5 rounded-md border-gray-300 dark:border-gray-600 text-brand-blue focus:ring-brand-blue dark:bg-gray-900 transition-colors"
+                                        checked={acceptedCC}
+                                        onChange={(e) => setAcceptedCC(e.target.checked)}
+                                    />
+                                </div>
+                                <span className="text-sm text-gray-600 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-gray-200 transition-colors">
+                                    Aceito disponibilizar este material para uso educacional e de divulgação, mantendo os devidos créditos ao autor (Licença Creative Commons).
+                                </span>
+                            </label>
+
                             <button
                                 type="button"
                                 onClick={handleSubmit}
-                                disabled={isLoading}
-                                className="group relative w-full sm:w-auto overflow-hidden rounded-xl bg-gray-900 dark:bg-white text-white dark:text-gray-900 px-8 py-4 font-bold shadow-xl transition-all hover:-translate-y-1 hover:shadow-2xl active:translate-y-0 disabled:opacity-70 disabled:cursor-not-allowed disabled:hover:translate-y-0 flex items-center justify-center min-w-[200px]"
+                                disabled={isLoading || !acceptedCC}
+                                className="group relative w-full sm:w-auto overflow-hidden rounded-xl bg-gray-900 dark:bg-white text-white dark:text-gray-900 px-8 py-4 font-bold shadow-xl transition-all hover:-translate-y-1 hover:shadow-2xl active:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 flex items-center justify-center min-w-[200px]"
                             >
                                 <div className="absolute inset-0 bg-gradient-to-r from-brand-blue via-brand-yellow to-brand-red opacity-0 group-hover:opacity-20 dark:group-hover:opacity-100 transition-opacity"></div>
                                 <span className="relative flex items-center gap-2">
