@@ -260,6 +260,8 @@ export default function SubmitPage() {
                                         <option value="Laboratórios">Laboratórios</option>
                                         <option value="Pesquisadores">Pesquisadores</option>
                                         <option value="Eventos">Eventos</option>
+                                        <option value="Uso Didático">Uso Didático</option>
+                                        <option value="Bastidores da Ciência">Bastidores da Ciência</option>
                                         <option value="Convivência">Convivência</option>
                                         <option value="Outros">Outros</option>
                                     </select>

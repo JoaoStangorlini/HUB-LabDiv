@@ -23,10 +23,10 @@ export default function IniciativasPage() {
                             <span className="material-symbols-outlined text-3xl text-brand-blue">science</span>
                         </div>
                         <h2 className="text-2xl font-bold mb-3 text-gray-900 dark:text-white">Lab-Div</h2>
-                        <p className="text-gray-600 dark:text-gray-400 mb-6 line-clamp-3">
-                            Laboratório de Demonstrações Físicas. Possui um acervo rico em equipamentos para experimentação real e desenvolvimento de materiais didáticos voltados para o ensino de física básica.
+                        <p className="text-gray-600 dark:text-gray-400 mb-6">
+                            Iniciativa inspirada no CommLab do MIT, focada em aprimorar a comunicação científica no IFUSP. Oferece programa de tutoria entre pares para auxiliar estudantes com a escrita científica, apresentações orais e design visual de trabalhos acadêmicos – feito por quem faz física, para quem faz física.
                         </p>
-                        <a href="#" className="inline-flex items-center text-brand-blue font-semibold group-hover:text-brand-darkBlue transition-colors">
+                        <a href="https://labdiv.notion.site" target="_blank" rel="noopener noreferrer" className="inline-flex items-center text-brand-blue font-semibold group-hover:text-brand-darkBlue transition-colors">
                             Conhecer mais <span className="material-symbols-outlined text-[20px] ml-1 group-hover:translate-x-1 transition-transform">arrow_forward</span>
                         </a>
                     </div>

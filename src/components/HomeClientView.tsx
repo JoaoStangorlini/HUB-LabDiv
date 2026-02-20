@@ -133,6 +133,16 @@ export const HomeClientView = ({ initialItems }: HomeClientViewProps) => {
                                 />
                             </div>
                         </div>
+                        <div className="mt-5 space-y-2 pl-2">
+                            <p className="text-sm text-gray-600 dark:text-gray-400 flex items-center gap-2 opacity-90 transition-opacity hover:opacity-100">
+                                <span className="w-1.5 h-1.5 rounded-full bg-brand-yellow shrink-0"></span>
+                                Experimente o filtro <span className="font-semibold text-brand-yellow cursor-pointer hover:underline" onClick={() => setSelectedCategory('Bastidores da Ciência')}>Bastidores da Ciência</span> para ver as gambiarras e Easter eggs da ciência.
+                            </p>
+                            <p className="text-sm text-gray-600 dark:text-gray-400 flex items-center gap-2 opacity-90 transition-opacity hover:opacity-100">
+                                <span className="w-1.5 h-1.5 rounded-full bg-brand-blue shrink-0"></span>
+                                Você quer levar ciência para os alunos sem se preocupar com possíveis erros? Use o filtro <span className="font-semibold text-brand-blue cursor-pointer hover:underline" onClick={() => setSelectedCategory('Uso Didático')}>Uso Didático</span>.
+                            </p>
+                        </div>
                     </div>
                 </div>
             </header>

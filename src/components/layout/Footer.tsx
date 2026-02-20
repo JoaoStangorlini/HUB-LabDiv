@@ -32,6 +32,9 @@ export function Footer() {
                         <ul className="space-y-3">
                             <li><Link href="/" className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 hover:text-brand-blue dark:hover:text-brand-blue transition-colors"><span className="material-symbols-outlined text-xs">home</span> Início</Link></li>
                             <li><Link href="/enviar" className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 hover:text-brand-blue dark:hover:text-brand-blue transition-colors"><span className="material-symbols-outlined text-xs">send</span> Formulário de Envio</Link></li>
+                            <li><Link href="/iniciativas" className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 hover:text-brand-blue dark:hover:text-brand-blue transition-colors"><span className="material-symbols-outlined text-xs">lightbulb</span> Iniciativas</Link></li>
+                            <li><Link href="/criadores" className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 hover:text-brand-blue dark:hover:text-brand-blue transition-colors"><span className="material-symbols-outlined text-xs">groups</span> Criadores</Link></li>
+                            <li><Link href="/guia" className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 hover:text-brand-blue dark:hover:text-brand-blue transition-colors"><span className="material-symbols-outlined text-xs">book</span> Guia de Boas Práticas</Link></li>
                             <li><Link href="/admin" className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 hover:text-brand-blue dark:hover:text-brand-blue transition-colors"><span className="material-symbols-outlined text-xs">admin_panel_settings</span> Admin</Link></li>
                         </ul>
                     </div>

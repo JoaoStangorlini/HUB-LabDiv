@@ -78,6 +78,45 @@ export default function GuiaPage() {
                             </li>
                         </ul>
                     </section>
+
+                    {/* Seção de Upload */}
+                    <section className="bg-white dark:bg-card-dark rounded-2xl p-8 shadow-sm border border-gray-100 dark:border-gray-800 relative overflow-hidden group">
+                        <div className="absolute top-0 right-0 w-32 h-32 bg-brand-yellow/5 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2 pointer-events-none transition-transform group-hover:scale-150"></div>
+
+                        <div className="flex items-center gap-4 mb-6 relative z-10">
+                            <span className="material-symbols-outlined text-4xl text-brand-yellow">cloud_upload</span>
+                            <h2 className="text-3xl m-0">Como Fazer o Upload para o Acervo</h2>
+                        </div>
+
+                        <ul className="space-y-4">
+                            <li className="flex items-start gap-3">
+                                <span className="material-symbols-outlined text-brand-blue mt-1">photo_library</span>
+                                <div>
+                                    <strong>Limites:</strong> Máximo de 10 fotos por envio e tamanho máximo de 10MB.<br />
+                                    <span className="text-sm text-gray-500">Explicação: Garante que o site continue rápido e não estoure os limites do servidor.</span>
+                                </div>
+                            </li>
+                            <li className="flex items-start gap-3">
+                                <span className="material-symbols-outlined text-brand-red mt-1">smart_display</span>
+                                <div>
+                                    <strong>Vídeos:</strong> Não fazer upload de vídeos diretos. Eles devem ser upados no YouTube e o link deve ser compartilhado no formulário.<br />
+                                    <span className="text-sm text-gray-500">Explicação: Melhora o carregamento e aproveita o player do YouTube.</span>
+                                </div>
+                            </li>
+                            <li className="flex items-start gap-3">
+                                <span className="material-symbols-outlined text-brand-green mt-1">person</span>
+                                <div>
+                                    <strong>Autoria:</strong> O usuário deve preencher nome e contato para mantermos a rede de comunicação.
+                                </div>
+                            </li>
+                            <li className="flex items-start gap-3">
+                                <span className="material-symbols-outlined text-brand-yellow mt-1">assignment_turned_in</span>
+                                <div>
+                                    <strong>Termo:</strong> Lembrar de assinar/marcar o termo de licenciamento no final do formulário para garantir que o material possa ser usado legalmente por professores.
+                                </div>
+                            </li>
+                        </ul>
+                    </section>
                 </div>
             </main>
 

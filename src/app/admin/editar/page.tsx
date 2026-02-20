@@ -108,8 +108,8 @@ export default function EditarPage() {
                                     <tr key={item.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
                                         <td className="px-4 py-3 whitespace-nowrap">
                                             <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${item.status === 'aprovado' ? 'bg-green-100 text-green-700' :
-                                                    item.status === 'rejeitado' ? 'bg-red-100 text-red-700' :
-                                                        'bg-yellow-100 text-yellow-700'
+                                                item.status === 'rejeitado' ? 'bg-red-100 text-red-700' :
+                                                    'bg-yellow-100 text-yellow-700'
                                                 }`}>
                                                 {item.status}
                                             </span>
@@ -191,6 +191,8 @@ export default function EditarPage() {
                                         <option value="Laboratórios">Laboratórios</option>
                                         <option value="Pesquisadores">Pesquisadores</option>
                                         <option value="Eventos">Eventos</option>
+                                        <option value="Uso Didático">Uso Didático</option>
+                                        <option value="Bastidores da Ciência">Bastidores da Ciência</option>
                                         <option value="Convivência">Convivência</option>
                                         <option value="Outros">Outros</option>
                                     </select>

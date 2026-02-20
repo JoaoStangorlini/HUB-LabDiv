@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { logout } from '@/app/actions/auth';
@@ -21,9 +21,26 @@ export default function AdminLayout({
         { name: 'Editar Submissões', href: '/admin/editar', icon: 'edit_square' },
     ];
 
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
     return (
-        <div className="bg-background-light dark:bg-background-dark text-gray-900 dark:text-gray-100 font-sans antialiased min-h-screen flex overflow-hidden">
-            <aside className="w-72 bg-gray-900 border-r border-gray-800 flex flex-col justify-between shrink-0 h-screen overflow-hidden sticky top-0 relative transition-colors shadow-2xl z-40">
+        <div className="bg-background-light dark:bg-background-dark text-gray-900 dark:text-gray-100 font-sans antialiased min-h-screen flex flex-col md:flex-row overflow-hidden">
+            {/* Mobile Header */}
+            <div className="md:hidden bg-gray-900 text-white p-4 flex items-center justify-between border-b border-gray-800 z-[60]">
+                <div className="font-bold text-lg flex items-center gap-2">
+                    <span className="material-symbols-outlined text-brand-blue">admin_panel_settings</span>
+                    Admin<span className="text-brand-yellow">Panel</span>
+                </div>
+                <button
+                    onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                    className="p-2 bg-gray-800 rounded-lg focus:outline-none"
+                    aria-label="Toggle Menu"
+                >
+                    <span className="material-symbols-outlined">{isMobileMenuOpen ? 'close' : 'menu'}</span>
+                </button>
+            </div>
+
+            <aside className={`${isMobileMenuOpen ? 'flex' : 'hidden'} md:flex w-full md:w-72 bg-gray-900 border-r border-gray-800 flex-col justify-between shrink-0 h-[calc(100vh-73px)] md:h-screen overflow-hidden md:sticky top-0 absolute inset-x-0 bottom-0 z-50 md:z-40 transition-colors shadow-2xl`}>
                 {/* Interactive Background Elements for Sidebar */}
                 <div className="absolute top-0 right-0 w-32 h-32 bg-brand-blue/10 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
                 <div className="absolute bottom-0 left-0 w-40 h-40 bg-brand-red/10 rounded-full blur-2xl translate-y-1/3 -translate-x-1/3 pointer-events-none"></div>

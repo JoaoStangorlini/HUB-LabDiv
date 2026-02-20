@@ -31,8 +31,8 @@ export default function LoginPage() {
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-900 font-display px-4">
-            <div className="w-full max-w-md bg-white dark:bg-slate-800 rounded-3xl shadow-xl overflow-hidden border border-slate-200 dark:border-slate-700 transition-colors">
-                <div className="p-8 md:p-10 flex flex-col items-center text-center">
+            <div className="w-full max-w-[90vw] sm:max-w-md bg-white dark:bg-slate-800 rounded-3xl shadow-xl overflow-hidden border border-slate-200 dark:border-slate-700 transition-colors">
+                <div className="p-6 sm:p-8 md:p-10 flex flex-col items-center text-center">
                     <div className="flex h-16 w-16 mb-6 items-center justify-center rounded-2xl bg-primary/10 text-primary">
                         <span className="material-symbols-outlined text-4xl">admin_panel_settings</span>
                     </div>
@@ -56,8 +56,8 @@ export default function LoginPage() {
                                     required
                                     placeholder="Senha de acesso"
                                     className={`w-full pl-11 pr-4 py-3 bg-slate-50 dark:bg-slate-900/50 border rounded-xl focus:ring-2 focus:outline-none transition-all placeholder:text-slate-400 text-slate-900 dark:text-white ${errorMsg
-                                            ? 'border-red-300 dark:border-red-500/50 focus:border-red-500 focus:ring-red-200 dark:focus:ring-red-900/40'
-                                            : 'border-slate-200 dark:border-slate-700 focus:border-primary focus:ring-primary/20'
+                                        ? 'border-red-300 dark:border-red-500/50 focus:border-red-500 focus:ring-red-200 dark:focus:ring-red-900/40'
+                                        : 'border-slate-200 dark:border-slate-700 focus:border-primary focus:ring-primary/20'
                                         }`}
                                 />
                             </div>
