@@ -124,7 +124,7 @@ export default function AutoresPage() {
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                             placeholder="Digite o nome do autor (ex: Silva, J.)"
-                            className="w-full pl-12 pr-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-primary placeholder-slate-400 transition-all font-medium"
+                            className="w-full pl-12 pr-4 py-3 bg-slate-50 dark:bg-form-dark border border-slate-200 dark:border-slate-600 rounded-lg text-slate-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-primary placeholder-slate-400 transition-all font-medium"
                         />
                     </div>
                     <button
@@ -336,7 +336,7 @@ export default function AutoresPage() {
                                         href={getDownloadUrl(parseMediaUrl(selectedItem.media_url)[modalImageIdx])}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        className="flex-1 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-semibold py-3 rounded-xl transition-colors flex items-center justify-center gap-2 shadow-sm"
+                                        className="flex-1 bg-slate-100 dark:bg-form-dark hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-semibold py-3 rounded-xl transition-colors flex items-center justify-center gap-2 shadow-sm"
                                     >
                                         <span className="material-symbols-outlined">download</span> Baixar
                                     </a>

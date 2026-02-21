@@ -85,7 +85,7 @@ export default function EditarPage() {
             <div className="bg-white dark:bg-[#1e293b] rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
                 <div className="overflow-x-auto">
                     <table className="w-full text-sm text-left">
-                        <thead className="bg-slate-50 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 font-semibold uppercase text-[11px] tracking-wider">
+                        <thead className="bg-slate-50 dark:bg-form-dark/50 text-slate-500 dark:text-slate-400 font-semibold uppercase text-[11px] tracking-wider">
                             <tr>
                                 <th className="px-4 py-3 border-b border-slate-200 dark:border-slate-700">Status</th>
                                 <th className="px-4 py-3 border-b border-slate-200 dark:border-slate-700">Título</th>
@@ -143,8 +143,8 @@ export default function EditarPage() {
             {/* Edit Modal overlay */}
             {editingItem && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm transition-opacity">
-                    <div className="bg-white dark:bg-slate-800 rounded-2xl w-full max-w-2xl shadow-xl overflow-hidden border border-slate-200 dark:border-slate-700 flex flex-col max-h-[90vh]">
-                        <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center bg-slate-50 dark:bg-slate-900/50">
+                    <div className="bg-white dark:bg-form-dark rounded-2xl w-full max-w-2xl shadow-xl overflow-hidden border border-slate-200 dark:border-slate-700 flex flex-col max-h-[90vh]">
+                        <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center bg-slate-50 dark:bg-form-dark/50">
                             <h2 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
                                 <span className="material-symbols-outlined text-primary">edit_document</span>
                                 Editar Submissão
@@ -166,7 +166,7 @@ export default function EditarPage() {
                                         required
                                         value={editingItem.title}
                                         onChange={e => setEditingItem({ ...editingItem, title: e.target.value })}
-                                        className="w-full rounded-lg border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-900 dark:text-white py-2 px-3 focus:ring-primary focus:border-primary sm:text-sm"
+                                        className="w-full rounded-lg border-slate-300 dark:border-slate-600 bg-white dark:bg-form-dark text-slate-900 dark:text-white py-2 px-3 focus:ring-primary focus:border-primary sm:text-sm"
                                     />
                                 </div>
 
@@ -177,7 +177,7 @@ export default function EditarPage() {
                                         required
                                         value={editingItem.authors}
                                         onChange={e => setEditingItem({ ...editingItem, authors: e.target.value })}
-                                        className="w-full rounded-lg border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-900 dark:text-white py-2 px-3 focus:ring-primary focus:border-primary sm:text-sm"
+                                        className="w-full rounded-lg border-slate-300 dark:border-slate-600 bg-white dark:bg-form-dark text-slate-900 dark:text-white py-2 px-3 focus:ring-primary focus:border-primary sm:text-sm"
                                     />
                                 </div>
 
@@ -186,7 +186,7 @@ export default function EditarPage() {
                                     <select
                                         value={editingItem.category}
                                         onChange={e => setEditingItem({ ...editingItem, category: e.target.value })}
-                                        className="w-full rounded-lg border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-900 dark:text-white py-2 px-3 focus:ring-primary focus:border-primary sm:text-sm"
+                                        className="w-full rounded-lg border-slate-300 dark:border-slate-600 bg-white dark:bg-form-dark text-slate-900 dark:text-white py-2 px-3 focus:ring-primary focus:border-primary sm:text-sm"
                                     >
                                         <option value="Laboratórios">Laboratórios</option>
                                         <option value="Pesquisadores">Pesquisadores</option>
@@ -204,13 +204,13 @@ export default function EditarPage() {
                                         rows={4}
                                         value={editingItem.description}
                                         onChange={e => setEditingItem({ ...editingItem, description: e.target.value })}
-                                        className="w-full rounded-lg border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-900 dark:text-white py-2 px-3 focus:ring-primary focus:border-primary sm:text-sm resize-none"
+                                        className="w-full rounded-lg border-slate-300 dark:border-slate-600 bg-white dark:bg-form-dark text-slate-900 dark:text-white py-2 px-3 focus:ring-primary focus:border-primary sm:text-sm resize-none"
                                     />
                                 </div>
                             </form>
                         </div>
 
-                        <div className="px-6 py-4 bg-slate-50 dark:bg-slate-900/50 border-t border-slate-200 dark:border-slate-700 flex justify-end gap-3 rounded-b-2xl">
+                        <div className="px-6 py-4 bg-slate-50 dark:bg-form-dark/50 border-t border-slate-200 dark:border-slate-700 flex justify-end gap-3 rounded-b-2xl">
                             <button
                                 type="button"
                                 onClick={() => setEditingItem(null)}

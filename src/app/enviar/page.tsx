@@ -193,7 +193,7 @@ export default function SubmitPage() {
                                     type="text"
                                     value={title}
                                     onChange={e => setTitle(e.target.value)}
-                                    className="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white rounded-xl px-4 py-3.5 focus:ring-2 focus:ring-brand-blue focus:border-brand-blue transition-all"
+                                    className="w-full bg-gray-50 dark:bg-form-dark border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white rounded-xl px-4 py-3.5 focus:ring-2 focus:ring-brand-blue focus:border-brand-blue transition-all"
                                     placeholder="Ex: Novo acelerador de partículas"
                                 />
                             </div>
@@ -208,7 +208,7 @@ export default function SubmitPage() {
                                     type="text"
                                     value={authors}
                                     onChange={e => setAuthors(e.target.value)}
-                                    className="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white rounded-xl px-4 py-3.5 focus:ring-2 focus:ring-brand-red focus:border-brand-red transition-all"
+                                    className="w-full bg-gray-50 dark:bg-form-dark border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white rounded-xl px-4 py-3.5 focus:ring-2 focus:ring-brand-red focus:border-brand-red transition-all"
                                     placeholder="Silva, J.; Ferreira, M."
                                 />
                             </div>
@@ -224,7 +224,7 @@ export default function SubmitPage() {
                                         type="email"
                                         value={email}
                                         onChange={e => setEmail(e.target.value)}
-                                        className="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white rounded-xl px-4 py-3.5 focus:ring-2 focus:ring-gray-400 focus:border-gray-400 transition-all text-sm"
+                                        className="w-full bg-gray-50 dark:bg-form-dark border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white rounded-xl px-4 py-3.5 focus:ring-2 focus:ring-gray-400 focus:border-gray-400 transition-all text-sm"
                                         placeholder="pesquisador@if.usp.br"
                                     />
                                 </div>
@@ -238,7 +238,7 @@ export default function SubmitPage() {
                                         type="tel"
                                         value={whatsapp}
                                         onChange={e => setWhatsapp(e.target.value)}
-                                        className="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white rounded-xl px-4 py-3.5 focus:ring-2 focus:ring-gray-400 focus:border-gray-400 transition-all text-sm"
+                                        className="w-full bg-gray-50 dark:bg-form-dark border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white rounded-xl px-4 py-3.5 focus:ring-2 focus:ring-gray-400 focus:border-gray-400 transition-all text-sm"
                                         placeholder="(11) 90000-0000"
                                     />
                                 </div>
@@ -255,7 +255,7 @@ export default function SubmitPage() {
                                         id="category"
                                         value={category}
                                         onChange={e => setCategory(e.target.value)}
-                                        className="appearance-none w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white rounded-xl px-4 py-3.5 focus:ring-2 focus:ring-brand-yellow focus:border-brand-yellow transition-all cursor-pointer font-medium"
+                                        className="appearance-none w-full bg-gray-50 dark:bg-form-dark border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white rounded-xl px-4 py-3.5 focus:ring-2 focus:ring-brand-yellow focus:border-brand-yellow transition-all cursor-pointer font-medium"
                                     >
                                         <option value="Laboratórios">Laboratórios</option>
                                         <option value="Pesquisadores">Pesquisadores</option>
@@ -281,7 +281,7 @@ export default function SubmitPage() {
                                     rows={4}
                                     value={description}
                                     onChange={e => setDescription(e.target.value)}
-                                    className="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white rounded-xl px-4 py-3.5 focus:ring-2 focus:ring-brand-blue focus:border-brand-blue transition-all resize-none"
+                                    className="w-full bg-gray-50 dark:bg-form-dark border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white rounded-xl px-4 py-3.5 focus:ring-2 focus:ring-brand-blue focus:border-brand-blue transition-all resize-none"
                                     placeholder="Detalhe o contexto da foto ou do vídeo..."
                                 ></textarea>
                             </div>
@@ -298,7 +298,7 @@ export default function SubmitPage() {
                                 <p className="text-sm text-gray-500 dark:text-gray-400">Adicione as imagens ou o link do vídeo explicativo do trabalho.</p>
                             </div>
 
-                            <div className="flex p-1.5 bg-gray-100/50 dark:bg-gray-800/50 rounded-2xl w-full max-w-sm mb-6 border border-gray-200/50 dark:border-gray-700/50" role="tablist">
+                            <div className="flex p-1.5 bg-gray-100/50 dark:bg-form-dark/50 rounded-2xl w-full max-w-sm mb-6 border border-gray-200/50 dark:border-gray-700/50" role="tablist">
                                 <button
                                     onClick={() => setMediaType('image')}
                                     aria-selected={mediaType === 'image'}
@@ -323,10 +323,10 @@ export default function SubmitPage() {
 
                             <div className="mt-4">
                                 {mediaType === 'image' ? (
-                                    <div className="flex justify-center rounded-2xl border-2 border-dashed border-gray-300 dark:border-gray-700 px-6 py-12 bg-gray-50/50 dark:bg-gray-900/50 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors cursor-pointer group relative overflow-hidden">
+                                    <div className="flex justify-center rounded-2xl border-2 border-dashed border-gray-300 dark:border-gray-700 px-6 py-12 bg-gray-50/50 dark:bg-form-dark/50 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors cursor-pointer group relative overflow-hidden">
                                         <div className="absolute inset-0 bg-gradient-to-br from-brand-blue/5 to-brand-yellow/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
                                         <div className="text-center relative z-10">
-                                            <div className="w-16 h-16 bg-white dark:bg-gray-800 rounded-full shadow-sm flex items-center justify-center mx-auto mb-4 border border-gray-100 dark:border-gray-700 group-hover:scale-110 transition-transform group-hover:border-brand-blue/20">
+                                            <div className="w-16 h-16 bg-white dark:bg-form-dark rounded-full shadow-sm flex items-center justify-center mx-auto mb-4 border border-gray-100 dark:border-gray-700 group-hover:scale-110 transition-transform group-hover:border-brand-blue/20">
                                                 <span className="material-symbols-outlined text-3xl text-gray-400 group-hover:text-brand-blue transition-colors">cloud_upload</span>
                                             </div>
                                             <div className="mt-2 flex text-sm leading-6 text-gray-600 dark:text-gray-400 justify-center">
@@ -359,7 +359,7 @@ export default function SubmitPage() {
                                             type="url"
                                             value={videoUrl}
                                             onChange={e => setVideoUrl(e.target.value)}
-                                            className="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white rounded-xl px-4 py-3.5 focus:ring-2 focus:ring-brand-red focus:border-brand-red transition-all"
+                                            className="w-full bg-gray-50 dark:bg-form-dark border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white rounded-xl px-4 py-3.5 focus:ring-2 focus:ring-brand-red focus:border-brand-red transition-all"
                                             placeholder="https://www.youtube.com/watch?v=..."
                                         />
                                     </div>
@@ -372,7 +372,7 @@ export default function SubmitPage() {
                                 <div className="relative flex items-center mt-1">
                                     <input
                                         type="checkbox"
-                                        className="w-5 h-5 rounded-md border-gray-300 dark:border-gray-600 text-brand-blue focus:ring-brand-blue dark:bg-gray-900 transition-colors"
+                                        className="w-5 h-5 rounded-md border-gray-300 dark:border-gray-600 text-brand-blue focus:ring-brand-blue dark:bg-form-dark transition-colors"
                                         checked={acceptedCC}
                                         onChange={(e) => setAcceptedCC(e.target.checked)}
                                     />

@@ -298,7 +298,7 @@ export default function AprovadosPage() {
                                         href={getDownloadUrl(parseMediaUrl(selectedItem.media_url)[modalImageIdx])}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        className="flex-1 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-semibold py-3 rounded-xl transition-colors flex items-center justify-center gap-2 shadow-sm"
+                                        className="flex-1 bg-slate-100 dark:bg-form-dark hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-semibold py-3 rounded-xl transition-colors flex items-center justify-center gap-2 shadow-sm"
                                     >
                                         <span className="material-symbols-outlined">download</span> Baixar
                                     </a>

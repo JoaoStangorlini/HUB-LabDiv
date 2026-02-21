@@ -75,7 +75,7 @@ export default function ContactPage() {
                     <div className="bg-white dark:bg-gray-800 rounded-3xl p-6 md:p-10 shadow-xl shadow-gray-200/50 dark:shadow-none border border-gray-100 dark:border-gray-700">
                         {alertMsg && (
                             <div className={`mb-8 p-4 rounded-xl border font-medium text-sm flex items-center gap-3 ${alertMsg.type === 'success' ? 'bg-green-50 text-green-700 border-green-200 dark:bg-green-900/20 dark:border-green-800 dark:text-green-400'
-                                    : 'bg-red-50 text-red-700 border-red-200 dark:bg-red-900/20 dark:border-red-800 dark:text-red-400'
+                                : 'bg-red-50 text-red-700 border-red-200 dark:bg-red-900/20 dark:border-red-800 dark:text-red-400'
                                 }`}>
                                 <span className="material-symbols-outlined">
                                     {alertMsg.type === 'success' ? 'check_circle' : 'error'}
@@ -96,7 +96,7 @@ export default function ContactPage() {
                                         required
                                         value={name}
                                         onChange={e => setName(e.target.value)}
-                                        className="block w-full rounded-xl border-0 py-3.5 px-4 text-text-main ring-1 ring-inset ring-gray-200 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-primary sm:text-sm shadow-sm dark:bg-gray-900/50 dark:text-white dark:ring-gray-700 dark:placeholder:text-gray-500 transition-all font-medium"
+                                        className="block w-full rounded-xl border-0 py-3.5 px-4 text-text-main ring-1 ring-inset ring-gray-200 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-primary sm:text-sm shadow-sm dark:bg-form-dark dark:text-white dark:ring-gray-700 dark:placeholder:text-gray-500 transition-all font-medium"
                                         placeholder="Seu nome"
                                     />
                                 </div>
@@ -110,7 +110,7 @@ export default function ContactPage() {
                                         required
                                         value={email}
                                         onChange={e => setEmail(e.target.value)}
-                                        className="block w-full rounded-xl border-0 py-3.5 px-4 text-text-main ring-1 ring-inset ring-gray-200 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-primary sm:text-sm shadow-sm dark:bg-gray-900/50 dark:text-white dark:ring-gray-700 dark:placeholder:text-gray-500 transition-all font-medium"
+                                        className="block w-full rounded-xl border-0 py-3.5 px-4 text-text-main ring-1 ring-inset ring-gray-200 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-primary sm:text-sm shadow-sm dark:bg-form-dark dark:text-white dark:ring-gray-700 dark:placeholder:text-gray-500 transition-all font-medium"
                                         placeholder="seu@email.usp.br"
                                     />
                                 </div>
@@ -125,7 +125,7 @@ export default function ContactPage() {
                                     type="tel"
                                     value={whatsapp}
                                     onChange={e => setWhatsapp(e.target.value)}
-                                    className="block w-full rounded-xl border-0 py-3.5 px-4 text-text-main ring-1 ring-inset ring-gray-200 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-primary sm:text-sm shadow-sm dark:bg-gray-900/50 dark:text-white dark:ring-gray-700 dark:placeholder:text-gray-500 transition-all font-medium"
+                                    className="block w-full rounded-xl border-0 py-3.5 px-4 text-text-main ring-1 ring-inset ring-gray-200 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-primary sm:text-sm shadow-sm dark:bg-form-dark dark:text-white dark:ring-gray-700 dark:placeholder:text-gray-500 transition-all font-medium"
                                     placeholder="(11) 90000-0000"
                                 />
                             </div>
@@ -140,7 +140,7 @@ export default function ContactPage() {
                                     rows={5}
                                     value={message}
                                     onChange={e => setMessage(e.target.value)}
-                                    className="block w-full rounded-xl border-0 py-3.5 px-4 text-text-main ring-1 ring-inset ring-gray-200 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-primary sm:text-sm shadow-sm dark:bg-gray-900/50 dark:text-white dark:ring-gray-700 dark:placeholder:text-gray-500 transition-all font-medium resize-none"
+                                    className="block w-full rounded-xl border-0 py-3.5 px-4 text-text-main ring-1 ring-inset ring-gray-200 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-primary sm:text-sm shadow-sm dark:bg-form-dark dark:text-white dark:ring-gray-700 dark:placeholder:text-gray-500 transition-all font-medium resize-none"
                                     placeholder="Como podemos te ajudar hoje?"
                                 ></textarea>
                             </div>

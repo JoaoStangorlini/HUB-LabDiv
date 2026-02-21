@@ -124,7 +124,7 @@ export default function AdminDashboard() {
                         <input
                             type="text"
                             placeholder="Buscar por título, autor ou palavra-chave..."
-                            className="w-full pl-10 pr-4 py-2 bg-slate-50 dark:bg-slate-800 border-none rounded-lg text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-primary/50 placeholder-slate-400"
+                            className="w-full pl-10 pr-4 py-2 bg-slate-50 dark:bg-form-dark border-none rounded-lg text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-primary/50 placeholder-slate-400"
                         />
                     </div>
                     <button className="p-2 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors border border-transparent hover:border-slate-200 dark:hover:border-slate-600">
@@ -132,7 +132,7 @@ export default function AdminDashboard() {
                     </button>
                 </div>
                 <div className="flex items-center gap-2">
-                    <select className="bg-slate-50 dark:bg-slate-800 border-none rounded-lg text-sm py-2 pl-3 pr-8 text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-primary/50 cursor-pointer">
+                    <select className="bg-slate-50 dark:bg-form-dark border-none rounded-lg text-sm py-2 pl-3 pr-8 text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-primary/50 cursor-pointer">
                         <option>Todos os tipos</option>
                         <option>Imagem</option>
                         <option>Vídeo</option>
@@ -190,13 +190,13 @@ export default function AdminDashboard() {
 
             {submissions.length > 0 && (
                 <div className="flex justify-between items-center py-4 border-t border-slate-200 dark:border-slate-800">
-                    <button className="px-4 py-2 text-sm font-medium text-slate-500 dark:text-slate-400 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors disabled:opacity-50" disabled>
+                    <button className="px-4 py-2 text-sm font-medium text-slate-500 dark:text-slate-400 bg-white dark:bg-form-dark border border-slate-200 dark:border-slate-700 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors disabled:opacity-50" disabled>
                         Anterior
                     </button>
                     <span className="text-sm text-slate-500 dark:text-slate-400">
                         Página <span className="font-semibold text-slate-900 dark:text-white">1</span> de <span className="font-semibold text-slate-900 dark:text-white">1</span>
                     </span>
-                    <button className="px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors disabled:opacity-50" disabled>
+                    <button className="px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 bg-white dark:bg-form-dark border border-slate-200 dark:border-slate-700 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors disabled:opacity-50" disabled>
                         Próxima
                     </button>
                 </div>
@@ -354,7 +354,7 @@ export default function AdminDashboard() {
                                         href={getDownloadUrl(parseMediaUrl(selectedItem.media_url)[modalImageIdx])}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        className="flex-1 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-semibold py-3 rounded-xl transition-colors flex items-center justify-center gap-2 shadow-sm"
+                                        className="flex-1 bg-slate-100 dark:bg-form-dark hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-semibold py-3 rounded-xl transition-colors flex items-center justify-center gap-2 shadow-sm"
                                     >
                                         <span className="material-symbols-outlined">download</span> Baixar
                                     </a>
