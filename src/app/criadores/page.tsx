@@ -82,6 +82,38 @@ export default function CriadoresPage() {
             imagePlaceholder: 'E',
             color: 'brand-yellow',
             platform: 'neuro-net'
+        },
+        {
+            name: 'Dr. Tachyon',
+            role: 'Físico Experimental',
+            bio: 'Testando os limites da velocidade da luz nos finais de semana e desmentindo mitos warp.',
+            imagePlaceholder: 'T',
+            color: 'brand-blue',
+            platform: 'wave-cast'
+        },
+        {
+            name: 'Nova Estelar',
+            role: 'Astro-Biologista',
+            bio: 'Cultivando batatas marcianas e discutindo formas de vida baseadas em silício.',
+            imagePlaceholder: 'N',
+            color: 'brand-yellow',
+            platform: 'hologram'
+        },
+        {
+            name: 'Pulsar XP',
+            role: 'DJ Cósmico',
+            bio: 'Transformando radiação cósmica de fundo em lofi hip-hop para estudar no espaço.',
+            imagePlaceholder: 'P',
+            color: 'brand-red',
+            platform: 'neuro-net'
+        },
+        {
+            name: 'Capitã Órbita',
+            role: 'Navegadora Orbital',
+            bio: 'Mostrando os melhores ângulos de Júpiter enquanto desvio de lixo estelar.',
+            imagePlaceholder: 'C',
+            color: 'brand-blue',
+            platform: 'gravity-feed'
         }
     ];
 
