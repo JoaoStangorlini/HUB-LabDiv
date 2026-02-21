@@ -84,31 +84,31 @@ export default function SobrePage() {
                                 <defs>
                                     <mask id="both-holes">
                                         <rect width="100" height="100" fill="white" />
-                                        <circle cx="45" cy="55" r="8" fill="black" />
-                                        <circle cx="55" cy="55" r="8" fill="black" />
+                                        <circle cx="39" cy="58" r="7.5" fill="black" />
+                                        <circle cx="59" cy="51" r="7.5" fill="black" />
                                     </mask>
                                     <clipPath id="b-shape">
-                                        <rect x="20" y="20" width="15" height="55" />
-                                        <circle cx="45" cy="55" r="20" />
+                                        <rect x="26" y="35" width="13" height="42" />
+                                        <circle cx="39" cy="58" r="19" />
                                     </clipPath>
                                 </defs>
 
                                 {/* Light blue rectangle */}
-                                <rect x="35" y="10" width="30" height="80" fill="#299adc" />
+                                <rect x="37" y="24" width="24" height="53" fill="#299adc" />
 
                                 <g mask="url(#both-holes)">
                                     {/* b (Red) */}
-                                    <rect x="20" y="20" width="15" height="55" fill="#ec4e4e" />
-                                    <circle cx="45" cy="55" r="20" fill="#ec4e4e" />
+                                    <rect x="26" y="35" width="13" height="42" fill="#ec4e4e" />
+                                    <circle cx="39" cy="58" r="19" fill="#ec4e4e" />
 
                                     {/* d (Yellow) */}
-                                    <rect x="65" y="20" width="15" height="55" fill="#ffba00" />
-                                    <circle cx="55" cy="55" r="20" fill="#ffba00" />
+                                    <rect x="61" y="27" width="11" height="35" fill="#ffba00" />
+                                    <circle cx="59" cy="51" r="19" fill="#ffba00" />
 
                                     {/* Overlap area (Orange) */}
                                     <g clipPath="url(#b-shape)">
-                                        <rect x="65" y="20" width="15" height="55" fill="#f58220" />
-                                        <circle cx="55" cy="55" r="20" fill="#f58220" />
+                                        <rect x="61" y="27" width="11" height="35" fill="#f58220" />
+                                        <circle cx="59" cy="51" r="19" fill="#f58220" />
                                     </g>
                                 </g>
                             </svg>
