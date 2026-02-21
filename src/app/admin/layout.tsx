@@ -17,10 +17,11 @@ export default function AdminLayout({
         { name: 'Pendentes', href: '/admin/pendentes', icon: 'assignment' },
         { name: 'Aprovados', href: '/admin/aprovados', icon: 'check_circle' },
         { name: 'Negadas', href: '/admin/negadas', icon: 'cancel' },
+        { name: 'Moderar Comentários', href: '/admin/comentarios', icon: 'forum' },
         { name: 'Filtrar por Autor', href: '/admin/autores', icon: 'person_search' },
         { name: 'Editar Submissões', href: '/admin/editar', icon: 'edit_square' },
         { name: 'Ranking', href: '/admin/ranking', icon: 'trending_up' },
-        { name: 'Perguntas', href: '/admin/perguntas', icon: 'forum' },
+        { name: 'Perguntas', href: '/admin/perguntas', icon: 'quiz' },
         { name: 'Oportunidades', href: '/admin/oportunidades', icon: 'event' },
     ];
 

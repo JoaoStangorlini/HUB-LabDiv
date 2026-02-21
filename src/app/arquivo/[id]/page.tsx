@@ -118,6 +118,7 @@ export default async function ArquivoItemPage({ params }: PageProps) {
         .from('comments')
         .select('*')
         .eq('submission_id', submission.id)
+        .eq('status', 'aprovado')
         .order('created_at', { ascending: false });
 
     return (

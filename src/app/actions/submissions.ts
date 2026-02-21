@@ -7,19 +7,25 @@ export interface FetchParams {
     page: number;
     limit: number;
     query: string;
-    category: string;
+    categories?: string[]; // Multiple categories
+    mediaTypes?: string[]; // Multiple media types
     sort: 'recentes' | 'antigas';
 }
 
-export async function fetchSubmissions({ page, limit, query, category, sort }: FetchParams): Promise<{ items: MediaCardProps[], hasMore: boolean }> {
+export async function fetchSubmissions({ page, limit, query, categories, mediaTypes, sort }: FetchParams): Promise<{ items: MediaCardProps[], hasMore: boolean }> {
     let queryBuilder = supabase
         .from('submissions')
         .select('*', { count: 'exact' })
         .eq('status', 'aprovado');
 
-    // Filtering
-    if (category !== 'Todos') {
-        queryBuilder = queryBuilder.eq('category', category);
+    // Filtering by Category
+    if (categories && categories.length > 0 && !categories.includes('Todos')) {
+        queryBuilder = queryBuilder.in('category', categories);
+    }
+
+    // Filtering by Media Type
+    if (mediaTypes && mediaTypes.length > 0) {
+        queryBuilder = queryBuilder.in('media_type', mediaTypes);
     }
 
     if (query) {

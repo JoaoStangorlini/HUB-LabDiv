@@ -79,6 +79,37 @@ export default function GuiaPage() {
                         </ul>
                     </section>
 
+                    {/* Seção de Texto */}
+                    <section className="bg-white dark:bg-card-dark rounded-2xl p-8 shadow-sm border border-gray-100 dark:border-gray-800 relative overflow-hidden group">
+                        <div className="absolute top-0 right-0 w-32 h-32 bg-brand-blue/5 dark:hidden rounded-full blur-2xl -translate-y-1/2 translate-x-1/2 pointer-events-none transition-transform group-hover:scale-150"></div>
+
+                        <div className="flex items-center gap-4 mb-6 relative z-10">
+                            <span className="material-symbols-outlined text-4xl text-brand-blue">article</span>
+                            <h2 className="text-3xl m-0">Textos e Divulgação Escrita</h2>
+                        </div>
+
+                        <ul className="space-y-4">
+                            <li className="flex items-start gap-3">
+                                <span className="material-symbols-outlined text-brand-green mt-1">check_circle</span>
+                                <div>
+                                    <strong>Linguagem Acessível:</strong> Transforme termos técnicos complexos em analogias do cotidiano. Imagine que você está explicando sua pesquisa para um colega de outro curso.
+                                </div>
+                            </li>
+                            <li className="flex items-start gap-3">
+                                <span className="material-symbols-outlined text-brand-green mt-1">check_circle</span>
+                                <div>
+                                    <strong>Estrutura Narrativa:</strong> Comece pelo "porquê" (o impacto da pesquisa) antes de entrar no "como" (os métodos técnicos). O leitor se engaja mais com o propósito.
+                                </div>
+                            </li>
+                            <li className="flex items-start gap-3">
+                                <span className="material-symbols-outlined text-brand-yellow mt-1">edit_note</span>
+                                <div>
+                                    <strong>Use Formatação:</strong> Quebre textos longos em parágrafos curtos. Use **negrito** para destacar conceitos chave e # títulos para organizar as seções.
+                                </div>
+                            </li>
+                        </ul>
+                    </section>
+
                     {/* Seção de Upload */}
                     <section className="bg-white dark:bg-card-dark rounded-2xl p-8 shadow-sm border border-gray-100 dark:border-gray-800 relative overflow-hidden group">
                         <div className="absolute top-0 right-0 w-32 h-32 bg-brand-yellow/5 dark:hidden rounded-full blur-2xl -translate-y-1/2 translate-x-1/2 pointer-events-none transition-transform group-hover:scale-150"></div>
@@ -109,6 +140,13 @@ export default function GuiaPage() {
                                     <strong>PDFs e Artigos:</strong> Faça o upload apenas da <strong>capa (primeira página)</strong> do seu artigo como PDF (máximo <strong>10MB</strong>). Essa capa será a imagem de pré-visualização no site.<br />
                                     <span className="text-sm text-gray-500">Dica: Use sites como <a href="https://www.ilovepdf.com/pt/dividir_pdf" target="_blank" rel="noopener noreferrer" className="underline">iLovePDF</a> ou <a href="https://smallpdf.com/pt/dividir-pdf" target="_blank" rel="noopener noreferrer" className="underline">SmallPDF</a> para extrair apenas a primeira página do seu PDF.</span><br />
                                     <span className="text-sm text-gray-500">Obrigatório: Cole o link do documento completo no campo &quot;Link para PDF Completo&quot; (Google Drive, Dropbox ou repositório institucional).</span>
+                                </div>
+                            </li>
+                            <li className="flex items-start gap-3">
+                                <span className="material-symbols-outlined text-brand-blue mt-1">article</span>
+                                <div>
+                                    <strong>Texto:</strong> Mínimo de 50 caracteres. O conteúdo deve ser escrito diretamente no campo de descrição do formulário.<br />
+                                    <span className="text-sm text-gray-500">Dica: Nossa plataforma suporta **Markdown** (negrito, listas, títulos). Use a barra de ferramentas para formatar.</span>
                                 </div>
                             </li>
                             <li className="flex items-start gap-3">

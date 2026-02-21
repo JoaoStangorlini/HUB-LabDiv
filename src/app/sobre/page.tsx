@@ -78,6 +78,9 @@ export default function SobrePage() {
                             <p className="text-lg text-gray-700 dark:text-gray-300 leading-relaxed">
                                 Este Hub é uma ferramenta desenhada para resolver um problema histórico: a falta de acessibilidade visual e narrativa sobre a pesquisa de base. Ao unificar criadores, arquivistas e a própria comunidade de pesquisadores em um só lugar, criamos um motor contínuo de difusão do conhecimento.
                             </p>
+                            <a href="https://labdiv.notion.site" target="_blank" rel="noopener noreferrer" className="inline-flex items-center text-brand-blue font-semibold hover:text-brand-blue/80 transition-colors mt-8 group">
+                                Conhecer mais <span className="material-symbols-outlined text-[20px] ml-1 group-hover:translate-x-1 transition-transform">arrow_forward</span>
+                            </a>
                         </div>
                         <div className="hidden md:flex w-48 h-48 rounded-2xl items-center justify-center flex-shrink-0 overflow-hidden">
                             <Image src="/labdiv-logo.png" alt="Logo do Lab-Div" width={192} height={192} className="object-contain" />

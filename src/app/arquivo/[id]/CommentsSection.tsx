@@ -16,24 +16,17 @@ export function CommentsSection({ submissionId, initialComments }: { submissionI
     const [content, setContent] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState('');
+    const [successMsg, setSuccessMsg] = useState('');
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError('');
+        setSuccessMsg('');
         setIsSubmitting(true);
 
         try {
             await addComment(submissionId, name, content);
-
-            // Optimistic Update
-            const newComment: Comment = {
-                id: crypto.randomUUID(),
-                author_name: name.trim(),
-                content: content.trim(),
-                created_at: new Date().toISOString()
-            };
-
-            setComments([newComment, ...comments]);
+            setSuccessMsg('Seu comentário foi enviado com sucesso e será publicado após uma breve moderação da equipe.');
             setName('');
             setContent('');
         } catch (err: any) {
@@ -52,6 +45,14 @@ export function CommentsSection({ submissionId, initialComments }: { submissionI
 
             <form onSubmit={handleSubmit} className="bg-gray-50 dark:bg-card-dark/50 rounded-2xl p-6 border border-gray-100 dark:border-gray-800 mb-10">
                 {error && <div className="mb-4 text-sm text-red-500 font-bold">{error}</div>}
+                {successMsg && (
+                    <div className="mb-4 p-4 bg-green-50 dark:bg-green-900/20 border-l-4 border-green-500 text-green-700 dark:text-green-300 text-sm font-medium animate-in fade-in slide-in-from-left-2 duration-300">
+                        <div className="flex items-center gap-2">
+                            <span className="material-symbols-outlined text-[18px]">verified</span>
+                            {successMsg}
+                        </div>
+                    </div>
+                )}
                 <div className="space-y-4">
                     <div>
                         <label htmlFor="name" className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">Seu Nome</label>

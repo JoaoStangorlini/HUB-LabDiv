@@ -10,22 +10,40 @@ interface Counts {
     perguntasPendentes: number;
     perguntasRespondidas: number;
     perguntasTotal: number;
+    comentariosPendentes: number;
+    comentariosAprovados: number;
+    comentariosTotal: number;
+    oportunidadesTotal: number;
 }
 
 export default function AdminDashboardOverview() {
-    const [counts, setCounts] = useState<Counts>({ pendentes: 0, aprovados: 0, rejeitados: 0, perguntasPendentes: 0, perguntasRespondidas: 0, perguntasTotal: 0 });
+    const [counts, setCounts] = useState<Counts>({
+        pendentes: 0, aprovados: 0, rejeitados: 0,
+        perguntasPendentes: 0, perguntasRespondidas: 0, perguntasTotal: 0,
+        comentariosPendentes: 0, comentariosAprovados: 0, comentariosTotal: 0,
+        oportunidadesTotal: 0
+    });
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
         async function fetchCounts() {
             setIsLoading(true);
 
-            const [pendentesRes, aprovadosRes, rejeitadosRes, pergPendentesRes, pergRespondidasRes] = await Promise.all([
+            const [
+                pendentesRes, aprovadosRes, rejeitadosRes,
+                pergPendentesRes, pergRespondidasRes,
+                comPendentesRes, comAprovadosRes, comTotalRes,
+                oportunidadesRes
+            ] = await Promise.all([
                 supabase.from('submissions').select('*', { count: 'exact', head: true }).eq('status', 'pendente'),
                 supabase.from('submissions').select('*', { count: 'exact', head: true }).eq('status', 'aprovado'),
                 supabase.from('submissions').select('*', { count: 'exact', head: true }).eq('status', 'rejeitado'),
                 supabase.from('perguntas').select('*', { count: 'exact', head: true }).eq('status', 'pendente'),
                 supabase.from('perguntas').select('*', { count: 'exact', head: true }).eq('status', 'respondida'),
+                supabase.from('comments').select('*', { count: 'exact', head: true }).eq('status', 'pendente'),
+                supabase.from('comments').select('*', { count: 'exact', head: true }).eq('status', 'aprovado'),
+                supabase.from('comments').select('*', { count: 'exact', head: true }),
+                supabase.from('oportunidades').select('*', { count: 'exact', head: true }),
             ]);
 
             const pPend = pergPendentesRes.count || 0;
@@ -38,6 +56,10 @@ export default function AdminDashboardOverview() {
                 perguntasPendentes: pPend,
                 perguntasRespondidas: pResp,
                 perguntasTotal: pPend + pResp,
+                comentariosPendentes: comPendentesRes.count || 0,
+                comentariosAprovados: comAprovadosRes.count || 0,
+                comentariosTotal: comTotalRes.count || 0,
+                oportunidadesTotal: oportunidadesRes.count || 0,
             });
 
             setIsLoading(false);
@@ -164,7 +186,7 @@ export default function AdminDashboardOverview() {
                                 </div>
                             </div>
 
-                            {/* Respondidas - AZUL (meio) */}
+                            {/* Respondidas - AZUL */}
                             <div className="relative group bg-white dark:bg-card-dark rounded-3xl p-6 border border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-xl hover:border-brand-blue/30 transition-all overflow-hidden">
                                 <div className="absolute top-0 right-0 w-32 h-32 bg-brand-blue/5 dark:hidden rounded-full blur-2xl -translate-y-1/2 translate-x-1/2 group-hover:bg-brand-blue/10 transition-colors"></div>
                                 <div className="relative z-10 flex flex-col gap-4">
@@ -181,7 +203,7 @@ export default function AdminDashboardOverview() {
                                 </div>
                             </div>
 
-                            {/* Total - AMARELO (direita) */}
+                            {/* Total - AMARELO */}
                             <div className="relative group bg-white dark:bg-card-dark rounded-3xl p-6 border border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-xl hover:border-brand-yellow/30 transition-all overflow-hidden">
                                 <div className="absolute top-0 right-0 w-32 h-32 bg-brand-yellow/5 dark:hidden rounded-full blur-2xl -translate-y-1/2 translate-x-1/2 group-hover:bg-brand-yellow/10 transition-colors"></div>
                                 <div className="relative z-10 flex flex-col gap-4">
@@ -194,6 +216,88 @@ export default function AdminDashboardOverview() {
                                     <div>
                                         <span className="text-5xl font-display font-black text-gray-900 dark:text-white tracking-tight">{counts.perguntasTotal}</span>
                                         <span className="text-sm font-medium text-brand-yellow mt-1 block">Perguntas Recebidas</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Comentários Section */}
+                    <div>
+                        <h2 className="text-lg font-bold text-gray-700 dark:text-gray-300 mb-4 flex items-center gap-2">
+                            <span className="material-symbols-outlined text-brand-yellow text-xl">reviews</span>
+                            Moderação de Comentários
+                        </h2>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            {/* Pendentes */}
+                            <div className="relative group bg-white dark:bg-card-dark rounded-3xl p-6 border border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-xl hover:border-brand-yellow/30 transition-all overflow-hidden">
+                                <div className="relative z-10 flex flex-col gap-4">
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Aguardando Moderação</span>
+                                        <div className={`w-12 h-12 flex items-center justify-center rounded-2xl ${counts.comentariosPendentes > 0 ? 'bg-brand-yellow/20 text-brand-yellow animate-pulse' : 'bg-brand-yellow/10 text-brand-yellow'}`}>
+                                            <span className="material-symbols-outlined text-2xl">pause_circle</span>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <span className="text-5xl font-display font-black text-gray-900 dark:text-white tracking-tight">{counts.comentariosPendentes}</span>
+                                        <span className="text-sm font-medium text-brand-yellow mt-1 block">Comentários Pendentes</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Aprovados */}
+                            <div className="relative group bg-white dark:bg-card-dark rounded-3xl p-6 border border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-xl hover:border-brand-blue/30 transition-all overflow-hidden">
+                                <div className="relative z-10 flex flex-col gap-4">
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Publicados</span>
+                                        <div className="w-12 h-12 flex items-center justify-center rounded-2xl bg-brand-blue/10 text-brand-blue">
+                                            <span className="material-symbols-outlined text-2xl">chat</span>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <span className="text-5xl font-display font-black text-gray-900 dark:text-white tracking-tight">{counts.comentariosAprovados}</span>
+                                        <span className="text-sm font-medium text-brand-blue mt-1 block">Comentários Aprovados</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Total */}
+                            <div className="relative group bg-white dark:bg-card-dark rounded-3xl p-6 border border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-xl hover:border-gray-200 transition-all overflow-hidden">
+                                <div className="relative z-10 flex flex-col gap-4">
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Total Histórico</span>
+                                        <div className="w-12 h-12 flex items-center justify-center rounded-2xl bg-gray-100 dark:bg-gray-800 text-gray-500">
+                                            <span className="material-symbols-outlined text-2xl">analytics</span>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <span className="text-5xl font-display font-black text-gray-900 dark:text-white tracking-tight">{counts.comentariosTotal}</span>
+                                        <span className="text-sm font-medium text-gray-500 mt-1 block">Interações Totais</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    {/* Mural de Oportunidades Section */}
+                    <div>
+                        <h2 className="text-lg font-bold text-gray-700 dark:text-gray-300 mb-4 flex items-center gap-2">
+                            <span className="material-symbols-outlined text-brand-blue text-xl">event</span>
+                            Mural de Oportunidades
+                        </h2>
+                        <div className="grid grid-cols-1 md:grid-cols-1 gap-6">
+                            <div className="relative group bg-white dark:bg-card-dark rounded-3xl p-6 border border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-xl hover:border-brand-blue/30 transition-all overflow-hidden">
+                                <div className="relative z-10 flex flex-col gap-4">
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Divulgações Ativas</span>
+                                        <div className="w-12 h-12 flex items-center justify-center rounded-2xl bg-brand-blue/10 text-brand-blue">
+                                            <span className="material-symbols-outlined text-2xl">campaign</span>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <span className="text-5xl font-display font-black text-gray-900 dark:text-white tracking-tight">{counts.oportunidadesTotal}</span>
+                                        <span className="text-sm font-medium text-brand-blue mt-1 block">Oportunidades no Mural</span>
                                     </div>
                                 </div>
                             </div>

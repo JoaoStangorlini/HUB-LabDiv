@@ -20,7 +20,8 @@ export const HomeClientView = ({ initialItems, initialHasMore }: HomeClientViewP
     // Search & Filter State
     const [searchQuery, setSearchQuery] = useState('');
     const [debouncedQuery, setDebouncedQuery] = useState('');
-    const [selectedCategory, setSelectedCategory] = useState('Todos');
+    const [selectedCategories, setSelectedCategories] = useState<string[]>(['Todos']);
+    const [selectedMediaTypes, setSelectedMediaTypes] = useState<string[]>([]);
     const [sortOrder, setSortOrder] = useState<'recentes' | 'antigas'>('recentes');
 
     // Pagination & Data State
@@ -41,6 +42,12 @@ export const HomeClientView = ({ initialItems, initialHasMore }: HomeClientViewP
     const headerRef = useRef<HTMLElement>(null);
 
     const categories = ['Todos', 'Laboratórios', 'Pesquisadores', 'Eventos', 'Uso Didático', 'Bastidores da Ciência', 'Convivência', 'Outros'];
+    const mediaTypeOptions = [
+        { label: 'Imagens', value: 'image', icon: 'image' },
+        { label: 'Vídeos', value: 'video', icon: 'videocam' },
+        { label: 'PDFs', value: 'pdf', icon: 'picture_as_pdf' },
+        { label: 'Textos', value: 'text', icon: 'article' },
+    ];
 
     // Debounce Search 
     useEffect(() => {
@@ -62,7 +69,12 @@ export const HomeClientView = ({ initialItems, initialHasMore }: HomeClientViewP
             setIsLoading(true);
             try {
                 const res = await fetchSubmissions({
-                    page: 1, limit: 12, query: debouncedQuery, category: selectedCategory, sort: sortOrder
+                    page: 1,
+                    limit: 12,
+                    query: debouncedQuery,
+                    categories: selectedCategories,
+                    mediaTypes: selectedMediaTypes,
+                    sort: sortOrder
                 });
                 setItems(res.items);
                 setHasMore(res.hasMore);
@@ -74,7 +86,7 @@ export const HomeClientView = ({ initialItems, initialHasMore }: HomeClientViewP
             }
         };
         fetchFiltered();
-    }, [debouncedQuery, selectedCategory, sortOrder]);
+    }, [debouncedQuery, selectedCategories, selectedMediaTypes, sortOrder]);
 
     const handleLoadMore = async () => {
         if (!hasMore || isLoadingMore) return;
@@ -82,7 +94,12 @@ export const HomeClientView = ({ initialItems, initialHasMore }: HomeClientViewP
         const nextPage = page + 1;
         try {
             const res = await fetchSubmissions({
-                page: nextPage, limit: 12, query: debouncedQuery, category: selectedCategory, sort: sortOrder
+                page: nextPage,
+                limit: 12,
+                query: debouncedQuery,
+                categories: selectedCategories,
+                mediaTypes: selectedMediaTypes,
+                sort: sortOrder
             });
             setItems(prev => [...prev, ...res.items]);
             setHasMore(res.hasMore);
@@ -194,23 +211,56 @@ export const HomeClientView = ({ initialItems, initialHasMore }: HomeClientViewP
                         <div className="mt-5 space-y-2 pl-2">
                             <p className="text-sm text-gray-600 dark:text-gray-400 flex items-center gap-2 opacity-90 transition-opacity hover:opacity-100">
                                 <span className="w-1.5 h-1.5 rounded-full bg-brand-yellow shrink-0"></span>
-                                Experimente o filtro <span className="font-semibold text-brand-yellow cursor-pointer hover:underline" onClick={() => setSelectedCategory('Bastidores da Ciência')}>Bastidores da Ciência</span> para ver as gambiarras e Easter eggs da ciência.
+                                Experimente o filtro <span className="font-semibold text-brand-yellow cursor-pointer hover:underline" onClick={() => setSelectedCategories(['Bastidores da Ciência'])}>Bastidores da Ciência</span> para ver as gambiarras e Easter eggs da ciência.
                             </p>
                             <p className="text-sm text-gray-600 dark:text-gray-400 flex items-center gap-2 opacity-90 transition-opacity hover:opacity-100">
                                 <span className="w-1.5 h-1.5 rounded-full bg-brand-blue shrink-0"></span>
-                                Você quer levar ciência para os alunos sem se preocupar com possíveis erros? Use o filtro <span className="font-semibold text-brand-blue cursor-pointer hover:underline" onClick={() => setSelectedCategory('Uso Didático')}>Uso Didático</span>.
+                                Você quer levar ciência para os alunos sem se preocupar com possíveis erros? Use o filtro <span className="font-semibold text-brand-blue cursor-pointer hover:underline" onClick={() => setSelectedCategories(['Uso Didático'])}>Uso Didático</span>.
                             </p>
                         </div>
                     </div>
                 </div>
             </header>
 
-            <section className="py-4 border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-background-dark/50 sticky top-24 z-40 backdrop-blur-sm">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <section className="py-6 border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-background-dark/50 sticky top-24 z-40 backdrop-blur-sm shadow-sm">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-4">
+                    {/* Media Type Filters */}
+                    <div className="flex flex-wrap items-center gap-3 pb-4">
+                        <span className="text-xs font-bold text-gray-400 uppercase tracking-widest mr-2 flex items-center gap-1">
+                            <span className="material-symbols-outlined text-sm">filter_list</span>
+                            Formato:
+                        </span>
+                        <div className="flex flex-wrap gap-2">
+                            {mediaTypeOptions.map(option => {
+                                const isActive = selectedMediaTypes.includes(option.value);
+                                return (
+                                    <button
+                                        key={option.value}
+                                        onClick={() => {
+                                            if (isActive) {
+                                                setSelectedMediaTypes(prev => prev.filter(t => t !== option.value));
+                                            } else {
+                                                setSelectedMediaTypes(prev => [...prev, option.value]);
+                                            }
+                                        }}
+                                        className={`flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-bold transition-all border ${isActive
+                                            ? 'bg-brand-blue text-white border-brand-blue shadow-md shadow-brand-blue/20'
+                                            : 'bg-white dark:bg-form-dark text-gray-500 border-gray-200 dark:border-gray-700 hover:border-brand-blue hover:text-brand-blue hover:bg-brand-blue/5'}`}
+                                    >
+                                        <span className="material-symbols-outlined text-[16px]">{option.icon}</span>
+                                        {option.label}
+                                    </button>
+                                );
+                            })}
+                        </div>
+                    </div>
+
+                    {/* Category Filters */}
                     <div className="flex items-center justify-between overflow-x-auto no-scrollbar gap-4">
-                        <div className="flex gap-2">
+                        <div className="flex gap-2 items-center">
+                            <span className="text-xs font-bold text-gray-400 uppercase tracking-widest mr-2 sm:block hidden">Categorias:</span>
                             {categories.map(cat => {
-                                const isActive = selectedCategory === cat;
+                                const isActive = selectedCategories.includes(cat);
                                 const isYellow = cat === 'Laboratórios' || cat === 'Eventos';
                                 const isRed = cat === 'Pesquisadores' || cat === 'Convivência';
 
@@ -232,7 +282,24 @@ export const HomeClientView = ({ initialItems, initialHasMore }: HomeClientViewP
                                 return (
                                     <button
                                         key={cat}
-                                        onClick={() => setSelectedCategory(cat)}
+                                        onClick={() => {
+                                            if (cat === 'Todos') {
+                                                setSelectedCategories(['Todos']);
+                                                return;
+                                            }
+                                            let next = [...selectedCategories];
+                                            if (next.includes('Todos')) {
+                                                next = [cat];
+                                            } else {
+                                                if (isActive) {
+                                                    next = next.filter(c => c !== cat);
+                                                    if (next.length === 0) next = ['Todos'];
+                                                } else {
+                                                    next.push(cat);
+                                                }
+                                            }
+                                            setSelectedCategories(next);
+                                        }}
                                         className={`px-4 py-2 rounded-full text-sm transition-colors whitespace-nowrap border ${activeClass}`}
                                     >
                                         {cat}
@@ -298,11 +365,12 @@ export const HomeClientView = ({ initialItems, initialHasMore }: HomeClientViewP
                         </div>
                     ) : (
                         <>
-                            {(debouncedQuery || selectedCategory !== 'Todos') && (
+                            {(debouncedQuery || !selectedCategories.includes('Todos') || selectedMediaTypes.length > 0) && (
                                 <div className="mb-6 flex items-center justify-between border-b border-gray-100 dark:border-gray-800 pb-4">
                                     <h2 className="text-lg font-bold text-gray-800 dark:text-gray-200">
                                         {debouncedQuery ? `Resultados para "${debouncedQuery}"` : 'Resultados Exploratórios'}
-                                        {selectedCategory !== 'Todos' && <span className="text-brand-blue dark:text-brand-yellow font-extrabold ml-1">em {selectedCategory}</span>}
+                                        {!selectedCategories.includes('Todos') && <span className="text-brand-blue dark:text-brand-yellow font-extrabold ml-1">em {selectedCategories.join(', ')}</span>}
+                                        {selectedMediaTypes.length > 0 && <span className="text-gray-400 dark:text-gray-500 font-medium ml-1">({selectedMediaTypes.map(t => mediaTypeOptions.find(o => o.value === t)?.label).join(', ')})</span>}
                                     </h2>
                                     <span className="text-sm font-semibold text-gray-500 bg-gray-100 dark:bg-gray-800 px-3 py-1 rounded-full">{items.length} iten(s)</span>
                                 </div>
@@ -320,7 +388,7 @@ export const HomeClientView = ({ initialItems, initialHasMore }: HomeClientViewP
                                         <h3 className="text-xl font-bold text-gray-700 dark:text-gray-300">Nenhum resultado encontrado</h3>
                                         <p className="text-gray-500 mt-2">Tente ajustar seus filtros ou termo de busca.</p>
                                         <button
-                                            onClick={() => { setSearchQuery(''); setSelectedCategory('Todos'); }}
+                                            onClick={() => { setSearchQuery(''); setSelectedCategories(['Todos']); setSelectedMediaTypes([]); }}
                                             className="mt-6 px-4 py-2 bg-primary/10 text-primary font-semibold rounded-lg hover:bg-primary/20 transition-colors"
                                         >
                                             Limpar Filtros
