@@ -73,6 +73,8 @@ export async function fetchSubmissions({ page, limit, query, category, sort }: F
         isFeatured: sub.featured,
         likeCount: likeMap[sub.id] || 0,
         external_link: sub.external_link,
+        created_at: sub.created_at,
+        technical_details: sub.technical_details,
     }));
 
     const hasMore = count ? from + submissions.length < count : false;

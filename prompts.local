@@ -1,4 +1,4 @@
-// -"Atue como um Engenheiro de Software Sênior focado em Code Review e DevOps. Acabamos de finalizar uma série de implementações no código do 'Arquivo Lab-Div'.
+Atue como um Engenheiro de Software Sênior focado em Code Review e DevOps. Acabamos de finalizar uma série de implementações no código do 'Arquivo Lab-Div'.
 
 Sua tarefa agora é executar uma SUPER REVISÃO de todo o código modificado e adicionado recentemente, antes de fazermos o commit final. Siga estes passos e me reporte o que encontrou/corrigiu:
 
@@ -10,4 +10,4 @@ Sua tarefa agora é executar uma SUPER REVISÃO de todo o código modificado e a
 
 4. Versionamento (Commit): Se tudo estiver perfeito, funcional e otimizado, prepare as alterações para versionamento. Gere os comandos `git add .` e `git commit` com uma mensagem clara, semântica e profissional documentando tudo o que foi feito até aqui.
 
-Execute essa super revisão agora e me explique brevemente quais melhorias de performance ou redução de linhas você conseguiu aplicar."-
+Execute essa super revisão agora e me explique brevemente quais melhorias de performance ou redução de linhas você conseguiu aplicar.

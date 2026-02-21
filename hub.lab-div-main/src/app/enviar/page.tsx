@@ -18,6 +18,7 @@ export default function SubmitPage() {
     const [mediaType, setMediaType] = useState<'image' | 'video' | 'pdf' | 'text'>('image');
     const [videoUrl, setVideoUrl] = useState('');
     const [externalLink, setExternalLink] = useState('');
+    const [technicalDetails, setTechnicalDetails] = useState('');
     const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
 
     const [isLoading, setIsLoading] = useState(false);
@@ -179,7 +180,8 @@ export default function SubmitPage() {
                 media_type: mediaType,
                 media_url: JSON.stringify(finalMediaUrl),
                 status: 'pendente',
-                external_link: externalLink || null
+                external_link: externalLink || null,
+                technical_details: technicalDetails || null
             }]);
 
             if (insertError) {
@@ -417,6 +419,24 @@ export default function SubmitPage() {
                                     </p>
                                 </div>
                             )}
+
+                            <div className="space-y-2 group">
+                                <label className="flex items-center gap-2 text-sm font-bold text-gray-700 dark:text-gray-300" htmlFor="technical_details">
+                                    <span className="material-symbols-outlined text-brand-yellow text-[18px]">build</span>
+                                    Bastidores Técnicos (Opcional)
+                                </label>
+                                <textarea
+                                    id="technical_details"
+                                    rows={3}
+                                    value={technicalDetails}
+                                    onChange={e => setTechnicalDetails(e.target.value)}
+                                    className="w-full bg-gray-50 dark:bg-form-dark border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white rounded-xl px-4 py-3.5 focus:ring-2 focus:ring-brand-yellow focus:border-brand-yellow transition-all resize-none text-sm"
+                                    placeholder="Ex: Câmera Canon EOS R5, lente macro 100mm, software ImageJ para análise..."
+                                ></textarea>
+                                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 pl-1 border-l-2 border-brand-yellow">
+                                    Equipamentos, softwares ou técnicas usadas. Ajuda outros pesquisadores a replicar o trabalho.
+                                </p>
+                            </div>
                         </div>
 
                         <hr className="my-10 border-gray-100 dark:border-gray-800" />

@@ -14,6 +14,8 @@ export interface MediaCardProps {
     isFeatured?: boolean;
     likeCount?: number;
     external_link?: string;
+    created_at?: string;
+    technical_details?: string;
 }
 
 export const parseMediaUrl = (mediaUrl: string | string[]): string[] => {

@@ -525,6 +525,36 @@ export const HomeClientView = ({ initialItems, initialHasMore }: HomeClientViewP
                                 </div>
                             )}
 
+                            {/* ABNT Citation Button */}
+                            <div className="mt-4">
+                                <button
+                                    onClick={() => {
+                                        const year = selectedItem.created_at ? new Date(selectedItem.created_at).getFullYear() : new Date().getFullYear();
+                                        const citation = `${selectedItem.authors.toUpperCase()}. ${selectedItem.title}. Hub Lab-Div IF-USP, ${year}. Disponível em: ${window.location.origin}/arquivo/${selectedItem.id}`;
+                                        navigator.clipboard.writeText(citation);
+                                        const btn = document.getElementById('cite-btn-home');
+                                        if (btn) { btn.textContent = 'Citação copiada!'; setTimeout(() => { btn.textContent = 'Copiar Citação ABNT'; }, 2000); }
+                                    }}
+                                    className="w-full bg-brand-yellow/10 hover:bg-brand-yellow/20 text-brand-yellow border border-brand-yellow/30 font-semibold py-3 flex items-center justify-center gap-2 rounded-xl transition-colors text-sm"
+                                >
+                                    <span className="material-symbols-outlined text-[18px]">format_quote</span>
+                                    <span id="cite-btn-home">Copiar Citação ABNT</span>
+                                </button>
+                            </div>
+
+                            {/* Technical Details */}
+                            {selectedItem.technical_details && (
+                                <div className="flex-1">
+                                    <h3 className="text-sm font-bold text-gray-900 dark:text-white mb-2 uppercase tracking-wide flex items-center gap-1.5">
+                                        <span className="material-symbols-outlined text-brand-yellow text-[16px]">build</span>
+                                        Bastidores Técnicos
+                                    </h3>
+                                    <p className="text-gray-600 dark:text-gray-400 text-sm leading-relaxed whitespace-pre-line">
+                                        {selectedItem.technical_details}
+                                    </p>
+                                </div>
+                            )}
+
                             <div className="pt-4 flex flex-col gap-3 mt-auto">
                                 {selectedItem.mediaType === 'image' && (
                                     <a

@@ -22,6 +22,7 @@ export interface AdminSubmission {
     featured?: boolean;
     status?: string;
     external_link?: string;
+    technical_details?: string;
 }
 
 interface AdminSubmissionLightboxProps {
@@ -252,6 +253,36 @@ export function AdminSubmissionLightbox({
                                 <span className="material-symbols-outlined group-hover:translate-x-1 transition-transform">open_in_new</span>
                                 Acessar PDF Completo
                             </a>
+                        </div>
+                    )}
+
+                    {/* ABNT Citation Button */}
+                    <div className="mt-4">
+                        <button
+                            onClick={() => {
+                                const year = new Date(item.created_at).getFullYear();
+                                const citation = `${item.authors.toUpperCase()}. ${item.title}. Hub Lab-Div IF-USP, ${year}. Disponível em: ${window.location.origin}/arquivo/${item.id}`;
+                                navigator.clipboard.writeText(citation);
+                                const btn = document.getElementById('cite-btn-admin');
+                                if (btn) { btn.textContent = 'Citação copiada!'; setTimeout(() => { btn.textContent = 'Copiar Citação ABNT'; }, 2000); }
+                            }}
+                            className="w-full bg-brand-yellow/10 hover:bg-brand-yellow/20 text-brand-yellow border border-brand-yellow/30 font-semibold py-3 flex items-center justify-center gap-2 rounded-xl transition-colors text-sm"
+                        >
+                            <span className="material-symbols-outlined text-[18px]">format_quote</span>
+                            <span id="cite-btn-admin">Copiar Citação ABNT</span>
+                        </button>
+                    </div>
+
+                    {/* Technical Details */}
+                    {item.technical_details && (
+                        <div className="flex-1">
+                            <h3 className="text-sm font-bold text-gray-900 dark:text-white mb-2 uppercase tracking-wide flex items-center gap-1.5">
+                                <span className="material-symbols-outlined text-brand-yellow text-[16px]">build</span>
+                                Bastidores Técnicos
+                            </h3>
+                            <p className="text-gray-600 dark:text-gray-400 text-sm leading-relaxed whitespace-pre-line">
+                                {item.technical_details}
+                            </p>
                         </div>
                     )}
 
