@@ -13,6 +13,7 @@ interface Submission {
     media_url: string;
     category: string;
     created_at: string;
+    featured: boolean;
 }
 
 export default function AprovadosPage() {
@@ -53,6 +54,19 @@ export default function AprovadosPage() {
             alert('Erro: ' + error.message);
         } else {
             setSubmissions(prev => prev.filter(s => s.id !== id));
+        }
+    };
+
+    const handleToggleFeatured = async (id: string, currentFeatured: boolean) => {
+        const { error } = await supabase
+            .from('submissions')
+            .update({ featured: !currentFeatured })
+            .eq('id', id);
+
+        if (error) {
+            alert('Erro ao alterar destaque: ' + error.message);
+        } else {
+            setSubmissions(prev => prev.map(s => s.id === id ? { ...s, featured: !currentFeatured } : s));
         }
     };
 
@@ -120,6 +134,7 @@ export default function AprovadosPage() {
                                 category: item.category,
                                 mediaType: item.media_type,
                                 mediaUrl: item.media_url,
+                                isFeatured: item.featured,
                             };
                             return (
                                 <div key={item.id} className="flex flex-col gap-3">
@@ -127,6 +142,17 @@ export default function AprovadosPage() {
                                         <MediaCard {...cardProps} />
                                     </div>
                                     <div className="flex items-center gap-2">
+                                        <button
+                                            onClick={() => handleToggleFeatured(item.id, item.featured)}
+                                            className={`flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg border transition-colors text-sm font-medium ${item.featured
+                                                    ? 'bg-brand-yellow/10 text-brand-yellow border-brand-yellow/30 hover:bg-brand-yellow/20'
+                                                    : 'bg-gray-50 dark:bg-gray-800 text-gray-400 border-gray-200 dark:border-gray-700 hover:text-brand-yellow hover:border-brand-yellow/30'
+                                                }`}
+                                            title={item.featured ? 'Remover Destaque' : 'Marcar como Destaque'}
+                                        >
+                                            <span className="material-symbols-outlined text-[18px]" style={item.featured ? { fontVariationSettings: "'FILL' 1" } : {}}>star</span>
+                                            <span>{item.featured ? 'Destaque' : 'Destacar'}</span>
+                                        </button>
                                         <button
                                             onClick={() => handleReject(item.id)}
                                             className="flex-1 flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/40 border border-red-200 dark:border-red-800 transition-colors text-sm font-medium"

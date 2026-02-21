@@ -68,3 +68,108 @@ CREATE POLICY "Anyone can insert contatos"
 CREATE POLICY "Only admins can view contatos"
   ON contatos FOR SELECT
   USING (auth.role() = 'authenticated');
+
+-- =============================================
+-- Curtidas (Likes / Engagement)
+-- =============================================
+CREATE TABLE public.curtidas (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  submission_id uuid NOT NULL REFERENCES public.submissions(id) ON DELETE CASCADE,
+  fingerprint text NOT NULL,
+  created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL,
+  UNIQUE(submission_id, fingerprint)
+);
+
+ALTER TABLE public.curtidas ENABLE ROW LEVEL SECURITY;
+
+-- Anyone can insert a like (UNIQUE constraint prevents duplicates)
+CREATE POLICY "Anyone can insert curtidas"
+  ON curtidas FOR INSERT
+  WITH CHECK (true);
+
+-- Anyone can read curtidas (for counting)
+CREATE POLICY "Anyone can view curtidas"
+  ON curtidas FOR SELECT
+  USING (true);
+
+-- Admins can delete curtidas
+CREATE POLICY "Admins can delete curtidas"
+  ON curtidas FOR DELETE
+  USING (auth.role() = 'authenticated');
+
+-- =============================================
+-- Perguntas (Ask a Scientist)
+-- =============================================
+CREATE TABLE public.perguntas (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  nome text NOT NULL,
+  email text NOT NULL,
+  pergunta text NOT NULL,
+  resposta text,
+  status text DEFAULT 'pendente' NOT NULL,
+  respondido_por text,
+  created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+ALTER TABLE public.perguntas ENABLE ROW LEVEL SECURITY;
+
+-- Anyone can submit a question (must be pendente)
+CREATE POLICY "Anyone can insert perguntas"
+  ON perguntas FOR INSERT
+  WITH CHECK (status = 'pendente');
+
+-- Public can view only answered questions
+CREATE POLICY "Public can view answered perguntas"
+  ON perguntas FOR SELECT
+  USING (status = 'respondida');
+
+-- Admins can view all questions
+CREATE POLICY "Admins can view all perguntas"
+  ON perguntas FOR SELECT
+  USING (auth.role() = 'authenticated');
+
+-- Admins can update questions (to add answers)
+CREATE POLICY "Admins can update perguntas"
+  ON perguntas FOR UPDATE
+  USING (auth.role() = 'authenticated');
+
+-- Admins can delete questions
+CREATE POLICY "Admins can delete perguntas"
+  ON perguntas FOR DELETE
+  USING (auth.role() = 'authenticated');
+
+-- =============================================
+-- Oportunidades (Dynamic Opportunities Board)
+-- =============================================
+CREATE TABLE public.oportunidades (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  titulo text NOT NULL,
+  descricao text NOT NULL,
+  data text NOT NULL,
+  local text NOT NULL,
+  link text,
+  tipo text NOT NULL,
+  created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+ALTER TABLE public.oportunidades ENABLE ROW LEVEL SECURITY;
+
+-- Anyone can view opportunities
+CREATE POLICY "Anyone can view oportunidades"
+  ON oportunidades FOR SELECT
+  USING (true);
+
+-- Admins can insert opportunities
+CREATE POLICY "Admins can insert oportunidades"
+  ON oportunidades FOR INSERT
+  WITH CHECK (auth.role() = 'authenticated');
+
+-- Admins can update opportunities
+CREATE POLICY "Admins can update oportunidades"
+  ON oportunidades FOR UPDATE
+  USING (auth.role() = 'authenticated');
+
+-- Admins can delete opportunities
+CREATE POLICY "Admins can delete oportunidades"
+  ON oportunidades FOR DELETE
+  USING (auth.role() = 'authenticated');

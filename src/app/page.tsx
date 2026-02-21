@@ -18,6 +18,19 @@ export default async function Home() {
     console.error('Error fetching submissions:', error);
   }
 
+  // Fetch like counts for all submissions
+  const { data: likeCounts } = await supabase
+    .from('curtidas')
+    .select('submission_id');
+
+  // Build a map of submission_id -> count
+  const likeMap: Record<string, number> = {};
+  if (likeCounts) {
+    for (const row of likeCounts) {
+      likeMap[row.submission_id] = (likeMap[row.submission_id] || 0) + 1;
+    }
+  }
+
   const items: MediaCardProps[] = submissions?.map(sub => ({
     id: sub.id,
     title: sub.title,
@@ -27,6 +40,7 @@ export default async function Home() {
     mediaUrl: sub.media_url,
     category: sub.category,
     isFeatured: sub.featured,
+    likeCount: likeMap[sub.id] || 0,
   })) || [];
 
   return (

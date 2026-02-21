@@ -13,6 +13,7 @@ export function Header() {
         { name: 'Sobre', href: '/sobre' },
         { name: 'Iniciativas', href: '/iniciativas' },
         { name: 'Oportunidades', href: '/oportunidades' },
+        { name: 'Pergunte', href: '/perguntas' },
         { name: 'Criadores', href: '/criadores' },
         { name: 'Guia', href: '/guia' },
         { name: 'Admin', href: '/admin' },

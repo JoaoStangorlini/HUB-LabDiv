@@ -11,6 +11,7 @@ interface Submission {
     category: string;
     status: string;
     created_at: string;
+    featured: boolean;
 }
 
 export default function EditarPage() {
@@ -23,7 +24,7 @@ export default function EditarPage() {
         setIsLoading(true);
         const { data, error } = await supabase
             .from('submissions')
-            .select('id, title, description, authors, category, status, created_at')
+            .select('*')
             .order('created_at', { ascending: false });
 
         if (error) {
@@ -91,17 +92,18 @@ export default function EditarPage() {
                                 <th className="px-4 py-3 border-b border-slate-200 dark:border-slate-700">Título</th>
                                 <th className="px-4 py-3 border-b border-slate-200 dark:border-slate-700">Autores</th>
                                 <th className="px-4 py-3 border-b border-slate-200 dark:border-slate-700">Categoria</th>
+                                <th className="px-4 py-3 border-b border-slate-200 dark:border-slate-700 text-center">Destaque</th>
                                 <th className="px-4 py-3 border-b border-slate-200 dark:border-slate-700 text-right">Ação</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                             {isLoading ? (
                                 <tr>
-                                    <td colSpan={5} className="px-4 py-10 text-center text-slate-500">Carregando registros...</td>
+                                    <td colSpan={6} className="px-4 py-10 text-center text-slate-500">Carregando registros...</td>
                                 </tr>
                             ) : submissions.length === 0 ? (
                                 <tr>
-                                    <td colSpan={5} className="px-4 py-10 text-center text-slate-500">Nenhum registro encontrado.</td>
+                                    <td colSpan={6} className="px-4 py-10 text-center text-slate-500">Nenhum registro encontrado.</td>
                                 </tr>
                             ) : (
                                 submissions.map(item => (
@@ -122,6 +124,30 @@ export default function EditarPage() {
                                         </td>
                                         <td className="px-4 py-3 text-slate-500 dark:text-slate-400 whitespace-nowrap">
                                             {item.category}
+                                        </td>
+                                        <td className="px-4 py-3 text-center">
+                                            <button
+                                                onClick={async () => {
+                                                    const newVal = !item.featured;
+                                                    const { error } = await supabase
+                                                        .from('submissions')
+                                                        .update({ featured: newVal })
+                                                        .eq('id', item.id);
+                                                    if (error) {
+                                                        console.error('Featured toggle error:', error);
+                                                        alert('Erro ao alterar destaque: ' + error.message);
+                                                    } else {
+                                                        setSubmissions(prev => prev.map(s => s.id === item.id ? { ...s, featured: newVal } : s));
+                                                    }
+                                                }}
+                                                className={`inline-flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-bold transition-all ${item.featured
+                                                    ? 'bg-brand-yellow/10 text-brand-yellow'
+                                                    : 'bg-gray-100 dark:bg-gray-700 text-gray-400 hover:text-brand-yellow'
+                                                    }`}
+                                                title={item.featured ? 'Remover Destaque' : 'Marcar como Destaque'}
+                                            >
+                                                <span className="material-symbols-outlined text-[16px]" style={item.featured ? { fontVariationSettings: "'FILL' 1" } : {}}>star</span>
+                                            </button>
                                         </td>
                                         <td className="px-4 py-3 text-right">
                                             <button

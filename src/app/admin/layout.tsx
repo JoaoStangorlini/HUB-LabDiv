@@ -19,6 +19,9 @@ export default function AdminLayout({
         { name: 'Negadas', href: '/admin/negadas', icon: 'cancel' },
         { name: 'Filtrar por Autor', href: '/admin/autores', icon: 'person_search' },
         { name: 'Editar Submissões', href: '/admin/editar', icon: 'edit_square' },
+        { name: 'Ranking', href: '/admin/ranking', icon: 'trending_up' },
+        { name: 'Perguntas', href: '/admin/perguntas', icon: 'forum' },
+        { name: 'Oportunidades', href: '/admin/oportunidades', icon: 'event' },
     ];
 
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);

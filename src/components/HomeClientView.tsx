@@ -195,6 +195,37 @@ export const HomeClientView = ({ initialItems }: HomeClientViewProps) => {
                 </div>
             </section>
 
+            {/* Destaque da Semana Hero Section */}
+            {(() => {
+                const featuredItems = initialItems.filter(i => i.isFeatured);
+                if (featuredItems.length === 0) return null;
+                return (
+                    <section className="bg-gradient-to-br from-brand-yellow/5 via-white to-brand-red/5 dark:from-brand-yellow/10 dark:via-background-dark dark:to-brand-red/10 py-10 border-b border-gray-200 dark:border-gray-800">
+                        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                            <div className="flex items-center gap-3 mb-8">
+                                <div className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-brand-red to-brand-yellow text-white rounded-full text-xs font-bold uppercase tracking-wider shadow-lg">
+                                    <span className="material-symbols-outlined text-[16px]" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
+                                    Destaque da Semana
+                                </div>
+                                <div className="flex-1 h-px bg-gradient-to-r from-brand-yellow/40 to-transparent"></div>
+                            </div>
+                            <div className={`grid gap-6 ${featuredItems.length === 1 ? 'grid-cols-1 max-w-2xl mx-auto' : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3'}`}>
+                                {featuredItems.map(item => (
+                                    <div key={item.id} onClick={() => openModal(item)} className="transform hover:scale-[1.02] transition-transform">
+                                        <div className="relative">
+                                            <div className="absolute -inset-0.5 bg-gradient-to-r from-brand-red via-brand-yellow to-brand-red rounded-2xl blur opacity-30 group-hover:opacity-50 transition-opacity"></div>
+                                            <div className="relative">
+                                                <MediaCard {...item} />
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </section>
+                );
+            })()}
+
             <section className="bg-background-subtle dark:bg-background-dark py-12 transition-colors flex-grow">
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                     <div className="masonry-grid">
