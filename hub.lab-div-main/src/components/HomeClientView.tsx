@@ -34,6 +34,9 @@ export const HomeClientView = ({ initialItems, initialHasMore }: HomeClientViewP
     const [selectedItem, setSelectedItem] = useState<MediaCardProps | null>(null);
     const [modalImageIdx, setModalImageIdx] = useState(0);
 
+    // Citation copy feedback
+    const [citeCopied, setCiteCopied] = useState(false);
+
     // Parallax Mouse State
     const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
 
@@ -94,6 +97,7 @@ export const HomeClientView = ({ initialItems, initialHasMore }: HomeClientViewP
     const openModal = (item: MediaCardProps) => {
         setSelectedItem(item);
         setModalImageIdx(0);
+        setCiteCopied(false);
     };
 
     const currentSubmissionIndex = selectedItem ? items.findIndex(i => i.id === selectedItem.id) : -1;
@@ -528,17 +532,27 @@ export const HomeClientView = ({ initialItems, initialHasMore }: HomeClientViewP
                             {/* ABNT Citation Button */}
                             <div className="mt-4">
                                 <button
-                                    onClick={() => {
+                                    onClick={async () => {
                                         const year = selectedItem.created_at ? new Date(selectedItem.created_at).getFullYear() : new Date().getFullYear();
                                         const citation = `${selectedItem.authors.toUpperCase()}. ${selectedItem.title}. Hub Lab-Div IF-USP, ${year}. Disponível em: ${window.location.origin}/arquivo/${selectedItem.id}`;
-                                        navigator.clipboard.writeText(citation);
-                                        const btn = document.getElementById('cite-btn-home');
-                                        if (btn) { btn.textContent = 'Citação copiada!'; setTimeout(() => { btn.textContent = 'Copiar Citação ABNT'; }, 2000); }
+                                        try {
+                                            await navigator.clipboard.writeText(citation);
+                                        } catch {
+                                            // Fallback for HTTP contexts
+                                            const textarea = document.createElement('textarea');
+                                            textarea.value = citation;
+                                            document.body.appendChild(textarea);
+                                            textarea.select();
+                                            document.execCommand('copy');
+                                            document.body.removeChild(textarea);
+                                        }
+                                        setCiteCopied(true);
+                                        setTimeout(() => setCiteCopied(false), 2000);
                                     }}
                                     className="w-full bg-brand-yellow/10 hover:bg-brand-yellow/20 text-brand-yellow border border-brand-yellow/30 font-semibold py-3 flex items-center justify-center gap-2 rounded-xl transition-colors text-sm"
                                 >
-                                    <span className="material-symbols-outlined text-[18px]">format_quote</span>
-                                    <span id="cite-btn-home">Copiar Citação ABNT</span>
+                                    <span className="material-symbols-outlined text-[18px]">{citeCopied ? 'check' : 'format_quote'}</span>
+                                    {citeCopied ? 'Citação copiada!' : 'Copiar Citação ABNT'}
                                 </button>
                             </div>
 

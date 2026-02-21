@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
 
+const MAX_PDF_SIZE = 10 * 1024 * 1024; // 10MB
+
 export default function SubmitPage() {
     const router = useRouter();
 
@@ -25,7 +27,7 @@ export default function SubmitPage() {
     const [errorMsg, setErrorMsg] = useState('');
     const [acceptedCC, setAcceptedCC] = useState(false);
 
-    const MAX_PDF_SIZE = 10 * 1024 * 1024; // 10MB
+
     const descriptionRef = useRef<HTMLTextAreaElement>(null);
 
     const insertFormatting = (prefix: string, suffix: string = '') => {

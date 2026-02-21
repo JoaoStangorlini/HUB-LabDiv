@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { parseMediaUrl, formatYoutubeUrl, getDownloadUrl, getPdfViewerUrl } from './MediaCard';
 import dynamic from 'next/dynamic';
 import ReactMarkdown from 'react-markdown';
@@ -53,6 +53,8 @@ export function AdminSubmissionLightbox({
     onApprove, onReject, onToggleFeatured,
     modalImageIdx, setModalImageIdx, statusType
 }: AdminSubmissionLightboxProps) {
+
+    const [citeCopied, setCiteCopied] = useState(false);
 
     const formatDate = (dateString: string) => {
         const date = new Date(dateString);
@@ -259,17 +261,26 @@ export function AdminSubmissionLightbox({
                     {/* ABNT Citation Button */}
                     <div className="mt-4">
                         <button
-                            onClick={() => {
+                            onClick={async () => {
                                 const year = new Date(item.created_at).getFullYear();
                                 const citation = `${item.authors.toUpperCase()}. ${item.title}. Hub Lab-Div IF-USP, ${year}. Disponível em: ${window.location.origin}/arquivo/${item.id}`;
-                                navigator.clipboard.writeText(citation);
-                                const btn = document.getElementById('cite-btn-admin');
-                                if (btn) { btn.textContent = 'Citação copiada!'; setTimeout(() => { btn.textContent = 'Copiar Citação ABNT'; }, 2000); }
+                                try {
+                                    await navigator.clipboard.writeText(citation);
+                                } catch {
+                                    const textarea = document.createElement('textarea');
+                                    textarea.value = citation;
+                                    document.body.appendChild(textarea);
+                                    textarea.select();
+                                    document.execCommand('copy');
+                                    document.body.removeChild(textarea);
+                                }
+                                setCiteCopied(true);
+                                setTimeout(() => setCiteCopied(false), 2000);
                             }}
                             className="w-full bg-brand-yellow/10 hover:bg-brand-yellow/20 text-brand-yellow border border-brand-yellow/30 font-semibold py-3 flex items-center justify-center gap-2 rounded-xl transition-colors text-sm"
                         >
-                            <span className="material-symbols-outlined text-[18px]">format_quote</span>
-                            <span id="cite-btn-admin">Copiar Citação ABNT</span>
+                            <span className="material-symbols-outlined text-[18px]">{citeCopied ? 'check' : 'format_quote'}</span>
+                            {citeCopied ? 'Citação copiada!' : 'Copiar Citação ABNT'}
                         </button>
                     </div>
 
