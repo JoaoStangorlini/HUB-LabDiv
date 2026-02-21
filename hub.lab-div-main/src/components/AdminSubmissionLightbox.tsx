@@ -232,12 +232,12 @@ export function AdminSubmissionLightbox({
                         </div>
                     </div>
 
-                    {item.description && (
+                    {item.description && item.media_type !== 'text' && (
                         <div className="flex-1">
                             <h3 className="text-sm font-bold text-gray-900 dark:text-white mb-2 uppercase tracking-wide">Descrição do Trabalho</h3>
-                            <p className="text-gray-600 dark:text-gray-400 text-sm leading-relaxed whitespace-pre-line">
-                                {item.description}
-                            </p>
+                            <div className="text-gray-600 dark:text-gray-400 text-sm leading-relaxed prose prose-sm dark:prose-invert max-w-none">
+                                <ReactMarkdown>{item.description}</ReactMarkdown>
+                            </div>
                         </div>
                     )}
 

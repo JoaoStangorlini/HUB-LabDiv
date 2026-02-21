@@ -1,0 +1,13 @@
+// -"Atue como um Engenheiro de Software Sênior focado em Code Review e DevOps. Acabamos de finalizar uma série de implementações no código do 'Arquivo Lab-Div'.
+
+Sua tarefa agora é executar uma SUPER REVISÃO de todo o código modificado e adicionado recentemente, antes de fazermos o commit final. Siga estes passos e me reporte o que encontrou/corrigiu:
+
+1. Caça a Bugs e Incoerências: Revise a lógica dos novos componentes e das chamadas ao Supabase. Existe algum erro silencioso, vazamento de memória ou estado do React mal gerenciado? Corrija-os.
+
+2. Enxugar o Código: Procure por trechos repetitivos, redundâncias e estilos do Tailwind duplicados. Refatore componentes para deixá-los menores e mais limpos, economizando o máximo de linhas possível sem perder a legibilidade.
+
+3. Otimização de Performance: Verifique se há re-renderizações desnecessárias, se as imagens/componentes estão usando lazy loading corretamente e se as queries do banco de dados estão rápidas. Melhore tudo o que puder para o site rodar mais liso.
+
+4. Versionamento (Commit): Se tudo estiver perfeito, funcional e otimizado, prepare as alterações para versionamento. Gere os comandos `git add .` e `git commit` com uma mensagem clara, semântica e profissional documentando tudo o que foi feito até aqui.
+
+Execute essa super revisão agora e me explique brevemente quais melhorias de performance ou redução de linhas você conseguiu aplicar."-
