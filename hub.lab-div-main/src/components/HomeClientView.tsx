@@ -1,46 +1,93 @@
 'use client';
 
-import React, { useState } from 'react';
-import { MediaCard, MediaCardProps, parseMediaUrl, formatYoutubeUrl, getDownloadUrl } from './MediaCard';
+import React, { useState, useEffect, useRef } from 'react';
+import { MediaCard, MediaCardProps, parseMediaUrl, formatYoutubeUrl, getDownloadUrl, getPdfViewerUrl } from './MediaCard';
+import { fetchSubmissions } from '@/app/actions/submissions';
+import dynamic from 'next/dynamic';
+
+const CustomPdfViewer = dynamic(
+    () => import('./CustomPdfViewer').then((mod) => mod.CustomPdfViewer),
+    { ssr: false }
+);
 
 interface HomeClientViewProps {
     initialItems: MediaCardProps[];
+    initialHasMore: boolean;
 }
 
-export const HomeClientView = ({ initialItems }: HomeClientViewProps) => {
+export const HomeClientView = ({ initialItems, initialHasMore }: HomeClientViewProps) => {
+    // Search & Filter State
     const [searchQuery, setSearchQuery] = useState('');
+    const [debouncedQuery, setDebouncedQuery] = useState('');
     const [selectedCategory, setSelectedCategory] = useState('Todos');
     const [sortOrder, setSortOrder] = useState<'recentes' | 'antigas'>('recentes');
+
+    // Pagination & Data State
+    const [items, setItems] = useState<MediaCardProps[]>(initialItems);
+    const [page, setPage] = useState(1);
+    const [hasMore, setHasMore] = useState(initialHasMore);
+    const [isLoading, setIsLoading] = useState(false);
+    const [isLoadingMore, setIsLoadingMore] = useState(false);
+
+    // Modal State
     const [selectedItem, setSelectedItem] = useState<MediaCardProps | null>(null);
     const [modalImageIdx, setModalImageIdx] = useState(0);
-    const [visibleCount, setVisibleCount] = useState(9);
 
     // Parallax Mouse State
     const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
 
     const categories = ['Todos', 'Laboratórios', 'Pesquisadores', 'Eventos', 'Uso Didático', 'Bastidores da Ciência', 'Convivência', 'Outros'];
 
-    // Filter Logic
-    let filteredItems = initialItems.filter(item => {
-        const matchesCategory = selectedCategory === 'Todos' || item.category === selectedCategory;
-        const searchLower = searchQuery.toLowerCase();
-        const matchesSearch =
-            item.title.toLowerCase().includes(searchLower) ||
-            (item.description && item.description.toLowerCase().includes(searchLower)) ||
-            item.authors.toLowerCase().includes(searchLower);
+    // Debounce Search 
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setDebouncedQuery(searchQuery);
+        }, 400);
+        return () => clearTimeout(timer);
+    }, [searchQuery]);
 
-        return matchesCategory && matchesSearch;
-    });
+    // Fetch new results when filters change
+    const isFirstRender = useRef(true);
+    useEffect(() => {
+        if (isFirstRender.current) {
+            isFirstRender.current = false;
+            return;
+        }
 
-    // Sort Logic (default is recent first from server)
-    if (sortOrder === 'antigas') {
-        filteredItems = [...filteredItems].reverse();
-    }
+        const fetchFiltered = async () => {
+            setIsLoading(true);
+            try {
+                const res = await fetchSubmissions({
+                    page: 1, limit: 12, query: debouncedQuery, category: selectedCategory, sort: sortOrder
+                });
+                setItems(res.items);
+                setHasMore(res.hasMore);
+                setPage(1);
+            } catch (err) {
+                console.error("Failed to fetch", err);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+        fetchFiltered();
+    }, [debouncedQuery, selectedCategory, sortOrder]);
 
-    const displayedItems = filteredItems.slice(0, visibleCount);
-
-    const handleLoadMore = () => {
-        setVisibleCount(prev => prev + 9);
+    const handleLoadMore = async () => {
+        if (!hasMore || isLoadingMore) return;
+        setIsLoadingMore(true);
+        const nextPage = page + 1;
+        try {
+            const res = await fetchSubmissions({
+                page: nextPage, limit: 12, query: debouncedQuery, category: selectedCategory, sort: sortOrder
+            });
+            setItems(prev => [...prev, ...res.items]);
+            setHasMore(res.hasMore);
+            setPage(nextPage);
+        } catch (err) {
+            console.error("Failed to load more", err);
+        } finally {
+            setIsLoadingMore(false);
+        }
     };
 
     const openModal = (item: MediaCardProps) => {
@@ -48,27 +95,27 @@ export const HomeClientView = ({ initialItems }: HomeClientViewProps) => {
         setModalImageIdx(0);
     };
 
-    const currentSubmissionIndex = selectedItem ? filteredItems.findIndex(i => i.id === selectedItem.id) : -1;
+    const currentSubmissionIndex = selectedItem ? items.findIndex(i => i.id === selectedItem.id) : -1;
     const hasPrevSubmission = currentSubmissionIndex > 0;
-    const hasNextSubmission = currentSubmissionIndex !== -1 && currentSubmissionIndex < filteredItems.length - 1;
+    const hasNextSubmission = currentSubmissionIndex !== -1 && currentSubmissionIndex < items.length - 1;
 
     const handlePrevSubmission = (e: React.MouseEvent) => {
         e.stopPropagation();
         if (hasPrevSubmission) {
-            setSelectedItem(filteredItems[currentSubmissionIndex - 1]);
+            setSelectedItem(items[currentSubmissionIndex - 1]);
             setModalImageIdx(0);
         }
     };
 
-    const handleNextSubmission = (e: React.MouseEvent) => {
+    const handleNextSubmission = async (e: React.MouseEvent) => {
         e.stopPropagation();
         if (hasNextSubmission) {
-            setSelectedItem(filteredItems[currentSubmissionIndex + 1]);
+            setSelectedItem(items[currentSubmissionIndex + 1]);
             setModalImageIdx(0);
 
-            // Expand visibleCount if we navigate beyond the currently loaded items
-            if (currentSubmissionIndex + 1 >= visibleCount) {
-                setVisibleCount(prev => prev + 9);
+            // Fetch more if we navigate close to the end (prefetching)
+            if (currentSubmissionIndex + 1 >= items.length - 3 && hasMore && !isLoadingMore) {
+                await handleLoadMore();
             }
         }
     };
@@ -197,6 +244,9 @@ export const HomeClientView = ({ initialItems }: HomeClientViewProps) => {
 
             {/* Destaque da Semana Hero Section */}
             {(() => {
+                // Since Destaques are meant to be shown regardless of filter on the home page initially,
+                // we can look for any item marked as featured in the first fetch, or if none, we hide it.
+                // It usually acts as a highlight reel.
                 const featuredItems = initialItems.filter(i => i.isFeatured);
                 if (featuredItems.length === 0) return null;
                 return (
@@ -228,37 +278,55 @@ export const HomeClientView = ({ initialItems }: HomeClientViewProps) => {
 
             <section className="bg-background-subtle dark:bg-background-dark py-12 transition-colors flex-grow">
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                    <div className="masonry-grid">
-                        {displayedItems.length > 0 ? (
-                            displayedItems.map((item) => (
-                                <div key={item.id} onClick={() => openModal(item)}>
-                                    <MediaCard {...item} />
+                    {isLoading ? (
+                        <div className="flex flex-col items-center justify-center py-24">
+                            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-blue mb-4"></div>
+                            <p className="text-gray-500 font-medium">Buscando itens na base de dados...</p>
+                        </div>
+                    ) : (
+                        <div className="masonry-grid">
+                            {items.length > 0 ? (
+                                items.map((item) => (
+                                    <div key={item.id} onClick={() => openModal(item)}>
+                                        <MediaCard {...item} />
+                                    </div>
+                                ))
+                            ) : (
+                                <div className="col-span-1 sm:col-span-2 lg:col-span-3 text-center py-24 bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 flex flex-col items-center justify-center">
+                                    <span className="material-symbols-outlined text-5xl text-gray-300 dark:text-gray-600 mb-3">search_off</span>
+                                    <h3 className="text-xl font-bold text-gray-700 dark:text-gray-300">Nenhum resultado encontrado</h3>
+                                    <p className="text-gray-500 mt-2">Tente ajustar seus filtros ou termo de busca.</p>
+                                    <button
+                                        onClick={() => { setSearchQuery(''); setSelectedCategory('Todos'); }}
+                                        className="mt-6 px-4 py-2 bg-primary/10 text-primary font-semibold rounded-lg hover:bg-primary/20 transition-colors"
+                                    >
+                                        Limpar Filtros
+                                    </button>
                                 </div>
-                            ))
-                        ) : (
-                            <div className="col-span-1 sm:col-span-2 lg:col-span-3 text-center py-24 bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 flex flex-col items-center justify-center">
-                                <span className="material-symbols-outlined text-5xl text-gray-300 dark:text-gray-600 mb-3">search_off</span>
-                                <h3 className="text-xl font-bold text-gray-700 dark:text-gray-300">Nenhum resultado encontrado</h3>
-                                <p className="text-gray-500 mt-2">Tente ajustar seus filtros ou termo de busca.</p>
-                                <button
-                                    onClick={() => { setSearchQuery(''); setSelectedCategory('Todos'); }}
-                                    className="mt-6 px-4 py-2 bg-primary/10 text-primary font-semibold rounded-lg hover:bg-primary/20 transition-colors"
-                                >
-                                    Limpar Filtros
-                                </button>
-                            </div>
-                        )}
-                    </div>
-                    {visibleCount < filteredItems.length && (
+                            )}
+                        </div>
+                    )}
+
+                    {hasMore && !isLoading && (
                         <div className="mt-12 flex justify-center">
                             <button
                                 onClick={handleLoadMore}
-                                className="group relative overflow-hidden inline-flex cursor-pointer items-center justify-center gap-2 rounded-xl bg-gray-900 dark:bg-white px-8 py-4 text-sm font-bold text-white dark:text-gray-900 shadow-xl hover:-translate-y-1 hover:shadow-2xl active:translate-y-0 transition-all min-w-[200px]"
+                                disabled={isLoadingMore}
+                                className={`group relative overflow-hidden inline-flex cursor-pointer items-center justify-center gap-2 rounded-xl bg-gray-900 dark:bg-white px-8 py-4 text-sm font-bold text-white dark:text-gray-900 shadow-xl transition-all min-w-[200px] ${isLoadingMore ? 'opacity-75 cursor-not-allowed' : 'hover:-translate-y-1 hover:shadow-2xl active:translate-y-0'}`}
                             >
                                 <div className="absolute inset-0 bg-gradient-to-r from-brand-blue via-brand-yellow to-brand-red opacity-0 group-hover:opacity-20 dark:group-hover:opacity-100 transition-opacity"></div>
                                 <span className="relative flex items-center gap-2">
-                                    Carregar mais
-                                    <span className="material-symbols-outlined text-xl group-hover:translate-y-1 transition-transform">expand_more</span>
+                                    {isLoadingMore ? (
+                                        <>
+                                            <div className="w-5 h-5 border-2 border-white/30 dark:border-black/30 border-t-white dark:border-t-black rounded-full animate-spin"></div>
+                                            Carregando...
+                                        </>
+                                    ) : (
+                                        <>
+                                            Carregar mais
+                                            <span className="material-symbols-outlined text-xl group-hover:translate-y-1 transition-transform">expand_more</span>
+                                        </>
+                                    )}
                                 </span>
                             </button>
                         </div>
@@ -341,6 +409,18 @@ export const HomeClientView = ({ initialItems }: HomeClientViewProps) => {
                                         <span className="text-white">Vídeo não encontrado</span>
                                     );
                                 })()
+                            ) : selectedItem.mediaType === 'pdf' ? (
+                                (() => {
+                                    const rawUrls = parseMediaUrl(selectedItem.mediaUrl);
+                                    const pdfUrl = rawUrls.length > 0 ? getPdfViewerUrl(rawUrls[0]) : '';
+                                    return pdfUrl ? (
+                                        <div className="w-full h-full min-h-[60vh] md:min-h-full bg-white rounded-l-2xl md:rounded-l-3xl overflow-hidden relative">
+                                            <CustomPdfViewer fileUrl={pdfUrl} title={selectedItem.title} />
+                                        </div>
+                                    ) : (
+                                        <span className="text-white">PDF não encontrado</span>
+                                    );
+                                })()
                             ) : (
                                 (() => {
                                     const urls = parseMediaUrl(selectedItem.mediaUrl);
@@ -417,15 +497,29 @@ export const HomeClientView = ({ initialItems }: HomeClientViewProps) => {
                                 </div>
                             )}
 
-                            <div className="pt-4 flex gap-3 mt-auto">
+                            {selectedItem.external_link && (
+                                <div className="mt-4">
+                                    <a
+                                        href={selectedItem.external_link}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="w-full bg-brand-blue hover:bg-brand-darkBlue text-white font-semibold py-3 flex items-center justify-center gap-2 rounded-xl transition-colors shadow-lg hover:shadow-xl group"
+                                    >
+                                        <span className="material-symbols-outlined group-hover:translate-x-1 transition-transform">open_in_new</span>
+                                        Acessar PDF Completo
+                                    </a>
+                                </div>
+                            )}
+
+                            <div className="pt-4 flex flex-col gap-3 mt-auto">
                                 {selectedItem.mediaType === 'image' && (
                                     <a
                                         href={getDownloadUrl(parseMediaUrl(selectedItem.mediaUrl)[modalImageIdx])}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        className="flex-1 bg-primary hover:bg-blue-700 text-white font-semibold py-3 rounded-xl transition-colors flex items-center justify-center gap-2 shadow-sm"
+                                        className="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-3 rounded-xl transition-colors flex items-center justify-center gap-2 shadow-sm"
                                     >
-                                        <span className="material-symbols-outlined">download</span> Baixar Agora
+                                        <span className="material-symbols-outlined">download</span> Baixar Imagem
                                     </a>
                                 )}
                             </div>

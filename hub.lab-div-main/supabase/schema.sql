@@ -1,6 +1,6 @@
--- Create custom types for enum values
 CREATE TYPE submission_status AS ENUM ('pendente', 'aprovado', 'rejeitado');
-CREATE TYPE submission_type AS ENUM ('image', 'video');
+-- Note: 'pdf' and 'text' are added for Sprint 2
+CREATE TYPE submission_type AS ENUM ('image', 'video', 'pdf', 'text');
 
 -- Create submissions table
 CREATE TABLE public.submissions (
@@ -15,8 +15,26 @@ CREATE TABLE public.submissions (
   whatsapp text,
   status submission_status DEFAULT 'pendente' NOT NULL,
   created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL,
-  featured boolean DEFAULT false
+  featured boolean DEFAULT false,
+  external_link text,
+  technical_details text
 );
+
+-- ==========================================
+-- SPRINT 2 MIGRATION SCRIPT 
+-- Run this in your Supabase SQL Editor if the table already exists:
+-- ALTER TYPE submission_type ADD VALUE IF NOT EXISTS 'pdf';
+-- ALTER TYPE submission_type ADD VALUE IF NOT EXISTS 'text';
+-- ALTER TABLE public.submissions ADD COLUMN IF NOT EXISTS external_link text;
+-- ALTER TABLE public.submissions ADD COLUMN IF NOT EXISTS technical_details text;
+-- ==========================================
+
+-- Performance Indexes for Submissions
+CREATE INDEX idx_submissions_status_date ON public.submissions (status, created_at DESC);
+CREATE EXTENSION IF NOT EXISTS pg_trgm;
+CREATE INDEX idx_submissions_title_trgm ON public.submissions USING GIN (title gin_trgm_ops);
+CREATE INDEX idx_submissions_desc_trgm ON public.submissions USING GIN (description gin_trgm_ops);
+CREATE INDEX idx_submissions_authors_trgm ON public.submissions USING GIN (authors gin_trgm_ops);
 
 -- Set up Row Level Security (RLS)
 ALTER TABLE public.submissions ENABLE ROW LEVEL SECURITY;
@@ -82,20 +100,35 @@ CREATE TABLE public.curtidas (
 
 ALTER TABLE public.curtidas ENABLE ROW LEVEL SECURITY;
 
--- Anyone can insert a like (UNIQUE constraint prevents duplicates)
-CREATE POLICY "Anyone can insert curtidas"
-  ON curtidas FOR INSERT
-  WITH CHECK (true);
-
--- Anyone can read curtidas (for counting)
-CREATE POLICY "Anyone can view curtidas"
-  ON curtidas FOR SELECT
-  USING (true);
-
--- Admins can delete curtidas
-CREATE POLICY "Admins can delete curtidas"
-  ON curtidas FOR DELETE
+-- Admins can do everything (including read)
+CREATE POLICY "Admins can manage curtidas"
+  ON curtidas FOR ALL
   USING (auth.role() = 'authenticated');
+
+-- Atomic RPC function to toggle likes safely
+-- This bypasses RLS (SECURITY DEFINER)
+CREATE OR REPLACE FUNCTION toggle_like(p_submission_id UUID, p_fingerprint TEXT)
+RETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER AS $$
+DECLARE
+    current_count INT;
+    was_liked BOOLEAN;
+BEGIN
+    IF EXISTS (SELECT 1 FROM curtidas WHERE submission_id = p_submission_id AND fingerprint = p_fingerprint) THEN
+        DELETE FROM curtidas WHERE submission_id = p_submission_id AND fingerprint = p_fingerprint;
+        was_liked := false;
+    ELSE
+        INSERT INTO curtidas (submission_id, fingerprint) VALUES (p_submission_id, p_fingerprint);
+        was_liked := true;
+    END IF;
+    
+    SELECT COUNT(*) INTO current_count FROM curtidas WHERE submission_id = p_submission_id;
+    
+    RETURN jsonb_build_object(
+      'liked', was_liked,
+      'count', current_count
+    );
+END;
+$$;
 
 -- =============================================
 -- Perguntas (Ask a Scientist)

@@ -7,12 +7,13 @@ export interface MediaCardProps {
     title: string;
     description?: string;
     authors: string;
-    mediaType: 'image' | 'video';
+    mediaType: 'image' | 'video' | 'pdf' | 'text';
     mediaUrl: string | string[]; // Can be a string or JSON array
     category?: string;
     avatarUrl?: string;
     isFeatured?: boolean;
     likeCount?: number;
+    external_link?: string;
 }
 
 export const parseMediaUrl = (mediaUrl: string | string[]): string[] => {
@@ -71,6 +72,25 @@ export const getDownloadUrl = (url: string) => {
         }
     }
     return url;
+};
+
+export const getPdfViewerUrl = (url: string) => {
+    if (!url) return '';
+    let viewerUrl = url;
+
+    // Strip ALL Cloudinary transformations between /upload/ and the /vXXX/ version tag.
+    // Cloudinary URLs look like: .../upload/f_auto,q_auto/v1234567/file.pdf
+    // The transformations (f_auto,q_auto, fl_attachment, etc.) are comma-separated between /upload/ and /vXXX/.
+    // We need the raw PDF without any transformations, otherwise Cloudinary converts it to WebP/JPEG.
+    if (viewerUrl.includes('/upload/')) {
+        viewerUrl = viewerUrl.replace(/\/upload\/.*?(\/v\d+\/)/, '/upload$1');
+    }
+
+    // If it's a generated jpg thumbnail from Cloudinary, switch it back to .pdf
+    if (viewerUrl.toLowerCase().endsWith('.jpg')) {
+        viewerUrl = viewerUrl.replace(/\.jpg$/i, '.pdf');
+    }
+    return viewerUrl;
 };
 
 export const MediaCard = ({
@@ -134,7 +154,11 @@ export const MediaCard = ({
     };
 
     // Prevent rendering entirely broken images if URLs array is somehow empty
-    const displayUrl = urls.length > 0 ? urls[currentImageIndex] : '';
+    // For PDFs uploaded to Cloudinary, replacing .pdf with .jpg gets the rasterized first page!
+    let displayUrl = urls.length > 0 ? urls[currentImageIndex] : '';
+    if (mediaType === 'pdf' && displayUrl.toLowerCase().endsWith('.pdf')) {
+        displayUrl = displayUrl.replace(/\.pdf$/i, '.jpg');
+    }
 
     let accentClass = 'border-t-4 border-t-gray-100 dark:border-t-gray-700';
     if (category === 'Laboratórios') accentClass = 'card-accent-yellow';
@@ -221,7 +245,12 @@ export const MediaCard = ({
                         <div className="rounded-full bg-black/60 px-2.5 py-1 text-[10px] font-bold tracking-wider uppercase text-white backdrop-blur-sm shadow-sm">
                             {category}
                         </div>
-                        {mediaType === 'image' && displayUrl && (
+                        {mediaType === 'pdf' && (
+                            <div className="rounded-full bg-brand-yellow/90 px-2 flex items-center gap-1 py-1 text-[10px] font-bold tracking-wider uppercase text-black backdrop-blur-sm shadow-sm">
+                                <span className="material-symbols-outlined text-[14px]">picture_as_pdf</span> PDF
+                            </div>
+                        )}
+                        {(mediaType === 'image' || mediaType === 'pdf') && displayUrl && (
                             <a
                                 href={getDownloadUrl(displayUrl)}
                                 target="_blank"

@@ -15,18 +15,31 @@ export default function SubmitPage() {
     const [email, setEmail] = useState('');
     const [whatsapp, setWhatsapp] = useState('');
 
-    const [mediaType, setMediaType] = useState<'image' | 'video'>('image');
+    const [mediaType, setMediaType] = useState<'image' | 'video' | 'pdf'>('image');
     const [videoUrl, setVideoUrl] = useState('');
+    const [externalLink, setExternalLink] = useState('');
     const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
 
     const [isLoading, setIsLoading] = useState(false);
     const [errorMsg, setErrorMsg] = useState('');
     const [acceptedCC, setAcceptedCC] = useState(false);
 
+    const MAX_PDF_SIZE = 10 * 1024 * 1024; // 10MB
+
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files) {
             const files = Array.from(e.target.files);
-            if (files.length > 10) {
+
+            // Validate PDF max size
+            if (mediaType === 'pdf') {
+                if (files.some(file => file.size > MAX_PDF_SIZE)) {
+                    setErrorMsg('O arquivo PDF não pode ultrapassar 10MB.');
+                    setSelectedFiles([]);
+                    return;
+                }
+            }
+
+            if (mediaType === 'image' && files.length > 10) {
                 setErrorMsg('Limite máximo de 10 fotos por submissão.');
                 setSelectedFiles(files.slice(0, 10));
             } else {
@@ -45,31 +58,34 @@ export default function SubmitPage() {
     const uploadToCloudinary = async (file: File) => {
         const formData = new FormData();
         formData.append('file', file);
-        formData.append('upload_preset', process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET || 'ifusp_uploads');
-
-        // Applying f_auto and q_auto locally, although usually Cloudinary presets handle this, 
-        // we must guarantee the return URL has it if explicitly requested in requirements.
-        // For now we trust the unsigned unpload config, or append to the returned URL.
+        formData.append('upload_preset', process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET!);
 
         const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
         if (!cloudName) throw new Error("Cloudinary cloud name missing");
 
-        const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
+        // PDFs must use 'image' type so Cloudinary generates a thumbnail of the first page.
+        // Images use 'image' type as usual.
+        const resourceType = 'image';
+
+        const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/${resourceType}/upload`, {
             method: 'POST',
             body: formData
         });
 
         if (!res.ok) {
-            throw new Error('Falha no upload de imagem');
+            const errText = await res.text();
+            throw new Error(`Falha no upload (${res.status}): ${errText}`);
         }
 
         const data = await res.json();
 
-        // Inject f_auto,q_auto into the generated Cloudinary URL transformation path
-        // Format is usually: https://res.cloudinary.com/id/image/upload/v1234/file.jpg
-        const urlParts = data.secure_url.split('/upload/');
-        if (urlParts.length === 2) {
-            return `${urlParts[0]}/upload/f_auto,q_auto/${urlParts[1]}`;
+        // For images, inject f_auto,q_auto for optimization.
+        // For PDFs, DON'T inject these - they would convert the PDF to a WebP image.
+        if (file.type !== 'application/pdf') {
+            const urlParts = data.secure_url.split('/upload/');
+            if (urlParts.length === 2) {
+                return `${urlParts[0]}/upload/f_auto,q_auto/${urlParts[1]}`;
+            }
         }
         return data.secure_url;
     };
@@ -85,24 +101,27 @@ export default function SubmitPage() {
             if (!email && !whatsapp) {
                 throw new Error("Preencha pelo menos um contato (E-mail ou WhatsApp)");
             }
+            if (mediaType === 'pdf' && !externalLink) {
+                throw new Error("Para submissões de PDF, o link para o PDF completo é obrigatório.");
+            }
 
             let finalMediaUrl: string[] = [];
 
-            if (mediaType === 'image') {
-                if (selectedFiles.length === 0) throw new Error("Selecione pelo menos uma imagem para upload");
+            if (mediaType === 'image' || mediaType === 'pdf') {
+                if (selectedFiles.length === 0) throw new Error(`Selecione pelo menos ${mediaType === 'image' ? 'uma imagem' : 'um PDF'} para upload`);
 
                 // Upload all selected files in parallel
                 finalMediaUrl = await Promise.all(
                     selectedFiles.map(file => uploadToCloudinary(file))
                 );
-            } else {
+            } else if (mediaType === 'video') {
                 if (!videoUrl) throw new Error("Insira o link do vídeo");
                 const videoId = parseYoutubeUrl(videoUrl);
                 if (!videoId) throw new Error("Link do YouTube inválido");
                 finalMediaUrl = [`https://www.youtube.com/embed/${videoId}`];
             }
 
-            const { error } = await supabase.from('submissions').insert([{
+            const { error: insertError } = await supabase.from('submissions').insert([{
                 title,
                 authors,
                 description,
@@ -110,18 +129,22 @@ export default function SubmitPage() {
                 email,
                 whatsapp,
                 media_type: mediaType,
-                media_url: finalMediaUrl,
-                status: 'pendente'
+                media_url: JSON.stringify(finalMediaUrl),
+                status: 'pendente',
+                external_link: externalLink || null
             }]);
 
-            if (error) throw error;
+            if (insertError) {
+                console.error("Supabase Error:", insertError);
+                throw new Error(`Erro ao salvar no banco: ${insertError.message || JSON.stringify(insertError)}`);
+            }
 
             alert('Submissão enviada com sucesso! Em breve passará por moderação.');
             router.push('/');
 
         } catch (err: any) {
-            console.error(err);
-            setErrorMsg(err.message || 'Ocorreu um erro na submissão');
+            console.error("Full Submit Error:", err);
+            setErrorMsg(err?.message || (typeof err === 'object' ? JSON.stringify(err) : String(err)));
         } finally {
             setIsLoading(false);
         }
@@ -282,9 +305,30 @@ export default function SubmitPage() {
                                     value={description}
                                     onChange={e => setDescription(e.target.value)}
                                     className="w-full bg-gray-50 dark:bg-form-dark border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white rounded-xl px-4 py-3.5 focus:ring-2 focus:ring-brand-blue focus:border-brand-blue transition-all resize-none"
-                                    placeholder="Detalhe o contexto da foto ou do vídeo..."
+                                    placeholder="Detalhe o contexto da submissão..."
                                 ></textarea>
                             </div>
+
+                            {mediaType === 'pdf' && (
+                                <div className="space-y-2 group">
+                                    <label className="flex items-center gap-2 text-sm font-bold text-gray-700 dark:text-gray-300" htmlFor="external_link">
+                                        <span className="material-symbols-outlined text-brand-blue text-[18px]">link</span>
+                                        Link para PDF Completo <span className="text-red-500">*</span>
+                                    </label>
+                                    <input
+                                        id="external_link"
+                                        type="url"
+                                        value={externalLink}
+                                        onChange={e => setExternalLink(e.target.value)}
+                                        className="w-full bg-gray-50 dark:bg-form-dark border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white rounded-xl px-4 py-3.5 focus:ring-2 focus:ring-brand-blue focus:border-brand-blue transition-all text-sm"
+                                        placeholder="Link do Google Drive, Dropbox ou repositório do artigo inteiro..."
+                                        required
+                                    />
+                                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 pl-1 border-l-2 border-brand-blue">
+                                        Obrigatório. Cole o link do Google Drive, Dropbox ou repositório para visualização completa.
+                                    </p>
+                                </div>
+                            )}
                         </div>
 
                         <hr className="my-10 border-gray-100 dark:border-gray-800" />
@@ -298,11 +342,11 @@ export default function SubmitPage() {
                                 <p className="text-sm text-gray-500 dark:text-gray-400">Adicione as imagens ou o link do vídeo explicativo do trabalho.</p>
                             </div>
 
-                            <div className="flex p-1.5 bg-gray-100/50 dark:bg-form-dark/50 rounded-2xl w-full max-w-sm mb-6 border border-gray-200/50 dark:border-gray-700/50" role="tablist">
+                            <div className="flex p-1.5 bg-gray-100/50 dark:bg-form-dark/50 rounded-2xl w-full mb-6 border border-gray-200/50 dark:border-gray-700/50 overflow-x-auto" role="tablist">
                                 <button
-                                    onClick={() => setMediaType('image')}
+                                    onClick={() => { setMediaType('image'); setSelectedFiles([]); }}
                                     aria-selected={mediaType === 'image'}
-                                    className={`w-full py-3 text-sm font-bold rounded-xl transition-all ${mediaType === 'image' ? 'bg-white dark:bg-gray-700 text-brand-blue shadow-sm' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'}`}
+                                    className={`flex-1 min-w-[120px] py-3 text-sm font-bold rounded-xl transition-all ${mediaType === 'image' ? 'bg-white dark:bg-gray-700 text-brand-blue shadow-sm' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'}`}
                                 >
                                     <div className="flex items-center justify-center gap-2">
                                         <span className="material-symbols-outlined text-[20px]">image</span>
@@ -310,19 +354,29 @@ export default function SubmitPage() {
                                     </div>
                                 </button>
                                 <button
-                                    onClick={() => setMediaType('video')}
+                                    onClick={() => { setMediaType('video'); setSelectedFiles([]); }}
                                     aria-selected={mediaType === 'video'}
-                                    className={`w-full py-3 text-sm font-bold rounded-xl transition-all ${mediaType === 'video' ? 'bg-white dark:bg-gray-700 text-brand-red shadow-sm' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'}`}
+                                    className={`flex-1 min-w-[120px] py-3 text-sm font-bold rounded-xl transition-all ${mediaType === 'video' ? 'bg-white dark:bg-gray-700 text-brand-red shadow-sm' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'}`}
                                 >
                                     <div className="flex items-center justify-center gap-2">
                                         <span className="material-symbols-outlined text-[20px]">movie</span>
                                         Vídeo
                                     </div>
                                 </button>
+                                <button
+                                    onClick={() => { setMediaType('pdf'); setSelectedFiles([]); }}
+                                    aria-selected={mediaType === 'pdf'}
+                                    className={`flex-1 min-w-[120px] py-3 text-sm font-bold rounded-xl transition-all ${mediaType === 'pdf' ? 'bg-white dark:bg-gray-700 text-brand-yellow shadow-sm' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'}`}
+                                >
+                                    <div className="flex items-center justify-center gap-2">
+                                        <span className="material-symbols-outlined text-[20px]">picture_as_pdf</span>
+                                        PDF
+                                    </div>
+                                </button>
                             </div>
 
                             <div className="mt-4">
-                                {mediaType === 'image' ? (
+                                {mediaType === 'image' || mediaType === 'pdf' ? (
                                     <div className="flex justify-center rounded-2xl border-2 border-dashed border-gray-300 dark:border-gray-700 px-6 py-12 bg-gray-50/50 dark:bg-form-dark/50 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors cursor-pointer group relative overflow-hidden">
                                         <div className="absolute inset-0 bg-gradient-to-br from-brand-blue/5 to-brand-yellow/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
                                         <div className="text-center relative z-10">
@@ -331,21 +385,25 @@ export default function SubmitPage() {
                                             </div>
                                             <div className="mt-2 flex text-sm leading-6 text-gray-600 dark:text-gray-400 justify-center">
                                                 <label htmlFor="file-upload" className="relative cursor-pointer rounded-md font-bold text-brand-blue hover:text-brand-darkBlue focus-within:outline-none focus-within:ring-2 focus-within:ring-brand-blue focus-within:ring-offset-2 transition-colors">
-                                                    <span>{selectedFiles.length > 0 ? `${selectedFiles.length} arquivo${selectedFiles.length > 1 ? 's' : ''} selecionado${selectedFiles.length > 1 ? 's' : ''}` : 'Clique para enviar imagens'}</span>
+                                                    <span>{selectedFiles.length > 0 ? `${selectedFiles.length} arquivo${selectedFiles.length > 1 ? 's' : ''} selecionado${selectedFiles.length > 1 ? 's' : ''}` : `Clique para enviar ${mediaType === 'image' ? 'imagens' : 'PDFs'}`}</span>
                                                     <input
                                                         id="file-upload"
                                                         name="file-upload"
                                                         type="file"
-                                                        accept="image/*"
-                                                        multiple
+                                                        accept={mediaType === 'image' ? "image/*" : "application/pdf"}
+                                                        multiple={mediaType === 'image'}
                                                         className="sr-only"
                                                         onChange={handleFileChange}
                                                     />
                                                 </label>
                                                 {selectedFiles.length === 0 && <p className="pl-1 hidden sm:block">ou arraste para cá</p>}
                                             </div>
-                                            <p className="text-xs text-gray-500 mt-2">PNG, JPG ou GIF até 10MB</p>
-                                            <p className="text-xs font-semibold text-brand-red mt-2">Limite máximo de 10 fotos por submissão.</p>
+                                            <p className="text-xs text-gray-500 mt-2">
+                                                {mediaType === 'image' ? 'PNG, JPG ou GIF até 10MB' : 'Arquivo .PDF (Apenas as primeiras páginas ou resumos - Limite estrito de 10MB)'}
+                                            </p>
+                                            <p className="text-xs font-semibold text-brand-red mt-2">
+                                                {mediaType === 'image' ? 'Limite máximo de 10 fotos por submissão.' : 'Apenas 1 PDF por submissão.'}
+                                            </p>
                                         </div>
                                     </div>
                                 ) : (
