@@ -357,37 +357,29 @@ export const MediaCard = ({
             <div className="flex flex-col p-4 pt-3">
                 {/* Action Bar */}
                 <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center gap-[18px]">
+                    <div className="flex items-center gap-4">
                         <button
                             onClick={handleLike}
                             disabled={isLiking}
-                            className={`transition-all active:scale-90 relative flex items-center justify-center ${liked ? 'text-brand-red' : 'text-gray-700 dark:text-gray-200 hover:text-brand-red'}`}
+                            className={`transition-all active:scale-90 flex items-center gap-1 ${liked ? 'text-brand-red' : 'text-gray-700 dark:text-gray-200 hover:text-brand-red'}`}
                         >
-                            <span className="material-symbols-outlined text-[32px]">
+                            <span className={`material-symbols-outlined text-[26px] ${liked ? 'filled' : ''}`} style={liked ? { fontVariationSettings: "'FILL' 1" } : {}}>
                                 favorite
                             </span>
-                            {likes >= 0 && (
-                                <span className={`absolute inset-[1px] flex items-center justify-center text-[10px] sm:text-[11px] font-bold pb-0.5 ${liked ? 'text-brand-red' : 'text-gray-700 dark:text-gray-200'}`}>
-                                    {likes > 99 ? '99+' : likes}
-                                </span>
-                            )}
+                            <span className="text-xs font-bold tabular-nums">{likes}</span>
                         </button>
-                        <Link href={`/arquivo/${id}#comments`} onClick={(e) => e.stopPropagation()} className="text-gray-700 dark:text-gray-200 hover:text-brand-blue transition-transform active:scale-90 relative flex items-center justify-center">
-                            <span className="material-symbols-outlined text-[32px]">chat_bubble</span>
-                            {comments >= 0 && (
-                                <span className="absolute inset-[1px] flex items-center justify-center text-[10px] sm:text-[11px] font-bold pb-1.5 opacity-90">
-                                    {comments}
-                                </span>
-                            )}
+                        <Link href={`/arquivo/${id}#comments`} onClick={(e) => e.stopPropagation()} className="text-gray-700 dark:text-gray-200 hover:text-brand-blue transition-transform active:scale-90 flex items-center gap-1">
+                            <span className="material-symbols-outlined text-[26px]">chat_bubble</span>
+                            <span className="text-xs font-bold tabular-nums">{comments}</span>
                         </Link>
                         <button
                             onClick={(e) => {
                                 e.stopPropagation();
                                 setShowShareMenu(true);
                             }}
-                            className="text-gray-700 dark:text-gray-200 hover:text-brand-yellow font-bold transition-transform active:scale-90"
+                            className="text-gray-700 dark:text-gray-200 hover:text-brand-yellow transition-transform active:scale-90"
                         >
-                            <span className="material-symbols-outlined text-[32px]">send</span>
+                            <span className="material-symbols-outlined text-[26px]">send</span>
                         </button>
                         {displayUrl && (
                             <a
@@ -397,23 +389,19 @@ export const MediaCard = ({
                                 onClick={e => e.stopPropagation()}
                                 className="text-gray-700 dark:text-gray-200 hover:text-green-500 transition-transform active:scale-90"
                             >
-                                <span className="material-symbols-outlined text-[32px]">download</span>
+                                <span className="material-symbols-outlined text-[26px]">download</span>
                             </a>
                         )}
                     </div>
                     <button
                         onClick={handleSave}
                         disabled={isSaving}
-                        className={`transition-all active:scale-90 relative flex items-center justify-center ${saved ? 'text-brand-blue' : 'text-gray-700 dark:text-gray-200 hover:text-brand-blue'}`}
+                        className={`transition-all active:scale-90 flex items-center gap-1 ${saved ? 'text-brand-blue' : 'text-gray-700 dark:text-gray-200 hover:text-brand-blue'}`}
                     >
-                        <span className={`material-symbols-outlined text-[32px]`}>
+                        <span className={`material-symbols-outlined text-[26px] ${saved ? 'filled' : ''}`} style={saved ? { fontVariationSettings: "'FILL' 1" } : {}}>
                             bookmark
                         </span>
-                        {saves >= 0 && (
-                            <span className={`absolute inset-[1px] flex items-center justify-center text-[10px] sm:text-[11px] font-bold pt-1 opacity-90 ${saved ? 'text-brand-blue' : 'text-gray-700 dark:text-gray-200'}`}>
-                                {saves}
-                            </span>
-                        )}
+                        <span className="text-xs font-bold tabular-nums">{saves}</span>
                     </button>
                 </div>
 

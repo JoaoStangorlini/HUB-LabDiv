@@ -9,6 +9,10 @@ import { ReproductionSection } from './ReproductionSection';
 import { ImageCarouselClient } from './ImageCarouselClient';
 import { fetchReproductionsBySubmission } from '@/app/actions/reproductions';
 import { getDownloadUrl, parseMediaUrl, formatYoutubeUrl } from '@/lib/media-utils';
+import ReactMarkdown from 'react-markdown';
+import remarkMath from 'remark-math';
+import rehypeKatex from 'rehype-katex';
+import rehypeSanitize from 'rehype-sanitize';
 
 interface PageProps {
     params: Promise<{ id: string }>;
@@ -118,24 +122,26 @@ export default async function ArquivoItemPage({ params }: PageProps) {
             <main className="flex-1 max-w-5xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
                 <div className="bg-white dark:bg-card-dark rounded-2xl md:rounded-3xl overflow-hidden shadow-xl border border-gray-100 dark:border-gray-800">
 
-                    {/* Media Section */}
-                    <div className="bg-black flex items-center justify-center min-h-[300px] md:min-h-[500px]">
-                        {submission.media_type === 'video' ? (
-                            urls.length > 0 ? (
-                                <iframe
-                                    src={formatYoutubeUrl(urls[0])}
-                                    className="w-full aspect-video"
-                                    allowFullScreen
-                                    frameBorder="0"
-                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                />
+                    {/* Media Section - skip for text/zip/sdocx */}
+                    {submission.media_type !== 'text' && submission.media_type !== 'zip' && submission.media_type !== 'sdocx' && (
+                        <div className="bg-black flex items-center justify-center min-h-[300px] md:min-h-[500px]">
+                            {submission.media_type === 'video' ? (
+                                urls.length > 0 ? (
+                                    <iframe
+                                        src={formatYoutubeUrl(urls[0])}
+                                        className="w-full aspect-video"
+                                        allowFullScreen
+                                        frameBorder="0"
+                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                    />
+                                ) : (
+                                    <span className="text-white">Vídeo não encontrado</span>
+                                )
                             ) : (
-                                <span className="text-white">Vídeo não encontrado</span>
-                            )
-                        ) : (
-                            <ImageCarouselClient urls={urls} title={submission.title} />
-                        )}
-                    </div>
+                                <ImageCarouselClient urls={urls} title={submission.title} />
+                            )}
+                        </div>
+                    )}
 
                     {/* Details Section */}
                     <div className="p-6 md:p-10 space-y-6">
@@ -169,9 +175,11 @@ export default async function ArquivoItemPage({ params }: PageProps) {
                         {submission.description && (
                             <div>
                                 <h2 className="text-sm font-bold text-gray-900 dark:text-white mb-2 uppercase tracking-wide">Descrição</h2>
-                                <p className="text-gray-600 dark:text-gray-400 leading-relaxed whitespace-pre-line">
-                                    {submission.description}
-                                </p>
+                                <div className="text-gray-600 dark:text-gray-400 leading-relaxed prose prose-lg dark:prose-invert max-w-none prose-headings:text-gray-800 dark:prose-headings:text-gray-200 prose-a:text-brand-blue prose-img:rounded-xl">
+                                    <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex, rehypeSanitize]}>
+                                        {submission.description}
+                                    </ReactMarkdown>
+                                </div>
                             </div>
                         )}
 
