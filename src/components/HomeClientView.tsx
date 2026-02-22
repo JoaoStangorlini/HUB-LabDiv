@@ -58,7 +58,7 @@ export const HomeClientView = ({ initialItems, initialHasMore, initialCategory =
         }
     };
 
-    const categories = ['Todos', 'Laboratórios', 'Pesquisadores', 'Eventos', 'Uso Didático', 'Bastidores da Ciência', 'Convivência', 'Mural do Deu Ruim', 'Guia de Sobrevivência', 'Física Fora da Caixa', 'Impacto e Conquistas', 'Central de Anotações', 'Outros'];
+    const categories = ['Todos', 'Destaques', 'Laboratórios', 'Pesquisadores', 'Eventos', 'Uso Didático', 'Bastidores da Ciência', 'Convivência', 'Mural do Deu Ruim', 'Guia de Sobrevivência', 'Física Fora da Caixa', 'Impacto e Conquistas', 'Central de Anotações', 'Outros'];
     const mediaTypeOptions = [
         { label: 'Imagens', value: 'image', icon: 'image' },
         { label: 'Vídeos', value: 'video', icon: 'videocam' },
@@ -91,7 +91,8 @@ export const HomeClientView = ({ initialItems, initialHasMore, initialCategory =
                     page: 1,
                     limit: 12,
                     query: debouncedQuery,
-                    categories: selectedCategories,
+                    categories: selectedCategories.filter(c => c !== 'Todos' && c !== 'Destaques'),
+                    featured: selectedCategories.includes('Destaques') ? true : undefined,
                     mediaTypes: selectedMediaTypes,
                     sort: sortOrder,
                     author: authorFilter || undefined
@@ -117,7 +118,8 @@ export const HomeClientView = ({ initialItems, initialHasMore, initialCategory =
                 page: nextPage,
                 limit: 12,
                 query: debouncedQuery,
-                categories: selectedCategories,
+                categories: selectedCategories.filter(c => c !== 'Todos' && c !== 'Destaques'),
+                featured: selectedCategories.includes('Destaques') ? true : undefined,
                 mediaTypes: selectedMediaTypes,
                 sort: sortOrder,
                 author: authorFilter || undefined
@@ -383,22 +385,27 @@ export const HomeClientView = ({ initialItems, initialHasMore, initialCategory =
                         <div ref={filtersScrollRef} className="flex flex-1 items-center gap-2 overflow-x-auto no-scrollbar scroll-smooth">
                             {categories.map(cat => {
                                 const isActive = selectedCategories.includes(cat);
+                                const isDestaques = cat === 'Destaques';
                                 const isYellow = cat === 'Laboratórios' || cat === 'Eventos' || cat === 'Guia de Sobrevivência';
                                 const isRed = cat === 'Pesquisadores' || cat === 'Convivência' || cat === 'Impacto e Conquistas' || cat === 'Mural do Deu Ruim';
 
                                 let activeClass = '';
                                 if (isActive) {
-                                    activeClass = isYellow
-                                        ? 'bg-brand-yellow hover:bg-yellow-500 border-transparent text-black font-medium shadow-md'
-                                        : isRed
-                                            ? 'bg-brand-red hover:bg-red-600 border-transparent text-white font-medium shadow-md'
-                                            : 'bg-brand-blue hover:bg-brand-darkBlue border-transparent text-white font-medium shadow-md';
+                                    activeClass = isDestaques
+                                        ? 'bg-gradient-to-r from-brand-red to-brand-yellow border-transparent text-white font-bold shadow-md'
+                                        : isYellow
+                                            ? 'bg-brand-yellow hover:bg-yellow-500 border-transparent text-black font-medium shadow-md'
+                                            : isRed
+                                                ? 'bg-brand-red hover:bg-red-600 border-transparent text-white font-medium shadow-md'
+                                                : 'bg-brand-blue hover:bg-brand-darkBlue border-transparent text-white font-medium shadow-md';
                                 } else {
-                                    activeClass = isYellow
-                                        ? 'bg-white dark:bg-form-dark text-gray-600 dark:text-gray-300 hover:bg-brand-yellow/10 dark:hover:bg-brand-yellow/20 hover:text-brand-yellow-700 dark:hover:text-brand-yellow border-gray-200 dark:border-gray-700 hover:border-brand-yellow'
-                                        : isRed
-                                            ? 'bg-white dark:bg-form-dark text-gray-600 dark:text-gray-300 hover:bg-brand-red/10 dark:hover:bg-brand-red/20 hover:text-brand-red border-gray-200 dark:border-gray-700 hover:border-brand-red'
-                                            : 'bg-white dark:bg-form-dark text-gray-600 dark:text-gray-300 hover:bg-brand-blue/5 dark:hover:bg-brand-blue/10 hover:text-brand-blue border-gray-200 dark:border-gray-700 hover:border-brand-blue';
+                                    activeClass = isDestaques
+                                        ? 'bg-white dark:bg-form-dark text-brand-red hover:bg-brand-red/5 dark:hover:bg-brand-red/10 border-brand-red/20 hover:border-brand-red'
+                                        : isYellow
+                                            ? 'bg-white dark:bg-form-dark text-gray-600 dark:text-gray-300 hover:bg-brand-yellow/10 dark:hover:bg-brand-yellow/20 hover:text-brand-yellow-700 dark:hover:text-brand-yellow border-gray-200 dark:border-gray-700 hover:border-brand-yellow'
+                                            : isRed
+                                                ? 'bg-white dark:bg-form-dark text-gray-600 dark:text-gray-300 hover:bg-brand-red/10 dark:hover:bg-brand-red/20 hover:text-brand-red border-gray-200 dark:border-gray-700 hover:border-brand-red'
+                                                : 'bg-white dark:bg-form-dark text-gray-600 dark:text-gray-300 hover:bg-brand-blue/5 dark:hover:bg-brand-blue/10 hover:text-brand-blue border-gray-200 dark:border-gray-700 hover:border-brand-blue';
                                 }
 
                                 return (

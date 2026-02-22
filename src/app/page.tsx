@@ -15,7 +15,8 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ c
     page: 1,
     limit: 12, // Starting with 12 items initially
     query: '',
-    categories: [initialCategory],
+    categories: initialCategory === 'Todos' || initialCategory === 'Destaques' ? [] : [initialCategory],
+    featured: initialCategory === 'Destaques' ? true : undefined,
     sort: 'recentes'
   });
 

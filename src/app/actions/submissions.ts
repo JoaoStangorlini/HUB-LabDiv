@@ -11,13 +11,19 @@ export interface FetchParams {
     mediaTypes?: string[]; // Multiple media types
     sort: 'recentes' | 'antigas';
     author?: string; // New: Filter by author name
+    featured?: boolean; // New: Filter by featured status
 }
 
-export async function fetchSubmissions({ page, limit, query, categories, mediaTypes, sort, author }: FetchParams): Promise<{ items: MediaCardProps[], hasMore: boolean }> {
+export async function fetchSubmissions({ page, limit, query, categories, mediaTypes, sort, author, featured }: FetchParams): Promise<{ items: MediaCardProps[], hasMore: boolean }> {
     let queryBuilder = supabase
         .from('submissions')
         .select('*', { count: 'exact' })
         .eq('status', 'aprovado');
+
+    // Filtering by Featured
+    if (featured) {
+        queryBuilder = queryBuilder.eq('featured', true);
+    }
 
     // Filtering by Category
     if (categories && categories.length > 0 && !categories.includes('Todos')) {
