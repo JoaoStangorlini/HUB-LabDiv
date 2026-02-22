@@ -18,7 +18,7 @@ export interface FetchParams {
 export async function fetchSubmissions({ page, limit, query, categories, mediaTypes, sort, author, is_featured: featured }: FetchParams): Promise<{ items: MediaCardProps[], hasMore: boolean }> {
     let queryBuilder = supabase
         .from('submissions')
-        .select('*', { count: 'exact' })
+        .select('id, title, description, authors, media_type, media_url, category, is_featured, external_link, created_at, technical_details, alt_text, tags, views, reading_time', { count: 'exact' })
         .eq('status', 'aprovado');
 
     // Filtering by Featured
@@ -143,9 +143,10 @@ export async function fetchSubmissions({ page, limit, query, categories, mediaTy
 export async function fetchUserSubmissions(userId: string): Promise<MediaCardProps[]> {
     const { data: submissions, error } = await supabase
         .from('submissions')
-        .select('*')
+        .select('id, title, description, authors, media_type, media_url, category, is_featured, external_link, created_at, technical_details, alt_text, admin_feedback, status, tags, views, reading_time')
         .eq('user_id', userId)
-        .order('created_at', { ascending: false });
+        .order('created_at', { ascending: false })
+        .limit(50);
 
     if (error || !submissions) {
         console.error('Error fetching user submissions', error);
@@ -176,7 +177,12 @@ export async function fetchUserSubmissions(userId: string): Promise<MediaCardPro
 
 export async function fetchTrendingSubmissions(): Promise<MediaCardProps[]> {
     const { data: submissions, error } = await supabase
-        .rpc('get_most_liked_submissions', { limit_count: 3 });
+        .from('submissions')
+        .select('id, title, description, authors, media_type, media_url, category, is_featured, external_link, created_at, technical_details, alt_text, tags, views, reading_time')
+        .eq('status', 'aprovado')
+        .order('views', { ascending: false })
+        .order('created_at', { ascending: false })
+        .limit(6);
 
     if (error || !submissions) {
         return [];
@@ -262,11 +268,11 @@ export const getTrendingTags = unstable_cache(
 export async function getFeaturedSubmissions(limit: number = 10): Promise<MediaCardProps[]> {
     const { data: submissions, error } = await supabase
         .from('submissions')
-        .select('*')
+        .select('id, title, description, authors, media_type, media_url, category, is_featured, external_link, created_at, technical_details, alt_text, tags, views, reading_time')
         .eq('status', 'aprovado')
         .eq('is_featured', true)
         .order('created_at', { ascending: false })
-        .limit(limit);
+        .limit(Math.min(limit, 20));
 
     if (error || !submissions) return [];
 

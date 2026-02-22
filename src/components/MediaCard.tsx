@@ -38,7 +38,7 @@ export interface MediaCardProps {
 
 // Utility functions moved to @/lib/media-utils.ts
 
-export const MediaCard = ({
+export const MediaCard = React.memo(({
     id,
     title,
     description,
@@ -262,7 +262,7 @@ export const MediaCard = ({
 
             {/* Visual Header / Media */}
             <div
-                className={`relative w-full overflow-hidden shrink-0 ${mediaType === 'video' ? 'aspect-video' : (hasMultipleImages ? 'aspect-square' : 'aspect-[4/3]')}`}
+                className={`relative w-full overflow-hidden shrink-0 ${mediaType === 'video' || !hasMultipleImages ? 'aspect-video' : 'aspect-square'} bg-gray-100 dark:bg-gray-800`}
                 onDoubleClick={handleDoubleClick}
             >
                 {/* Double-click Heart Animation Overlay */}
@@ -452,12 +452,10 @@ export const MediaCard = ({
                             </span>
                         );
                     })}
-                    {reading_time ? (
-                        <span className="flex items-center gap-1 px-2 py-0.5 bg-brand-blue/5 dark:bg-brand-yellow/10 text-brand-blue dark:text-brand-yellow text-[10px] font-bold rounded-md uppercase tracking-wide border border-brand-blue/10 dark:border-brand-yellow/20">
-                            <span className="material-symbols-outlined text-[12px]">schedule</span>
-                            {reading_time} min
-                        </span>
-                    ) : null}
+                    <span className="flex items-center gap-1 px-2 py-0.5 bg-brand-blue/5 dark:bg-brand-yellow/10 text-brand-blue dark:text-brand-yellow text-[10px] font-bold rounded-md uppercase tracking-wide border border-brand-blue/10 dark:border-brand-yellow/20">
+                        <span className="material-symbols-outlined text-[12px]">schedule</span>
+                        {Math.max(1, reading_time || 1)} min
+                    </span>
                     {views != null ? (
                         <span className="flex items-center gap-1 px-2 py-0.5 bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 text-[10px] font-bold rounded-md uppercase tracking-wide border border-gray-200 dark:border-gray-700">
                             <span className="material-symbols-outlined text-[12px]">visibility</span>
@@ -477,4 +475,6 @@ export const MediaCard = ({
             )}
         </div>
     );
-};
+});
+
+MediaCard.displayName = 'MediaCard';

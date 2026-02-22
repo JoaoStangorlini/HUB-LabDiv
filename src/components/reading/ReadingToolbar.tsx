@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { exportElementToPDF } from '@/lib/pdf-export';
 import { toast } from 'react-hot-toast';
 
-export function ReadingToolbar({ submissionTitle }: { submissionTitle: string }) {
+export function ReadingToolbar({ submissionTitle, submissionId, authors }: { submissionTitle: string; submissionId: string; authors: string }) {
     const {
         isFocusMode, setFocusMode,
         isPresentationMode, setPresentationMode,
@@ -17,6 +17,28 @@ export function ReadingToolbar({ submissionTitle }: { submissionTitle: string })
     const [isVisible, setIsVisible] = useState(true);
     const [isExporting, setIsExporting] = useState(false);
     const [showTtsPopup, setShowTtsPopup] = useState(false);
+    const [citeCopied, setCiteCopied] = useState(false);
+
+    const handleCopyCitation = async () => {
+        const year = new Date().getFullYear();
+        const citation = `${authors.toUpperCase()}. ${submissionTitle}. Hub Lab-Div IF-USP, ${year}. Disponível em: ${window.location.origin}/arquivo/${submissionId}`;
+        try {
+            await navigator.clipboard.writeText(citation);
+            setCiteCopied(true);
+            toast.success('Citação ABNT copiada!');
+            setTimeout(() => setCiteCopied(false), 2000);
+        } catch (err) {
+            const textarea = document.createElement('textarea');
+            textarea.value = citation;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+            setCiteCopied(true);
+            toast.success('Citação ABNT copiada!');
+            setTimeout(() => setCiteCopied(false), 2000);
+        }
+    };
 
     return (
         <div className={`fixed bottom-8 left-1/2 -translate-x-1/2 z-[100] transition-all duration-500 ${isFocusMode ? 'focus-toolbar' : ''}`}>
@@ -102,6 +124,15 @@ export function ReadingToolbar({ submissionTitle }: { submissionTitle: string })
                     </AnimatePresence>
                 </div>
 
+                {/* ABNT Citation Button */}
+                <ToolbarButton
+                    icon={citeCopied ? 'check' : 'format_quote'}
+                    label={citeCopied ? 'Copiado' : 'Citar'}
+                    onClick={handleCopyCitation}
+                    color="gray-500"
+                    active={citeCopied}
+                />
+
                 {/* PDF Export Button */}
                 <ToolbarButton
                     icon={isExporting ? 'hourglass_empty' : 'picture_as_pdf'}
@@ -150,7 +181,7 @@ function ToolbarButton({
     return (
         <button
             onClick={onClick}
-            className={`flex items-center gap-2 px-3 py-2 rounded-full transition-all group relative ${active ? 'bg-gray-100 dark:bg-gray-800 shadow-inner' : ''
+            className={`flex items-center justify-center min-h-[44px] min-w-[44px] sm:min-w-0 gap-2 px-3 py-2 rounded-full transition-all group relative ${active ? 'bg-gray-100 dark:bg-gray-800 shadow-inner' : ''
                 }`}
             title={label}
         >

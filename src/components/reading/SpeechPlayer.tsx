@@ -24,6 +24,8 @@ export function SpeechPlayer({ content }: { content: string }) {
     useEffect(() => {
         if (!synth) return;
 
+        synth.cancel(); // Always cancel current speech if dependencies change
+
         if (isAudioPlaying) {
             // Clean content: remove LaTeX formulas and markdown symbols
             const cleanText = content
@@ -39,24 +41,38 @@ export function SpeechPlayer({ content }: { content: string }) {
 
             // Try to find a good voice matching the selected language
             const langPrefix = audioLanguage.startsWith('pt') ? 'pt' : 'en';
-            const availableVoices = voices.filter(v => v.lang.startsWith(langPrefix));
-            const selectedVoice = availableVoices.find(v => v.name.includes('Google') || v.name.includes('Natural')) || availableVoices[0] || voices[0];
 
-            if (selectedVoice) utterance.voice = selectedVoice;
+            const speakWhenReady = () => {
+                const availableVoices = synth.getVoices().filter(v => v.lang.startsWith(langPrefix));
+                const selectedVoice = availableVoices.find(v => v.name.includes('Google') || v.name.includes('Natural')) || availableVoices[0] || synth.getVoices()[0];
 
-            utterance.onend = () => setAudioPlaying(false);
-            utterance.onerror = () => setAudioPlaying(false);
+                if (selectedVoice) utterance.voice = selectedVoice;
 
-            utteranceRef.current = utterance;
-            synth.speak(utterance);
-        } else {
-            synth.cancel();
+                utterance.onend = () => setAudioPlaying(false);
+                utterance.onerror = (e) => {
+                    if (e.error !== 'canceled') setAudioPlaying(false);
+                };
+
+                utteranceRef.current = utterance;
+                synth.speak(utterance);
+            };
+
+            if (synth.getVoices().length === 0) {
+                const onVoicesChanged = () => {
+                    synth.removeEventListener('voiceschanged', onVoicesChanged);
+                    speakWhenReady();
+                };
+                synth.addEventListener('voiceschanged', onVoicesChanged);
+            } else {
+                // setTimeout is needed because synth.cancel() is asynchronous in some browsers
+                setTimeout(speakWhenReady, 50);
+            }
         }
 
         return () => {
             if (synth) synth.cancel();
         };
-    }, [isAudioPlaying, content, voices, synth, audioLanguage, setAudioPlaying]);
+    }, [isAudioPlaying, content, synth, audioLanguage, setAudioPlaying]);
 
     return null; // Interface is in the Toolbar
 }

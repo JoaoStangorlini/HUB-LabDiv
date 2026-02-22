@@ -3,10 +3,15 @@
 import React, { useState } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import { useReadingExperience } from './ReadingExperienceProvider';
-import { PresentationMode } from './PresentationMode';
+import dynamic from 'next/dynamic';
+
+const PresentationMode = dynamic(() => import('./PresentationMode').then(mod => mod.PresentationMode), { ssr: false });
+const SpeechPlayer = dynamic(() => import('./SpeechPlayer').then(mod => mod.SpeechPlayer), { ssr: false });
+const PresenceIndicator = dynamic(() => import('./PresenceIndicator').then(mod => mod.PresenceIndicator), { ssr: false });
+const TableOfContents = dynamic(() => import('./TableOfContents').then(mod => mod.TableOfContents), { ssr: false });
+const ReadingProgressBar = dynamic(() => import('./ReadingProgressBar').then(mod => mod.ReadingProgressBar), { ssr: false });
+
 import { ReadingToolbar } from './ReadingToolbar';
-import { SpeechPlayer } from './SpeechPlayer';
-import { PresenceIndicator } from './PresenceIndicator';
 import { TextSelectionHandler } from './TextSelectionHandler';
 import { PrivateNoteModal } from './PrivateNoteModal';
 import { CorrectionModal } from './CorrectionModal';
@@ -72,6 +77,8 @@ export function ReadingViewManager({ submission, children }: ReadingViewManagerP
             {/* Real-time and TTS background logic */}
             <PresenceIndicator submissionId={submission.id} />
             <SpeechPlayer content={submission.description} />
+            <ReadingProgressBar />
+            <TableOfContents />
 
             {/* Contextual Interactions */}
             {!isPresentationMode && (
@@ -106,7 +113,11 @@ export function ReadingViewManager({ submission, children }: ReadingViewManagerP
 
             {/* Toolbar always visible unless in presentation mode */}
             {!isPresentationMode && (
-                <ReadingToolbar submissionTitle={submission.title} />
+                <ReadingToolbar
+                    submissionTitle={submission.title}
+                    submissionId={submission.id}
+                    authors={submission.authors}
+                />
             )}
 
             {/* View Switcher */}

@@ -13,10 +13,10 @@ import ReactMarkdown from 'react-markdown';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 import rehypeSanitize from 'rehype-sanitize';
+import { MarkdownImage } from '@/components/reading/MarkdownImageLightbox';
 import { ViewTracker } from '@/components/ViewTracker';
 import { ReadingExperienceProvider } from '@/components/reading/ReadingExperienceProvider';
 import { ReadingViewManager } from '@/components/reading/ReadingViewManager';
-import { PresenceIndicator } from '@/components/reading/PresenceIndicator';
 
 interface PageProps {
     params: Promise<{ id: string }>;
@@ -154,7 +154,6 @@ export default async function ArquivoItemPage({ params }: PageProps) {
                             {/* Details Section */}
                             <div className="p-6 md:p-10 space-y-6">
                                 <div className="flex flex-wrap items-center gap-2">
-                                    <PresenceIndicator submissionId={id} />
                                     {submission.category && (
                                         <span className="px-3 py-1 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 rounded-full text-xs font-bold tracking-wide uppercase">
                                             {submission.category}
@@ -194,7 +193,7 @@ export default async function ArquivoItemPage({ params }: PageProps) {
                                 {submission.description && (
                                     <div id="submission-content" className="mt-8">
                                         <h2 className="text-sm font-bold text-gray-900 dark:text-white mb-2 uppercase tracking-wide">Descrição</h2>
-                                        <div className="text-gray-600 dark:text-gray-400 leading-relaxed prose prose-lg dark:prose-invert max-w-none prose-headings:text-gray-800 dark:prose-headings:text-gray-200 prose-a:text-brand-blue prose-img:rounded-xl">
+                                        <div className="text-gray-600 dark:text-gray-400 leading-relaxed prose prose-lg dark:prose-invert max-w-none prose-headings:text-gray-800 dark:prose-headings:text-gray-200 prose-a:text-brand-blue prose-img:rounded-xl overflow-x-auto">
                                             <ReactMarkdown
                                                 remarkPlugins={[remarkMath]}
                                                 rehypePlugins={[rehypeSanitize, rehypeKatex]}
@@ -207,6 +206,7 @@ export default async function ArquivoItemPage({ params }: PageProps) {
                                                     h2: ({ node, ...props }) => <h2 data-block-id={`h2-${node?.position?.start.line}`} {...props} />,
                                                     h3: ({ node, ...props }) => <h3 data-block-id={`h3-${node?.position?.start.line}`} {...props} />,
                                                     blockquote: ({ node, ...props }) => <blockquote data-block-id={`bq-${node?.position?.start.line}`} {...props} />,
+                                                    img: (props) => <MarkdownImage {...props} />,
                                                 }}
                                             >
                                                 {submission.description}

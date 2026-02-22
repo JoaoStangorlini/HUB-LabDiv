@@ -208,3 +208,75 @@
     max-width: 800px !important;
   }
 }
+
+/* ========================================
+   Module 3.5: Elegant Print Mode
+   ======================================== */
+@media print {
+
+  /* Force readable colors */
+  body {
+    background: white !important;
+    color: black !important;
+  }
+
+  /* Hide all interactive/non-content UI */
+  header,
+  footer,
+  nav,
+  [data-print-hide],
+  [class*="fixed"],
+  [class*="ShareButtons"],
+  button,
+  .fab,
+  iframe {
+    display: none !important;
+  }
+
+  /* Reset card backgrounds */
+  .dark {
+    background: white !important;
+    color: black !important;
+  }
+
+  /* Clean article layout */
+  main {
+    max-width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  /* Ensure prose is legible */
+  .prose {
+    color: black !important;
+    max-width: 100% !important;
+  }
+
+  .prose a {
+    color: black !important;
+    text-decoration: underline !important;
+  }
+
+  /* Show URL after links */
+  .prose a[href]::after {
+    content: " (" attr(href) ")";
+    font-size: 0.75em;
+    color: #666;
+  }
+
+  /* Prevent page breaks inside elements */
+  img,
+  pre,
+  blockquote,
+  table,
+  figure {
+    break-inside: avoid;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    break-after: avoid;
+  }
+}

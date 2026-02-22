@@ -62,7 +62,7 @@ export function PrivateNoteModal({ selection, onClose, onSave }: PrivateNoteModa
             <motion.div
                 initial={{ scale: 0.9, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
-                className="bg-white dark:bg-card-dark rounded-2xl shadow-2xl w-full max-w-md overflow-hidden border border-gray-100 dark:border-gray-800"
+                className="bg-white dark:bg-card-dark rounded-2xl shadow-2xl w-full max-w-md max-h-[85vh] overflow-y-auto border border-gray-100 dark:border-gray-800"
             >
                 <div className="p-6 space-y-4">
                     <div className="flex items-center justify-between">
