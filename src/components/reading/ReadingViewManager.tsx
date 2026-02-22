@@ -10,7 +10,9 @@ import { PresenceIndicator } from './PresenceIndicator';
 import { TextSelectionHandler } from './TextSelectionHandler';
 import { PrivateNoteModal } from './PrivateNoteModal';
 import { CorrectionModal } from './CorrectionModal';
+import { RequireAuthModal } from '../auth/RequireAuthModal';
 import { generateSelectionHash, getSelectionContext } from '@/lib/selection-utils';
+import { supabase } from '@/lib/supabase';
 
 interface ReadingViewManagerProps {
     submission: any;
@@ -21,7 +23,7 @@ export function ReadingViewManager({ submission, children }: ReadingViewManagerP
     const { isPresentationMode, setPresentationMode } = useReadingExperience();
 
     // Modal & Selection States
-    const [activeModal, setActiveModal] = useState<'note' | 'correction' | null>(null);
+    const [activeModal, setActiveModal] = useState<'note' | 'correction' | 'auth' | null>(null);
     const [selectionData, setSelectionData] = useState<{ text: string, hash: string, submissionId: string } | null>(null);
 
     const handleComment = (text: string, range: Range) => {
@@ -41,14 +43,26 @@ export function ReadingViewManager({ submission, children }: ReadingViewManagerP
         }
     };
 
-    const handleNote = (text: string, range: Range) => {
+    const handleNote = async (text: string, range: Range) => {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) {
+            setActiveModal('auth');
+            return;
+        }
+
         const { prefix, suffix } = getSelectionContext(range);
         const hash = generateSelectionHash(text, prefix, suffix);
         setSelectionData({ text, hash, submissionId: submission.id });
         setActiveModal('note');
     };
 
-    const handleCorrection = (text: string, range: Range) => {
+    const handleCorrection = async (text: string, range: Range) => {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) {
+            setActiveModal('auth');
+            return;
+        }
+
         setSelectionData({ text, hash: '', submissionId: submission.id });
         setActiveModal('correction');
     };
@@ -84,6 +98,10 @@ export function ReadingViewManager({ submission, children }: ReadingViewManagerP
                         onSave={() => setActiveModal(null)}
                     />
                 )}
+                <RequireAuthModal
+                    isOpen={activeModal === 'auth'}
+                    onClose={() => setActiveModal(null)}
+                />
             </AnimatePresence>
 
             {/* Toolbar always visible unless in presentation mode */}

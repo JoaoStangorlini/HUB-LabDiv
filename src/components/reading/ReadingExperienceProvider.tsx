@@ -9,6 +9,8 @@ interface ReadingExperienceContextType {
     setPresentationMode: (val: boolean) => void;
     isAudioPlaying: boolean;
     setAudioPlaying: (val: boolean) => void;
+    audioLanguage: 'pt-BR' | 'en-US';
+    setAudioLanguage: (val: 'pt-BR' | 'en-US') => void;
 }
 
 const ReadingExperienceContext = createContext<ReadingExperienceContextType | undefined>(undefined);
@@ -17,6 +19,7 @@ export function ReadingExperienceProvider({ children }: { children: React.ReactN
     const [isFocusMode, setFocusMode] = useState(false);
     const [isPresentationMode, setPresentationMode] = useState(false);
     const [isAudioPlaying, setAudioPlaying] = useState(false);
+    const [audioLanguage, setAudioLanguage] = useState<'pt-BR' | 'en-US'>('pt-BR');
 
     // Sync focus mode with body classes to hide global Header/Footer
     useEffect(() => {
@@ -44,7 +47,8 @@ export function ReadingExperienceProvider({ children }: { children: React.ReactN
             value={{
                 isFocusMode, setFocusMode,
                 isPresentationMode, setPresentationMode,
-                isAudioPlaying, setAudioPlaying
+                isAudioPlaying, setAudioPlaying,
+                audioLanguage, setAudioLanguage
             }}
         >
             {children}

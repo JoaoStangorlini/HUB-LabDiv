@@ -20,30 +20,38 @@ export function PrivateNoteModal({ selection, onClose, onSave }: PrivateNoteModa
     const [noteText, setNoteText] = useState('');
     const [isSaving, setIsSaving] = useState(false);
 
-    const handleSave = async () => {
+    const handleSave = async (e: React.MouseEvent) => {
+        e.preventDefault();
         if (!noteText.trim()) return;
         setIsSaving(true);
 
         try {
-            const { data: { user } } = await supabase.auth.getUser();
-            if (!user) {
+            // Get user and token from client session
+            const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+            if (sessionError || !session) {
                 toast.error('Você precisa estar logado para salvar anotações.');
+                setIsSaving(false);
                 return;
             }
 
-            await addPrivateNote({
-                userId: user.id,
+            const response = await addPrivateNote({
+                userId: session.user.id,
                 submissionId: selection.submissionId,
                 selectionHash: selection.hash,
                 noteText: noteText,
-            });
+            }, session.access_token);
+
+            if (!response?.success) {
+                toast.error(response?.error || 'Erro desconhecido ao salvar.');
+                return;
+            }
 
             toast.success('Anotação salva!');
             onSave();
             onClose();
         } catch (error: any) {
-            console.error('Error saving note:', error);
-            toast.error('Erro ao salvar anotação.');
+            console.error('Error in handleSave (Note):', error);
+            toast.error('Erro de conexão ao salvar anotação.');
         } finally {
             setIsSaving(false);
         }

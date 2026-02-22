@@ -20,31 +20,39 @@ export function CorrectionModal({ selection, onClose, onSave }: CorrectionModalP
     const [comment, setComment] = useState('');
     const [isSaving, setIsSaving] = useState(false);
 
-    const handleSave = async () => {
+    const handleSave = async (e: React.MouseEvent) => {
+        e.preventDefault();
         if (!suggestedText.trim()) return;
         setIsSaving(true);
 
         try {
-            const { data: { user } } = await supabase.auth.getUser();
-            if (!user) {
+            // Get user and token from client session
+            const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+            if (sessionError || !session) {
                 toast.error('Você precisa estar logado para sugerir correções.');
+                setIsSaving(false);
                 return;
             }
 
-            await addCorrection({
-                userId: user.id,
+            const response = await addCorrection({
+                userId: session.user.id,
                 submissionId: selection.submissionId,
                 originalText: selection.text,
                 suggestedText: suggestedText,
                 comment: comment || undefined,
-            });
+            }, session.access_token);
+
+            if (!response?.success) {
+                toast.error(response?.error || 'Erro desconhecido ao enviar sugestão.');
+                return;
+            }
 
             toast.success('Sugestão enviada com sucesso!');
             onSave();
             onClose();
         } catch (error: any) {
-            console.error('Error saving correction:', error);
-            toast.error('Erro ao enviar sugestão.');
+            console.error('Error in handleSave (Correction):', error);
+            toast.error('Erro de conexão ao enviar sugestão.');
         } finally {
             setIsSaving(false);
         }

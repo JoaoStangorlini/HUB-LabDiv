@@ -41,7 +41,7 @@ export function PresenceIndicator({ submissionId }: { submissionId: string }) {
         };
     }, [submissionId]);
 
-    if (presenceCount <= 1) return null;
+    if (presenceCount === 0) return null;
 
     return (
         <AnimatePresence>
@@ -55,7 +55,7 @@ export function PresenceIndicator({ submissionId }: { submissionId: string }) {
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-red opacity-75"></span>
                     <span className="relative inline-flex rounded-full h-2 w-2 bg-brand-red"></span>
                 </span>
-                🔥 {presenceCount} alunos lendo agora
+                🔥 {presenceCount === 1 ? '1 aluno lendo agora' : `${presenceCount} alunos lendo agora`}
             </motion.div>
         </AnimatePresence>
     );

@@ -10,11 +10,13 @@ export function ReadingToolbar({ submissionTitle }: { submissionTitle: string })
     const {
         isFocusMode, setFocusMode,
         isPresentationMode, setPresentationMode,
-        isAudioPlaying, setAudioPlaying
+        isAudioPlaying, setAudioPlaying,
+        setAudioLanguage
     } = useReadingExperience();
 
     const [isVisible, setIsVisible] = useState(true);
     const [isExporting, setIsExporting] = useState(false);
+    const [showTtsPopup, setShowTtsPopup] = useState(false);
 
     return (
         <div className={`fixed bottom-8 left-1/2 -translate-x-1/2 z-[100] transition-all duration-500 ${isFocusMode ? 'focus-toolbar' : ''}`}>
@@ -43,14 +45,62 @@ export function ReadingToolbar({ submissionTitle }: { submissionTitle: string })
 
                 <div className="w-px h-6 bg-gray-200 dark:bg-gray-700 mx-1" />
 
-                {/* Audio/TTS Toggle */}
-                <ToolbarButton
-                    icon={isAudioPlaying ? 'stop_circle' : 'volume_up'}
-                    label={isAudioPlaying ? 'Parar' : 'Ouvir'}
-                    active={isAudioPlaying}
-                    onClick={() => setAudioPlaying(!isAudioPlaying)}
-                    color="brand-red"
-                />
+                {/* Audio/TTS Toggle with Popover */}
+                <div className="relative flex items-center">
+                    <ToolbarButton
+                        icon={isAudioPlaying ? 'stop_circle' : 'volume_up'}
+                        label={isAudioPlaying ? 'Parar' : 'Ouvir'}
+                        active={isAudioPlaying}
+                        onClick={() => {
+                            if (isAudioPlaying) {
+                                setAudioPlaying(false);
+                            } else {
+                                setShowTtsPopup(!showTtsPopup);
+                            }
+                        }}
+                        color="brand-red"
+                    />
+
+                    <AnimatePresence>
+                        {showTtsPopup && !isAudioPlaying && (
+                            <motion.div
+                                initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                                animate={{ opacity: 1, y: 0, scale: 1 }}
+                                exit={{ opacity: 0, scale: 0.95 }}
+                                className="absolute bottom-full mb-4 left-1/2 -translate-x-1/2 bg-white dark:bg-card-dark rounded-2xl shadow-xl border border-gray-100 dark:border-gray-800 p-4 w-64 z-[110]"
+                            >
+                                <h4 className="text-sm font-bold text-gray-900 dark:text-white mb-2 flex items-center gap-2">
+                                    <span className="material-symbols-outlined text-brand-red text-lg">record_voice_over</span>
+                                    Leitura Dinâmica
+                                </h4>
+                                <p className="text-xs text-gray-500 mb-4">Escolha o idioma (fórmulas matemáticas serão omitidas).</p>
+
+                                <div className="space-y-1">
+                                    <button
+                                        onClick={() => {
+                                            setAudioLanguage('pt-BR');
+                                            setAudioPlaying(true);
+                                            setShowTtsPopup(false);
+                                        }}
+                                        className="w-full text-left px-3 py-2 rounded-xl text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors flex items-center gap-2 text-gray-700 dark:text-gray-200"
+                                    >
+                                        <span className="text-lg">🇧🇷</span> Ouvir em Português
+                                    </button>
+                                    <button
+                                        onClick={() => {
+                                            setAudioLanguage('en-US');
+                                            setAudioPlaying(true);
+                                            setShowTtsPopup(false);
+                                        }}
+                                        className="w-full text-left px-3 py-2 rounded-xl text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors flex items-center gap-2 text-gray-700 dark:text-gray-200"
+                                    >
+                                        <span className="text-lg">🇺🇸</span> Listen in English
+                                    </button>
+                                </div>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+                </div>
 
                 {/* PDF Export Button */}
                 <ToolbarButton
