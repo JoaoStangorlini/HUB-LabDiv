@@ -19,7 +19,7 @@ export function Stepper({ currentStep }: StepperProps) {
     const progress = ((currentIndex + 1) / steps.length) * 100;
 
     return (
-        <div className="w-full max-w-md mx-auto mb-8">
+        <div className="w-full max-w-md mx-auto">
             <div className="flex justify-between items-center mb-4">
                 <span className="text-xs font-black uppercase tracking-widest text-brand-blue dark:text-brand-yellow">
                     Passo {currentIndex + 1} de {steps.length}: {steps[currentIndex].label}
@@ -46,8 +46,8 @@ export function Stepper({ currentStep }: StepperProps) {
                     return (
                         <div key={step.id} className="flex flex-col items-center gap-1.5">
                             <div className={`w-2.5 h-2.5 rounded-full transition-all duration-500 ${isCompleted ? 'bg-brand-blue' :
-                                    isActive ? 'bg-brand-yellow scale-125 ring-4 ring-brand-yellow/20' :
-                                        'bg-gray-200 dark:bg-gray-700'
+                                isActive ? 'bg-brand-yellow scale-125 ring-4 ring-brand-yellow/20' :
+                                    'bg-gray-200 dark:bg-gray-700'
                                 }`} />
                         </div>
                     );

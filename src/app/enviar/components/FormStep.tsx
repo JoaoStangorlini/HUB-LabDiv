@@ -14,6 +14,7 @@ import ReactMarkdown from 'react-markdown';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 import rehypeSanitize from 'rehype-sanitize';
+import 'katex/dist/katex.min.css';
 
 import { submissionSchema, type SubmissionFormData } from '../schema';
 
@@ -76,7 +77,7 @@ export function FormStep() {
 
     // Debounced search for co-authors
     useEffect(() => {
-        if (searchTerm.length < 3) {
+        if (searchTerm.length < 2) {
             setSearchResults([]);
             return;
         }
@@ -86,7 +87,7 @@ export function FormStep() {
             const { data, error } = await supabase
                 .from('profiles')
                 .select('id, full_name, email')
-                .ilike('full_name', `%${searchTerm}%`)
+                .or(`full_name.ilike.%${searchTerm}%,email.ilike.%${searchTerm}%`)
                 .limit(5);
 
             if (!error && data) {
@@ -552,14 +553,20 @@ export function FormStep() {
                         placeholder="Buscar por nome..."
                         className="w-full bg-white dark:bg-form-dark border-2 border-gray-100 dark:border-gray-800 rounded-2xl pl-12 pr-6 py-3 outline-none focus:border-brand-blue transition-all dark:text-white text-sm"
                     />
-                    {isSearching && (
+                    {isSearching ? (
                         <div className="absolute right-4 top-1/2 -translate-y-1/2">
                             <span className="material-symbols-outlined animate-spin text-brand-blue text-sm">progress_activity</span>
                         </div>
+                    ) : (
+                        searchTerm.length >= 2 && searchResults.length === 0 && (
+                            <div className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] font-bold text-gray-400 italic">
+                                Nenhum autor encontrado
+                            </div>
+                        )
                     )}
 
                     {searchResults.length > 0 && (
-                        <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-form-dark rounded-2xl shadow-2xl border-2 border-gray-100 dark:border-gray-800 z-50 overflow-hidden">
+                        <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-form-dark rounded-2xl shadow-2xl border-2 border-gray-100 dark:border-gray-800 z-[100] overflow-hidden">
                             {searchResults.map(user => (
                                 <button
                                     key={user.id}

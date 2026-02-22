@@ -52,7 +52,7 @@ export default function SubmitPage() {
 
             {/* Sticky Minimal Header */}
             <header className="fixed top-0 w-full z-50 backdrop-blur-xl bg-white/60 dark:bg-background-dark/60 border-b border-gray-200/50 dark:border-gray-800/50">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-18 flex items-center justify-between">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
                     <button onClick={() => router.push('/')} className="group flex items-center gap-3 text-gray-500 hover:text-brand-blue dark:hover:text-brand-yellow transition-all font-semibold text-sm">
                         <div className="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center group-hover:bg-brand-blue group-hover:text-white transition-colors">
                             <span className="material-symbols-outlined text-lg">close</span>
