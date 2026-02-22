@@ -36,6 +36,17 @@ export function Header() {
         return () => subscription.unsubscribe();
     }, []);
 
+    const handleSignOut = async () => {
+        try {
+            await supabase.auth.signOut();
+            await signOut();
+        } catch (error) {
+            console.error('Logout error:', error);
+            // Fallback: just redirect
+            window.location.href = '/';
+        }
+    };
+
     return (
         <>
             <nav className="sticky top-0 z-50 backdrop-blur-md bg-white/90 dark:bg-background-dark/90 border-b border-gray-200 dark:border-gray-800 border-t-4 border-t-brand-blue">
@@ -108,7 +119,7 @@ export function Header() {
                                                 Meus Retornos
                                             </Link>
                                             <button
-                                                onClick={() => signOut()}
+                                                onClick={handleSignOut}
                                                 className="w-full flex items-center gap-3 px-4 py-2 text-sm text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors"
                                             >
                                                 <span className="material-symbols-outlined text-lg">logout</span>
@@ -118,6 +129,7 @@ export function Header() {
                                     )}
                                 </div>
                             ) : (
+
                                 <Link href="/login" className="flex items-center gap-2 text-gray-600 dark:text-gray-300 hover:text-brand-blue font-semibold px-4 py-2 transition-colors">
                                     <span className="material-symbols-outlined">login</span>
                                     <span className="hidden sm:inline">Entrar</span>
