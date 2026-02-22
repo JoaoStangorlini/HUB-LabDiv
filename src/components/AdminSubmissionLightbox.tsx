@@ -4,7 +4,9 @@ import React, { useState } from 'react';
 import { parseMediaUrl, formatYoutubeUrl, getDownloadUrl, getPdfViewerUrl } from '@/lib/media-utils';
 import dynamic from 'next/dynamic';
 import ReactMarkdown from 'react-markdown';
-
+import remarkMath from 'remark-math';
+import rehypeKatex from 'rehype-katex';
+import rehypeSanitize from 'rehype-sanitize';
 const CustomPdfViewer = dynamic(
     () => import('./CustomPdfViewer').then((mod) => mod.CustomPdfViewer),
     { ssr: false }
@@ -158,7 +160,7 @@ export function AdminSubmissionLightbox({
                                     {item.authors}
                                 </p>
                                 <div className="whitespace-pre-wrap text-gray-800 dark:text-gray-200 leading-relaxed">
-                                    <ReactMarkdown>{item.description || ''}</ReactMarkdown>
+                                    <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex, rehypeSanitize]}>{item.description || ''}</ReactMarkdown>
                                 </div>
                             </div>
                         </div>
@@ -244,7 +246,7 @@ export function AdminSubmissionLightbox({
                         <div className="flex-1">
                             <h3 className="text-sm font-bold text-gray-900 dark:text-white mb-2 uppercase tracking-wide">Descrição do Trabalho</h3>
                             <div className="text-gray-600 dark:text-gray-400 text-sm leading-relaxed prose prose-sm dark:prose-invert max-w-none">
-                                <ReactMarkdown>{item.description}</ReactMarkdown>
+                                <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex, rehypeSanitize]}>{item.description}</ReactMarkdown>
                             </div>
                         </div>
                     )}

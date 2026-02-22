@@ -2,6 +2,9 @@
 
 import React, { useState } from 'react';
 import ReactMarkdown from 'react-markdown';
+import remarkMath from 'remark-math';
+import rehypeKatex from 'rehype-katex';
+import rehypeSanitize from 'rehype-sanitize';
 import dynamic from 'next/dynamic';
 import { MediaCardProps } from './MediaCard';
 import { parseMediaUrl, formatYoutubeUrl, getDownloadUrl, getPdfViewerUrl } from '@/lib/media-utils';
@@ -143,7 +146,7 @@ export const SubmissionLightbox = ({
                                     {selectedItem.authors}
                                 </p>
                                 <div className="whitespace-pre-wrap text-gray-800 dark:text-gray-200 leading-relaxed">
-                                    <ReactMarkdown>{selectedItem.description || ''}</ReactMarkdown>
+                                    <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex, rehypeSanitize]}>{selectedItem.description || ''}</ReactMarkdown>
                                 </div>
                             </div>
                         </div>
@@ -217,7 +220,7 @@ export const SubmissionLightbox = ({
                         <div className="flex-1">
                             <h3 className="text-sm font-bold text-gray-900 dark:text-white mb-2 uppercase tracking-wide">Descrição do Trabalho</h3>
                             <div className="text-gray-600 dark:text-gray-400 text-sm leading-relaxed prose prose-sm dark:prose-invert max-w-none">
-                                <ReactMarkdown>{selectedItem.description}</ReactMarkdown>
+                                <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex, rehypeSanitize]}>{selectedItem.description}</ReactMarkdown>
                             </div>
                         </div>
                     )}

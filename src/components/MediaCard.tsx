@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { parseMediaUrl, formatYoutubeUrl, getYoutubeThumbnail, getDownloadUrl, getPdfViewerUrl } from '@/lib/media-utils';
 import { ShareMenu } from './ShareMenu';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export interface MediaCardProps {
     id: string;
@@ -23,6 +24,9 @@ export interface MediaCardProps {
     alt_text?: string;
     status?: 'pendente' | 'aprovado' | 'rejeitado';
     admin_feedback?: string;
+    tags?: string[];
+    reading_time?: number;
+    views?: number;
 }
 
 // Utility functions moved to @/lib/media-utils.ts
@@ -38,7 +42,10 @@ export const MediaCard = ({
     avatarUrl,
     isFeatured,
     likeCount: initialLikeCount = 0,
-    alt_text
+    alt_text,
+    tags,
+    reading_time,
+    views
 }: MediaCardProps) => {
 
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -50,9 +57,22 @@ export const MediaCard = ({
     const [showShareMenu, setShowShareMenu] = useState(false);
     const [saved, setSaved] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
+    const [isHovered, setIsHovered] = useState(false);
 
+    const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
     const router = useRouter();
     const lastLikeClick = useRef<number>(0);
+
+    const handleMouseEnter = () => {
+        hoverTimeoutRef.current = setTimeout(() => {
+            setIsHovered(true);
+        }, 300); // Intent Delay of 300ms
+    };
+
+    const handleMouseLeave = () => {
+        if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
+        setIsHovered(false);
+    };
 
     const handleLike = useCallback(async (e?: React.MouseEvent) => {
         if (e) e.stopPropagation();
@@ -167,7 +187,31 @@ export const MediaCard = ({
     return (
         <div
             className={`masonry-item group relative flex flex-col overflow-hidden rounded-2xl bg-white dark:bg-card-dark shadow-sm transition-all hover:shadow-xl border border-gray-100 dark:border-gray-800 ${sizeModifierStyles}`}
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
         >
+            {/* Hover Preview Overlay */}
+            <AnimatePresence>
+                {isHovered && description && (mediaType === 'text' || mediaType === 'pdf') && (
+                    <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, scale: 0.95 }}
+                        transition={{ duration: 0.2 }}
+                        className="absolute inset-[4px] top-[48px] bottom-[140px] z-30 p-5 bg-white/95 dark:bg-card-dark/95 backdrop-blur-md border border-gray-100 dark:border-gray-800 rounded-xl shadow-2xl overflow-y-auto no-scrollbar pointer-events-none"
+                    >
+                        <div className="flex items-center gap-2 mb-3">
+                            <span className="material-symbols-outlined text-brand-blue dark:text-brand-yellow text-sm">visibility</span>
+                            <span className="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">Prévia Rápida</span>
+                        </div>
+                        <p className="text-sm text-gray-800 dark:text-gray-200 leading-relaxed font-medium">
+                            {description.length > 300 ? description.substring(0, 300) + '...' : description}
+                        </p>
+                        <div className="absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-t from-white dark:from-card-dark to-transparent"></div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
             {/* Instagram Style Header */}
             <div className="flex items-center justify-between p-3 border-b border-gray-100 dark:border-gray-800">
                 <div className="flex items-center gap-2">
@@ -376,6 +420,23 @@ export const MediaCard = ({
                             Destaque
                         </span>
                     )}
+                    {tags && tags.map(tag => (
+                        <span key={tag} className="px-2 py-0.5 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 text-[10px] font-bold rounded-md uppercase tracking-wide border border-gray-200 dark:border-gray-700">
+                            #{tag.replace('#', '')}
+                        </span>
+                    ))}
+                    {reading_time ? (
+                        <span className="flex items-center gap-1 px-2 py-0.5 bg-brand-blue/5 dark:bg-brand-yellow/10 text-brand-blue dark:text-brand-yellow text-[10px] font-bold rounded-md uppercase tracking-wide border border-brand-blue/10 dark:border-brand-yellow/20">
+                            <span className="material-symbols-outlined text-[12px]">schedule</span>
+                            {reading_time} min
+                        </span>
+                    ) : null}
+                    {views != null ? (
+                        <span className="flex items-center gap-1 px-2 py-0.5 bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 text-[10px] font-bold rounded-md uppercase tracking-wide border border-gray-200 dark:border-gray-700">
+                            <span className="material-symbols-outlined text-[12px]">visibility</span>
+                            {views}
+                        </span>
+                    ) : null}
                 </div>
             </div>
 

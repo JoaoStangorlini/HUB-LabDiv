@@ -4,14 +4,16 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { MediaCard, MediaCardProps } from './MediaCard';
 import { fetchSubmissions } from '@/app/actions/submissions';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface HomeClientViewProps {
     initialItems: MediaCardProps[];
     initialHasMore: boolean;
     initialCategory?: string;
+    trendingItems?: MediaCardProps[];
 }
 
-export const HomeClientView = ({ initialItems, initialHasMore, initialCategory = 'Todos' }: HomeClientViewProps) => {
+export const HomeClientView = ({ initialItems, initialHasMore, initialCategory = 'Todos', trendingItems = [] }: HomeClientViewProps) => {
     const searchParams = useSearchParams();
     const router = useRouter();
     const authorFilter = searchParams.get('autor');
@@ -34,6 +36,20 @@ export const HomeClientView = ({ initialItems, initialHasMore, initialCategory =
     // No need for mousePos React state anymore! Using CSS Variables for performance.
     const headerRef = useRef<HTMLElement>(null);
     const filtersScrollRef = useRef<HTMLDivElement>(null);
+    const searchContainerRef = useRef<HTMLDivElement>(null);
+    const [isSearchFocused, setIsSearchFocused] = useState(false);
+
+    useEffect(() => {
+        function handleClickOutside(event: MouseEvent) {
+            if (searchContainerRef.current && !searchContainerRef.current.contains(event.target as Node)) {
+                setIsSearchFocused(false);
+            }
+        }
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, [searchContainerRef]);
 
     const scrollFilters = (direction: 'left' | 'right') => {
         if (filtersScrollRef.current) {
@@ -171,18 +187,61 @@ export const HomeClientView = ({ initialItems, initialHasMore, initialCategory =
                             O arquivo oficial de divulgação científica do IF-USP. Explore fotos, vídeos, textos e materiais didáticos para ficar sempre antenado nas descobertas que transformam o mundo.
                         </p>
 
-                        <div className="relative max-w-2xl group">
+                        <div className="relative max-w-2xl group" ref={searchContainerRef}>
                             <div className="absolute -inset-1 bg-gradient-to-r from-brand-blue via-brand-yellow to-brand-red rounded-2xl blur opacity-20 dark:hidden group-hover:opacity-40 transition duration-1000 group-hover:duration-200"></div>
                             <div className="relative flex items-center bg-white dark:bg-form-dark rounded-xl shadow-xl border border-gray-100 dark:border-gray-700 overflow-hidden">
                                 <span className="material-symbols-outlined text-brand-blue pl-4 text-2xl">search</span>
                                 <input
-                                    className="w-full py-4 px-4 bg-transparent border-none focus:ring-0 text-gray-900 dark:text-gray-100 placeholder-gray-400 text-lg"
+                                    className="w-full py-4 px-4 bg-transparent border-none focus:ring-0 text-gray-900 dark:text-gray-100 placeholder-gray-400 text-lg outline-none"
                                     placeholder="Buscar por autor, título, descrição..."
                                     type="text"
                                     value={searchQuery}
                                     onChange={(e) => setSearchQuery(e.target.value)}
+                                    onFocus={() => setIsSearchFocused(true)}
                                 />
                             </div>
+
+                            {/* Autocomplete Dropdown */}
+                            <AnimatePresence>
+                                {isSearchFocused && debouncedQuery.length > 1 && (
+                                    <motion.div
+                                        initial={{ opacity: 0, y: -10 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        exit={{ opacity: 0, y: -10 }}
+                                        className="absolute top-full mt-2 left-0 right-0 bg-white dark:bg-card-dark rounded-xl shadow-2xl border border-gray-100 dark:border-gray-800 z-50 overflow-hidden"
+                                    >
+                                        {isLoading ? (
+                                            <div className="p-4 text-center text-sm font-medium text-gray-400 flex items-center justify-center gap-2">
+                                                <span className="material-symbols-outlined animate-spin text-sm">progress_activity</span>
+                                                Buscando sugestões...
+                                            </div>
+                                        ) : items.length > 0 ? (
+                                            <div className="flex flex-col">
+                                                <div className="px-4 py-2 bg-gray-50 dark:bg-gray-800/50 border-b border-gray-100 dark:border-gray-800 text-[10px] font-bold uppercase tracking-wider text-gray-500">
+                                                    Sugestões Inteligentes
+                                                </div>
+                                                {items.slice(0, 4).map((item: MediaCardProps) => (
+                                                    <div key={item.id} onClick={() => router.push(`/arquivo/${item.id}`)} className="px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer flex items-center gap-3 border-b border-gray-50 dark:border-gray-800/50 last:border-0 transition-colors">
+                                                        <span className="material-symbols-outlined text-gray-400">
+                                                            {item.mediaType === 'video' ? 'play_circle' : item.mediaType === 'text' ? 'article' : item.mediaType === 'pdf' ? 'picture_as_pdf' : 'image'}
+                                                        </span>
+                                                        <div className="flex flex-col flex-1 truncate">
+                                                            <span className="text-sm font-bold text-gray-900 dark:text-gray-100 truncate">{item.title}</span>
+                                                            <span className="text-xs text-brand-blue dark:text-blue-400 font-medium truncate">{item.authors}</span>
+                                                        </div>
+                                                        <span className="material-symbols-outlined text-gray-300 text-sm">north_west</span>
+                                                    </div>
+                                                ))}
+                                                <div onClick={() => setIsSearchFocused(false)} className="px-4 py-3 bg-gray-50 dark:bg-gray-900/50 text-center text-xs font-bold text-brand-blue dark:text-brand-yellow cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors border-t border-gray-100 dark:border-gray-800">
+                                                    Ver todos os {items.length} resultados para "{debouncedQuery}"
+                                                </div>
+                                            </div>
+                                        ) : (
+                                            <div className="p-4 text-center text-sm font-medium text-gray-500">Nenhum resultado encontrado para "{debouncedQuery}"</div>
+                                        )}
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
                         </div>
                         <div className="mt-5 space-y-3 pl-2">
                             <div className="text-sm text-gray-600 dark:text-gray-400 flex sm:items-center gap-2 opacity-90 transition-opacity hover:opacity-100 flex-col sm:flex-row">
@@ -333,35 +392,60 @@ export const HomeClientView = ({ initialItems, initialHasMore, initialCategory =
                 </div>
             </section>
 
-            {/* Destaque da Semana Hero Section */}
+            {/* Destaque da Semana & Em Alta no IFUSP Section */}
             {(() => {
-                // Since Destaques are meant to be shown regardless of filter on the home page initially,
-                // we can look for any item marked as featured in the first fetch, or if none, we hide it.
-                // It usually acts as a highlight reel.
                 const featuredItems = initialItems.filter(i => i.isFeatured);
-                if (featuredItems.length === 0) return null;
+                const hasTrending = trendingItems.length > 0;
+
+                if (featuredItems.length === 0 && !hasTrending) return null;
+
                 return (
                     <section className="bg-gradient-to-br from-brand-yellow/5 via-white to-brand-red/5 dark:from-brand-yellow/10 dark:via-background-dark dark:to-brand-red/10 py-10 border-b border-gray-200 dark:border-gray-800">
                         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                            <div className="flex items-center gap-3 mb-8">
-                                <div className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-brand-red to-brand-yellow text-white rounded-full text-xs font-bold uppercase tracking-wider shadow-lg">
-                                    <span className="material-symbols-outlined text-[16px]" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
-                                    Destaque da Semana
+
+                            {featuredItems.length > 0 && (
+                                <div className="mb-12">
+                                    <div className="flex items-center gap-3 mb-8">
+                                        <div className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-brand-red to-brand-yellow text-white rounded-full text-xs font-bold uppercase tracking-wider shadow-lg">
+                                            <span className="material-symbols-outlined text-[16px]" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
+                                            Destaque da Semana
+                                        </div>
+                                        <div className="flex-1 h-px bg-gradient-to-r from-brand-yellow/40 to-transparent"></div>
+                                    </div>
+                                    <div className={`grid gap-6 ${featuredItems.length === 1 ? 'grid-cols-1 max-w-2xl mx-auto' : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3'}`}>
+                                        {featuredItems.map(item => (
+                                            <div key={item.id} className="transform hover:scale-[1.02] transition-transform">
+                                                <div className="relative">
+                                                    <div className="absolute -inset-0.5 bg-gradient-to-r from-brand-red via-brand-yellow to-brand-red rounded-2xl blur opacity-30 group-hover:opacity-50 transition-opacity"></div>
+                                                    <div className="relative">
+                                                        <MediaCard {...item} />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
                                 </div>
-                                <div className="flex-1 h-px bg-gradient-to-r from-brand-yellow/40 to-transparent"></div>
-                            </div>
-                            <div className={`grid gap-6 ${featuredItems.length === 1 ? 'grid-cols-1 max-w-2xl mx-auto' : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3'}`}>
-                                {featuredItems.map(item => (
-                                    <div key={item.id} className="transform hover:scale-[1.02] transition-transform">
-                                        <div className="relative">
-                                            <div className="absolute -inset-0.5 bg-gradient-to-r from-brand-red via-brand-yellow to-brand-red rounded-2xl blur opacity-30 group-hover:opacity-50 transition-opacity"></div>
-                                            <div className="relative">
+                            )}
+
+                            {hasTrending && (
+                                <div>
+                                    <div className="flex items-center gap-3 mb-8">
+                                        <div className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-brand-blue to-brand-red text-white flex-row-reverse rounded-full text-xs font-bold uppercase tracking-wider shadow-lg">
+                                            <span className="material-symbols-outlined text-[16px]" style={{ fontVariationSettings: "'FILL' 1" }}>trending_up</span>
+                                            Em Alta no IFUSP
+                                        </div>
+                                        <div className="flex-1 h-px bg-gradient-to-r from-brand-blue/40 to-transparent"></div>
+                                    </div>
+                                    <div className="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+                                        {trendingItems.map(item => (
+                                            <div key={item.id} className="transform hover:scale-[1.02] transition-transform">
                                                 <MediaCard {...item} />
                                             </div>
-                                        </div>
+                                        ))}
                                     </div>
-                                ))}
-                            </div>
+                                </div>
+                            )}
+
                         </div>
                     </section>
                 );

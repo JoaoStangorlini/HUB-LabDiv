@@ -88,6 +88,9 @@ export async function fetchSubmissions({ page, limit, query, categories, mediaTy
         created_at: sub.created_at,
         technical_details: sub.technical_details || null,
         alt_text: sub.alt_text || null,
+        tags: sub.tags || [],
+        views: sub.views || 0,
+        reading_time: sub.reading_time || 0
     }));
 
     const hasMore = count ? from + submissions.length < count : false;
@@ -122,6 +125,46 @@ export async function fetchUserSubmissions(userId: string): Promise<MediaCardPro
         technical_details: sub.technical_details || null,
         alt_text: sub.alt_text || null,
         admin_feedback: sub.admin_feedback || null,
-        status: sub.status // Explicitly adding status for the user to see
+        status: sub.status,
+        tags: sub.tags || [],
+        views: sub.views || 0,
+        reading_time: sub.reading_time || 0
+    }));
+}
+
+export async function fetchTrendingSubmissions(): Promise<MediaCardProps[]> {
+    const { data: submissions, error } = await supabase
+        .rpc('get_most_liked_submissions', { limit_count: 3 });
+
+    if (error || !submissions) {
+        return [];
+    }
+
+    const submissionIds = submissions.map((s: any) => s.id);
+    const { data: likeCounts } = await supabase.from('curtidas').select('submission_id').in('submission_id', submissionIds);
+    const likeMap: Record<string, number> = {};
+    if (likeCounts) {
+        for (const row of likeCounts) {
+            likeMap[row.submission_id] = (likeMap[row.submission_id] || 0) + 1;
+        }
+    }
+
+    return submissions.map((sub: any) => ({
+        id: sub.id,
+        title: sub.title,
+        description: sub.description,
+        authors: sub.authors,
+        mediaType: sub.media_type,
+        mediaUrl: sub.media_url,
+        category: sub.category,
+        isFeatured: sub.featured,
+        likeCount: likeMap[sub.id] || 0,
+        external_link: sub.external_link || null,
+        created_at: sub.created_at,
+        technical_details: sub.technical_details || null,
+        alt_text: sub.alt_text || null,
+        tags: sub.tags || [],
+        views: sub.views || 0,
+        reading_time: sub.reading_time || 0
     }));
 }

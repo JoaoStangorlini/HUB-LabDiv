@@ -11,7 +11,9 @@ import { useSubmissionStore } from '@/store/useSubmissionStore';
 import { useFormAutoSave } from '@/hooks/useFormAutoSave';
 import { supabase } from '@/lib/supabase';
 import ReactMarkdown from 'react-markdown';
-
+import remarkMath from 'remark-math';
+import rehypeKatex from 'rehype-katex';
+import rehypeSanitize from 'rehype-sanitize';
 
 import { submissionSchema, type SubmissionFormData } from '../schema';
 
@@ -642,7 +644,7 @@ export function FormStep() {
                     </div>
                     {showPreview ? (
                         <div className="w-full bg-white dark:bg-form-dark border-2 border-gray-100 dark:border-gray-800 rounded-b-2xl px-6 py-4 min-h-[300px] prose dark:prose-invert max-w-none">
-                            <ReactMarkdown>{watchedValues.description || '*Sua descrição aparecerá aqui...*'}</ReactMarkdown>
+                            <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex, rehypeSanitize]}>{watchedValues.description || '*Sua descrição aparecerá aqui...*'}</ReactMarkdown>
                         </div>
                     ) : (
                         <div className="relative">

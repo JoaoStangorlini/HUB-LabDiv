@@ -13,6 +13,7 @@
     "@supabase/supabase-js": "^2.97.0",
     "@tailwindcss/typography": "^0.5.19",
     "framer-motion": "^12.34.3",
+    "katex": "^0.16.28",
     "next": "16.1.6",
     "react": "19.2.3",
     "react-dom": "19.2.3",
@@ -20,6 +21,9 @@
     "react-intersection-observer": "^10.0.3",
     "react-markdown": "^10.1.0",
     "react-pdf": "^10.4.0",
+    "rehype-katex": "^7.0.1",
+    "rehype-sanitize": "^6.0.0",
+    "remark-math": "^6.0.0",
     "resend": "^6.9.2",
     "zod": "^4.3.6",
     "zustand": "^5.0.11"

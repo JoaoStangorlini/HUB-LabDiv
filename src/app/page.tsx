@@ -1,7 +1,7 @@
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { HomeClientView } from '@/components/HomeClientView';
-import { fetchSubmissions } from '@/app/actions/submissions';
+import { fetchSubmissions, fetchTrendingSubmissions } from '@/app/actions/submissions';
 
 // Helper to ensure stability before we have real data
 export const revalidate = 0;
@@ -19,6 +19,8 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ c
     sort: 'recentes'
   });
 
+  const trendingItems = await fetchTrendingSubmissions();
+
   return (
     <div className="bg-background-light dark:bg-background-dark text-text-main dark:text-gray-100 min-h-screen flex flex-col">
       <Header />
@@ -27,6 +29,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ c
           initialItems={initialItems}
           initialHasMore={initialHasMore}
           initialCategory={initialCategory}
+          trendingItems={trendingItems}
         />
       </main>
       <Footer />
