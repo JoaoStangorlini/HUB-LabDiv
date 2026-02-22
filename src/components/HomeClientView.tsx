@@ -17,6 +17,23 @@ interface HomeClientViewProps {
     trendingTags?: string[];
 }
 
+const highlightMatch = (text: string, query: string) => {
+    if (!query.trim() || query.length < 2) return text;
+    const regex = new RegExp(`(${query})`, 'gi');
+    const parts = text.split(regex);
+    return (
+        <span>
+            {parts.map((part, i) =>
+                part.toLowerCase() === query.toLowerCase() ? (
+                    <mark key={i} className="bg-brand-yellow/40 text-gray-900 dark:text-white rounded-sm px-0.5 font-black">{part}</mark>
+                ) : (
+                    part
+                )
+            )}
+        </span>
+    );
+};
+
 export const HomeClientView = ({
     initialItems,
     initialHasMore,
@@ -49,6 +66,49 @@ export const HomeClientView = ({
     const filtersScrollRef = useRef<HTMLDivElement>(null);
     const searchContainerRef = useRef<HTMLDivElement>(null);
     const [isSearchFocused, setIsSearchFocused] = useState(false);
+    const trendingScrollRef = useRef<HTMLDivElement>(null);
+    const [canScrollLeft, setCanScrollLeft] = useState(false);
+    const [canScrollRight, setCanScrollRight] = useState(false);
+
+    // Update scroll buttons for trending carousel
+    const updateTrendingScroll = () => {
+        if (trendingScrollRef.current) {
+            const { scrollLeft, scrollWidth, clientWidth } = trendingScrollRef.current;
+            setCanScrollLeft(scrollLeft > 10);
+            setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 10);
+        }
+    };
+
+    useEffect(() => {
+        const carousel = trendingScrollRef.current;
+        if (carousel) {
+            carousel.addEventListener('scroll', updateTrendingScroll);
+            updateTrendingScroll();
+        }
+        window.addEventListener('resize', updateTrendingScroll);
+        return () => {
+            if (carousel) carousel.removeEventListener('scroll', updateTrendingScroll);
+            window.removeEventListener('resize', updateTrendingScroll);
+        };
+    }, [trendingItems]);
+
+    // Epic Feature #12: Keyboard Navigation for Carousels
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (isSearchFocused) return;
+            if (e.key === 'ArrowRight') scrollTrending('right');
+            if (e.key === 'ArrowLeft') scrollTrending('left');
+        };
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [isSearchFocused]);
+
+    const scrollTrending = (direction: 'left' | 'right') => {
+        if (trendingScrollRef.current) {
+            const scrollAmount = window.innerWidth > 768 ? 600 : 300;
+            trendingScrollRef.current.scrollBy({ left: direction === 'left' ? -scrollAmount : scrollAmount, behavior: 'smooth' });
+        }
+    };
 
     useEffect(() => {
         function handleClickOutside(event: MouseEvent) {
@@ -247,8 +307,12 @@ export const HomeClientView = ({
                                                             {item.mediaType === 'video' ? 'play_circle' : item.mediaType === 'text' ? 'article' : item.mediaType === 'pdf' ? 'picture_as_pdf' : 'image'}
                                                         </span>
                                                         <div className="flex flex-col flex-1 truncate">
-                                                            <span className="text-sm font-bold text-gray-900 dark:text-gray-100 truncate">{item.title}</span>
-                                                            <span className="text-xs text-brand-blue dark:text-blue-400 font-medium truncate">{item.authors}</span>
+                                                            <span className="text-sm font-bold text-gray-900 dark:text-gray-100 truncate">
+                                                                {highlightMatch(item.title, debouncedQuery)}
+                                                            </span>
+                                                            <span className="text-xs text-brand-blue dark:text-blue-400 font-medium truncate">
+                                                                {highlightMatch(item.authors, debouncedQuery)}
+                                                            </span>
                                                         </div>
                                                         <span className="material-symbols-outlined text-gray-300 text-sm">north_west</span>
                                                     </div>
@@ -328,7 +392,7 @@ export const HomeClientView = ({
                             )}
 
                             {hasTrending && (
-                                <div>
+                                <div className="relative">
                                     <div className="flex items-center gap-3 mb-8">
                                         <div className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-brand-blue to-brand-red text-white flex-row-reverse rounded-full text-xs font-bold uppercase tracking-wider shadow-lg">
                                             <span className="material-symbols-outlined text-[16px]" style={{ fontVariationSettings: "'FILL' 1" }}>trending_up</span>
@@ -336,12 +400,40 @@ export const HomeClientView = ({
                                         </div>
                                         <div className="flex-1 h-px bg-gradient-to-r from-brand-blue/40 to-transparent"></div>
                                     </div>
-                                    <div className="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-                                        {trendingItems.map(item => (
-                                            <div key={item.id} className="transform hover:scale-[1.02] transition-transform">
-                                                <MediaCard {...item} />
-                                            </div>
-                                        ))}
+
+                                    <div className="relative group/trending-carousel h-full">
+                                        {/* Desktop Scroll Buttons */}
+                                        <AnimatePresence>
+                                            {canScrollLeft && (
+                                                <button
+                                                    onClick={() => scrollTrending('left')}
+                                                    className="absolute -left-4 top-1/2 -translate-y-1/2 z-30 w-12 h-12 bg-white/90 dark:bg-card-dark/90 rounded-full shadow-2xl border border-gray-100 dark:border-gray-800 flex items-center justify-center text-gray-700 dark:text-gray-200 hover:scale-110 active:scale-95 transition-all hidden md:flex"
+                                                >
+                                                    <span className="material-symbols-outlined">chevron_left</span>
+                                                </button>
+                                            )}
+                                            {canScrollRight && (
+                                                <button
+                                                    onClick={() => scrollTrending('right')}
+                                                    className="absolute -right-4 top-1/2 -translate-y-1/2 z-30 w-12 h-12 bg-white/90 dark:bg-card-dark/90 rounded-full shadow-2xl border border-gray-100 dark:border-gray-800 flex items-center justify-center text-gray-700 dark:text-gray-200 hover:scale-110 active:scale-95 transition-all hidden md:flex"
+                                                >
+                                                    <span className="material-symbols-outlined">chevron_right</span>
+                                                </button>
+                                            )}
+                                        </AnimatePresence>
+
+                                        <div
+                                            ref={trendingScrollRef}
+                                            className="flex gap-6 overflow-x-auto no-scrollbar scroll-smooth snap-x snap-mandatory pb-6"
+                                        >
+                                            {trendingItems.map(item => (
+                                                <div key={item.id} className="min-w-[280px] sm:min-w-[340px] transform hover:scale-[1.02] transition-transform snap-start">
+                                                    <MediaCard {...item} />
+                                                </div>
+                                            ))}
+                                            {/* Indicador de mais conteúdo (fade out) */}
+                                            <div className="min-w-[40px] flex-shrink-0 md:hidden"></div>
+                                        </div>
                                     </div>
                                 </div>
                             )}

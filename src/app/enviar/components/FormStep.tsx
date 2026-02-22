@@ -10,6 +10,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useSubmissionStore } from '@/store/useSubmissionStore';
 import { useFormAutoSave } from '@/hooks/useFormAutoSave';
 import { supabase } from '@/lib/supabase';
+import { getTrendingTags } from '@/app/actions/submissions';
 import ReactMarkdown from 'react-markdown';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
@@ -33,6 +34,8 @@ export function FormStep() {
     const [userEmail, setUserEmail] = useState('');
     const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
     const [showPreview, setShowPreview] = useState(false);
+    const [isDragging, setIsDragging] = useState(false);
+    const [isLoadingOCR, setIsLoadingOCR] = useState(false);
 
 
     const {
@@ -63,13 +66,18 @@ export function FormStep() {
     });
 
     const [tagInput, setTagInput] = useState('');
+    const [smartTags, setSmartTags] = useState<string[]>([]);
+
+    useEffect(() => {
+        getTrendingTags().then(tags => setSmartTags(tags || [])).catch(() => { });
+    }, []);
 
 
 
     const watchedValues = watch();
 
     // Auto-save integration
-    useFormAutoSave({ register, handleSubmit, watch, setValue, formState: { errors, isDirty }, reset: resetForm } as any, {
+    const { clearAutoSave } = useFormAutoSave({ register, handleSubmit, watch, setValue, formState: { errors, isDirty }, reset: resetForm } as any, {
         key: 'submission-form-draft',
         debounceMs: 1500
     });
@@ -138,8 +146,20 @@ export function FormStep() {
     // Reading time calculation
     useEffect(() => {
         const text = watchedValues.description || '';
-        const words = text.trim().split(/\s+/).filter(w => w.length > 0).length;
-        const time = Math.max(1, Math.ceil(words / 200));
+
+        // Count KaTeX blocks
+        const inlineMathMatches = text.match(/\$(.+?)\$/g) || [];
+        const blockMathMatches = text.match(/\$\$(.+?)\$\$/g) || [];
+
+        // Remove KaTeX from text to count regular words accurately
+        let cleanText = text.replace(/\$\$(.+?)\$\$/g, '').replace(/\$(.+?)\$/g, '');
+        const words = cleanText.trim().split(/\s+/).filter(w => w.length > 0).length;
+
+        // Weights: inline math ~ 5 words of cognitive load, block math ~ 20 words
+        const mathWeight = (inlineMathMatches.length * 5) + (blockMathMatches.length * 20);
+
+        const totalWords = words + mathWeight;
+        const time = Math.max(1, Math.ceil(totalWords / 200));
         if (watchedValues.readingTime !== time) {
             setValue('readingTime', time);
         }
@@ -207,6 +227,7 @@ export function FormStep() {
     const handleDrop = (e: React.DragEvent) => {
         e.preventDefault();
         e.stopPropagation();
+        setIsDragging(false);
         const files = Array.from(e.dataTransfer.files);
         const validFiles = files.filter(f => f.size <= MAX_FILE_SIZE);
         if (validFiles.length < files.length) {
@@ -218,6 +239,13 @@ export function FormStep() {
     const handleDragOver = (e: React.DragEvent) => {
         e.preventDefault();
         e.stopPropagation();
+        setIsDragging(true);
+    };
+
+    const handleDragLeave = (e: React.DragEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setIsDragging(false);
     };
 
     const removeFile = (index: number) => {
@@ -308,6 +336,19 @@ export function FormStep() {
                 finalMediaUrl = [`https://www.youtube.com/embed/${vidId}`];
             }
 
+            // 0. Rate Limiting Check (Máx 3 submissões por 15 minutos)
+            const fifteenMinsAgo = new Date(Date.now() - 15 * 60 * 1000).toISOString();
+            const { count: recentSubmissions, error: countError } = await supabase
+                .from('submissions')
+                .select('*', { count: 'exact', head: true })
+                .eq('user_id', session.user.id)
+                .gte('created_at', fifteenMinsAgo);
+
+            if (countError) throw new Error("Erro ao verificar limites de envio.");
+            if (recentSubmissions && recentSubmissions >= 3) {
+                throw new Error("Muitos envios recentes. Por favor, aguarde 15 minutos antes de enviar novamente.");
+            }
+
             // 1. Ensure Profile Exists (Critical for Foreign Key constraint)
             const { data: profile, error: profileError } = await supabase
                 .from('profiles')
@@ -357,6 +398,8 @@ export function FormStep() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ authors: data.authors, title: data.title, category })
             }).catch(() => { });
+
+            clearAutoSave(); // Clear draft on successful submission
 
             setIsSubmitted(true);
             setTimeout(() => {
@@ -577,8 +620,14 @@ export function FormStep() {
                                 </button>
                             </span>
                         ))}
+                        <datalist id="smart-tags">
+                            {smartTags.filter(t => !watchedValues.tags?.includes(t)).map((tag) => (
+                                <option key={tag} value={tag} />
+                            ))}
+                        </datalist>
                         <input
                             type="text"
+                            list="smart-tags"
                             value={tagInput}
                             onChange={(e) => setTagInput(e.target.value)}
                             onKeyDown={handleTagKeyDown}
@@ -795,8 +844,9 @@ export function FormStep() {
                         </label>
                         <div
                             onDragOver={handleDragOver}
+                            onDragLeave={handleDragLeave}
                             onDrop={handleDrop}
-                            className="relative group border-4 border-dashed border-gray-100 dark:border-gray-800 rounded-[32px] p-10 transition-all hover:border-brand-blue/30 hover:bg-brand-blue/5 flex flex-col items-center justify-center gap-4 text-center cursor-pointer"
+                            className={`relative group border-4 border-dashed rounded-[32px] p-10 transition-all flex flex-col items-center justify-center gap-4 text-center cursor-pointer ${isDragging ? 'border-brand-blue bg-brand-blue/10 scale-[1.02]' : 'border-gray-100 dark:border-gray-800 hover:border-brand-blue/30 hover:bg-brand-blue/5'}`}
                             onClick={() => document.getElementById('file-upload')?.click()}
                         >
                             <input
@@ -845,6 +895,27 @@ export function FormStep() {
                                     </div>
                                 ))}
                             </div>
+                        )}
+
+                        {selectedFiles.length > 0 && selectedFiles.some(f => f.type.includes('pdf')) && (
+                            <button
+                                type="button"
+                                onClick={async () => {
+                                    setIsLoadingOCR(true);
+                                    await new Promise(r => setTimeout(r, 2000));
+                                    setValue('description', 'Extração simulada de OCR: Este é um texto sugerido automaticamente pela leitura IA do PDF.', { shouldDirty: true });
+                                    setIsLoadingOCR(false);
+                                }}
+                                disabled={isLoadingOCR}
+                                className="w-full flex items-center justify-center gap-2 px-6 py-4 bg-gradient-to-r from-brand-yellow/80 to-brand-yellow hover:from-brand-yellow/90 hover:to-brand-yellow !text-gray-900 border border-brand-yellow/50 rounded-2xl font-black transition-all shadow-md text-sm mt-4 group"
+                            >
+                                {isLoadingOCR ? (
+                                    <div className="w-5 h-5 border-2 border-gray-900/30 border-t-gray-900 rounded-full animate-spin"></div>
+                                ) : (
+                                    <span className="material-symbols-outlined text-lg group-hover:scale-110 transition-transform">document_scanner</span>
+                                )}
+                                {isLoadingOCR ? 'Processando PDF...' : 'Autopreencher com IA (Simulado)'}
+                            </button>
                         )}
                     </motion.div>
                 )

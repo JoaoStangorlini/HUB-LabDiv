@@ -43,7 +43,7 @@ export async function fetchPlaylistItems(playlistId: string): Promise<MediaCardP
         .from('playlist_items')
         .select(`
             position,
-            submissions (*)
+            submissions (id, title, description, authors, media_type, media_url, category, featured, external_link, created_at, technical_details, alt_text, tags, views, reading_time, like_count, status)
         `)
         .eq('playlist_id', playlistId)
         // Ensure we only fetch approved submissions
@@ -62,19 +62,6 @@ export async function fetchPlaylistItems(playlistId: string): Promise<MediaCardP
 
     if (submissions.length === 0) return [];
 
-    const submissionIds = submissions.map(s => s.id);
-    const { data: likeCounts } = await supabase
-        .from('curtidas')
-        .select('submission_id')
-        .in('submission_id', submissionIds);
-
-    const likeMap: Record<string, number> = {};
-    if (likeCounts) {
-        for (const row of likeCounts) {
-            likeMap[row.submission_id] = (likeMap[row.submission_id] || 0) + 1;
-        }
-    }
-
     return submissions.map(sub => ({
         id: sub.id,
         title: sub.title,
@@ -84,7 +71,7 @@ export async function fetchPlaylistItems(playlistId: string): Promise<MediaCardP
         mediaUrl: sub.media_url,
         category: sub.category,
         isFeatured: sub.featured,
-        likeCount: likeMap[sub.id] || 0,
+        likeCount: sub.like_count || 0,
         external_link: sub.external_link || null,
         created_at: sub.created_at,
         technical_details: sub.technical_details || null,

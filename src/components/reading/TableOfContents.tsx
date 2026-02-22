@@ -97,13 +97,13 @@ export function TableOfContents() {
                 </div>
             </nav>
 
-            {/* Mobile FAB — visible only on small screens */}
+            {/* Mobile FAB — visible only on small screens, repositioned to top right */}
             <button
                 onClick={() => setIsSheetOpen(true)}
-                className="lg:hidden fixed right-4 bottom-36 z-[90] bg-brand-blue text-white rounded-full shadow-xl p-3 min-h-[48px] min-w-[48px] flex items-center justify-center hover:scale-110 active:scale-95 transition-all print:hidden"
+                className="lg:hidden fixed right-4 top-24 z-[90] bg-brand-blue/90 backdrop-blur-md text-white rounded-full shadow-2xl p-2.5 min-h-[42px] min-w-[42px] flex items-center justify-center hover:scale-110 active:scale-95 transition-all print:hidden border border-white/20"
                 aria-label="Abrir índice"
             >
-                <span className="material-symbols-outlined text-[22px]">toc</span>
+                <span className="material-symbols-outlined text-[20px]">toc</span>
             </button>
 
             {/* Mobile Bottom Sheet */}

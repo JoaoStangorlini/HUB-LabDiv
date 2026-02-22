@@ -7,6 +7,7 @@ import { fetchUserSubmissions } from '@/app/actions/submissions';
 import { MediaCardProps } from '@/components/MediaCard';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
+import { getAvatarUrl } from '@/lib/utils';
 
 function ProfileContent() {
     const router = useRouter();
@@ -64,7 +65,7 @@ function ProfileContent() {
                             <div className="relative shrink-0">
                                 <div className="w-32 h-32 sm:w-40 sm:h-40 rounded-full flex items-center justify-center overflow-hidden border-2 border-gray-200 dark:border-gray-800 shadow-md">
                                     {user.user_metadata?.avatar_url ? (
-                                        <img src={user.user_metadata.avatar_url} alt="Profile" className="w-full h-full object-cover" />
+                                        <img src={getAvatarUrl(user.user_metadata.avatar_url)} alt="Profile" className="w-full h-full object-cover" />
                                     ) : (
                                         <span className="material-symbols-outlined text-6xl sm:text-7xl text-gray-400">person</span>
                                     )}
@@ -117,9 +118,9 @@ function ProfileContent() {
                         {activeTab === 'publicacoes' && (
                             <div>
                                 {submissions.length > 0 ? (
-                                    <div className="grid grid-cols-2 md:grid-cols-3 gap-1 md:gap-4">
+                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                                         {submissions.map(sub => (
-                                            <a key={sub.id} href={`/arquivo/${sub.id}`} className="group relative aspect-square bg-gray-100 dark:bg-gray-800 overflow-hidden rounded-md md:rounded-xl cursor-pointer">
+                                            <a key={sub.id} href={`/arquivo/${sub.id}`} className="group relative aspect-video bg-gray-100 dark:bg-gray-800 overflow-hidden rounded-2xl cursor-pointer border border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-xl transition-all">
                                                 {sub.mediaType === 'image' ? (
                                                     <img src={Array.isArray(sub.mediaUrl) ? sub.mediaUrl[0] : sub.mediaUrl} alt={sub.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                                                 ) : sub.mediaType === 'video' ? (

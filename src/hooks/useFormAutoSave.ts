@@ -20,9 +20,17 @@ export function useFormAutoSave<T extends FieldValues>(
         if (saved) {
             try {
                 const parsed = JSON.parse(saved);
-                // We use reset with the saved values to ensure the form is initialized correctly
-                // including isDirty state if we want to preserve it, but usually reset(parsed) is best.
-                reset(parsed);
+                if (parsed.timestamp && parsed.data) {
+                    const age = Date.now() - parsed.timestamp;
+                    if (age < 24 * 60 * 60 * 1000) { // 24 hours validity
+                        reset(parsed.data);
+                    } else {
+                        localStorage.removeItem(key); // Expired payload
+                    }
+                } else {
+                    // Legacy format
+                    reset(parsed);
+                }
             } catch (e) {
                 console.error('Error loading auto-save data:', e);
             }
@@ -35,7 +43,11 @@ export function useFormAutoSave<T extends FieldValues>(
             if (timerRef.current) clearTimeout(timerRef.current);
 
             timerRef.current = setTimeout(() => {
-                localStorage.setItem(key, JSON.stringify(value));
+                const payload = {
+                    timestamp: Date.now(),
+                    data: value
+                };
+                localStorage.setItem(key, JSON.stringify(payload));
             }, debounceMs);
         });
 

@@ -76,8 +76,7 @@ export function ReadingViewManager({ submission, children }: ReadingViewManagerP
         <>
             {/* Real-time and TTS background logic */}
             <PresenceIndicator submissionId={submission.id} />
-            <SpeechPlayer content={submission.description} />
-            <ReadingProgressBar />
+            <SpeechPlayer content={submission.description} description={submission.description} />
             <TableOfContents />
 
             {/* Contextual Interactions */}

@@ -18,7 +18,7 @@ export interface FetchParams {
 export async function fetchSubmissions({ page, limit, query, categories, mediaTypes, sort, author, is_featured: featured }: FetchParams): Promise<{ items: MediaCardProps[], hasMore: boolean }> {
     let queryBuilder = supabase
         .from('submissions')
-        .select('id, title, description, authors, media_type, media_url, category, is_featured, external_link, created_at, technical_details, alt_text, tags, views, reading_time', { count: 'exact' })
+        .select('id, title, description, authors, media_type, media_url, category, is_featured, external_link, created_at, technical_details, alt_text, tags, views, reading_time, like_count', { count: 'exact' })
         .eq('status', 'aprovado');
 
     // Filtering by Featured
@@ -73,19 +73,8 @@ export async function fetchSubmissions({ page, limit, query, categories, mediaTy
         return { items: [], hasMore: false };
     }
 
-    // Fetch like counts for ONLY the returned submissions
+    // Fetch like counts is now handled by the SQL trigger and 'like_count' column.
     const submissionIds = submissions.map(s => s.id);
-    const { data: likeCounts } = await supabase
-        .from('curtidas')
-        .select('submission_id')
-        .in('submission_id', submissionIds);
-
-    const likeMap: Record<string, number> = {};
-    if (likeCounts) {
-        for (const row of likeCounts) {
-            likeMap[row.submission_id] = (likeMap[row.submission_id] || 0) + 1;
-        }
-    }
 
     // Fetch comment counts
     const { data: commentCounts } = await supabase
@@ -123,7 +112,7 @@ export async function fetchSubmissions({ page, limit, query, categories, mediaTy
         mediaUrl: sub.media_url,
         category: sub.category,
         isFeatured: sub.is_featured,
-        likeCount: likeMap[sub.id] || 0,
+        likeCount: sub.like_count || 0,
         commentCount: commentMap[sub.id] || 0,
         saveCount: saveMap[sub.id] || 0,
         external_link: sub.external_link || null,
@@ -143,8 +132,9 @@ export async function fetchSubmissions({ page, limit, query, categories, mediaTy
 export async function fetchUserSubmissions(userId: string): Promise<MediaCardProps[]> {
     const { data: submissions, error } = await supabase
         .from('submissions')
-        .select('id, title, description, authors, media_type, media_url, category, is_featured, external_link, created_at, technical_details, alt_text, admin_feedback, status, tags, views, reading_time')
+        .select('id, title, description, authors, media_type, media_url, category, is_featured, external_link, created_at, technical_details, alt_text, admin_feedback, status, tags, views, reading_time, like_count')
         .eq('user_id', userId)
+        .neq('status', 'deleted')
         .order('created_at', { ascending: false })
         .limit(50);
 
@@ -178,7 +168,7 @@ export async function fetchUserSubmissions(userId: string): Promise<MediaCardPro
 export async function fetchTrendingSubmissions(): Promise<MediaCardProps[]> {
     const { data: submissions, error } = await supabase
         .from('submissions')
-        .select('id, title, description, authors, media_type, media_url, category, is_featured, external_link, created_at, technical_details, alt_text, tags, views, reading_time')
+        .select('id, title, description, authors, media_type, media_url, category, is_featured, external_link, created_at, technical_details, alt_text, tags, views, reading_time, like_count')
         .eq('status', 'aprovado')
         .order('views', { ascending: false })
         .order('created_at', { ascending: false })
@@ -189,13 +179,6 @@ export async function fetchTrendingSubmissions(): Promise<MediaCardProps[]> {
     }
 
     const submissionIds = submissions.map((s: any) => s.id);
-    const { data: likeCounts } = await supabase.from('curtidas').select('submission_id').in('submission_id', submissionIds);
-    const likeMap: Record<string, number> = {};
-    if (likeCounts) {
-        for (const row of likeCounts) {
-            likeMap[row.submission_id] = (likeMap[row.submission_id] || 0) + 1;
-        }
-    }
 
     const { data: commentCounts } = await supabase.from('comments').select('submission_id').in('submission_id', submissionIds).eq('status', 'aprovado');
     const commentMap: Record<string, number> = {};
@@ -222,7 +205,7 @@ export async function fetchTrendingSubmissions(): Promise<MediaCardProps[]> {
         mediaUrl: sub.media_url,
         category: sub.category,
         isFeatured: sub.is_featured,
-        likeCount: likeMap[sub.id] || 0,
+        likeCount: sub.like_count || 0,
         commentCount: commentMap[sub.id] || 0,
         saveCount: saveMap[sub.id] || 0,
         external_link: sub.external_link || null,

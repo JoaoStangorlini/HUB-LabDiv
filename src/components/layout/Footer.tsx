@@ -80,14 +80,17 @@ export function Footer() {
                     </div>
                 </div>
 
-                <div className="border-t border-gray-100 dark:border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-                    <p className="text-xs text-gray-500 dark:text-gray-500 text-center md:text-left">
+                <div className="border-t border-gray-100 dark:border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-center md:text-left">
+                    <p className="text-xs text-gray-500 dark:text-gray-500">
                         © {new Date().getFullYear()} Instituto de Física - USP. Todos os direitos reservados.
                     </p>
-                    <div className="flex gap-4">
-                        <div className="w-3 h-3 rounded-sm bg-brand-blue shadow-sm shadow-brand-blue/50"></div>
-                        <div className="w-3 h-3 rounded-sm bg-brand-red shadow-sm shadow-brand-red/50"></div>
-                        <div className="w-3 h-3 rounded-sm bg-brand-yellow shadow-sm shadow-brand-yellow/50"></div>
+                    <div className="flex items-center gap-6">
+                        <span className="text-[10px] font-bold text-gray-400 dark:text-gray-600 border border-gray-100 dark:border-gray-800 px-2 py-0.5 rounded">v2.3.5</span>
+                        <div className="flex gap-4">
+                            <div className="w-3 h-3 rounded-sm bg-brand-blue shadow-sm shadow-brand-blue/50"></div>
+                            <div className="w-3 h-3 rounded-sm bg-brand-red shadow-sm shadow-brand-red/50"></div>
+                            <div className="w-3 h-3 rounded-sm bg-brand-yellow shadow-sm shadow-brand-yellow/50"></div>
+                        </div>
                     </div>
                 </div>
             </div>

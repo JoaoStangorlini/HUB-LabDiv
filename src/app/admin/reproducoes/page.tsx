@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import Link from 'next/link';
+import { getAvatarUrl } from '@/lib/utils';
 
 interface Reproduction {
     id: string;
@@ -31,7 +32,7 @@ function ReproductionCard({ rep, onAction }: { rep: Reproduction; onAction: (act
                     <div className="flex items-center gap-3">
                         <div className="size-10 rounded-full bg-brand-blue/10 flex items-center justify-center overflow-hidden border border-brand-blue/20 shrink-0">
                             {rep.profiles?.avatar_url ? (
-                                <img src={rep.profiles.avatar_url} alt={rep.profiles.full_name} className="w-full h-full object-cover" />
+                                <img src={getAvatarUrl(rep.profiles.avatar_url)} alt={rep.profiles.full_name} className="w-full h-full object-cover" />
                             ) : (
                                 <span className="material-symbols-outlined text-brand-blue">person</span>
                             )}

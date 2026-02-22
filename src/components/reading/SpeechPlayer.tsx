@@ -3,11 +3,14 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useReadingExperience } from './ReadingExperienceProvider';
 
-export function SpeechPlayer({ content }: { content: string }) {
+export function SpeechPlayer({ content, description }: { content: string, description?: string }) {
     const { isAudioPlaying, setAudioPlaying, audioLanguage } = useReadingExperience();
     const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
     const synth = typeof window !== 'undefined' ? window.speechSynthesis : null;
     const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
+
+    // Prioritize description for cleaner narration (no markdown/math syntax)
+    const textToSpeak = description || content;
 
     useEffect(() => {
         if (!synth) return;

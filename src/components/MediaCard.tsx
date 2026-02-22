@@ -105,6 +105,9 @@ export const MediaCard = React.memo(({
         if (!prevLiked) {
             setShowLikeAnimation(true);
             setTimeout(() => setShowLikeAnimation(false), 600);
+            if (typeof window !== 'undefined' && window.navigator?.vibrate) {
+                window.navigator.vibrate(50);
+            }
         }
 
         setIsLiking(true);
@@ -162,6 +165,20 @@ export const MediaCard = React.memo(({
             setSaves(prevSaves);
         } finally {
             setIsSaving(false);
+        }
+    };
+
+    const handleReport = async () => {
+        if (!confirm('Deseja denunciar este conteúdo como inapropriado? Nossa curadoria irá analisar.')) return;
+        try {
+            await fetch('/api/report', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ submission_id: id, reason: 'Denúncia de Usuário' }),
+            });
+            alert('Denúncia enviada com sucesso. Agradecemos a colaboração!');
+        } catch (err) {
+            console.error('Error reporting:', err);
         }
     };
 
@@ -388,6 +405,16 @@ export const MediaCard = React.memo(({
                             className="text-gray-700 dark:text-gray-200 hover:text-brand-yellow transition-transform active:scale-90"
                         >
                             <span className="material-symbols-outlined text-[26px]">send</span>
+                        </button>
+                        <button
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                handleReport();
+                            }}
+                            className="text-gray-700 dark:text-gray-200 hover:text-red-500 transition-transform active:scale-90"
+                            title="Denunciar conteúdo"
+                        >
+                            <span className="material-symbols-outlined text-[26px]">flag</span>
                         </button>
                         {displayUrl && (
                             <a

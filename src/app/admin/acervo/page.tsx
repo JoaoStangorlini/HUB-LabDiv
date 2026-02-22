@@ -30,6 +30,7 @@ export default function GerenciadorAcervoPage() {
         const { data, error } = await supabase
             .from('submissions')
             .select('*')
+            .neq('status', 'deleted')
             .order('created_at', { ascending: false });
 
         if (error) {
@@ -75,15 +76,19 @@ export default function GerenciadorAcervoPage() {
         return result;
     }, [allSubmissions, searchQuery, selectedAuthor]);
 
+    // Bulk action state - Moved here to avoid usage before declaration
+    const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+    const isAllSelected = filteredSubmissions.length > 0 && selectedIds.size === filteredSubmissions.length;
+
     // Status badge
     const getStatusBadge = (status?: string) => {
         switch (status) {
             case 'aprovado':
-                return <span className="px-2 py-0.5 bg-brand-blue/10 text-brand-blue rounded text-[10px] font-bold uppercase tracking-wider">Aprovado</span>;
+                return <span className="px-2 py-0.5 bg-brand-blue/10 text-brand-blue dark:text-blue-400 dark:bg-blue-900/30 rounded text-[10px] font-bold uppercase tracking-wider">Aprovado</span>;
             case 'rejeitado':
-                return <span className="px-2 py-0.5 bg-brand-red/10 text-brand-red rounded text-[10px] font-bold uppercase tracking-wider">Rejeitado</span>;
+                return <span className="px-2 py-0.5 bg-brand-red/10 text-brand-red dark:text-red-400 dark:bg-red-900/30 rounded text-[10px] font-bold uppercase tracking-wider">Rejeitado</span>;
             default:
-                return <span className="px-2 py-0.5 bg-brand-yellow/10 text-brand-yellow rounded text-[10px] font-bold uppercase tracking-wider">Pendente</span>;
+                return <span className="px-2 py-0.5 bg-brand-yellow/10 text-brand-yellow dark:text-yellow-400 dark:bg-yellow-900/30 rounded text-[10px] font-bold uppercase tracking-wider">Pendente</span>;
         }
     };
 
@@ -101,8 +106,8 @@ export default function GerenciadorAcervoPage() {
             admin_feedback: feedback || null
         }).eq('id', id);
         if (error) { alert('Erro: ' + error.message); return; }
-        setAllSubmissions(prev => prev.map(s => s.id === id ? { ...s, status: 'aprovado', admin_feedback: feedback || (s as any).admin_feedback } : s));
-        if (selectedItem?.id === id) setSelectedItem(prev => prev ? { ...prev, status: 'aprovado', admin_feedback: feedback || (prev as any).admin_feedback } : null);
+        setAllSubmissions(prev => prev.map(s => s.id === id ? { ...s, status: 'aprovado', admin_feedback: feedback || s.admin_feedback } : s));
+        if (selectedItem?.id === id) setSelectedItem(prev => prev ? { ...prev, status: 'aprovado', admin_feedback: feedback || prev.admin_feedback } : null);
     };
 
     const handleReject = async (id: string, feedback?: string) => {
@@ -111,8 +116,8 @@ export default function GerenciadorAcervoPage() {
             admin_feedback: feedback || null
         }).eq('id', id);
         if (error) { alert('Erro: ' + error.message); return; }
-        setAllSubmissions(prev => prev.map(s => s.id === id ? { ...s, status: 'rejeitado', admin_feedback: feedback || (s as any).admin_feedback } : s));
-        if (selectedItem?.id === id) setSelectedItem(prev => prev ? { ...prev, status: 'rejeitado', admin_feedback: feedback || (prev as any).admin_feedback } : null);
+        setAllSubmissions(prev => prev.map(s => s.id === id ? { ...s, status: 'rejeitado', admin_feedback: feedback || s.admin_feedback } : s));
+        if (selectedItem?.id === id) setSelectedItem(prev => prev ? { ...prev, status: 'rejeitado', admin_feedback: feedback || prev.admin_feedback } : null);
     };
 
     const handleToggleFeatured = async (id: string, current: boolean) => {
@@ -140,6 +145,51 @@ export default function GerenciadorAcervoPage() {
             setEditingItem(null);
         }
         setIsSaving(false);
+    };
+
+    const toggleSelect = (id: string) => {
+        setSelectedIds(prev => {
+            const next = new Set(prev);
+            if (next.has(id)) next.delete(id);
+            else next.add(id);
+            return next;
+        });
+    };
+
+    const toggleSelectAll = () => {
+        if (isAllSelected) {
+            setSelectedIds(new Set());
+        } else {
+            setSelectedIds(new Set(filteredSubmissions.map(s => s.id)));
+        }
+    };
+
+    const handleBulkApprove = async () => {
+        if (selectedIds.size === 0) return;
+        const ids = Array.from(selectedIds);
+        const { error } = await supabase.from('submissions').update({ status: 'aprovado' }).in('id', ids);
+        if (error) { alert('Erro: ' + error.message); return; }
+        setAllSubmissions(prev => prev.map(s => ids.includes(s.id) ? { ...s, status: 'aprovado' } : s));
+        setSelectedIds(new Set());
+    };
+
+    const handleBulkReject = async () => {
+        if (selectedIds.size === 0) return;
+        const ids = Array.from(selectedIds);
+        const { error } = await supabase.from('submissions').update({ status: 'rejeitado' }).in('id', ids);
+        if (error) { alert('Erro: ' + error.message); return; }
+        setAllSubmissions(prev => prev.map(s => ids.includes(s.id) ? { ...s, status: 'rejeitado' } : s));
+        setSelectedIds(new Set());
+    };
+
+    const handleBulkDelete = async () => {
+        if (selectedIds.size === 0) return;
+        if (!confirm(`Tem certeza que deseja mover ${selectedIds.size} submissões para a lixeira (Soft Delete)?`)) return;
+        const ids = Array.from(selectedIds);
+        const { error } = await supabase.from('submissions').update({ status: 'deleted' }).in('id', ids);
+        if (error) { alert('Erro: ' + error.message); return; }
+        setAllSubmissions(prev => prev.filter(s => !ids.includes(s.id)));
+        setSelectedIds(new Set());
     };
 
     return (
@@ -194,6 +244,54 @@ export default function GerenciadorAcervoPage() {
                 </div>
             </div>
 
+            {/* ─── Ações em Massa ─── */}
+            <div className="flex flex-col md:flex-row items-center justify-between bg-white dark:bg-card-dark px-6 py-4 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm gap-4">
+                <div className="flex items-center gap-4 w-full md:w-auto justify-between md:justify-start">
+                    <button
+                        onClick={toggleSelectAll}
+                        className="flex items-center gap-2 text-sm font-semibold text-gray-600 dark:text-gray-300 hover:text-brand-blue transition-colors"
+                    >
+                        <div className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-all ${isAllSelected ? 'bg-brand-blue border-brand-blue' : 'border-gray-300 dark:border-gray-600'}`}>
+                            {isAllSelected && <span className="material-symbols-outlined text-white text-[14px] font-bold">check</span>}
+                        </div>
+                        {isAllSelected ? 'Desmarcar Todos' : 'Selecionar Todos'}
+                    </button>
+                    {selectedIds.size > 0 && (
+                        <span className="text-sm font-bold text-brand-blue bg-brand-blue/10 px-3 py-1 rounded-full whitespace-nowrap">
+                            {selectedIds.size} selecionados
+                        </span>
+                    )}
+                </div>
+
+                {selectedIds.size > 0 && (
+                    <div className="flex flex-wrap items-center justify-center md:justify-end gap-2 animate-in fade-in slide-in-from-right-4 duration-300 w-full md:w-auto">
+                        <button
+                            onClick={handleBulkApprove}
+                            className="px-4 py-2 bg-brand-blue text-white hover:bg-brand-blue/80 rounded-xl text-xs font-bold transition-all flex items-center gap-2 shadow-sm"
+                        >
+                            <span className="material-symbols-outlined text-[18px]">done_all</span>
+                            <span className="hidden sm:inline">Aprovar Selecionados</span>
+                            <span className="sm:hidden">Aprovar</span>
+                        </button>
+                        <button
+                            onClick={handleBulkReject}
+                            className="px-4 py-2 bg-brand-red text-white hover:bg-brand-red/80 rounded-xl text-xs font-bold transition-all flex items-center gap-2 shadow-sm"
+                        >
+                            <span className="material-symbols-outlined text-[18px]">block</span>
+                            <span className="hidden sm:inline">Rejeitar Selecionados</span>
+                            <span className="sm:hidden">Rejeitar</span>
+                        </button>
+                        <button
+                            onClick={handleBulkDelete}
+                            className="px-4 py-2 bg-gray-100 dark:bg-gray-800 text-gray-500 hover:bg-red-600 hover:text-white rounded-xl text-xs font-bold transition-all flex items-center gap-2 shadow-sm"
+                        >
+                            <span className="material-symbols-outlined text-[18px]">delete</span>
+                            Excluir
+                        </button>
+                    </div>
+                )}
+            </div>
+
             {/* ─── Grid de Cards ─── */}
             {isLoading ? (
                 <div className="text-center py-20 bg-white dark:bg-card-dark rounded-2xl border border-gray-100 dark:border-gray-800">
@@ -221,7 +319,7 @@ export default function GerenciadorAcervoPage() {
                         return (
                             <div key={item.id} className={`flex flex-col gap-2 relative group/card ${isRejected ? 'opacity-50 hover:opacity-80 transition-opacity' : ''}`}>
                                 {/* Status badge overlay */}
-                                <div className="absolute top-3 left-3 z-10">
+                                <div className="absolute top-3 left-12 z-10 transition-all">
                                     {getStatusBadge(item.status)}
                                 </div>
 
@@ -244,6 +342,17 @@ export default function GerenciadorAcervoPage() {
                                     >
                                         <span className="material-symbols-outlined text-[16px]">edit</span>
                                     </button>
+                                </div>
+
+                                {/* Selection Checkbox */}
+                                <div
+                                    onClick={(e) => { e.stopPropagation(); toggleSelect(item.id); }}
+                                    className={`absolute top-3 left-3 z-[15] w-6 h-6 rounded-lg cursor-pointer flex items-center justify-center transition-all shadow-md backdrop-blur-md border-2 ${selectedIds.has(item.id)
+                                        ? 'bg-brand-blue border-brand-blue opacity-100'
+                                        : 'bg-white/40 border-white/60 opacity-0 group-hover/card:opacity-100'
+                                        }`}
+                                >
+                                    {selectedIds.has(item.id) && <span className="material-symbols-outlined text-white text-[14px] font-black">check</span>}
                                 </div>
 
                                 <div onClick={() => { setSelectedItem(item); setModalImageIdx(0); }} className="cursor-pointer">

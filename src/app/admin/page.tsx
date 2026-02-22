@@ -140,7 +140,7 @@ export default function AdminDashboardOverview() {
                 </div>
             ) : (
                 <>
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                         {/* Pendentes Card */}
                         <Link href="/admin/pendentes" className="relative group bg-white dark:bg-card-dark rounded-3xl p-6 border border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-xl hover:border-brand-yellow/30 transition-all overflow-hidden cursor-pointer">
                             <div className="absolute top-0 right-0 w-32 h-32 bg-brand-yellow/5 dark:hidden rounded-full blur-2xl -translate-y-1/2 translate-x-1/2 group-hover:bg-brand-yellow/10 transition-colors"></div>
@@ -198,28 +198,43 @@ export default function AdminDashboardOverview() {
                             </div>
                         </div>
 
-                        {/* Gerenciador Unificado Card */}
-                        <Link href="/admin/acervo" className="relative group bg-white dark:bg-card-dark rounded-3xl p-6 border border-brand-blue/20 dark:border-brand-blue/10 shadow-lg hover:shadow-xl hover:border-brand-blue/40 transition-all overflow-hidden cursor-pointer ring-1 ring-brand-blue/5">
-                            <div className="absolute top-0 right-0 w-32 h-32 bg-brand-blue/5 dark:hidden rounded-full blur-2xl -translate-y-1/2 translate-x-1/2 group-hover:bg-brand-blue/10 transition-colors"></div>
+                        {/* Quick Action: Narração */}
+                        <Link href="/admin/narracao" className="relative group bg-white dark:bg-card-dark rounded-3xl p-6 border border-brand-yellow/20 dark:border-brand-yellow/10 shadow-lg hover:shadow-xl hover:border-brand-yellow/40 transition-all overflow-hidden cursor-pointer ring-1 ring-brand-yellow/5">
+                            <div className="absolute top-0 right-0 w-32 h-32 bg-brand-yellow/5 dark:hidden rounded-full blur-2xl -translate-y-1/2 translate-x-1/2 group-hover:bg-brand-yellow/10 transition-colors"></div>
                             <div className="relative z-10 flex flex-col gap-4 h-full justify-between">
                                 <div className="flex items-center justify-between">
-                                    <span className="text-[10px] font-black text-brand-blue uppercase tracking-[0.2em]">Acesso Rápido</span>
-                                    <div className="w-12 h-12 flex items-center justify-center rounded-2xl bg-brand-blue text-white shadow-lg shadow-brand-blue/30 group-hover:scale-110 transition-transform">
-                                        <span className="material-symbols-outlined text-2xl">collections_bookmark</span>
+                                    <span className="text-[10px] font-black text-brand-yellow uppercase tracking-[0.2em]">Acessibilidade</span>
+                                    <div className="w-12 h-12 flex items-center justify-center rounded-2xl bg-brand-yellow text-white shadow-lg shadow-brand-yellow/30 group-hover:scale-110 transition-transform">
+                                        <span className="material-symbols-outlined text-2xl">record_voice_over</span>
                                     </div>
                                 </div>
                                 <div className="space-y-1">
-                                    <h3 className="text-xl font-bold text-gray-900 dark:text-white leading-tight">Gerenciador de Acervo</h3>
-                                    <p className="text-xs text-gray-500 font-medium">Edição e Filtro por Autor</p>
+                                    <h3 className="text-xl font-bold text-gray-900 dark:text-white leading-tight">Narração & TTS</h3>
+                                    <p className="text-xs text-gray-500 font-medium">Gerenciar Acessibilidade</p>
                                 </div>
                             </div>
                         </Link>
                     </div>
 
+                    {/* ─── Nível Principal de Gerenciamento ─── */}
+                    <Link
+                        href="/admin/acervo"
+                        className="flex items-center gap-6 p-6 bg-white dark:bg-card-dark rounded-[32px] border border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-xl hover:border-brand-blue/40 transition-all group cursor-pointer"
+                    >
+                        <div className="w-20 h-20 flex items-center justify-center rounded-[24px] bg-brand-blue/10 text-brand-blue group-hover:bg-brand-blue group-hover:text-white transition-all shadow-inner">
+                            <span className="material-symbols-outlined text-4xl">collections_bookmark</span>
+                        </div>
+                        <div className="flex-1">
+                            <h3 className="text-2xl font-black text-gray-900 dark:text-white group-hover:text-brand-blue transition-colors tracking-tight">Gerenciador de Acervo Mestre</h3>
+                            <p className="text-gray-500 dark:text-gray-400 font-medium leading-relaxed">Painel central para edição rápida, filtros por autor e curadoria avançada de todas as submissões públicas e pendentes.</p>
+                        </div>
+                        <span className="material-symbols-outlined text-4xl text-gray-200 group-hover:text-brand-blue group-hover:translate-x-2 transition-all">chevron_right</span>
+                    </Link>
+
                     {/* Perguntas Section */}
-                    <div>
-                        <h2 className="text-lg font-bold text-gray-700 dark:text-gray-300 mb-4 flex items-center gap-2">
-                            <span className="material-symbols-outlined text-brand-blue text-xl">forum</span>
+                    <div className="pt-4">
+                        <h2 className="text-xl font-black text-gray-900 dark:text-white mb-6 flex items-center gap-3">
+                            <span className="material-symbols-outlined text-brand-blue text-2xl">forum</span>
                             Pergunte a um Cientista
                         </h2>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -264,228 +279,46 @@ export default function AdminDashboardOverview() {
                                 <div className="absolute top-0 right-0 w-32 h-32 bg-brand-yellow/5 dark:hidden rounded-full blur-2xl -translate-y-1/2 translate-x-1/2 group-hover:bg-brand-yellow/10 transition-colors"></div>
                                 <div className="relative z-10 flex flex-col gap-4">
                                     <div className="flex items-center justify-between">
-                                        <span className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Total de Perguntas</span>
+                                        <span className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Total Histórico</span>
                                         <div className="w-12 h-12 flex items-center justify-center rounded-2xl bg-brand-yellow/10 text-brand-yellow">
                                             <span className="material-symbols-outlined text-2xl">quiz</span>
                                         </div>
                                     </div>
                                     <div>
                                         <span className="text-5xl font-display font-black text-gray-900 dark:text-white tracking-tight">{counts.perguntasTotal}</span>
-                                        <span className="text-sm font-medium text-brand-yellow mt-1 block">Perguntas Recebidas</span>
+                                        <span className="text-sm font-medium text-brand-yellow mt-1 block">Interações Totais</span>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    {/* Comentários Section */}
-                    <div>
-                        <h2 className="text-lg font-bold text-gray-700 dark:text-gray-300 mb-4 flex items-center gap-2">
-                            <span className="material-symbols-outlined text-brand-yellow text-xl">reviews</span>
-                            Moderação de Comentários
-                        </h2>
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                            {/* Pendentes */}
-                            <Link href="/admin/comentarios" className="relative group bg-white dark:bg-card-dark rounded-3xl p-6 border border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-xl hover:border-brand-yellow/30 transition-all overflow-hidden cursor-pointer">
-                                <div className="relative z-10 flex flex-col gap-4">
-                                    <div className="flex items-center justify-between">
-                                        <span className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Aguardando Moderação</span>
-                                        <div className={`w-12 h-12 flex items-center justify-center rounded-2xl ${counts.comentariosPendentes > 0 ? 'bg-brand-yellow/20 text-brand-yellow animate-pulse' : 'bg-brand-yellow/10 text-brand-yellow'}`}>
-                                            <span className="material-symbols-outlined text-2xl">pause_circle</span>
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <span className="text-5xl font-display font-black text-gray-900 dark:text-white tracking-tight">{counts.comentariosPendentes}</span>
-                                        <span className="text-sm font-medium text-brand-yellow mt-1 block">Comentários Pendentes</span>
-                                    </div>
-                                </div>
-                            </Link>
-
-                            {/* Aprovados */}
-                            <div className="relative group bg-white dark:bg-card-dark rounded-3xl p-6 border border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-xl hover:border-brand-blue/30 transition-all overflow-hidden">
-                                <div className="relative z-10 flex flex-col gap-4">
-                                    <div className="flex items-center justify-between">
-                                        <span className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Publicados</span>
-                                        <div className="w-12 h-12 flex items-center justify-center rounded-2xl bg-brand-blue/10 text-brand-blue">
-                                            <span className="material-symbols-outlined text-2xl">chat</span>
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <span className="text-5xl font-display font-black text-gray-900 dark:text-white tracking-tight">{counts.comentariosAprovados}</span>
-                                        <span className="text-sm font-medium text-brand-blue mt-1 block">Comentários Aprovados</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Total */}
-                            <div className="relative group bg-white dark:bg-card-dark rounded-3xl p-6 border border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-xl hover:border-gray-200 transition-all overflow-hidden">
-                                <div className="relative z-10 flex flex-col gap-4">
-                                    <div className="flex items-center justify-between">
-                                        <span className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Total Histórico</span>
-                                        <div className="w-12 h-12 flex items-center justify-center rounded-2xl bg-gray-100 dark:bg-gray-800 text-gray-500">
-                                            <span className="material-symbols-outlined text-2xl">analytics</span>
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <span className="text-5xl font-display font-black text-gray-900 dark:text-white tracking-tight">{counts.comentariosTotal}</span>
-                                        <span className="text-sm font-medium text-gray-500 mt-1 block">Interações Totais</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Reproduções Section */}
-                    <div>
-                        <h2 className="text-lg font-bold text-gray-700 dark:text-gray-300 mb-4 flex items-center gap-2">
-                            <span className="material-symbols-outlined text-brand-blue text-xl">cameraswitch</span>
-                            Moderação de Reproduções
-                        </h2>
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                            {/* Pendentes */}
-                            <Link href="/admin/reproducoes" className="relative group bg-white dark:bg-card-dark rounded-3xl p-6 border border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-xl hover:border-brand-yellow/30 transition-all overflow-hidden cursor-pointer">
-                                <div className="relative z-10 flex flex-col gap-4">
-                                    <div className="flex items-center justify-between">
-                                        <span className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Aguardando Moderação</span>
-                                        <div className={`w-12 h-12 flex items-center justify-center rounded-2xl ${counts.reproducoesPendentes > 0 ? 'bg-brand-yellow/20 text-brand-yellow animate-pulse' : 'bg-brand-yellow/10 text-brand-yellow'}`}>
-                                            <span className="material-symbols-outlined text-2xl">pending_actions</span>
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <span className="text-5xl font-display font-black text-gray-900 dark:text-white tracking-tight">{counts.reproducoesPendentes}</span>
-                                        <span className="text-sm font-medium text-brand-yellow mt-1 block">Reproduções Pendentes</span>
-                                    </div>
-                                </div>
-                            </Link>
-
-                            {/* Aprovadas */}
-                            <div className="relative group bg-white dark:bg-card-dark rounded-3xl p-6 border border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-xl hover:border-brand-blue/30 transition-all overflow-hidden">
-                                <div className="relative z-10 flex flex-col gap-4">
-                                    <div className="flex items-center justify-between">
-                                        <span className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Aprovadas</span>
-                                        <div className="w-12 h-12 flex items-center justify-center rounded-2xl bg-brand-blue/10 text-brand-blue">
-                                            <span className="material-symbols-outlined text-2xl">check_circle</span>
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <span className="text-5xl font-display font-black text-gray-900 dark:text-white tracking-tight">{counts.reproducoesAprovadas}</span>
-                                        <span className="text-sm font-medium text-brand-blue mt-1 block">Reproduções Públicas</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Total */}
-                            <div className="relative group bg-white dark:bg-card-dark rounded-3xl p-6 border border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-xl hover:border-gray-200 transition-all overflow-hidden">
-                                <div className="relative z-10 flex flex-col gap-4">
-                                    <div className="flex items-center justify-between">
-                                        <span className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Total Histórico</span>
-                                        <div className="w-12 h-12 flex items-center justify-center rounded-2xl bg-gray-100 dark:bg-gray-800 text-gray-500">
-                                            <span className="material-symbols-outlined text-2xl">analytics</span>
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <span className="text-5xl font-display font-black text-gray-900 dark:text-white tracking-tight">{counts.reproducoesTotal}</span>
-                                        <span className="text-sm font-medium text-gray-500 mt-1 block">Total de Reproduções</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-
-                    {/* Gestão de Autores e Comunidade Section */}
-                    <div>
-                        <h2 className="text-lg font-bold text-gray-700 dark:text-gray-300 mb-4 flex items-center gap-2">
-                            <span className="material-symbols-outlined text-brand-red text-xl">diversity_3</span>
+                    {/* Engajamento Section */}
+                    <div className="pt-4">
+                        <h2 className="text-xl font-black text-gray-900 dark:text-white mb-6 flex items-center gap-3">
+                            <span className="material-symbols-outlined text-brand-red text-2xl">diversity_3</span>
                             Engajamento da Comunidade
                         </h2>
-                        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                            {/* Total Autores */}
-                            <div className="relative group bg-white dark:bg-card-dark rounded-3xl p-6 border border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-xl hover:border-brand-blue/30 transition-all overflow-hidden">
-                                <div className="relative z-10 flex flex-col gap-4">
-                                    <div className="flex items-center justify-between">
-                                        <span className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Total de Autores</span>
-                                        <div className="w-10 h-10 flex items-center justify-center rounded-2xl bg-brand-blue/10 text-brand-blue">
-                                            <span className="material-symbols-outlined text-xl">group</span>
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <span className="text-4xl font-display font-black text-gray-900 dark:text-white tracking-tight">{counts.totalAutores}</span>
-                                        <span className="text-xs font-medium text-brand-blue mt-1 block">Pesquisadores Ativos</span>
-                                    </div>
-                                </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                            <div className="bg-white dark:bg-card-dark rounded-3xl p-6 border border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-md transition-all">
+                                <span className="text-[10px] font-black uppercase text-gray-400 tracking-wider">Total Autores</span>
+                                <div className="text-3xl font-black text-gray-900 dark:text-white mt-1">{counts.totalAutores}</div>
+                                <div className="text-[10px] font-bold text-brand-blue mt-1">PESQUISADORES ATIVOS</div>
                             </div>
-
-                            {/* Autores Frequentes */}
-                            <div className="relative group bg-white dark:bg-card-dark rounded-3xl p-6 border border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-xl hover:border-brand-yellow/30 transition-all overflow-hidden">
-                                <div className="relative z-10 flex flex-col gap-4">
-                                    <div className="flex items-center justify-between">
-                                        <span className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Frequentes (3+)</span>
-                                        <div className="w-10 h-10 flex items-center justify-center rounded-2xl bg-brand-yellow/10 text-brand-yellow">
-                                            <span className="material-symbols-outlined text-xl">verified</span>
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <span className="text-4xl font-display font-black text-gray-900 dark:text-white tracking-tight">{counts.autoresFrequentes}</span>
-                                        <span className="text-xs font-medium text-brand-yellow mt-1 block">Rumo à Maestria</span>
-                                    </div>
-                                </div>
+                            <div className="bg-white dark:bg-card-dark rounded-3xl p-6 border border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-md transition-all">
+                                <span className="text-[10px] font-black uppercase text-gray-400 tracking-wider">Frequentes (3+)</span>
+                                <div className="text-3xl font-black text-gray-900 dark:text-white mt-1">{counts.autoresFrequentes}</div>
+                                <div className="text-[10px] font-bold text-brand-yellow mt-1">RUMO À MAESTRIA</div>
                             </div>
-
-                            {/* Autores Mestres */}
-                            <div className="relative group bg-white dark:bg-card-dark rounded-3xl p-6 border border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-xl hover:border-brand-red/30 transition-all overflow-hidden">
-                                <div className="relative z-10 flex flex-col gap-4">
-                                    <div className="flex items-center justify-between">
-                                        <span className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Mestres (10+)</span>
-                                        <div className="w-10 h-10 flex items-center justify-center rounded-2xl bg-brand-red/10 text-brand-red">
-                                            <span className="material-symbols-outlined text-xl">military_tech</span>
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <span className="text-4xl font-display font-black text-gray-900 dark:text-white tracking-tight">{counts.autoresMestres}</span>
-                                        <span className="text-xs font-medium text-brand-red mt-1 block">Líderes de Divulgação</span>
-                                    </div>
-                                </div>
+                            <div className="bg-white dark:bg-card-dark rounded-3xl p-6 border border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-md transition-all">
+                                <span className="text-[10px] font-black uppercase text-gray-400 tracking-wider">Mestres (10+)</span>
+                                <div className="text-3xl font-black text-gray-900 dark:text-white mt-1">{counts.autoresMestres}</div>
+                                <div className="text-[10px] font-bold text-brand-red mt-1">LÍDERES DE DIVULGAÇÃO</div>
                             </div>
-
-                            {/* Reproduções Total */}
-                            <div className="relative group bg-white dark:bg-card-dark rounded-3xl p-6 border border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-xl hover:border-brand-blue/30 transition-all overflow-hidden">
-                                <div className="relative z-10 flex flex-col gap-4">
-                                    <div className="flex items-center justify-between">
-                                        <span className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Reproduções</span>
-                                        <div className="w-10 h-10 flex items-center justify-center rounded-2xl bg-brand-blue/10 text-brand-blue">
-                                            <span className="material-symbols-outlined text-xl">cameraswitch</span>
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <span className="text-4xl font-display font-black text-gray-900 dark:text-white tracking-tight">{counts.reproducoesTotal}</span>
-                                        <span className="text-xs font-medium text-brand-blue mt-1 block">Impacto em Reprodução</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Mural de Oportunidades Section */}
-                    <div>
-                        <h2 className="text-lg font-bold text-gray-700 dark:text-gray-300 mb-4 flex items-center gap-2">
-                            <span className="material-symbols-outlined text-brand-blue text-xl">event</span>
-                            Mural de Oportunidades
-                        </h2>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div className="relative group bg-white dark:bg-card-dark rounded-3xl p-6 border border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-xl hover:border-brand-blue/30 transition-all overflow-hidden">
-                                <div className="relative z-10 flex flex-col gap-4">
-                                    <div className="flex items-center justify-between">
-                                        <span className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Divulgações Ativas</span>
-                                        <div className="w-12 h-12 flex items-center justify-center rounded-2xl bg-brand-blue/10 text-brand-blue">
-                                            <span className="material-symbols-outlined text-2xl">campaign</span>
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <span className="text-5xl font-display font-black text-gray-900 dark:text-white tracking-tight">{counts.oportunidadesTotal}</span>
-                                        <span className="text-sm font-medium text-brand-blue mt-1 block">Oportunidades no Mural</span>
-                                    </div>
-                                </div>
+                            <div className="bg-white dark:bg-card-dark rounded-3xl p-6 border border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-md transition-all">
+                                <span className="text-[10px] font-black uppercase text-gray-400 tracking-wider">Oportunidades</span>
+                                <div className="text-3xl font-black text-gray-900 dark:text-white mt-1">{counts.oportunidadesTotal}</div>
+                                <div className="text-[10px] font-bold text-brand-blue mt-1">MURAL ATIVO</div>
                             </div>
                         </div>
                     </div>

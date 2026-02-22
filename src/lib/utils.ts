@@ -47,3 +47,14 @@ export function stripMarkdownAndLatex(text: string | null | undefined): string {
 
     return clean;
 }
+
+/**
+ * Proxy external avatar URLs to our own API route for caching.
+ * Prevents hotlinking and allows edge caching.
+ */
+export function getAvatarUrl(url: string | null | undefined): string {
+    if (!url) return '';
+    // Ignore relative paths (like defaulting to internal placeholders) or data URIs
+    if (url.startsWith('/') || url.startsWith('data:')) return url;
+    return `/api/avatar?url=${encodeURIComponent(url)}`;
+}

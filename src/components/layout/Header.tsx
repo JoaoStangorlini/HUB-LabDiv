@@ -6,6 +6,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from '@/lib/supabase';
 import { signOut } from '@/app/actions/auth';
+import { getAvatarUrl } from '@/lib/utils';
 
 export function Header() {
     const pathname = usePathname();
@@ -59,9 +60,11 @@ export function Header() {
         if (newDarkMode) {
             document.documentElement.classList.add('dark');
             localStorage.setItem('theme', 'dark');
+            document.cookie = "theme=dark; path=/; max-age=31536000";
         } else {
             document.documentElement.classList.remove('dark');
             localStorage.setItem('theme', 'light');
+            document.cookie = "theme=light; path=/; max-age=31536000";
         }
     };
 
@@ -113,7 +116,7 @@ export function Header() {
                                     >
                                         <div className="w-10 h-10 rounded-full bg-brand-blue/10 flex items-center justify-center overflow-hidden border-2 border-brand-blue/20">
                                             {user.user_metadata?.avatar_url ? (
-                                                <img src={user.user_metadata.avatar_url} alt="Profile" className="w-full h-full object-cover" />
+                                                <img src={getAvatarUrl(user.user_metadata.avatar_url)} alt="Profile" className="w-full h-full object-cover" />
                                             ) : (
                                                 <span className="material-symbols-outlined text-brand-blue">person</span>
                                             )}

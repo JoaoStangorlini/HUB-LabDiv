@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { triggerNotification } from '@/lib/notifications';
+import { getAvatarUrl } from '@/lib/utils';
 
 interface Reproduction {
     id: string;
@@ -280,7 +281,7 @@ export function ReproductionSection({ submissionId, submissionTitle, initialRepr
                             <div className="flex items-center gap-3">
                                 <div className="w-10 h-10 rounded-full bg-brand-blue/10 flex items-center justify-center overflow-hidden border border-brand-blue/20">
                                     {rep.profiles?.avatar_url ? (
-                                        <img src={rep.profiles.avatar_url} alt={rep.profiles.full_name} className="w-full h-full object-cover" />
+                                        <img src={getAvatarUrl(rep.profiles.avatar_url)} alt={rep.profiles.full_name} className="w-full h-full object-cover" />
                                     ) : (
                                         <span className="material-symbols-outlined text-brand-blue">person</span>
                                     )}
