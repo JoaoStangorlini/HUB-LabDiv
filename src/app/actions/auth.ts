@@ -24,10 +24,11 @@ export async function login(formData: FormData) {
     }
 }
 
-export async function signOut() {
+export async function signOut(redirectTo: string = '/') {
     (await cookies()).delete('admin_session');
     const { error } = await supabase.auth.signOut();
     // if (error) throw new Error(error.message); // Ignore error if not logged into Supabase auth
     revalidatePath('/');
-    redirect('/admin/login');
+    redirect(redirectTo);
 }
+
