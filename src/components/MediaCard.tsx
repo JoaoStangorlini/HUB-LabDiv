@@ -437,11 +437,21 @@ export const MediaCard = ({
                             Destaque
                         </span>
                     )}
-                    {tags && tags.map(tag => (
-                        <span key={tag} className="px-2 py-0.5 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 text-[10px] font-bold rounded-md uppercase tracking-wide border border-gray-200 dark:border-gray-700">
-                            #{tag.replace('#', '')}
-                        </span>
-                    ))}
+                    {tags && tags.map((tag, idx) => {
+                        const hash = tag.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+                        const colors = [
+                            'bg-brand-blue/10 text-brand-blue dark:text-blue-400 border-brand-blue/20 dark:border-blue-400/20',
+                            'bg-brand-yellow/10 text-brand-yellow border-brand-yellow/20',
+                            'bg-brand-red/10 text-brand-red border-brand-red/20'
+                        ];
+                        const colorClass = colors[hash % colors.length];
+
+                        return (
+                            <span key={idx} className={`px-2 py-0.5 ${colorClass} text-[10px] font-extrabold rounded-md uppercase tracking-wide border transition-all hover:scale-105 select-none`}>
+                                #{tag.replace('#', '')}
+                            </span>
+                        );
+                    })}
                     {reading_time ? (
                         <span className="flex items-center gap-1 px-2 py-0.5 bg-brand-blue/5 dark:bg-brand-yellow/10 text-brand-blue dark:text-brand-yellow text-[10px] font-bold rounded-md uppercase tracking-wide border border-brand-blue/10 dark:border-brand-yellow/20">
                             <span className="material-symbols-outlined text-[12px]">schedule</span>
