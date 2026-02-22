@@ -61,7 +61,7 @@ export function Header() {
                             </div>
                             <div className="flex flex-col justify-center -space-y-1">
                                 <h1 className="font-sans font-bold text-2xl tracking-tight text-gray-900 dark:text-white">
-                                    Hub <span className="text-brand-blue">Lab-Div</span>
+                                    Hub <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-red via-brand-blue to-brand-yellow">Lab-Div</span>
                                 </h1>
                                 <p className="text-[10px] uppercase tracking-[0.05em] text-gray-400 font-semibold pt-0.5">INSTITUTO DE FÍSICA</p>
                             </div>

@@ -13,7 +13,7 @@ export function Footer() {
                                 <div className="absolute w-5 h-5 bg-brand-yellow rounded-full top-2 left-2 z-20 shadow-sm border border-white dark:border-transparent"></div>
                             </div>
                             <div className="flex flex-col -space-y-0.5">
-                                <span className="font-sans font-bold text-lg text-gray-900 dark:text-white leading-tight">Hub <span className="text-brand-blue">Lab-Div</span></span>
+                                <span className="font-sans font-bold text-lg text-gray-900 dark:text-white leading-tight">Hub <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-red via-brand-blue to-brand-yellow">Lab-Div</span></span>
                                 <span className="text-[8px] uppercase tracking-wider text-gray-500 font-medium">Instituto de Física</span>
                             </div>
                         </div>
@@ -60,7 +60,9 @@ export function Footer() {
                     </div>
 
                     <div>
-                        <h4 className="font-bold text-gray-900 dark:text-white mb-6 uppercase text-xs tracking-wider border-l-4 border-brand-red pl-3">Lab-Div</h4>
+                        <h4 className="font-bold text-gray-900 dark:text-white mb-6 uppercase text-xs tracking-wider border-l-4 border-brand-red pl-3">
+                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-red via-brand-blue to-brand-yellow">Lab-Div</span>
+                        </h4>
                         <ul className="space-y-4">
                             <li className="flex items-start gap-3 text-sm text-gray-600 dark:text-gray-400">
                                 <span className="material-symbols-outlined text-sm mt-0.5 text-brand-red">email</span>

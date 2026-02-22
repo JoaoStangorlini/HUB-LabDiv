@@ -79,7 +79,9 @@ export function SobreClient({ initialTestimonials }: SobreClientProps) {
                 <div className="bg-gradient-to-br from-brand-blue/5 to-brand-red/5 dark:from-blue-900/10 dark:to-red-900/10 rounded-3xl p-8 md:p-12 border border-brand-blue/10 mb-20">
                     <div className="flex flex-col md:flex-row items-center gap-10">
                         <div className="flex-1">
-                            <h2 className="text-3xl font-bold mb-6">O Papel do Lab-Div</h2>
+                            <h2 className="text-3xl font-bold mb-6 text-gray-900 dark:text-white">
+                                O Papel do <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-red via-brand-blue to-brand-yellow">Lab-Div</span>
+                            </h2>
                             <p className="text-lg text-gray-700 dark:text-gray-300 leading-relaxed mb-6">
                                 O Laboratório de Divulgação Científica do IFUSP trabalha para reduzir o abismo entre o que é produzido na academia e o que chega à sociedade.
                             </p>

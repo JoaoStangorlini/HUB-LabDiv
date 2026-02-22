@@ -142,7 +142,9 @@ export default async function DivulgacaoPage() {
                             <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-6 overflow-hidden">
                                 <Image src="/labdiv-logo.png" alt="Logo do Lab-Div" width={64} height={64} className="object-contain" />
                             </div>
-                            <h2 className="text-2xl font-bold mb-3 text-gray-900 dark:text-white">Lab-Div</h2>
+                            <h2 className="text-2xl font-bold mb-3">
+                                <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-red via-brand-blue to-brand-yellow">Lab-Div</span>
+                            </h2>
                             <p className="text-gray-600 dark:text-gray-400 mb-6">
                                 Iniciativa inspirada no CommLab do MIT, focada em aprimorar a comunicação científica no IFUSP. Oferece programa de tutoria entre pares para auxiliar estudantes com a escrita científica, apresentações orais e design visual de trabalhos acadêmicos – feito por quem faz física, para quem faz física.
                             </p>
