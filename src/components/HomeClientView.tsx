@@ -211,30 +211,30 @@ export const HomeClientView = ({ initialItems, initialHasMore, initialCategory =
                             </div>
                         </div>
                         <div className="mt-5 space-y-3 pl-2">
-                            <p className="text-sm text-gray-600 dark:text-gray-400 flex sm:items-center gap-2 opacity-90 transition-opacity hover:opacity-100 flex-col sm:flex-row">
+                            <div className="text-sm text-gray-600 dark:text-gray-400 flex sm:items-center gap-2 opacity-90 transition-opacity hover:opacity-100 flex-col sm:flex-row">
                                 <div className="flex items-center gap-2">
                                     <span className="w-1.5 h-1.5 rounded-full bg-brand-yellow shrink-0"></span>
                                     <span>Experimente o filtro</span>
                                 </div>
                                 <span className="font-semibold text-brand-yellow cursor-pointer hover:underline sm:ml-0 ml-3.5" onClick={() => setSelectedCategories(['Bastidores da Ciência'])}>Bastidores da Ciência</span>
                                 <span className="sm:ml-0 ml-3.5">para ver as gambiarras e Easter eggs da ciência.</span>
-                            </p>
-                            <p className="text-sm text-gray-600 dark:text-gray-400 flex sm:items-center gap-2 opacity-90 transition-opacity hover:opacity-100 flex-col sm:flex-row">
+                            </div>
+                            <div className="text-sm text-gray-600 dark:text-gray-400 flex sm:items-center gap-2 opacity-90 transition-opacity hover:opacity-100 flex-col sm:flex-row">
                                 <div className="flex items-center gap-2">
                                     <span className="w-1.5 h-1.5 rounded-full bg-brand-blue shrink-0"></span>
                                     <span>Você quer levar ciência para os alunos?</span>
                                 </div>
                                 <span className="font-semibold text-brand-blue cursor-pointer hover:underline sm:ml-0 ml-3.5" onClick={() => setSelectedCategories(['Uso Didático'])}>Uso Didático</span>
                                 <span className="sm:ml-0 ml-3.5">é ideal para o ensino.</span>
-                            </p>
-                            <p className="text-sm text-gray-600 dark:text-gray-400 flex sm:items-center gap-2 opacity-90 transition-opacity hover:opacity-100 flex-col sm:flex-row">
+                            </div>
+                            <div className="text-sm text-gray-600 dark:text-gray-400 flex sm:items-center gap-2 opacity-90 transition-opacity hover:opacity-100 flex-col sm:flex-row">
                                 <div className="flex items-center gap-2">
                                     <span className="w-1.5 h-1.5 rounded-full bg-brand-red shrink-0"></span>
                                     <span>Procurando materiais de estudo? Explore a</span>
                                 </div>
                                 <span className="font-semibold text-brand-red cursor-pointer hover:underline sm:ml-0 ml-3.5" onClick={() => setSelectedCategories(['Central de Anotações'])}>Central de Anotações</span>
                                 <span className="sm:ml-0 ml-3.5">para Drives e PDFs.</span>
-                            </p>
+                            </div>
                         </div>
 
                     </div>
