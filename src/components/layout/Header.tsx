@@ -11,13 +11,14 @@ export function Header() {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
     const navLinks = [
-        { name: 'Arquivo', href: '/', hoverClass: 'hover:text-brand-blue hover:border-brand-blue', activeClass: 'text-brand-blue border-brand-blue' },
-        { name: 'Comunidade', href: '/comunidade', hoverClass: 'hover:text-brand-yellow hover:border-brand-yellow', activeClass: 'text-brand-yellow border-brand-yellow' },
-        { name: 'Divulgação', href: '/iniciativas', hoverClass: 'hover:text-brand-blue hover:border-brand-blue', activeClass: 'text-brand-blue border-brand-blue' },
-        { name: 'Pergunte', href: '/perguntas', hoverClass: 'hover:text-brand-red hover:border-brand-red', activeClass: 'text-brand-red border-brand-red' },
-        { name: 'Criadores', href: '/criadores', hoverClass: 'hover:text-brand-yellow hover:border-brand-yellow', activeClass: 'text-brand-yellow border-brand-yellow' },
-        { name: 'Sobre', href: '/sobre', hoverClass: 'hover:text-brand-red hover:border-brand-red', activeClass: 'text-brand-red border-brand-red' },
+        { name: 'Arquivo', href: '/', hoverClass: 'hover:text-brand-blue hover:border-brand-blue', activeClass: 'text-brand-blue border-brand-blue', mobileHover: 'hover:bg-brand-blue/10 hover:text-brand-blue', mobileActive: 'bg-brand-blue/10 text-brand-blue' },
+        { name: 'Comunidade', href: '/comunidade', hoverClass: 'hover:text-brand-yellow hover:border-brand-yellow', activeClass: 'text-brand-yellow border-brand-yellow', mobileHover: 'hover:bg-brand-yellow/10 hover:text-brand-yellow', mobileActive: 'bg-brand-yellow/10 text-brand-yellow' },
+        { name: 'Divulgação', href: '/iniciativas', hoverClass: 'hover:text-brand-blue hover:border-brand-blue', activeClass: 'text-brand-blue border-brand-blue', mobileHover: 'hover:bg-brand-blue/10 hover:text-brand-blue', mobileActive: 'bg-brand-blue/10 text-brand-blue' },
+        { name: 'Pergunte', href: '/perguntas', hoverClass: 'hover:text-brand-red hover:border-brand-red', activeClass: 'text-brand-red border-brand-red', mobileHover: 'hover:bg-brand-red/10 hover:text-brand-red', mobileActive: 'bg-brand-red/10 text-brand-red' },
+        { name: 'Criadores', href: '/criadores', hoverClass: 'hover:text-brand-yellow hover:border-brand-yellow', activeClass: 'text-brand-yellow border-brand-yellow', mobileHover: 'hover:bg-brand-yellow/10 hover:text-brand-yellow', mobileActive: 'bg-brand-yellow/10 text-brand-yellow' },
+        { name: 'Sobre', href: '/sobre', hoverClass: 'hover:text-brand-red hover:border-brand-red', activeClass: 'text-brand-red border-brand-red', mobileHover: 'hover:bg-brand-red/10 hover:text-brand-red', mobileActive: 'bg-brand-red/10 text-brand-red' },
     ];
+
 
     const [user, setUser] = useState<any>(null);
     const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
@@ -141,23 +142,25 @@ export function Header() {
 
                             {/* Mobile Menu Toggle */}
                             <button
-                                className="lg:hidden w-12 h-12 flex flex-col items-center justify-center gap-1.5 bg-gray-100 dark:bg-gray-800 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-all focus:outline-none group relative overflow-hidden"
+                                className="lg:hidden w-12 h-12 flex flex-col items-center justify-center gap-1.5 bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-full hover:bg-gray-50 dark:hover:bg-gray-800 transition-all focus:outline-none group relative shadow-sm"
                                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                                 aria-label="Menu"
                             >
+                                <div className="absolute inset-0 bg-gradient-to-tr from-brand-blue/5 via-brand-yellow/5 to-brand-red/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
                                 {isMobileMenuOpen ? (
                                     <div className="relative w-6 h-6 flex items-center justify-center">
-                                        <span className="absolute block w-6 h-0.5 bg-brand-blue rotate-45 transition-transform"></span>
-                                        <span className="absolute block w-6 h-0.5 bg-brand-red -rotate-45 transition-transform"></span>
+                                        <span className="absolute block w-6 h-0.5 bg-brand-blue rotate-45 transition-transform duration-300"></span>
+                                        <span className="absolute block w-6 h-0.5 bg-brand-red -rotate-45 transition-transform duration-300"></span>
                                     </div>
                                 ) : (
-                                    <>
-                                        <span className="block w-6 h-0.5 bg-brand-blue rounded-full transition-all group-hover:w-5"></span>
+                                    <div className="relative z-10 flex flex-col gap-1.5">
+                                        <span className="block w-6 h-0.5 bg-brand-blue rounded-full transition-all group-hover:translate-x-0.5"></span>
                                         <span className="block w-6 h-0.5 bg-brand-yellow rounded-full transition-all"></span>
-                                        <span className="block w-6 h-0.5 bg-brand-red rounded-full transition-all group-hover:w-5"></span>
-                                    </>
+                                        <span className="block w-6 h-0.5 bg-brand-red rounded-full transition-all group-hover:-translate-x-0.5"></span>
+                                    </div>
                                 )}
                             </button>
+
 
                         </div>
                     </div>
@@ -174,13 +177,17 @@ export function Header() {
                                         key={link.href}
                                         href={link.href}
                                         onClick={() => setIsMobileMenuOpen(false)}
-                                        className={`block px-3 py-3 rounded-xl text-base font-medium transition-colors ${isActive
-                                            ? 'bg-brand-blue/10 text-brand-blue'
-                                            : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-brand-blue'
+                                        className={`block px-5 py-3.5 rounded-xl text-base font-bold transition-all border-l-4 ${isActive
+                                            ? `${link.mobileActive} border-l-current`
+                                            : `text-gray-700 dark:text-gray-200 ${link.mobileHover} border-l-transparent`
                                             }`}
                                     >
-                                        {link.name}
+                                        <div className="flex items-center justify-between">
+                                            {link.name}
+                                            <span className="material-symbols-outlined text-sm opacity-30">chevron_right</span>
+                                        </div>
                                     </Link>
+
                                 );
                             })}
                         </div>
