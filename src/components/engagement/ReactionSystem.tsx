@@ -84,6 +84,7 @@ export const ReactionSystem = ({ submissionId, userId, initialSummary }: Reactio
                             key={r.type}
                             className="flex items-center gap-1 bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 px-1.5 py-0.5 rounded-full shadow-sm z-10"
                             title={`${count} ${r.label}`}
+                            onClick={(e) => e.stopPropagation()}
                         >
                             <span className="material-symbols-outlined text-[12px]" style={{ color: r.color }}>{r.icon}</span>
                             <span className="text-[10px] font-bold text-gray-600 dark:text-gray-400">{count}</span>
@@ -93,15 +94,19 @@ export const ReactionSystem = ({ submissionId, userId, initialSummary }: Reactio
             </div>
 
             {/* Main Action Button */}
-            <div className="relative">
+            <div className="relative" onClick={(e) => e.stopPropagation()}>
                 <motion.button
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     onMouseEnter={() => setIsMenuOpen(true)}
-                    onClick={() => activeReaction ? handleReaction(activeReaction) : setIsMenuOpen(!isMenuOpen)}
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        activeReaction ? handleReaction(activeReaction) : setIsMenuOpen(!isMenuOpen);
+                    }}
                     className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all border ${activeReaction
-                            ? 'bg-brand-blue/10 border-brand-blue/20 text-brand-blue'
-                            : 'bg-gray-50 dark:bg-card-dark border-gray-100 dark:border-gray-800 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
+                        ? 'bg-brand-blue/10 border-brand-blue/20 text-brand-blue'
+                        : 'bg-gray-50 dark:bg-card-dark border-gray-100 dark:border-gray-800 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
                         }`}
                 >
                     <span className="material-symbols-outlined text-[20px]">
@@ -127,8 +132,8 @@ export const ReactionSystem = ({ submissionId, userId, initialSummary }: Reactio
                                     whileTap={{ scale: 0.9 }}
                                     onClick={() => handleReaction(r.type)}
                                     className={`size-10 flex flex-col items-center justify-center rounded-xl transition-colors ${activeReaction === r.type
-                                            ? 'bg-gray-100 dark:bg-gray-800'
-                                            : 'hover:bg-gray-50 dark:hover:bg-gray-800/50'
+                                        ? 'bg-gray-100 dark:bg-gray-800'
+                                        : 'hover:bg-gray-50 dark:hover:bg-gray-800/50'
                                         }`}
                                 >
                                     <span className="material-symbols-outlined" style={{ color: r.color }}>{r.icon}</span>

@@ -2,26 +2,35 @@ import type { Metadata } from "next";
 import { Inter, Space_Grotesk } from "next/font/google";
 import { cookies } from "next/headers";
 import "./globals.css";
-import "katex/dist/katex.min.css";
 import { Toaster } from 'react-hot-toast';
 
 const inter = Inter({
   variable: "--font-inter",
   subsets: ["latin"],
+  display: 'swap',
 });
 
 const spaceGrotesk = Space_Grotesk({
   variable: "--font-space-grotesk",
   subsets: ["latin"],
+  display: 'swap',
 });
+
+import { LazyMotion, domMax } from "framer-motion";
 
 import { ReadingProgressBar } from "@/components/reading/ReadingProgressBar";
 import { ReadingExperienceProvider } from "@/components/reading/ReadingExperienceProvider";
-import { ScrollToTop } from "@/components/ScrollToTop";
+import { SearchProvider } from "@/providers/SearchProvider";
+import { PwaManager } from "@/components/pwa/PwaManager";
+import { SkipLink } from "@/components/ui/SkipLink";
 
+/**
+ * V4.0.0 Layout - Protocol Apocalypse Certified
+ */
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'),
   title: "Hub de Comunicação Científica do Lab-Div",
-  description: "O hub oficial de comunicação científica do Instituto de Física da Universidade de São Paulo.",
+  description: "Um projeto para melhorar a comunicação do IF-USP e reunir em um FLUXO interativo o arquivo de material de divulgação do Lab-Div e de toda a comunidade — de dentro e fora do instituto.",
   openGraph: {
     title: "Hub de Comunicação Científica do Lab-Div",
     description: "O hub oficial de comunicação científica do Instituto de Física da Universidade de São Paulo.",
@@ -32,7 +41,18 @@ export const metadata: Metadata = {
     capable: true,
     statusBarStyle: "default",
     title: "LabDiv",
-  }
+  },
+}
+
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  viewportFit: 'cover',
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: '#ffffff' },
+    { media: '(prefers-color-scheme: dark)', color: '#121212' },
+  ],
 }
 
 export default async function RootLayout({
@@ -47,7 +67,11 @@ export default async function RootLayout({
   return (
     <html lang="pt-BR" suppressHydrationWarning className={htmlClass}>
       <head>
-        <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
+        <link rel="preconnect" href="https://res.cloudinary.com" />
+        <link rel="dns-prefetch" href="https://bqszadfunqgtfpaorwvx.supabase.co" />
         <script
           dangerouslySetInnerHTML={{
             __html: `
@@ -86,20 +110,26 @@ export default async function RootLayout({
         className={`${inter.variable} ${spaceGrotesk.variable} font-sans selection:bg-brand-yellow selection:text-brand-blue bg-background-light dark:bg-background-dark text-gray-900 dark:text-gray-100 transition-colors duration-200 antialiased`}
         suppressHydrationWarning
       >
-        <ReadingExperienceProvider>
-          <Toaster position="top-right" toastOptions={{
-            duration: 4000,
-            style: {
-              background: '#1E1E1E',
-              color: '#fff',
-              border: '1px solid #334155',
-              borderRadius: '16px',
-            }
-          }} />
-          <ReadingProgressBar />
-          <ScrollToTop />
-          {children}
-        </ReadingExperienceProvider>
+        <LazyMotion features={domMax}>
+          <ReadingExperienceProvider>
+            <SearchProvider>
+              <Toaster position="top-right" toastOptions={{
+                duration: 4000,
+                style: {
+                  background: '#1E1E1E',
+                  color: '#fff',
+                  border: '1px solid #334155',
+                  borderRadius: '16px',
+                }
+              }} />
+              <PwaManager />
+              <ReadingProgressBar />
+              <SkipLink />
+
+              {children}
+            </SearchProvider>
+          </ReadingExperienceProvider>
+        </LazyMotion>
       </body>
     </html>
   );

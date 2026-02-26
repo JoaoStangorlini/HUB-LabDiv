@@ -2,8 +2,14 @@
 
 import { useState } from 'react';
 import { supabase } from '@/lib/supabase';
-import { MediaCard, MediaCardProps } from '@/components/MediaCard';
+import { MediaCard } from '@/components/MediaCard';
 import { parseMediaUrl, formatYoutubeUrl, getDownloadUrl } from '@/lib/media-utils';
+import { PostDTO, mapToPostDTO } from '@/dtos/media';
+import {
+    UserSearch, Search, ChevronLeft, ChevronRight,
+    X, Download, LayoutDashboard, Clock
+} from 'lucide-react';
+import { toast } from 'react-hot-toast';
 
 interface Submission {
     id: string;
@@ -19,10 +25,10 @@ interface Submission {
 
 export default function AutoresPage() {
     const [searchQuery, setSearchQuery] = useState('');
-    const [submissions, setSubmissions] = useState<Submission[]>([]);
+    const [submissions, setSubmissions] = useState<PostDTO[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [hasSearched, setHasSearched] = useState(false);
-    const [selectedItem, setSelectedItem] = useState<Submission | null>(null);
+    const [selectedItem, setSelectedItem] = useState<PostDTO | null>(null);
     const [modalImageIdx, setModalImageIdx] = useState(0);
 
     const handleSearch = async (e: React.FormEvent) => {
@@ -40,8 +46,9 @@ export default function AutoresPage() {
 
         if (error) {
             console.error('Error searching authors', error);
+            toast.error('Erro ao buscar autores');
         } else {
-            setSubmissions(data || []);
+            setSubmissions((data || []).map(s => mapToPostDTO(s)));
         }
         setIsLoading(false);
     };
@@ -56,12 +63,13 @@ export default function AutoresPage() {
             .eq('id', id);
 
         if (error) {
-            alert('Erro: ' + error.message);
+            toast.error('Erro ao atualizar status');
         } else {
             setSubmissions(prev => prev.map(s => s.id === id ? { ...s, status: 'rejeitado' } : s));
             if (selectedItem?.id === id) {
                 setSelectedItem({ ...selectedItem, status: 'rejeitado' });
             }
+            toast.success('Submissão rejeitada');
         }
     };
 
@@ -104,6 +112,7 @@ export default function AutoresPage() {
     return (
         <div className="max-w-[1200px] mx-auto px-6 py-8 flex flex-col gap-6">
             <div className="flex items-center gap-2 text-sm">
+                <LayoutDashboard className="w-4 h-4 text-slate-500" />
                 <span className="text-slate-500 hover:text-primary transition-colors cursor-pointer">Dashboard</span>
                 <span className="text-slate-300 dark:text-slate-600">/</span>
                 <span className="text-slate-900 dark:text-white font-medium">Autores</span>
@@ -119,7 +128,7 @@ export default function AutoresPage() {
             <div className="bg-white dark:bg-[#1e293b] p-6 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm transition-colors">
                 <form onSubmit={handleSearch} className="flex flex-col md:flex-row gap-4">
                     <div className="relative flex-1">
-                        <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-[22px]">person_search</span>
+                        <UserSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
                         <input
                             type="text"
                             value={searchQuery}
@@ -134,7 +143,7 @@ export default function AutoresPage() {
                         className="px-8 py-3 bg-primary hover:bg-blue-700 text-white font-bold rounded-lg shadow-sm transition-all flex items-center justify-center gap-2 disabled:opacity-50"
                     >
                         {isLoading ? 'Buscando...' : 'Buscar'}
-                        {!isLoading && <span className="material-symbols-outlined text-[20px]">search</span>}
+                        {!isLoading && <Search className="w-5 h-5" />}
                     </button>
                 </form>
             </div>
@@ -155,24 +164,16 @@ export default function AutoresPage() {
                     ) : (
                         <div className="masonry-grid">
                             {submissions.map((item) => {
-                                const cardProps: MediaCardProps = {
-                                    id: item.id,
-                                    title: item.title,
-                                    authors: item.authors,
-                                    description: item.description,
-                                    category: item.category,
-                                    mediaType: item.media_type,
-                                    mediaUrl: item.media_url,
-                                };
                                 return (
                                     <div key={item.id} className="flex flex-col gap-3">
                                         <div onClick={() => { setSelectedItem(item); setModalImageIdx(0); }}>
-                                            <MediaCard {...cardProps} />
+                                            <MediaCard post={item} />
                                         </div>
                                         <div className="flex items-center justify-center gap-2 mt-[-0.5rem] mb-2 z-10">
                                             {getStatusBadge(item.status)}
-                                            <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">
-                                                {formatDate(item.created_at)}
+                                            <span className="text-xs text-slate-500 dark:text-slate-400 font-medium flex items-center gap-1">
+                                                <Clock className="w-3 h-3" />
+                                                {formatDate(item.createdAt)}
                                             </span>
                                         </div>
                                     </div>
@@ -194,7 +195,7 @@ export default function AutoresPage() {
                         onClick={(e) => { e.stopPropagation(); setSelectedItem(null); }}
                         aria-label="Close modal"
                     >
-                        <span className="material-symbols-outlined text-3xl">close</span>
+                        <X className="w-8 h-8" />
                     </button>
 
                     {/* Global Nav Left */}
@@ -204,7 +205,7 @@ export default function AutoresPage() {
                             className="hidden md:flex fixed left-4 lg:left-8 top-1/2 -translate-y-1/2 z-[110] bg-white/10 hover:bg-white/30 text-white rounded-full p-3 lg:p-4 backdrop-blur-md transition-all hover:scale-110 shadow-xl"
                             aria-label="Submissão Anterior"
                         >
-                            <span className="material-symbols-outlined text-3xl lg:text-4xl">chevron_left</span>
+                            <ChevronLeft className="w-8 h-8 lg:w-10 lg:h-10" />
                         </button>
                     )}
 
@@ -215,7 +216,7 @@ export default function AutoresPage() {
                             className="hidden md:flex fixed right-4 lg:right-8 top-1/2 -translate-y-1/2 z-[110] bg-white/10 hover:bg-white/30 text-white rounded-full p-3 lg:p-4 backdrop-blur-md transition-all hover:scale-110 shadow-xl"
                             aria-label="Próxima Submissão"
                         >
-                            <span className="material-symbols-outlined text-3xl lg:text-4xl">chevron_right</span>
+                            <ChevronRight className="w-8 h-8 lg:w-10 lg:h-10" />
                         </button>
                     )}
 
@@ -227,23 +228,23 @@ export default function AutoresPage() {
                         <div className="md:hidden absolute inset-y-0 left-0 w-16 z-[106] flex items-center px-1 pointer-events-none">
                             {hasPrevSubmission && (
                                 <button onClick={handlePrevSubmission} className="pointer-events-auto bg-black/40 hover:bg-black/60 text-white rounded-r-lg p-2 backdrop-blur-sm transition-colors">
-                                    <span className="material-symbols-outlined text-3xl">chevron_left</span>
+                                    <ChevronLeft className="w-8 h-8" />
                                 </button>
                             )}
                         </div>
                         <div className="md:hidden absolute inset-y-0 right-0 w-16 z-[106] flex items-center justify-end px-1 pointer-events-none">
                             {hasNextSubmission && (
                                 <button onClick={handleNextSubmission} className="pointer-events-auto bg-black/40 hover:bg-black/60 text-white rounded-l-lg p-2 backdrop-blur-sm transition-colors">
-                                    <span className="material-symbols-outlined text-3xl">chevron_right</span>
+                                    <ChevronRight className="w-8 h-8" />
                                 </button>
                             )}
                         </div>
 
                         {/* Media Section */}
                         <div className="flex-1 bg-black flex items-center justify-center relative min-h-[30vh] lg:min-h-full group">
-                            {selectedItem.media_type === 'video' ? (
+                            {selectedItem.mediaType === 'video' ? (
                                 (() => {
-                                    const rawUrls = parseMediaUrl(selectedItem.media_url);
+                                    const rawUrls = parseMediaUrl(selectedItem.mediaUrl);
                                     const videoUrl = rawUrls.length > 0 ? formatYoutubeUrl(rawUrls[0]) : '';
                                     return videoUrl ? (
                                         <iframe
@@ -259,7 +260,7 @@ export default function AutoresPage() {
                                 })()
                             ) : (
                                 (() => {
-                                    const urls = parseMediaUrl(selectedItem.media_url);
+                                    const urls = parseMediaUrl(selectedItem.mediaUrl);
                                     if (urls.length === 0) return <span className="text-white">Imagem não encontrada</span>;
 
                                     return (
@@ -271,13 +272,13 @@ export default function AutoresPage() {
                                                         onClick={(e) => { e.stopPropagation(); setModalImageIdx(p => (p - 1 + urls.length) % urls.length) }}
                                                         className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/10 hover:bg-white/30 text-white rounded-full p-3 backdrop-blur-md transition-all hover:scale-110"
                                                     >
-                                                        <span className="material-symbols-outlined text-3xl">chevron_left</span>
+                                                        <ChevronLeft className="w-8 h-8" />
                                                     </button>
                                                     <button
                                                         onClick={(e) => { e.stopPropagation(); setModalImageIdx(p => (p + 1) % urls.length) }}
                                                         className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/10 hover:bg-white/30 text-white rounded-full p-3 backdrop-blur-md transition-all hover:scale-110"
                                                     >
-                                                        <span className="material-symbols-outlined text-3xl">chevron_right</span>
+                                                        <ChevronRight className="w-8 h-8" />
                                                     </button>
 
                                                     <div className="absolute bottom-6 flex gap-2 bg-black/40 px-3 py-2 rounded-full backdrop-blur-md">
@@ -318,7 +319,7 @@ export default function AutoresPage() {
                                 <div className="flex flex-col">
                                     <span className="text-xs text-gray-500 font-medium uppercase tracking-wider">Autor</span>
                                     <span className="text-sm font-bold text-gray-900 dark:text-white">{selectedItem.authors}</span>
-                                    <span className="text-xs text-slate-500 dark:text-slate-400">Enviado em: {formatDate(selectedItem.created_at)}</span>
+                                    <span className="text-xs text-slate-500 dark:text-slate-400">Enviado em: {formatDate(selectedItem.createdAt)}</span>
                                 </div>
                             </div>
 
@@ -332,16 +333,14 @@ export default function AutoresPage() {
                             )}
 
                             <div className="pt-4 flex gap-3 mt-auto">
-                                {selectedItem.media_type === 'image' && (
-                                    <a
-                                        href={getDownloadUrl(parseMediaUrl(selectedItem.media_url)[modalImageIdx])}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="flex-1 bg-slate-100 dark:bg-form-dark hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-semibold py-3 rounded-xl transition-colors flex items-center justify-center gap-2 shadow-sm"
-                                    >
-                                        <span className="material-symbols-outlined">download</span> Baixar
-                                    </a>
-                                )}
+                                <a
+                                    href={getDownloadUrl(parseMediaUrl(selectedItem.mediaUrl)[modalImageIdx])}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="flex-1 bg-slate-100 dark:bg-form-dark hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-semibold py-3 rounded-xl transition-colors flex items-center justify-center gap-2 shadow-sm"
+                                >
+                                    <Download className="w-5 h-5" /> Baixar
+                                </a>
                             </div>
                         </div>
                     </div>

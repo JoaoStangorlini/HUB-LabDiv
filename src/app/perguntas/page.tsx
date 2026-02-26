@@ -1,9 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Header } from '@/components/layout/Header';
-import { Footer } from '@/components/layout/Footer';
 import { supabase } from '@/lib/supabase';
+import { MainLayoutWrapper } from '@/components/layout/MainLayoutWrapper';
 
 interface Pergunta {
     id: string;
@@ -89,11 +88,12 @@ export default function PerguntasPage() {
         setIsSubmitting(false);
     };
 
-    return (
-        <div className="min-h-screen bg-background-light dark:bg-background-dark font-sans text-gray-900 dark:text-gray-100 flex flex-col">
-            <Header />
+    // Removed duplicate import for MainLayoutWrapper
 
-            <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 w-full">
+    // ... inside the component ...
+    return (
+        <>
+            <MainLayoutWrapper>
                 {/* Page Header */}
                 <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 border-b border-gray-200 dark:border-gray-800 pb-6 gap-6">
                     <div className="max-w-3xl">
@@ -171,108 +171,107 @@ export default function PerguntasPage() {
                         ))}
                     </div>
                 )}
-            </main>
-
-            <Footer />
-
+            </MainLayoutWrapper>
             {/* Submit Question Modal */}
-            {showModal && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4" onClick={() => !isSubmitting && setShowModal(false)}>
-                    <div
-                        className="bg-white dark:bg-card-dark rounded-2xl w-full max-w-lg shadow-2xl overflow-hidden border border-gray-100 dark:border-gray-800"
-                        onClick={(e) => e.stopPropagation()}
-                    >
-                        <div className="px-6 py-4 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center bg-gray-50 dark:bg-form-dark/50">
-                            <h2 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                                <span className="material-symbols-outlined text-brand-blue">quiz</span>
-                                Enviar sua Pergunta
-                            </h2>
-                            <button onClick={() => !isSubmitting && setShowModal(false)} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors p-1">
-                                <span className="material-symbols-outlined">close</span>
-                            </button>
-                        </div>
-
-                        {submitSuccess ? (
-                            <div className="p-10 text-center">
-                                <div className="w-16 h-16 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
-                                    <span className="material-symbols-outlined text-3xl text-green-600">check_circle</span>
-                                </div>
-                                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Pergunta enviada! 🎉</h3>
-                                <p className="text-gray-500">Assim que um cientista responder, ela aparecerá no feed.</p>
+            {
+                showModal && (
+                    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4" onClick={() => !isSubmitting && setShowModal(false)}>
+                        <div
+                            className="bg-white dark:bg-card-dark rounded-2xl w-full max-w-lg shadow-2xl overflow-hidden border border-gray-100 dark:border-gray-800"
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            <div className="px-6 py-4 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center bg-gray-50 dark:bg-form-dark/50">
+                                <h2 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                                    <span className="material-symbols-outlined text-brand-blue">quiz</span>
+                                    Enviar sua Pergunta
+                                </h2>
+                                <button onClick={() => !isSubmitting && setShowModal(false)} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors p-1">
+                                    <span className="material-symbols-outlined">close</span>
+                                </button>
                             </div>
-                        ) : (
-                            <div className="p-6 space-y-5">
-                                {submitError && (
-                                    <div className="p-3 rounded-lg bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-sm font-medium flex items-center gap-2 border border-red-200 dark:border-red-800">
-                                        <span className="material-symbols-outlined text-[18px]">error</span>
-                                        {submitError}
+
+                            {submitSuccess ? (
+                                <div className="p-10 text-center">
+                                    <div className="w-16 h-16 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
+                                        <span className="material-symbols-outlined text-3xl text-green-600">check_circle</span>
                                     </div>
-                                )}
-
-                                <div className="space-y-2">
-                                    <label className="block text-sm font-bold text-gray-700 dark:text-gray-300">Seu Nome *</label>
-                                    <input
-                                        type="text"
-                                        value={nome}
-                                        onChange={e => setNome(e.target.value)}
-                                        className="w-full bg-gray-50 dark:bg-form-dark border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white rounded-xl px-4 py-3 focus:ring-2 focus:ring-brand-blue focus:border-brand-blue transition-all"
-                                        placeholder="Ex: Maria Silva"
-                                    />
+                                    <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Pergunta enviada! 🎉</h3>
+                                    <p className="text-gray-500">Assim que um cientista responder, ela aparecerá no feed.</p>
                                 </div>
+                            ) : (
+                                <div className="p-6 space-y-5">
+                                    {submitError && (
+                                        <div className="p-3 rounded-lg bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-sm font-medium flex items-center gap-2 border border-red-200 dark:border-red-800">
+                                            <span className="material-symbols-outlined text-[18px]">error</span>
+                                            {submitError}
+                                        </div>
+                                    )}
 
-                                <div className="space-y-2">
-                                    <label className="block text-sm font-bold text-gray-700 dark:text-gray-300">E-mail *</label>
-                                    <input
-                                        type="email"
-                                        value={email}
-                                        onChange={e => setEmail(e.target.value)}
-                                        className="w-full bg-gray-50 dark:bg-form-dark border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white rounded-xl px-4 py-3 focus:ring-2 focus:ring-brand-blue focus:border-brand-blue transition-all"
-                                        placeholder="seu@email.com"
-                                    />
-                                </div>
+                                    <div className="space-y-2">
+                                        <label className="block text-sm font-bold text-gray-700 dark:text-gray-300">Seu Nome *</label>
+                                        <input
+                                            type="text"
+                                            value={nome}
+                                            onChange={e => setNome(e.target.value)}
+                                            className="w-full bg-gray-50 dark:bg-form-dark border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white rounded-xl px-4 py-3 focus:ring-2 focus:ring-brand-blue focus:border-brand-blue transition-all"
+                                            placeholder="Ex: Maria Silva"
+                                        />
+                                    </div>
 
-                                <div className="space-y-2">
-                                    <label className="block text-sm font-bold text-gray-700 dark:text-gray-300">Sua Pergunta *</label>
-                                    <textarea
-                                        rows={4}
-                                        value={perguntaText}
-                                        onChange={e => setPerguntaText(e.target.value)}
-                                        className="w-full bg-gray-50 dark:bg-form-dark border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white rounded-xl px-4 py-3 focus:ring-2 focus:ring-brand-blue focus:border-brand-blue transition-all resize-none"
-                                        placeholder="O que você gostaria de perguntar a um cientista?"
-                                    />
-                                </div>
+                                    <div className="space-y-2">
+                                        <label className="block text-sm font-bold text-gray-700 dark:text-gray-300">E-mail *</label>
+                                        <input
+                                            type="email"
+                                            value={email}
+                                            onChange={e => setEmail(e.target.value)}
+                                            className="w-full bg-gray-50 dark:bg-form-dark border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white rounded-xl px-4 py-3 focus:ring-2 focus:ring-brand-blue focus:border-brand-blue transition-all"
+                                            placeholder="seu@email.com"
+                                        />
+                                    </div>
 
-                                <div className="pt-2 flex justify-end gap-3">
-                                    <button
-                                        type="button"
-                                        onClick={() => setShowModal(false)}
-                                        className="px-4 py-2.5 text-sm font-semibold text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl transition-colors"
-                                    >
-                                        Cancelar
-                                    </button>
-                                    <button
-                                        onClick={handleSubmit}
-                                        disabled={isSubmitting}
-                                        className="px-6 py-2.5 text-sm font-bold text-white bg-brand-blue hover:bg-brand-darkBlue rounded-xl shadow-sm transition-all flex items-center gap-2 disabled:opacity-70"
-                                    >
-                                        {isSubmitting ? (
-                                            <>
-                                                <span className="material-symbols-outlined animate-spin text-[18px]">progress_activity</span>
-                                                Enviando...
-                                            </>
-                                        ) : (
-                                            <>
-                                                Enviar Pergunta
-                                                <span className="material-symbols-outlined text-[18px]">send</span>
-                                            </>
-                                        )}
-                                    </button>
+                                    <div className="space-y-2">
+                                        <label className="block text-sm font-bold text-gray-700 dark:text-gray-300">Sua Pergunta *</label>
+                                        <textarea
+                                            rows={4}
+                                            value={perguntaText}
+                                            onChange={e => setPerguntaText(e.target.value)}
+                                            className="w-full bg-gray-50 dark:bg-form-dark border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white rounded-xl px-4 py-3 focus:ring-2 focus:ring-brand-blue focus:border-brand-blue transition-all resize-none"
+                                            placeholder="O que você gostaria de perguntar a um cientista?"
+                                        />
+                                    </div>
+
+                                    <div className="pt-2 flex justify-end gap-3">
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowModal(false)}
+                                            className="px-4 py-2.5 text-sm font-semibold text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl transition-colors"
+                                        >
+                                            Cancelar
+                                        </button>
+                                        <button
+                                            onClick={handleSubmit}
+                                            disabled={isSubmitting}
+                                            className="px-6 py-2.5 text-sm font-bold text-white bg-brand-blue hover:bg-brand-darkBlue rounded-xl shadow-sm transition-all flex items-center gap-2 disabled:opacity-70"
+                                        >
+                                            {isSubmitting ? (
+                                                <>
+                                                    <span className="material-symbols-outlined animate-spin text-[18px]">progress_activity</span>
+                                                    Enviando...
+                                                </>
+                                            ) : (
+                                                <>
+                                                    Enviar Pergunta
+                                                    <span className="material-symbols-outlined text-[18px]">send</span>
+                                                </>
+                                            )}
+                                        </button>
+                                    </div>
                                 </div>
-                            </div>
-                        )}
+                            )}
+                        </div>
                     </div>
-                </div>
-            )}
-        </div>
+                )
+            }
+        </>
     );
 }

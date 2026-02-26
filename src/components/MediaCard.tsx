@@ -4,97 +4,80 @@ import React, { useState, useCallback, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { parseMediaUrl, formatYoutubeUrl, getYoutubeThumbnail, getDownloadUrl, getPdfViewerUrl, getOptimizedUrl } from '@/lib/media-utils';
+import {
+    Eye,
+    ExternalLink,
+    ChevronLeft,
+    ChevronRight,
+    Layers,
+    Play,
+    MessageCircle,
+    Send,
+    Flag,
+    Download,
+    Bookmark,
+    Clock,
+    ImageOff,
+} from 'lucide-react';
+import dynamic from 'next/dynamic';
+
+const ScientificContent = dynamic(() => import('./ScientificContent'), {
+    ssr: false,
+    loading: () => <div className="h-20 w-full animate-pulse bg-gray-100 dark:bg-gray-800 rounded-lg" />
+});
+
+import { parseMediaUrl, getYoutubeThumbnail, getOptimizedUrl } from '@/lib/media-utils';
 import { ShareMenu } from './ShareMenu';
-import { motion, AnimatePresence } from 'framer-motion';
-import ReactMarkdown from 'react-markdown';
-import remarkMath from 'remark-math';
-import rehypeKatex from 'rehype-katex';
-import rehypeSanitize from 'rehype-sanitize';
+import { m, AnimatePresence } from 'framer-motion';
 import { stripMarkdownAndLatex, highlightMatch } from '@/lib/utils';
 import { CardPresenceBadge } from './CardPresenceBadge';
 import { supabase } from '@/lib/supabase';
-import { ReactionSystem } from './engagement/ReactionSystem';
 import { FollowTagButton } from './engagement/FollowTagButton';
 import { CollectionManager } from './engagement/CollectionManager';
 import { DownloadModal } from './DownloadModal';
+import { AtomicReaction, AtomIcon } from './engagement/AtomicReaction';
+import { PostDTO } from '@/dtos/media';
+import { useMediaInteraction } from '@/hooks/useMediaInteraction';
+import { useMemo } from 'react';
 
 export interface MediaCardProps {
-    id: string;
-    title: string;
-    description?: string;
-    authors: string;
-    mediaType: 'image' | 'video' | 'pdf' | 'text' | 'zip' | 'sdocx';
-    mediaUrl: string | string[]; // Can be a string or JSON array
-    category?: string;
-    avatarUrl?: string;
-    isFeatured?: boolean;
-    likeCount?: number;
-    external_link?: string;
-    created_at?: string;
-    technical_details?: string;
-    alt_text?: string;
-    status?: 'pendente' | 'aprovado' | 'rejeitado';
-    admin_feedback?: string;
-    tags?: string[];
-    reading_time?: number;
-    views?: number;
-    commentCount?: number;
-    saveCount?: number;
-    location_lat?: number | null;
-    location_lng?: number | null;
-    location_name?: string | null;
-    reactions_summary?: Record<string, number>;
-    kudos_total?: number;
-    priority?: boolean; // New: LCP optimization
+    post: PostDTO;
+    priority?: boolean;
 }
 
-// Utility functions moved to @/lib/media-utils.ts
-
-export const MediaCard = React.memo(({
-    id,
-    title,
-    description,
-    authors,
-    mediaType,
-    mediaUrl,
-    category,
-    avatarUrl,
-    isFeatured,
-    likeCount: initialLikeCount = 0,
-    alt_text,
-    tags,
-    reading_time,
-    views,
-    commentCount = 0,
-    saveCount = 0,
-    reactions_summary = {},
-    kudos_total = 0,
-    priority = false
-}: MediaCardProps) => {
-
+/**
+ * V8.0 MediaCard - Hardened & Refactored
+ * Implements DTO Enforcement and hook-based logic.
+ */
+export const MediaCard = React.memo(({ post, priority = false }: MediaCardProps) => {
     const [userId, setUserId] = useState<string | undefined>(undefined);
-
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
-    const [likes, setLikes] = useState(initialLikeCount);
-    const [isLiking, setIsLiking] = useState(false);
-    const [liked, setLiked] = useState(false);
-    const [showLikeAnimation, setShowLikeAnimation] = useState(false);
-    const [showHeartOverlay, setShowHeartOverlay] = useState(false);
+    const [isHovered, setIsHovered] = useState(false);
     const [showShareMenu, setShowShareMenu] = useState(false);
-    const [saved, setSaved] = useState(false);
-    const [saves, setSaves] = useState(saveCount);
-    const [comments, setComments] = useState(commentCount);
-    const [isSaving, setIsSaving] = useState(false);
     const [showCollectionManager, setShowCollectionManager] = useState(false);
     const [showDownloadModal, setShowDownloadModal] = useState(false);
-    const [isHovered, setIsHovered] = useState(false);
 
     const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
     const router = useRouter();
     const searchParams = useSearchParams();
     const query = searchParams.get('q') || searchParams.get('tag') || '';
-    const lastLikeClick = useRef<number>(0);
+    const clickTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+    const {
+        likes,
+        liked,
+        saves,
+        saved,
+        showAtomicOverlay,
+        setShowAtomicOverlay,
+        handleLike,
+        handleSave
+    } = useMediaInteraction({
+        id: post.id,
+        initialLikes: post.likeCount || 0,
+        initialSaves: post.saveCount || 0,
+        userId
+    });
 
     useEffect(() => {
         supabase.auth.getUser().then(({ data: { user } }) => {
@@ -105,7 +88,7 @@ export const MediaCard = React.memo(({
     const handleMouseEnter = () => {
         hoverTimeoutRef.current = setTimeout(() => {
             setIsHovered(true);
-        }, 300); // Intent Delay of 300ms
+        }, 300);
     };
 
     const handleMouseLeave = () => {
@@ -113,153 +96,76 @@ export const MediaCard = React.memo(({
         setIsHovered(false);
     };
 
-    const handleLike = useCallback(async (e?: React.MouseEvent) => {
-        if (e) e.stopPropagation();
-
-        // Throttling to prevent spam (1s)
-        const now = Date.now();
-        if (now - lastLikeClick.current < 1000) return;
-        lastLikeClick.current = now;
-
-        if (isLiking) return;
-
-        // Optimistic UI
-        const prevLiked = liked;
-        const prevLikes = likes;
-
-        setLiked(!prevLiked);
-        setLikes(prevLiked ? prevLikes - 1 : prevLikes + 1);
-
-        if (!prevLiked) {
-            setShowLikeAnimation(true);
-            setTimeout(() => setShowLikeAnimation(false), 600);
-            if (typeof window !== 'undefined' && window.navigator?.vibrate) {
-                window.navigator.vibrate(50);
-            }
-        }
-
-        setIsLiking(true);
-        try {
-            const res = await fetch('/api/like', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ submission_id: id }),
-            });
-            const data = await res.json();
-            // Sync with server just in case
-            setLikes(data.likeCount);
-            setLiked(data.liked);
-        } catch (err) {
-            console.error('Error liking:', err);
-            // Revert state on failure
-            setLiked(prevLiked);
-            setLikes(prevLikes);
-        } finally {
-            setIsLiking(false);
-        }
-    }, [id, liked, likes, isLiking]);
-
     const handleDoubleClick = (e: React.MouseEvent) => {
         e.stopPropagation();
+        e.preventDefault();
+        if (clickTimerRef.current) {
+            clearTimeout(clickTimerRef.current);
+            clickTimerRef.current = null;
+        }
         if (!liked) {
             handleLike();
-            setShowHeartOverlay(true);
-            setTimeout(() => setShowHeartOverlay(false), 800);
+            setShowAtomicOverlay(true);
+            setTimeout(() => setShowAtomicOverlay(false), 1000);
         }
     };
 
-    const handleSave = async (e: React.MouseEvent) => {
+    const handleMediaClick = (e: React.MouseEvent) => {
         e.stopPropagation();
-        if (isSaving) return;
-
-        // Optimistic UI
-        const prevSaved = saved;
-        const prevSaves = saves;
-        setSaved(!prevSaved);
-        setSaves(!prevSaved ? prevSaves + 1 : Math.max(0, prevSaves - 1));
-
-        setIsSaving(true);
-        try {
-            const res = await fetch('/api/save', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ submission_id: id }),
-            });
-            const data = await res.json();
-            setSaved(data.saved);
-        } catch (err) {
-            console.error('Error saving:', err);
-            setSaved(prevSaved);
-            setSaves(prevSaves);
-        } finally {
-            setIsSaving(false);
-        }
+        e.preventDefault();
+        if (clickTimerRef.current) return;
+        clickTimerRef.current = setTimeout(() => {
+            router.push(`/arquivo/${post.id}`);
+            clickTimerRef.current = null;
+        }, 250);
     };
 
-    const handleReport = async () => {
+    const handleReport = () => {
         if (!confirm('Deseja denunciar este conteúdo como inapropriado? Nossa curadoria irá analisar.')) return;
-        try {
-            await fetch('/api/report', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ submission_id: id, reason: 'Denúncia de Usuário' }),
-            });
-            alert('Denúncia enviada com sucesso. Agradecemos a colaboração!');
-        } catch (err) {
-            console.error('Error reporting:', err);
-        }
+        // In a real V8.0 app, this would also be a Server Action
+        fetch('/api/report', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ submission_id: post.id, reason: 'Denúncia de Usuário' }),
+        }).then(() => alert('Denúncia enviada com sucesso.'));
     };
 
-    // Normalize mediaUrl to array
-    const urls = parseMediaUrl(mediaUrl);
-    const hasMultipleImages = mediaType === 'image' && urls.length > 1;
+    const urls = useMemo(() => parseMediaUrl(post.mediaUrl), [post.mediaUrl]);
+    const hasMultipleImages = useMemo(() => post.mediaType === 'image' && urls.length > 1, [post.mediaType, urls.length]);
+    const sizeModifierStyles = useMemo(() => hasMultipleImages ? "md:min-h-[420px] border-2 border-primary/20 shadow-primary/5" : "border-gray-100 dark:border-gray-700", [hasMultipleImages]);
 
-    // Advanced Exibition logic: larger grid item
-    const sizeModifierStyles = hasMultipleImages ? "md:min-h-[420px] border-2 border-primary/20 shadow-primary/5" : "border-gray-100 dark:border-gray-700";
-
-    const handleNextImage = (e: React.MouseEvent) => {
-        e.stopPropagation(); // prevent modal opening
+    const handleNextImage = useCallback((e: React.MouseEvent) => {
+        e.stopPropagation();
         setCurrentImageIndex((prev) => (prev + 1) % urls.length);
-    };
+    }, [urls.length]);
 
-    const handlePrevImage = (e: React.MouseEvent) => {
+    const handlePrevImage = useCallback((e: React.MouseEvent) => {
         e.stopPropagation();
         setCurrentImageIndex((prev) => (prev - 1 + urls.length) % urls.length);
-    };
+    }, [urls.length]);
 
-    // Prevent rendering entirely broken images if URLs array is somehow empty
-    // For PDFs uploaded to Cloudinary, replacing .pdf with .jpg gets the rasterized first page!
-    let displayUrl = urls.length > 0 ? urls[currentImageIndex] : '';
-    if (mediaType === 'pdf' && displayUrl.toLowerCase().endsWith('.pdf')) {
-        displayUrl = displayUrl.replace(/\.pdf$/i, '.jpg');
-    }
+    const displayUrl = useMemo(() => {
+        let url = urls.length > 0 ? urls[currentImageIndex] : '';
+        if (post.mediaType === 'pdf' && url.toLowerCase().endsWith('.pdf')) {
+            url = url.replace(/\.pdf$/i, '.jpg');
+        }
+        return url;
+    }, [urls, currentImageIndex, post.mediaType]);
 
-    // Apply dynamic optimization for thumbnails
-    const optimizedDisplayUrl = getOptimizedUrl(displayUrl, 600, 70, category, mediaType);
+    const optimizedDisplayUrl = useMemo(() => getOptimizedUrl(displayUrl, 600, 70, post.category, post.mediaType), [displayUrl, post.category, post.mediaType]);
+    const colorNum = useMemo(() => post.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) % 3, [post.id]);
+    const buttonColorClass = useMemo(() => ['bg-brand-blue text-white', 'bg-brand-red text-white', 'bg-brand-yellow text-gray-900'][colorNum], [colorNum]);
 
-    const categoryStyles = {
-        'Laboratórios': 'card-accent-yellow',
-        'Pesquisadores': 'card-accent-red',
-        'Eventos': 'card-accent-yellow',
-        'Convivência': 'card-accent-red',
-    } as Record<string, string>;
-
-    const colorNum = id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) % 3;
-    const buttonColorClass = ['bg-brand-blue text-white', 'bg-brand-red text-white', 'bg-brand-yellow text-gray-900'][colorNum];
     return (
         <div
-            className={`masonry-item group relative flex flex-col overflow-hidden rounded-2xl bg-white dark:bg-card-dark shadow-sm transition-all hover:shadow-xl border cursor-pointer gpu-isolate ${isFeatured ? 'border-brand-yellow/50 animate-premium-glow z-10' : 'border-gray-100 dark:border-gray-800'} ${sizeModifierStyles}`}
-            onMouseEnter={handleMouseEnter}
-            onMouseLeave={handleMouseLeave}
-            onClick={() => router.push(`/arquivo/${id}`)}
+            className={`masonry-item group relative flex flex-col overflow-hidden rounded-2xl bg-white dark:bg-card-dark shadow-sm transition-all hover:shadow-xl border cursor-pointer gpu-isolate ${post.isFeatured ? 'border-brand-yellow/50 animate-premium-glow z-10' : 'border-gray-100 dark:border-gray-800'} ${sizeModifierStyles}`}
+            onClick={() => router.push(`/arquivo/${post.id}`)}
         >
-            {/* Real-time Presence Badge (🔥) */}
-            <CardPresenceBadge submissionId={id} />
+            <CardPresenceBadge submissionId={post.id} />
 
-            {/* Hover Preview Overlay */}
             <AnimatePresence>
-                {isHovered && description && (mediaType === 'text' || mediaType === 'pdf') && (
-                    <motion.div
+                {isHovered && post.description && (post.mediaType === 'text' || post.mediaType === 'pdf') && (
+                    <m.div
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.95 }}
@@ -267,309 +173,226 @@ export const MediaCard = React.memo(({
                         className="absolute inset-[4px] top-[48px] bottom-[140px] z-30 p-5 bg-white/95 dark:bg-card-dark/95 backdrop-blur-md border border-gray-100 dark:border-gray-800 rounded-xl shadow-2xl overflow-y-auto no-scrollbar pointer-events-none"
                     >
                         <div className="flex items-center gap-2 mb-3">
-                            <span className="material-symbols-outlined text-brand-blue dark:text-brand-yellow text-sm">visibility</span>
+                            <Eye className="w-4 h-4 text-brand-blue dark:text-brand-yellow" />
                             <span className="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">Prévia Rápida</span>
                         </div>
-                        <div className="text-sm text-gray-800 dark:text-gray-200 leading-relaxed font-medium prose prose-sm dark:prose-invert max-w-none prose-p:my-1 prose-headings:my-2 prose-a:text-brand-blue prose-img:rounded-md">
-                            <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeSanitize, rehypeKatex]}>
-                                {description}
-                            </ReactMarkdown>
-                        </div>
+                        <ScientificContent content={post.description} />
                         <div className="absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-t from-white dark:from-card-dark to-transparent"></div>
-                    </motion.div>
+                    </m.div>
                 )}
             </AnimatePresence>
 
-            {/* Instagram Style Header */}
-            <div className="flex items-center justify-between p-3 border-b border-gray-100 dark:border-gray-800">
+            <m.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.3 }}
+                className="flex items-center justify-between p-4 md:p-6 border-b border-gray-100 dark:border-gray-800"
+            >
                 <div className="flex items-center gap-2">
                     <div className="h-8 w-8 rounded-full bg-gray-100 dark:bg-gray-800 overflow-hidden flex items-center justify-center text-[10px] font-bold text-[#0055ff] dark:text-blue-400 shrink-0">
-                        {avatarUrl ? (
-                            <img src={avatarUrl} alt={authors} className="h-full w-full object-cover" loading={priority ? "eager" : "lazy"} />
+                        {post.avatarUrl ? (
+                            <img src={post.avatarUrl} alt={post.authors} className="h-full w-full object-cover" loading={post.priority ? "eager" : "lazy"} />
                         ) : (
-                            <span className="uppercase">{authors.substring(0, 2)}</span>
+                            <span className="uppercase">{post.authors.substring(0, 2)}</span>
                         )}
                     </div>
                     <Link
-                        href={`/?autor=${encodeURIComponent(authors)}`}
+                        href={post.authors.startsWith('@') ? `/?collection=${encodeURIComponent(post.authors)}` : `/?autor=${encodeURIComponent(post.authors)}`}
                         onClick={(e) => {
                             e.preventDefault();
                             e.stopPropagation();
-                            router.push(`/?autor=${encodeURIComponent(authors)}`);
+                            router.push(post.authors.startsWith('@') ? `/?collection=${encodeURIComponent(post.authors)}` : `/?autor=${encodeURIComponent(post.authors)}`);
                         }}
                         className="text-xs font-bold text-gray-900 dark:text-gray-100 hover:text-brand-blue transition-colors truncate max-w-[120px] sm:max-w-[180px]"
                     >
-                        {authors}
+                        {post.authors}
                     </Link>
                 </div>
-                <Link
-                    href={`/arquivo/${id}`}
-                    onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        router.push(`/arquivo/${id}`);
-                    }}
-                    className={`inline-flex items-center justify-center gap-1 rounded-lg px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider shadow-md transition-all hover:scale-105 hover:shadow-lg hover:opacity-90 whitespace-nowrap shrink-0 ${buttonColorClass}`}
-                >
-                    <span className="flex items-center gap-1">
-                        Abrir página completa
-                        <span className="material-symbols-outlined text-[12px]">open_in_new</span>
-                    </span>
-                </Link>
-            </div>
+                <m.div whileHover={{ scale: 1.05, x: 5 }} whileTap={{ scale: 0.95 }}>
+                    <Link
+                        href={`/arquivo/${post.id}`}
+                        onClick={(e) => e.stopPropagation()}
+                        className={`inline-flex items-center justify-center gap-1 rounded-lg px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider shadow-md transition-all hover:shadow-lg whitespace-nowrap shrink-0 ${buttonColorClass}`}
+                    >
+                        <span className="flex items-center gap-1">
+                            Explorar
+                            <ExternalLink className="w-3 h-3" />
+                        </span>
+                    </Link>
+                </m.div>
+            </m.div>
 
-            {/* Visual Header / Media */}
             <div
-                className={`relative w-full overflow-hidden shrink-0 ${mediaType === 'video' || !hasMultipleImages ? 'aspect-video' : 'aspect-square'} bg-gray-100 dark:bg-gray-800`}
+                className={`relative w-full overflow-hidden shrink-0 ${post.mediaType === 'video' || !hasMultipleImages ? 'aspect-video' : 'aspect-square'} max-h-[500px] bg-gray-100 dark:bg-gray-800`}
+                onMouseEnter={handleMouseEnter}
+                onMouseLeave={handleMouseLeave}
+                onClick={handleMediaClick}
                 onDoubleClick={handleDoubleClick}
             >
-                {/* Double-click Heart Animation Overlay */}
-                {showHeartOverlay && (
-                    <div className="absolute inset-0 flex items-center justify-center z-20 pointer-events-none text-white">
-                        <span className="material-symbols-outlined text-8xl filled animate-heart-pop drop-shadow-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>
-                            favorite
-                        </span>
-                    </div>
-                )}
-                {mediaType === 'video' ? (
+                <AnimatePresence>
+                    {showAtomicOverlay && (
+                        <m.div
+                            initial={{ scale: 0, opacity: 0, rotate: 0 }}
+                            animate={{ scale: 1.5, opacity: 1, rotate: 360 }}
+                            exit={{ scale: 2, opacity: 0 }}
+                            className="absolute inset-0 flex items-center justify-center z-20 pointer-events-none"
+                        >
+                            <div className="relative">
+                                <AtomIcon filled={true} size={120} className="text-brand-blue drop-shadow-[0_0_30px_rgba(59,130,246,0.8)]" />
+                                <m.div
+                                    animate={{ scale: [1, 2], opacity: [0.5, 0] }}
+                                    transition={{ duration: 0.8, repeat: Infinity }}
+                                    className="absolute inset-0 bg-brand-blue rounded-full blur-2xl -z-10"
+                                />
+                            </div>
+                        </m.div>
+                    )}
+                </AnimatePresence>
+                {post.mediaType === 'video' ? (
                     <Image
                         src={urls.length > 0 ? getYoutubeThumbnail(urls[0]) : "https://images.unsplash.com/photo-1616423640778-28d1b53229bd?auto=format&fit=crop&q=80&w=800"}
-                        alt={alt_text || "Video Thumbnail"}
+                        alt={post.title || "Video Thumbnail"}
                         fill
                         sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                         className="object-cover opacity-80"
                         priority={priority}
+                        fetchPriority={priority ? "high" : "auto"}
                         unoptimized
                     />
-                ) : mediaType === 'text' || mediaType === 'zip' || mediaType === 'sdocx' ? (
-                    <div className={`h-full w-full flex flex-col items-center justify-center p-8 text-center bg-slate-100 dark:bg-slate-800`}>
-                        <div className={`text-sm font-medium leading-relaxed max-w-full text-slate-700 dark:text-slate-200 relative overflow-hidden h-[9rem] prose prose-sm dark:prose-invert max-w-none`}>
-                            {mediaType === 'zip' ? <p className="mt-8">Conteúdo Compactado (.ZIP)</p> :
-                                mediaType === 'sdocx' ? <p className="mt-8">Notas do Samsung Notes (.SDOCX)</p> :
-                                    <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeSanitize, rehypeKatex]}>
-                                        {description || 'Texto completo'}
-                                    </ReactMarkdown>}
+                ) : post.mediaType === 'text' || post.mediaType === 'zip' || post.mediaType === 'sdocx' ? (
+                    <div className="h-full w-full flex flex-col items-center justify-center p-8 text-center bg-slate-100 dark:bg-slate-800">
+                        <div className="text-sm font-medium leading-relaxed max-w-full text-slate-700 dark:text-slate-200 relative overflow-hidden h-[9rem] prose prose-sm dark:prose-invert max-w-none">
+                            {post.mediaType === 'zip' ? <p className="mt-8">Conteúdo Compactado (.ZIP)</p> :
+                                post.mediaType === 'sdocx' ? <p className="mt-8">Notas do Samsung Notes (.SDOCX)</p> :
+                                    <ScientificContent content={post.description || 'Texto completo'} />}
                             <div className="absolute bottom-0 left-0 right-0 h-6 bg-gradient-to-t from-slate-100 dark:from-slate-800 to-transparent"></div>
                         </div>
                     </div>
                 ) : displayUrl ? (
-                    <Image
-                        src={optimizedDisplayUrl}
-                        alt={alt_text || `${title} - image ${currentImageIndex + 1}`}
-                        fill
-                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                        className="object-cover transition-transform duration-700 group-hover:scale-105"
-                        priority={priority}
-                    />
+                    <m.div
+                        layoutId={`media-${post.id}`}
+                        className="relative w-full h-full"
+                    >
+                        <Image
+                            src={optimizedDisplayUrl}
+                            alt={`${post.title} - image ${currentImageIndex + 1}`}
+                            fill
+                            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                            className="object-cover object-center transition-transform duration-700 group-hover:scale-105"
+                            priority={priority}
+                            fetchPriority={priority ? "high" : "auto"}
+                        />
+                    </m.div>
                 ) : (
                     <div className="h-full w-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center">
-                        <span className="material-symbols-outlined text-4xl text-slate-400">broken_image</span>
+                        <ImageOff className="w-10 h-10 text-slate-400" />
                     </div>
                 )}
 
-                {/* Multiple Images Carousel Controls */}
                 {hasMultipleImages && (
                     <>
                         <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
-
-                        <button
-                            onClick={handlePrevImage}
-                            className="absolute left-2 top-1/2 -translate-y-1/2 size-8 bg-black/40 hover:bg-black/80 backdrop-blur-sm text-white rounded-full flex items-center justify-center opacity-100 md:opacity-0 group-hover:opacity-100 transition-all z-10 hover:scale-110"
-                        >
-                            <span className="material-symbols-outlined text-[20px]">chevron_left</span>
-                        </button>
-
-                        <button
-                            onClick={handleNextImage}
-                            className="absolute right-2 top-1/2 -translate-y-1/2 size-8 bg-black/40 hover:bg-black/80 backdrop-blur-sm text-white rounded-full flex items-center justify-center opacity-100 md:opacity-0 group-hover:opacity-100 transition-all z-10 hover:scale-110"
-                        >
-                            <span className="material-symbols-outlined text-[20px]">chevron_right</span>
-                        </button>
-
+                        <button onClick={handlePrevImage} className="absolute left-2 top-1/2 -translate-y-1/2 size-8 bg-black/40 hover:bg-black/80 backdrop-blur-sm text-white rounded-full flex items-center justify-center z-10 hover:scale-110"><ChevronLeft className="w-5 h-5" /></button>
+                        <button onClick={handleNextImage} className="absolute right-2 top-1/2 -translate-y-1/2 size-8 bg-black/40 hover:bg-black/80 backdrop-blur-sm text-white rounded-full flex items-center justify-center z-10 hover:scale-110"><ChevronRight className="w-5 h-5" /></button>
                         <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-1.5 z-10 px-2 py-1 rounded-full bg-black/30 backdrop-blur-md">
                             {urls.map((_, idx) => (
-                                <div
-                                    key={idx}
-                                    className={`h-1.5 rounded-full transition-all duration-300 ${idx === currentImageIndex ? 'w-4 bg-white' : 'w-1.5 bg-white/50'}`}
-                                />
+                                <div key={idx} className={`h-1.5 rounded-full transition-all duration-300 ${idx === currentImageIndex ? 'w-4 bg-white' : 'w-1.5 bg-white/50'}`} />
                             ))}
                         </div>
-
-                        {/* Highlight Badge */}
-                        <div className="absolute top-3 left-3 flex items-center gap-1 px-2 py-1 bg-primary text-white text-[10px] font-extrabold uppercase tracking-wider rounded backdrop-blur-md shadow-lg">
-                            <span className="material-symbols-outlined text-[12px]">filter_none</span> Galeria
-                        </div>
+                        <div className="absolute top-3 left-3 flex items-center gap-1 px-2 py-1 bg-primary text-white text-[10px] font-extrabold uppercase tracking-wider rounded backdrop-blur-md shadow-lg"><Layers className="w-3 h-3" /> Galeria</div>
                     </>
                 )}
 
-                {mediaType === 'video' && (
+                {post.mediaType === 'video' && (
                     <div className="absolute inset-0 flex items-center justify-center bg-black/30 transition-colors group-hover:bg-black/40">
                         <div className="flex h-14 w-14 items-center justify-center rounded-full bg-white text-primary shadow-2xl backdrop-blur-sm transition-transform group-hover:scale-110">
-                            <span className="material-symbols-outlined filled text-2xl">play_arrow</span>
+                            <Play className="w-6 h-6 fill-current" />
                         </div>
                     </div>
                 )}
-
             </div>
 
-            {/* Instagram Style Interactions & Content */}
-            <div className="flex flex-col p-4 pt-3">
-                {/* Action Bar */}
+            <div className="flex flex-col p-4 md:p-6 pt-3 md:pt-4">
                 <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-4">
-                        <ReactionSystem
-                            submissionId={id}
-                            userId={userId}
-                            initialSummary={reactions_summary}
-                        />
-                        <Link href={`/arquivo/${id}#comments`} onClick={(e) => e.stopPropagation()} className="text-gray-700 dark:text-gray-200 hover:text-blue-400 transition-transform active:scale-90 flex items-center gap-1">
-                            <span className="material-symbols-outlined text-[26px]">chat_bubble</span>
-                            <span className="text-xs font-bold tabular-nums">{comments}</span>
+                        <AtomicReaction isActive={liked} count={likes} onClick={handleLike} />
+                        <Link href={`/arquivo/${post.id}#comments`} onClick={(e) => e.stopPropagation()} className="text-gray-700 dark:text-gray-200 hover:text-blue-400 flex items-center gap-1">
+                            <MessageCircle className="w-6 h-6" />
+                            <span className="text-xs font-bold tabular-nums">{post.commentCount}</span>
                         </Link>
-                        <button
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                setShowShareMenu(true);
-                            }}
-                            className="text-gray-700 dark:text-gray-200 hover:text-brand-yellow transition-transform active:scale-90"
-                        >
-                            <span className="material-symbols-outlined text-[26px]">send</span>
-                        </button>
-                        <button
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                handleReport();
-                            }}
-                            className="text-gray-700 dark:text-gray-200 hover:text-red-500 transition-transform active:scale-90"
-                            title="Denunciar conteúdo"
-                        >
-                            <span className="material-symbols-outlined text-[26px]">flag</span>
-                        </button>
-                        {displayUrl && (
-                            <button
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    setShowDownloadModal(true);
-                                }}
-                                className="text-gray-700 dark:text-gray-200 hover:text-brand-yellow transition-transform active:scale-90"
-                            >
-                                <span className="material-symbols-outlined text-[26px]">download</span>
-                            </button>
-                        )}
+                        <button onClick={(e) => { e.stopPropagation(); setShowShareMenu(true); }} className="text-gray-700 dark:text-gray-200 hover:text-brand-yellow"><Send className="w-6 h-6" /></button>
+                        <button onClick={(e) => { e.stopPropagation(); handleReport(); }} className="text-gray-700 dark:text-gray-200 hover:text-red-500"><Flag className="w-6 h-6" /></button>
+                        {displayUrl && <button onClick={(e) => { e.stopPropagation(); setShowDownloadModal(true); }} className="text-gray-700 dark:text-gray-200 hover:text-brand-yellow"><Download className="w-6 h-6" /></button>}
                     </div>
-                    <button
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            setShowCollectionManager(true);
-                        }}
-                        className={`transition-all active:scale-90 flex items-center gap-1 text-gray-700 dark:text-gray-200 hover:text-blue-400`}
-                    >
-                        <span className={`material-symbols-outlined text-[26px]`}>
-                            bookmark
-                        </span>
+                    <button onClick={handleSave} className="flex items-center gap-1 text-gray-700 dark:text-gray-200 hover:text-blue-400">
+                        <Bookmark className={`w-6 h-6 ${saved ? 'fill-current' : ''}`} />
                         <span className="text-xs font-bold tabular-nums">{saves}</span>
                     </button>
                 </div>
 
-                {/* Caption Block */}
                 <div className="space-y-1">
-                    <div className="text-sm">
-                        <span className="font-bold mr-2 text-gray-900 dark:text-white">{highlightMatch(authors, query)}</span>
-                        <span className="font-bold text-gray-800 dark:text-gray-100">{highlightMatch(title, query)}</span>
+                    <div className="text-base sm:text-2xl leading-tight">
+                        <span className="font-bold mr-2 text-gray-900 dark:text-white">
+                            {useMemo(() => highlightMatch(post.authors, query), [post.authors, query])}
+                        </span>
+                        <span className="font-bold text-gray-800 dark:text-gray-100">
+                            {useMemo(() => highlightMatch(post.title, query), [post.title, query])}
+                        </span>
                     </div>
-                    {description && (
+                    {post.description && (
                         <div className="text-sm text-gray-600 dark:text-gray-400 overflow-hidden max-h-[2.5rem] relative leading-tight">
-                            {stripMarkdownAndLatex(description)}
+                            {useMemo(() => stripMarkdownAndLatex(post.description!), [post.description])}
                             <div className="absolute bottom-0 left-0 right-0 h-4 bg-gradient-to-t from-white dark:from-card-dark to-transparent"></div>
                         </div>
                     )}
                 </div>
 
-                {/* Bottom Badges */}
                 <div className="flex flex-wrap gap-2 mt-3">
-                    {category && (
-                        <span className={`px-2 py-0.5 text-[10px] font-bold rounded-md uppercase tracking-wide 
-                            ${['Laboratórios', 'Eventos', 'Uso Didático'].includes(category) ? 'bg-brand-yellow/10 text-brand-yellow border border-brand-yellow/20' :
-                                ['Pesquisadores', 'Convivência', 'Mural do Deu Ruim'].includes(category) ? 'bg-brand-red/10 text-brand-red border border-brand-red/20' :
-                                    'bg-brand-blue/10 text-brand-blue dark:text-blue-400 border border-brand-blue/20 dark:border-blue-400/20'}`}
+                    {post.category && (
+                        <span
+                            onClick={(e) => {
+                                e.stopPropagation(); e.preventDefault();
+                                router.push(`/?type=${encodeURIComponent(post.category!)}`);
+                            }}
+                            className={`px-2 py-0.5 text-[10px] font-bold rounded-md uppercase tracking-wide cursor-pointer hover:opacity-80 transition-opacity
+                            ${['Laboratórios', 'Eventos', 'Uso Didático'].includes(post.category) ? 'bg-brand-yellow/10 text-brand-yellow border border-brand-yellow/20' :
+                                    ['Pesquisadores', 'Convivência', 'Mural do Deu Ruim'].includes(post.category) ? 'bg-brand-red/10 text-brand-red border border-brand-red/20' :
+                                        'bg-brand-blue/10 text-brand-blue dark:text-blue-400 border border-brand-blue/20 dark:border-blue-400/20'}`}
                         >
-                            {category}
+                            {post.category}
                         </span>
                     )}
-                    {isFeatured && (
-                        <span className="relative overflow-hidden px-2.5 py-1 bg-gradient-to-r from-brand-red to-brand-yellow text-white text-[10px] font-black rounded-lg uppercase tracking-wider shadow-[0_0_10px_rgba(230,57,70,0.3)] group-hover:shadow-[0_0_15px_rgba(255,179,0,0.5)] transition-all">
+                    {post.isFeatured && (
+                        <span className="relative overflow-hidden px-2.5 py-1 bg-gradient-to-r from-brand-red to-brand-yellow text-white text-[10px] font-black rounded-lg uppercase tracking-wider shadow-[0_0_10px_rgba(230,57,70,0.3)] animate-metallic-shine">
                             <span className="relative z-10">Destaque</span>
-                            <span className="absolute inset-0 animate-metallic-shine opacity-60"></span>
                         </span>
                     )}
-                    {tags && tags.map((tag, idx) => {
+                    {post.tags?.map((tag, idx) => {
                         const hash = tag.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-                        const colors = [
-                            'bg-brand-blue/10 text-brand-blue dark:text-blue-400 border-brand-blue/20 dark:border-blue-400/20',
-                            'bg-brand-yellow/10 text-brand-yellow border-brand-yellow/20',
-                            'bg-brand-red/10 text-brand-red border-brand-red/20'
-                        ];
-                        const colorClass = colors[hash % colors.length];
-
+                        const colors = ['bg-brand-blue/10 text-brand-blue dark:text-blue-400 border-brand-blue/20', 'bg-brand-yellow/10 text-brand-yellow border-brand-yellow/20', 'bg-brand-red/10 text-brand-red border-brand-red/20'];
                         return (
                             <React.Fragment key={idx}>
-                                <span
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        router.push(`/?tag=${tag.replace('#', '')}`);
-                                    }}
-                                    className={`px-2 py-0.5 ${colorClass} text-[10px] font-extrabold rounded-md uppercase tracking-wide border transition-all hover:scale-105 select-none cursor-pointer`}
-                                >
+                                <span onClick={(e) => { e.stopPropagation(); e.preventDefault(); router.push(`/?q=${tag.replace('#', '')}`); }} className={`px-2 py-0.5 ${colors[hash % colors.length]} text-[10px] font-extrabold rounded-md uppercase tracking-wide border transition-all hover:scale-105 cursor-pointer`}>
                                     #{highlightMatch(tag.replace('#', ''), query)}
                                 </span>
                                 <FollowTagButton tagName={tag.replace('#', '')} userId={userId} />
                             </React.Fragment>
                         );
                     })}
-                    <span className="flex items-center gap-1 px-2 py-0.5 bg-brand-blue/5 dark:bg-brand-yellow/10 text-brand-blue dark:text-brand-yellow text-[10px] font-bold rounded-md uppercase tracking-wide border border-brand-blue/10 dark:border-brand-yellow/20">
-                        <span className="material-symbols-outlined text-[12px]">schedule</span>
-                        {Math.max(1, reading_time || 1)} min
+                    <span className="flex items-center gap-1 px-2 py-0.5 bg-brand-blue/5 dark:bg-brand-yellow/10 text-brand-blue dark:text-brand-yellow text-[10px] font-bold rounded-md uppercase tracking-wide border border-brand-blue/10">
+                        <Clock className="w-3 h-3" /> {Math.max(1, post.readingTime || 1)} min
                     </span>
-                    {views != null ? (
-                        <span className="flex items-center gap-1 px-2 py-0.5 bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 text-[10px] font-bold rounded-md uppercase tracking-wide border border-gray-200 dark:border-gray-700">
-                            <span className="material-symbols-outlined text-[12px]">visibility</span>
-                            {views}
+                    {post.views != null && (
+                        <span className="flex items-center gap-1 px-2 py-0.5 bg-gray-100 dark:bg-gray-800 text-gray-500 text-[10px] font-bold rounded-md uppercase tracking-wide border border-gray-200">
+                            <Eye className="w-3 h-3" /> {post.views}
                         </span>
-                    ) : null}
+                    )}
                 </div>
             </div>
 
-            {
-                showShareMenu && (
-                    <ShareMenu
-                        id={id}
-                        title={title}
-                        author={authors}
-                        onClose={() => setShowShareMenu(false)}
-                    />
-                )
-            }
-            {
-                showCollectionManager && (
-                    <CollectionManager
-                        submissionId={id}
-                        userId={userId}
-                        onClose={() => setShowCollectionManager(false)}
-                    />
-                )
-            }
-            {
-                showDownloadModal && (
-                    <DownloadModal
-                        id={id}
-                        title={title}
-                        authors={authors}
-                        description={description}
-                        mediaUrl={displayUrl}
-                        onClose={() => setShowDownloadModal(false)}
-                    />
-                )
-            }
+            {showShareMenu && <ShareMenu id={post.id} title={post.title} author={post.authors} onClose={() => setShowShareMenu(false)} />}
+            {showCollectionManager && <CollectionManager submissionId={post.id} userId={userId} onClose={() => setShowCollectionManager(false)} />}
+            {showDownloadModal && <DownloadModal id={post.id} title={post.title} authors={post.authors} description={post.description} mediaUrl={displayUrl} onClose={() => setShowDownloadModal(false)} />}
         </div >
     );
 });

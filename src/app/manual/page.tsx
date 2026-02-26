@@ -1,18 +1,15 @@
-import { Header } from "@/components/layout/Header";
-import { Footer } from "@/components/layout/Footer";
+import { MainLayoutWrapper } from "@/components/layout/MainLayoutWrapper";
 
-export default function GuiaPage() {
+export default function ManualPage() {
     return (
-        <div className="min-h-screen bg-background-light dark:bg-background-dark font-sans text-gray-900 dark:text-gray-100 flex flex-col">
-            <Header />
-
-            <main className="flex-1 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 w-full prose prose-lg dark:prose-invert prose-headings:font-display prose-headings:font-bold prose-headings:tracking-tight prose-a:text-brand-blue prose-img:rounded-xl">
+        <MainLayoutWrapper>
+            <div className="py-12 prose prose-lg dark:prose-invert prose-headings:font-display prose-headings:font-bold prose-headings:tracking-tight prose-a:text-brand-blue prose-img:rounded-xl">
                 <div className="mb-12 border-b border-gray-200 dark:border-gray-800 pb-8">
-                    <h1 className="text-4xl md:text-5xl text-gray-900 dark:text-white mb-4">
-                        Guia de <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-blue via-brand-red to-brand-yellow pr-2">Boas Práticas</span>
+                    <h1 className="text-4xl md:text-5xl text-gray-900 dark:text-white mb-4 uppercase italic">
+                        Manual do <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-blue via-brand-red to-brand-yellow pr-2">Operador</span>
                     </h1>
                     <p className="text-xl text-gray-600 dark:text-gray-400 lead font-medium">
-                        Como capturar e compartilhar a ciência que acontece no IF-USP da melhor forma possível para o nosso Hub.
+                        Protocolos de captura e compartilhamento para o Hub de Comunicação Científica do Lab-Div.
                     </p>
                 </div>
 
@@ -136,9 +133,7 @@ export default function GuiaPage() {
                         </div>
                     </section>
                 </div>
-            </main>
-
-            <Footer />
-        </div>
+            </div>
+        </MainLayoutWrapper>
     );
 }

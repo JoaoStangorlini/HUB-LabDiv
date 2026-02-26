@@ -93,9 +93,9 @@ export const getOptimizedUrl = (url: string, width = 800, quality = 70, category
         return url.replace('/upload/', `/upload/w_${width},q_${finalQuality},f_auto/`);
     }
 
-    // Supabase Storage Optimization
+    // Supabase Storage - Default to no transformation to avoid 400s unless using render endpoint
     if (url.includes('/storage/v1/object/public/')) {
-        return `${url}?width=${width}&quality=${finalQuality}&format=webp`;
+        return url;
     }
 
     return url;

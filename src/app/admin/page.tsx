@@ -20,6 +20,7 @@ interface DashboardCounts {
     autoresFrequentes: number;
     autoresMestres: number;
     oportunidadesTotal: number;
+    pendentesPerfis: number;
 }
 
 export default function AdminDashboardOverview() {
@@ -30,6 +31,7 @@ export default function AdminDashboardOverview() {
         perguntasPendentes: 0, perguntasRespondidas: 0,
         totalAutores: 0, autoresFrequentes: 0, autoresMestres: 0,
         oportunidadesTotal: 0,
+        pendentesPerfis: 0,
     });
     const [isLoading, setIsLoading] = useState(true);
 
@@ -43,6 +45,7 @@ export default function AdminDashboardOverview() {
                 narracoesRes, trilhasRes, tagsRes,
                 pergPendentesRes, pergRespondidasRes,
                 oportunidadesRes, subsWithAuthorsRes,
+                profilesPendentesRes,
             ] = await Promise.all([
                 supabase.from('submissions').select('*', { count: 'exact', head: true }).eq('status', 'pendente'),
                 supabase.from('submissions').select('*', { count: 'exact', head: true }).eq('status', 'aprovado'),
@@ -57,6 +60,7 @@ export default function AdminDashboardOverview() {
                 supabase.from('perguntas').select('*', { count: 'exact', head: true }).eq('status', 'respondida'),
                 supabase.from('oportunidades').select('*', { count: 'exact', head: true }),
                 supabase.from('submissions').select('user_id').eq('status', 'aprovado'),
+                supabase.from('profiles').select('*', { count: 'exact', head: true }).eq('review_status', 'pending'),
             ]);
 
             // Calculate unique tags from all approved submissions
@@ -98,6 +102,7 @@ export default function AdminDashboardOverview() {
                 autoresFrequentes,
                 autoresMestres,
                 oportunidadesTotal: oportunidadesRes.count || 0,
+                pendentesPerfis: profilesPendentesRes.count || 0,
             });
 
             setIsLoading(false);
@@ -107,6 +112,15 @@ export default function AdminDashboardOverview() {
     }, []);
 
     const controlCards = [
+        {
+            title: 'Perfis USP',
+            subtitle: 'Aprovação de Acesso',
+            count: counts.pendentesPerfis || 0,
+            icon: 'manage_accounts',
+            color: 'electric' as const,
+            href: '/admin/profiles',
+            urgent: (counts.pendentesPerfis || 0) > 0,
+        },
         {
             title: 'Denúncias',
             subtitle: 'Pendentes de Análise',
@@ -150,6 +164,15 @@ export default function AdminDashboardOverview() {
             icon: 'route',
             color: 'electric' as const,
             href: '/admin/trilhas',
+            urgent: false,
+        },
+        {
+            title: 'Pseudônimos',
+            subtitle: 'Identidades Anônimas',
+            count: counts.tagsTotal, // Temporarily reusing tagsTotal or similar
+            icon: ' theater_comedy',
+            color: 'yellow' as const,
+            href: '/admin/pseudonyms',
             urgent: false,
         },
         {
@@ -378,6 +401,49 @@ export default function AdminDashboardOverview() {
                                 <div className="text-3xl font-black text-gray-900 dark:text-white mt-1">{counts.oportunidadesTotal}</div>
                                 <div className="text-[10px] font-bold text-[#0055ff] mt-1">MURAL ATIVO</div>
                             </div>
+                        </div>
+                    </div>
+                    {/* ─── Zona de Perigo ─── */}
+                    <div className="pt-8 mb-8 border-t border-red-500/20">
+                        <h2 className="text-xl font-black text-red-600 dark:text-red-500 mb-6 flex items-center gap-3">
+                            <span className="material-symbols-outlined text-red-500 text-2xl">warning</span>
+                            Zona de Perigo (Ações Irreversíveis)
+                        </h2>
+                        <div className="bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-900/50 rounded-3xl p-6 md:p-8">
+                            <h3 className="text-lg font-bold text-red-700 dark:text-red-400 mb-2">Protocolo Nuclear V4.0</h3>
+                            <p className="text-sm text-red-600/80 dark:text-red-300/80 mb-6">
+                                Esta ação executará um TRUNCATE CASCADE em todas as tabelas de submissões, comentários, reações e perguntas. E wipes completos da pasta Cloudinary `labdiv_hub/`. As contas de usuários serão mantidas intactas.
+                            </p>
+                            <button
+                                onClick={async () => {
+                                    const confirm = window.confirm('ATENÇÃO: Você está prestes a apagar TODOS os dados e mídias do Hub. Esta ação não pode ser desfeita. Digite "NUCLEAR" para continuar.');
+                                    if (confirm) {
+                                        const pass = window.prompt('Digite a senha de administrador da aplicação:');
+                                        if (pass) {
+                                            try {
+                                                const res = await fetch('/api/admin/nuclear-reset', {
+                                                    method: 'POST',
+                                                    headers: { 'Content-Type': 'application/json' },
+                                                    body: JSON.stringify({ admin_password: pass })
+                                                });
+                                                const data = await res.json();
+                                                if (res.ok) {
+                                                    alert('✅ SUCESSO: ' + data.message);
+                                                    window.location.reload();
+                                                } else {
+                                                    alert('❌ ERRO: ' + data.error);
+                                                }
+                                            } catch (e: any) {
+                                                alert('❌ Falha na comunicação: ' + e.message);
+                                            }
+                                        }
+                                    }
+                                }}
+                                className="px-6 py-3 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl shadow-lg shadow-red-500/20 transition-all flex items-center gap-2"
+                            >
+                                <span className="material-symbols-outlined text-[18px]">delete_forever</span>
+                                EXECUTAR RESET NUCLEAR
+                            </button>
                         </div>
                     </div>
                 </>

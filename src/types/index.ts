@@ -12,7 +12,29 @@ export interface Profile {
     full_name?: string;
     avatar_url?: string;
     bio?: string;
-    role: 'user' | 'admin';
+    institute?: string;
+    is_usp_member: boolean;
+    entrance_year?: number;
+    lattes_url?: string;
+    available_to_mentor: boolean;
+    education_level?: string;
+    school_year?: string;
+    objective?: string;
+    interests: string[];
+    artistic_interests: string[];
+    role: string; // 'user', 'admin', 'Graduação', etc.
+    is_public: boolean;
+    review_status: 'pending' | 'approved' | 'rejected';
+    bio_draft?: string;
+    completion_year?: number;
+    major?: string;
+    usp_status?: string;
+    has_scholarship: boolean;
+    seeking_scholarship: boolean;
+    interest_in_team: boolean;
+    atomic_excitation: number;
+    half_life_rate: number;
+    last_energy_update: string;
     created_at: string;
 }
 
@@ -40,8 +62,8 @@ export interface Submission {
     location_lat?: number;
     location_lng?: number;
     location_name?: string;
-    reactions_summary?: Record<string, number>;
-    kudos_total?: number;
+    energy_reactions?: Record<string, number>;
+    atomic_excitation?: number;
     ocr_content?: string;
     ai_suggested_tags?: string[];
     ai_suggested_alt?: string;
@@ -103,3 +125,44 @@ export interface PrivateNote {
     note_text: string;
     created_at: string;
 }
+
+// 🏛️ O GRANDE COLISOR (Wiki Schema)
+export interface WikiArticle {
+    id: string;
+    parent_id?: string;
+    title: string;
+    slug: string;
+    content: string;
+    technical_metadata: {
+        equipment_id?: string;
+        lab_room?: string;
+        safety_level: number;
+    };
+    is_stable: boolean;
+    author_id?: string;
+    created_at: string;
+    updated_at: string;
+}
+
+export interface WikiCitation {
+    id: string;
+    source_article_id: string;
+    target_article_id: string;
+    citation_type: 'reference' | 'equipment' | 'lab' | 'theory';
+    created_at: string;
+}
+
+// 🛰️ EMARANHAMENTO (Chat)
+export interface EntanglementMessage {
+    id: string;
+    sender_id: string;
+    receiver_id: string;
+    content: string;
+    attachment_particle_id?: string;
+    attachment_type?: 'particle' | 'article';
+    is_read: boolean;
+    created_at: string;
+}
+
+// ALIASES PARA V3.2.0
+export type Particle = Submission;

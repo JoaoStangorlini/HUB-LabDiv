@@ -3,7 +3,13 @@
 import { useEffect, useState, useMemo } from 'react';
 import { supabase } from '@/lib/supabase';
 import Link from 'next/link';
-import { MediaCard, MediaCardProps } from '@/components/MediaCard';
+import { MediaCard } from '@/components/MediaCard';
+import { PostDTO, mapToPostDTO } from '@/dtos/media';
+import { toast } from 'react-hot-toast';
+import {
+    ArrowLeft, Mic, Clock, RefreshCw,
+    AlertCircle, FileText
+} from 'lucide-react';
 
 function CarouselSection({
     title,
@@ -11,7 +17,7 @@ function CarouselSection({
     onAction
 }: {
     title: string;
-    items: any[];
+    items: PostDTO[];
     onAction: (id: string, description: string) => void
 }) {
     return (
@@ -23,7 +29,7 @@ function CarouselSection({
                 ) : (
                     items.map(item => (
                         <div key={item.id} className="min-w-[300px] bg-white dark:bg-card-dark rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm p-4 space-y-3">
-                            <MediaCard id={item.id} title={item.title} authors={item.authors} category={item.category} mediaType={item.media_type} mediaUrl={item.media_url} description={item.description} />
+                            <MediaCard post={item} />
                             <div className="space-y-2">
                                 <label className="text-[10px] font-bold uppercase text-gray-400">Descrição para Narração</label>
                                 <textarea
@@ -45,13 +51,13 @@ function CarouselSection({
 }
 
 export default function AdminNarracaoPage() {
-    const [submissions, setSubmissions] = useState<any[]>([]);
+    const [submissions, setSubmissions] = useState<PostDTO[]>([]);
     const [loading, setLoading] = useState(true);
 
     const fetchSubmissions = async () => {
         setLoading(true);
         const { data } = await supabase.from('submissions').select('*').eq('status', 'aprovado').order('created_at', { ascending: false });
-        setSubmissions(data || []);
+        setSubmissions((data || []).map(s => mapToPostDTO(s)));
         setLoading(false);
     };
 
@@ -63,7 +69,7 @@ export default function AdminNarracaoPage() {
     const handleUpdateDescription = async (id: string, description: string) => {
         const { error } = await supabase.from('submissions').update({ description }).eq('id', id);
         if (error) {
-            alert('Erro ao atualizar descrição: ' + error.message);
+            toast.error('Erro ao atualizar descrição');
         } else {
             // Update local state without refetching for smoothness
             setSubmissions(prev => prev.map(s => s.id === id ? { ...s, description } : s));
@@ -73,15 +79,18 @@ export default function AdminNarracaoPage() {
     return (
         <div className="p-4 sm:p-8 max-w-[1600px] mx-auto space-y-10">
             <div>
-                <Link href="/admin" className="text-brand-blue text-sm flex items-center gap-1 hover:underline mb-2">
-                    <span className="material-symbols-outlined text-[18px]">arrow_back</span> Voltar ao Admin
+                <Link href="/admin" className="text-brand-blue text-sm flex items-center gap-1 hover:underline mb-2 font-bold">
+                    <ArrowLeft className="w-4 h-4" /> Voltar ao Admin
                 </Link>
                 <h1 className="text-3xl font-display font-bold text-gray-900 dark:text-white">Painel de Narração & Acessibilidade</h1>
                 <p className="text-gray-500 dark:text-gray-400">Gerencie as descrições de texto que alimentam o sintetizador de voz (TTS).</p>
             </div>
 
             {loading ? (
-                <div className="flex justify-center py-20"><span className="animate-spin material-symbols-outlined text-4xl text-brand-blue">progress_activity</span></div>
+                <div className="flex flex-col items-center justify-center py-20 gap-4">
+                    <RefreshCw className="w-10 h-10 animate-spin text-brand-blue" />
+                    <span className="text-gray-500 font-medium">Carregando acervo...</span>
+                </div>
             ) : (
                 <>
                     <CarouselSection title="Pendentes / Curtas" items={pendentes} onAction={handleUpdateDescription} />

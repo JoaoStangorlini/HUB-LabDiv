@@ -2,7 +2,7 @@ import Link from 'next/link';
 
 export function Footer() {
     return (
-        <footer className="bg-white dark:bg-background-dark border-t border-gray-200 dark:border-gray-800 pt-16 pb-8 border-b-8 border-b-brand-blue">
+        <footer className="bg-[#0B1E3B] border-t border-[#1e3a8a] pt-16 pb-8 border-b-8 border-b-brand-blue text-white/90">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
                     <div className="col-span-1 lg:col-span-1">
@@ -18,7 +18,7 @@ export function Footer() {
                             </div>
                         </div>
                         <p className="text-sm text-gray-500 dark:text-gray-400 mb-6 leading-relaxed">
-                            O hub oficial de comunicação científica do Instituto de Física da Universidade de São Paulo. Conectando a pesquisa de ponta com a sociedade através de imagens e fatos.
+                            Hub de Comunicação Científica do Lab-Div - Um projeto para melhorar a comunicação do IF-USP e reunir em um FLUXO interativo o arquivo de material de divulgação do Lab-Div e de toda a comunidade — de dentro e fora do instituto.
                         </p>
                         <div className="flex space-x-4">
                             <a href="#" className="text-gray-400 hover:text-brand-blue transition-colors bg-gray-50 dark:bg-gray-800 hover:bg-brand-blue/10 w-10 h-10 rounded-full flex items-center justify-center"><span className="material-symbols-outlined text-xl">public</span></a>
@@ -30,15 +30,14 @@ export function Footer() {
                     <div>
                         <h4 className="font-bold text-gray-900 dark:text-white mb-6 uppercase text-xs tracking-wider border-l-4 border-brand-blue pl-3">Navegação</h4>
                         <ul className="space-y-3">
-                            <li><Link href="/" className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 hover:text-brand-blue dark:hover:text-brand-blue transition-colors"><span className="material-symbols-outlined text-xs">home</span> Arquivo Principal</Link></li>
-                            <li><Link href="/sobre" className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 hover:text-brand-blue dark:hover:text-brand-blue transition-colors"><span className="material-symbols-outlined text-xs">info</span> Sobre o Hub</Link></li>
-                            <li><Link href="/comunidade" className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 hover:text-brand-blue dark:hover:text-brand-blue transition-colors"><span className="material-symbols-outlined text-xs">forum</span> Comunidade</Link></li>
-                            <li><Link href="/iniciativas" className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 hover:text-brand-blue dark:hover:text-brand-blue transition-colors"><span className="material-symbols-outlined text-xs">lightbulb</span> Divulgação</Link></li>
+                            <li><Link href="/" className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 hover:text-brand-blue dark:hover:text-brand-blue transition-colors"><span className="material-symbols-outlined text-xs">home</span> Fluxo de Partículas</Link></li>
+                            <li><Link href="/arquivo-labdiv" className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 hover:text-brand-blue dark:hover:text-brand-blue transition-colors"><span className="material-symbols-outlined text-xs">science</span> Arquivo Lab-Div</Link></li>
                             <li><Link href="/perguntas" className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 hover:text-brand-blue dark:hover:text-brand-blue transition-colors"><span className="material-symbols-outlined text-xs">help_outline</span> Pergunte a um Cientista</Link></li>
-                            <li><Link href="/criadores" className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 hover:text-brand-blue dark:hover:text-brand-blue transition-colors"><span className="material-symbols-outlined text-xs">groups</span> Criadores do Acervo</Link></li>
-                            <li><Link href="/guia" className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 hover:text-brand-blue dark:hover:text-brand-blue transition-colors"><span className="material-symbols-outlined text-xs">book</span> Guia de Boas Práticas</Link></li>
-                            <li><Link href="/enviar" className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 hover:text-brand-blue dark:hover:text-brand-blue transition-colors"><span className="material-symbols-outlined text-xs">send</span> Formulário de Envio</Link></li>
-                            <li><Link href="/admin" className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 hover:text-brand-blue dark:hover:text-brand-blue transition-colors"><span className="material-symbols-outlined text-xs">admin_panel_settings</span> Painel Admin</Link></li>
+                            <li><Link href="/criadores" className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 hover:text-brand-blue dark:hover:text-brand-blue transition-colors"><span className="material-symbols-outlined text-xs">groups</span> Cientistas Colaboradores</Link></li>
+                            <li><Link href="/colisor" className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 hover:text-brand-blue dark:hover:text-brand-blue transition-colors"><span className="material-symbols-outlined text-xs">hub</span> O Grande Colisor</Link></li>
+                            <li><Link href="/iniciativas" className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 hover:text-brand-blue dark:hover:text-brand-blue transition-colors"><span className="material-symbols-outlined text-xs">biotech</span> Observatório</Link></li>
+                            <li><Link href="/mapa" className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 hover:text-brand-blue dark:hover:text-brand-blue transition-colors"><span className="material-symbols-outlined text-xs">map</span> Mapa de Mídia</Link></li>
+                            <li><Link href="/admin" className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 hover:text-brand-blue dark:hover:text-brand-blue transition-colors"><span className="material-symbols-outlined text-xs">admin_panel_settings</span> Painel de Controle</Link></li>
                         </ul>
                     </div>
 
@@ -54,7 +53,9 @@ export function Footer() {
                             </li>
                             <li className="flex items-start gap-3 text-sm text-gray-600 dark:text-gray-400">
                                 <span className="material-symbols-outlined text-sm mt-0.5 text-brand-blue">phone</span>
-                                <span>(11) 96840-1823</span>
+                                <a href="https://wa.me/5511968401823" target="_blank" rel="noopener noreferrer" className="hover:text-brand-blue transition-colors">
+                                    (11) 96840-1823
+                                </a>
                             </li>
                         </ul>
                     </div>
@@ -85,7 +86,7 @@ export function Footer() {
                         © {new Date().getFullYear()} Instituto de Física - USP. Todos os direitos reservados.
                     </p>
                     <div className="flex items-center gap-6">
-                        <span className="text-[10px] font-bold text-gray-400 dark:text-gray-600 border border-gray-100 dark:border-gray-800 px-2 py-0.5 rounded">v2.3.5</span>
+                        <span className="text-[10px] font-bold text-gray-400 dark:text-gray-600 border border-gray-100 dark:border-gray-800 px-2 py-0.5 rounded">v4.0.3</span>
                         <div className="flex gap-4">
                             <div className="w-3 h-3 rounded-sm bg-brand-blue shadow-sm shadow-brand-blue/50"></div>
                             <div className="w-3 h-3 rounded-sm bg-brand-red shadow-sm shadow-brand-red/50"></div>

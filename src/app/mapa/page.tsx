@@ -1,5 +1,6 @@
 import { fetchSubmissions } from '@/app/actions/submissions';
 import MapClient from './MapClient';
+import { MainLayoutWrapper } from '@/components/layout/MainLayoutWrapper';
 
 export const metadata = {
     title: 'Mapa do Instituto | Hub Lab-Div',
@@ -14,5 +15,9 @@ export default async function MapPage() {
         sort: 'recentes'
     });
 
-    return <MapClient initialItems={items as any} />;
+    return (
+        <MainLayoutWrapper focusMode={false}>
+            <MapClient initialItems={items as any} />
+        </MainLayoutWrapper>
+    );
 }

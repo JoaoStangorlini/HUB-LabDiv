@@ -3,6 +3,7 @@ import type { NextConfig } from "next";
 // import "./src/env.mjs";
 
 const nextConfig: NextConfig = {
+  compress: true,
   images: {
     formats: ['image/webp', 'image/avif'],
     remotePatterns: [
@@ -12,6 +13,17 @@ const nextConfig: NextConfig = {
       { protocol: 'https', hostname: 'lh3.googleusercontent.com', pathname: '/**' },
       { protocol: 'https', hostname: 'bqszadfunqgtfpaorwvx.supabase.co', pathname: '/**' },
     ],
+  },
+  async redirects() {
+    return [
+      { source: '/perfil', destination: '/lab', permanent: true },
+      { source: '/wiki', destination: '/colisor', permanent: true },
+      { source: '/comunidade', destination: '/colisor', permanent: true },
+      { source: '/dms', destination: '/emaranhamento', permanent: true },
+      { source: '/timeline', destination: '/fluxo', permanent: true },
+      { source: '/guia', destination: '/manual', permanent: true },
+      { source: '/sobre', destination: '/manual', permanent: true },
+    ];
   },
 };
 

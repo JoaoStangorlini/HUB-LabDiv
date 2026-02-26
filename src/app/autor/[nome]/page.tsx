@@ -1,13 +1,13 @@
 import { supabase } from '@/lib/supabase';
-import { MediaCard, MediaCardProps } from '@/components/MediaCard';
+import { MediaCard } from '@/components/MediaCard';
 import Link from 'next/link';
+import { mapToPostDTO } from '@/dtos/media';
+import { ArrowLeft, School, SearchX } from 'lucide-react';
 
 export default async function AutorPage({ params }: { params: Promise<{ nome: string }> }) {
     const rawNome = (await params).nome;
     const decodedNome = decodeURIComponent(rawNome);
 
-    // Fetch submissions matching this author exactly or partially (if the string has multiple authors)
-    // We use ilike because authors is a comma-separated text string
     const { data: submissions, error } = await supabase
         .from('submissions')
         .select('*')
@@ -19,36 +19,8 @@ export default async function AutorPage({ params }: { params: Promise<{ nome: st
         console.error("Error fetching author submissions:", error);
     }
 
-    // Fetch likes (we can fetch all curtidas for these submissions)
-    let likeMap: Record<string, number> = {};
-    if (submissions && submissions.length > 0) {
-        const subIds = submissions.map(s => s.id);
-        const { data: likes } = await supabase
-            .from('curtidas')
-            .select('submission_id')
-            .in('submission_id', subIds);
-
-        if (likes) {
-            likes.forEach(l => {
-                likeMap[l.submission_id] = (likeMap[l.submission_id] || 0) + 1;
-            });
-        }
-    }
-
-    const items: MediaCardProps[] = (submissions || []).map(sub => ({
-        id: sub.id,
-        title: sub.title,
-        description: sub.description,
-        authors: sub.authors,
-        mediaType: sub.media_type,
-        mediaUrl: sub.media_url,
-        category: sub.category,
-        isFeatured: sub.featured,
-        likeCount: likeMap[sub.id] || 0,
-        external_link: sub.external_link,
-        created_at: sub.created_at,
-        technical_details: sub.technical_details,
-        alt_text: sub.alt_text,
+    const items = (submissions || []).map(sub => ({
+        post: mapToPostDTO(sub)
     }));
 
     return (
@@ -63,7 +35,7 @@ export default async function AutorPage({ params }: { params: Promise<{ nome: st
             <header className="fixed top-0 w-full z-50 backdrop-blur-md bg-white/80 dark:bg-background-dark/80 border-b border-gray-200 dark:border-gray-800">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
                     <Link href="/" className="flex items-center gap-2 text-gray-600 dark:text-gray-300 hover:text-brand-blue dark:hover:text-brand-yellow transition-colors font-medium">
-                        <span className="material-symbols-outlined text-xl">arrow_back</span>
+                        <ArrowLeft className="w-5 h-5" />
                         Voltar para o Arquivo
                     </Link>
                     <div className="flex items-center gap-3">
@@ -84,7 +56,7 @@ export default async function AutorPage({ params }: { params: Promise<{ nome: st
                     </div>
                     <div>
                         <div className="inline-flex items-center gap-2 px-3 py-1 mb-4 rounded-full bg-brand-blue/10 dark:bg-brand-blue/20 border border-brand-blue/20 text-brand-blue text-xs font-bold uppercase tracking-wide">
-                            <span className="material-symbols-outlined text-[14px]">school</span>
+                            <School className="w-3.5 h-3.5" />
                             Perfil de Autor
                         </div>
                         <h1 className="font-display font-bold text-4xl md:text-5xl text-gray-900 dark:text-white tracking-tight mb-2">
@@ -99,14 +71,14 @@ export default async function AutorPage({ params }: { params: Promise<{ nome: st
                 {/* Submissions Grid */}
                 {items.length > 0 ? (
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 relative">
-                        {items.map(submission => (
-                            <MediaCard key={submission.id} {...submission} />
+                        {items.map(item => (
+                            <MediaCard key={item.post.id} post={item.post} />
                         ))}
                     </div>
                 ) : (
                     <div className="flex flex-col items-center justify-center py-20 px-4 text-center">
                         <div className="w-24 h-24 mb-6 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
-                            <span className="material-symbols-outlined text-4xl text-gray-400">search_off</span>
+                            <SearchX className="w-10 h-10 text-gray-400" />
                         </div>
                         <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Nenhuma publicação encontrada</h3>
                         <p className="text-gray-500 dark:text-gray-400 max-w-md">

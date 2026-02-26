@@ -3,7 +3,7 @@
 import { supabase } from '@/lib/supabase';
 import { revalidatePath } from 'next/cache';
 
-export async function giveKudos(submissionId: string, senderId: string, receiverId: string) {
+export async function giveEnergy(submissionId: string, senderId: string, receiverId: string) {
     try {
         const { data, error } = await supabase
             .from('kudos')
@@ -19,12 +19,12 @@ export async function giveKudos(submissionId: string, senderId: string, receiver
         revalidatePath(`/arquivo/${submissionId}`);
         return { success: true };
     } catch (err) {
-        console.error('Error giving kudos:', err);
+        console.error('Error giving energy:', err);
         return { success: false, error: err };
     }
 }
 
-export async function getAuthorReputationPoints(authorId: string) {
+export async function getAuthorEnergyPoints(authorId: string) {
     const { data, error } = await supabase.rpc('get_author_reputation', { author_id: authorId });
     if (error) {
         console.error('Error fetching reputation:', error);

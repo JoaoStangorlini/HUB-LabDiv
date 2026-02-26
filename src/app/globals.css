@@ -9,8 +9,8 @@
 }
 
 .dark {
-  --background: #0f172a;
-  /* Sophisticated Slate-950 for better depth */
+  --background: #0a0a0a;
+  /* Neutral Dark for Lab-Div Identity */
 }
 
 /* 📱 Responsive Gutter Audit: Only for Desktop (1024px+) */
@@ -30,27 +30,32 @@
   }
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   background-color: var(--background);
   scrollbar-color: auto var(--background);
+  scroll-behavior: smooth;
 }
 
 @plugin "@tailwindcss/typography";
 
 @theme {
-  --color-primary: #002752;
-  --color-secondary: #001A33;
+  --color-primary: #3B82F6;
+  --color-secondary: #121212;
   --color-brand-yellow: #FFB300;
   --color-brand-red: #E63946;
-  --color-brand-blue: #002752;
+  --color-brand-blue: #3B82F6;
   --color-brand-blue-dark: #60A5FA;
   /* Luminous blue for Dark Mode contrast */
-  --color-card-dark: #1E293B;
-  /* Slate-900 elevation for modern glass look */
+  --color-card-dark: #1E1E1E;
+  /* Surface elevation */
   --color-background-light: #F8FAFC;
-  --color-background-dark: #0F172A;
+  --color-background-dark: #0a0a0a;
   --color-background-subtle: #F1F5F9;
-  --color-form-dark: #2A2A2A;
+  --color-form-dark: #1E1E1E;
 }
 
 @layer base {
@@ -72,7 +77,11 @@ body {
   }
 
   .card-hover {
-    @apply transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl;
+    @apply transition-all duration-500 ease-in-out hover:scale-[1.03] hover:shadow-2xl hover:-translate-y-1;
+  }
+
+  .hover-lift {
+    @apply transition-transform duration-300 hover:-translate-y-1 hover:shadow-lg;
   }
 }
 
@@ -97,9 +106,14 @@ body {
     @apply bg-gradient-to-r from-brand-yellow via-brand-red to-brand-blue;
   }
 
-  /* Glassmorphism */
-  .glass {
-    @apply bg-white/70 backdrop-blur-md border border-white/20 shadow-xl dark:bg-slate-900/70 dark:border-white/10;
+  /* Premium Glassmorphism V8.0 */
+  .glass-surface {
+    @apply bg-white/70 dark:bg-[#0B1E3B]/70 backdrop-blur-xl border border-white/20 dark:border-brand-blue/20 shadow-2xl;
+    isolation: isolate;
+  }
+
+  .glass-card {
+    @apply bg-white/40 dark:bg-card-dark/40 backdrop-blur-3xl border border-white/10 dark:border-white/5;
   }
 
   /* Animation for scroll */
@@ -163,8 +177,8 @@ body {
     }
   }
 
-  .animate-heart-pop {
-    animation: heart-pop 0.8s ease-out forwards;
+  .animate-atomic-pulse {
+    animation: atomic-pulse 0.4s ease-out;
   }
 
   @keyframes metallic-shine {

@@ -5,7 +5,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import ReactMarkdown from 'react-markdown';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
-import rehypeSanitize from 'rehype-sanitize';
 import 'katex/dist/katex.min.css';
 
 interface PresentationModeProps {
@@ -45,7 +44,7 @@ export function PresentationMode({ content, onClose }: PresentationModeProps) {
                         exit={{ x: -50, opacity: 0 }}
                         className="w-full prose prose-2xl dark:prose-invert max-w-none text-center"
                     >
-                        <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex, rehypeSanitize]}>
+                        <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>
                             {slides[currentSlide]}
                         </ReactMarkdown>
                     </motion.div>

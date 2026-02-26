@@ -1,10 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import dynamic from 'next/dynamic';
-import { motion, AnimatePresence } from 'framer-motion';
-import { fetchSubmissions } from '@/app/actions/submissions';
 import { MediaCardProps } from '@/components/MediaCard';
+import { HelpCircle } from 'lucide-react';
 
 const CampusMap = dynamic(() => import('@/components/map/CampusMap').then(mod => mod.CampusMap), {
     ssr: false,
@@ -14,8 +13,7 @@ const CampusMap = dynamic(() => import('@/components/map/CampusMap').then(mod =>
 });
 
 export default function MapClient({ initialItems }: { initialItems: MediaCardProps[] }) {
-    const [items, setItems] = useState<MediaCardProps[]>(initialItems);
-    const [loading, setLoading] = useState(false);
+    const [items] = useState<MediaCardProps[]>(initialItems);
 
     return (
         <main className="min-h-screen bg-[#121212] pt-24 pb-12 px-4 sm:px-6 lg:px-8 flex flex-col items-center">
@@ -35,7 +33,7 @@ export default function MapClient({ initialItems }: { initialItems: MediaCardPro
 
                 <div className="mt-12 p-6 rounded-2xl bg-[#1E1E1E] border border-gray-800">
                     <h3 className="text-lg font-bold text-white mb-2 flex items-center gap-2">
-                        <span className="material-symbols-outlined text-brand-yellow">help</span>
+                        <HelpCircle className="w-5 h-5 text-brand-yellow" />
                         Como funciona?
                     </h3>
                     <p className="text-sm text-gray-400 leading-relaxed">

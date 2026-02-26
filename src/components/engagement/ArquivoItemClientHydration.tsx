@@ -14,7 +14,7 @@ interface ArquivoItemClientHydrationProps {
     userId: string | undefined;
     receiverId: string;
     reactionsSummary: any;
-    kudosTotal: number;
+    energyTotal: number;
     type: 'hub' | 'bar';
 }
 
@@ -23,7 +23,7 @@ export function ArquivoItemClientHydration({
     userId,
     receiverId,
     reactionsSummary,
-    kudosTotal,
+    energyTotal,
     type
 }: ArquivoItemClientHydrationProps) {
     if (type === 'hub') {
@@ -36,7 +36,7 @@ export function ArquivoItemClientHydration({
             userId={userId}
             receiverId={receiverId}
             reactionsSummary={reactionsSummary}
-            kudosTotal={kudosTotal}
+            energyTotal={energyTotal}
         />
     );
 }

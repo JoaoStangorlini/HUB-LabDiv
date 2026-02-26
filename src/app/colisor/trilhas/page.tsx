@@ -1,6 +1,5 @@
 import { supabase } from '@/lib/supabase';
-import { Header } from '@/components/layout/Header';
-import { Footer } from '@/components/layout/Footer';
+import { MainLayoutWrapper } from '@/components/layout/MainLayoutWrapper';
 import Link from 'next/link';
 import { Metadata } from 'next';
 
@@ -43,10 +42,8 @@ export default async function TrilhasPage() {
     const trails = await getTrails();
 
     return (
-        <div className="min-h-screen bg-background-light dark:bg-background-dark text-gray-900 dark:text-gray-100 flex flex-col">
-            <Header />
-
-            <main className="flex-grow pt-32 pb-20">
+        <MainLayoutWrapper>
+            <main className="py-20">
                 <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
                     {/* Header */}
                     <div className="text-center mb-16 space-y-4">
@@ -140,8 +137,6 @@ export default async function TrilhasPage() {
                     )}
                 </div>
             </main>
-
-            <Footer />
-        </div>
+        </MainLayoutWrapper>
     );
 }

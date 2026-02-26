@@ -57,8 +57,8 @@ export async function POST(request: NextRequest) {
             .eq('submission_id', submission_id);
 
         return NextResponse.json({
-            liked,
-            likeCount: count || 0
+            reacted: liked,
+            energyCount: count || 0
         });
 
     } catch (error: unknown) {

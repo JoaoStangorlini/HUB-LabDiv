@@ -125,10 +125,10 @@ export const NotificationBell = ({ userId }: { userId: string | undefined }) => 
                                                 }}
                                                 className={`flex gap-3 p-4 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors border-b border-gray-50 dark:border-gray-800/50 relative ${!notif.is_read ? 'bg-brand-blue/5' : ''}`}
                                             >
-                                                <div className={`size-10 rounded-full flex items-center justify-center flex-shrink-0 ${notif.type === 'kudos' ? 'bg-brand-yellow/20 text-brand-yellow' : 'bg-brand-blue/20 text-brand-blue'
+                                                <div className={`size-10 rounded-full flex items-center justify-center flex-shrink-0 ${notif.type === 'atomic' ? 'bg-brand-blue/20 text-brand-blue shadow-[0_0_10px_rgba(59,130,246,0.2)]' : 'bg-gray-100 dark:bg-gray-800 text-gray-500'
                                                     }`}>
                                                     <span className="material-symbols-outlined filled">
-                                                        {notif.type === 'kudos' ? 'workspace_premium' : 'sell'}
+                                                        {notif.type === 'atomic' ? 'offline_bolt' : 'notifications'}
                                                     </span>
                                                 </div>
                                                 <div className="flex-1 min-w-0">

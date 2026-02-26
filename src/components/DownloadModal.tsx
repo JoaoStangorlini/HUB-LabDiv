@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { m, AnimatePresence } from 'framer-motion';
 import toast from 'react-hot-toast';
 import { useHistoryBack } from '@/hooks/useHistoryBack';
 import { stripMarkdownAndLatex } from '@/lib/utils';
@@ -28,8 +28,10 @@ export const DownloadModal = ({ id, title, authors, description, mediaUrl, onClo
         const loadingToast = toast.loading('Gerando PDF...');
 
         try {
-            const { jsPDF } = await import('jspdf'); // Dynamic Import
-            const doc = new jsPDF();
+            const jspdfModule = await import('jspdf'); // Dynamic Import
+            const JsPDFClass = jspdfModule.default || jspdfModule.jsPDF;
+            // @ts-ignore
+            const doc = new JsPDFClass();
 
             // Basic PDF Layout
             doc.setFontSize(22);
@@ -107,7 +109,7 @@ export const DownloadModal = ({ id, title, authors, description, mediaUrl, onClo
 
     return (
         <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
-            <motion.div
+            <m.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
@@ -115,13 +117,20 @@ export const DownloadModal = ({ id, title, authors, description, mediaUrl, onClo
                 className="absolute inset-0 bg-black/80 backdrop-blur-sm"
             />
 
-            <motion.div
+            <m.div
                 initial={{ opacity: 0, scale: 0.9, y: 20 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                className="relative w-full max-w-md bg-[#1E1E1E] border border-gray-800 rounded-[32px] overflow-hidden shadow-2xl"
+                drag="y"
+                dragConstraints={{ top: 0, bottom: 200 }}
+                dragElastic={0.4}
+                onDragEnd={(_, info) => {
+                    if (info.offset.y > 100) onClose();
+                }}
+                className="relative w-full max-w-md bg-[#1E1E1E] border border-gray-800 rounded-[32px] overflow-hidden shadow-2xl touch-none"
             >
                 <div className="p-8 space-y-6">
+                    <div className="w-12 h-1.5 bg-gray-800 rounded-full mx-auto -mt-2 mb-4 opacity-50" />
                     <div className="text-center space-y-2">
                         <div className="inline-flex items-center justify-center size-14 bg-brand-blue/10 text-brand-blue rounded-2xl mb-2">
                             <span className="material-symbols-outlined text-3xl">download_for_offline</span>
@@ -196,7 +205,7 @@ export const DownloadModal = ({ id, title, authors, description, mediaUrl, onClo
                         Cancelar
                     </button>
                 </div>
-            </motion.div>
+            </m.div>
 
             {/* Hidden capture card for html-to-image */}
             <div className="fixed top-[-9999px] left-[-9999px]">

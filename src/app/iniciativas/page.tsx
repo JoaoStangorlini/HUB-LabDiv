@@ -1,5 +1,4 @@
-import { Header } from "@/components/layout/Header";
-import { Footer } from "@/components/layout/Footer";
+import { MainLayoutWrapper } from "@/components/layout/MainLayoutWrapper";
 import Image from "next/image";
 import { supabase } from '@/lib/supabase';
 
@@ -42,9 +41,7 @@ export default async function DivulgacaoPage() {
     const items: Oportunidade[] = oportunidades || [];
 
     return (
-        <div className="min-h-screen bg-background-light dark:bg-background-dark font-sans text-gray-900 dark:text-gray-100 flex flex-col">
-            <Header />
-
+        <MainLayoutWrapper>
             <main className="flex-1 w-full">
                 {/* Hero */}
                 <section className="relative overflow-hidden py-16 bg-gradient-to-br from-brand-blue/5 via-white to-brand-yellow/5 dark:from-brand-blue/10 dark:via-background-dark dark:to-brand-yellow/10 border-b border-gray-200 dark:border-gray-800">
@@ -197,8 +194,6 @@ export default async function DivulgacaoPage() {
                     </div>
                 </section>
             </main>
-
-            <Footer />
-        </div>
+        </MainLayoutWrapper>
     );
 }

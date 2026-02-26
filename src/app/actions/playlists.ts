@@ -1,7 +1,7 @@
 'use server';
 
 import { supabase } from '@/lib/supabase';
-import { MediaCardProps } from '@/components/MediaCard';
+import { PostDTO, mapToPostDTO } from '@/dtos/media';
 
 export interface Playlist {
     id: string;
@@ -38,15 +38,14 @@ export async function fetchPlaylistBySlug(slug: string): Promise<Playlist | null
     return data;
 }
 
-export async function fetchPlaylistItems(playlistId: string): Promise<MediaCardProps[]> {
+export async function fetchPlaylistItems(playlistId: string): Promise<{ post: PostDTO }[]> {
     const { data, error } = await supabase
         .from('playlist_items')
         .select(`
             position,
-            submissions (id, title, description, authors, media_type, media_url, category, featured, external_link, created_at, technical_details, alt_text, tags, views, reading_time, like_count, status)
+            submissions (*)
         `)
         .eq('playlist_id', playlistId)
-        // Ensure we only fetch approved submissions
         .eq('submissions.status', 'aprovado')
         .order('position', { ascending: true });
 
@@ -55,29 +54,9 @@ export async function fetchPlaylistItems(playlistId: string): Promise<MediaCardP
         return [];
     }
 
-    // Filter out potential nulls if a submission was deleted or isn't approved
     const submissions = data
         .map(item => item.submissions)
         .filter(sub => sub !== null) as any[];
 
-    if (submissions.length === 0) return [];
-
-    return submissions.map(sub => ({
-        id: sub.id,
-        title: sub.title,
-        description: sub.description,
-        authors: sub.authors,
-        mediaType: sub.media_type,
-        mediaUrl: sub.media_url,
-        category: sub.category,
-        isFeatured: sub.featured,
-        likeCount: sub.like_count || 0,
-        external_link: sub.external_link || null,
-        created_at: sub.created_at,
-        technical_details: sub.technical_details || null,
-        alt_text: sub.alt_text || null,
-        tags: sub.tags || [],
-        views: sub.views || 0,
-        reading_time: sub.reading_time || 0
-    }));
+    return submissions.map(sub => ({ post: mapToPostDTO(sub) }));
 }

@@ -29,8 +29,8 @@ export const ReactionSchema = z.object({
     reaction_type: z.string().min(1),
 });
 
-// Kudos Schema
-export const KudosSchema = z.object({
+// Atomic Reaction Schema
+export const AtomicReactionSchema = z.object({
     submission_id: z.string().uuid(),
     profile_id: z.string().uuid(),
 });

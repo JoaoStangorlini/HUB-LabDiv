@@ -11,6 +11,7 @@ import { useSubmissionStore } from '@/store/useSubmissionStore';
 import { useFormAutoSave } from '@/hooks/useFormAutoSave';
 import { supabase } from '@/lib/supabase';
 import { getTrendingTags, createSubmission } from '@/app/actions/submissions';
+import { generateCloudinarySignature } from '@/app/actions/media';
 import { useErrorMap } from '@/hooks/useErrorMap';
 import ReactMarkdown from 'react-markdown';
 import remarkMath from 'remark-math';
@@ -312,18 +313,35 @@ export function FormStep() {
     };
 
 
+
     const uploadToCloudinary = async (file: File) => {
+        const { signature, timestamp, apiKey, cloudName, folder, error } = await generateCloudinarySignature();
+
+        if (error || !signature) {
+            throw new Error(error || "Erro ao gerar assinatura de upload");
+        }
+
         const formData = new FormData();
         formData.append('file', file);
-        formData.append('upload_preset', process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET!);
-        const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
+        formData.append('api_key', apiKey!);
+        formData.append('timestamp', timestamp!.toString());
+        formData.append('signature', signature);
+        formData.append('folder', folder!);
+
         const resourceType = (mediaType === 'image' || mediaType === 'pdf') ? 'image' : 'auto';
         const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/${resourceType}/upload`, {
             method: 'POST',
             body: formData
         });
-        if (!res.ok) throw new Error("Falha no upload");
+
+        if (!res.ok) {
+            const errData = await res.json();
+            console.error("Cloudinary upload error:", errData);
+            throw new Error("Falha no upload seguro");
+        }
+
         const data = await res.json();
+
         if (mediaType === 'image') {
             const urlParts = data.secure_url.split('/upload/');
             if (urlParts.length === 2) return `${urlParts[0]}/upload/f_auto,q_auto/${urlParts[1]}`;

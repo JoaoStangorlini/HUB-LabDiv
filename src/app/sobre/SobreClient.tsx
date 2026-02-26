@@ -6,6 +6,7 @@ import Image from "next/image";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { MediaCard, MediaCardProps } from "@/components/MediaCard";
+import { Megaphone, ArrowRight, UserPlus, Award, Star, ExternalLink } from 'lucide-react';
 
 interface SobreClientProps {
     initialTestimonials: MediaCardProps[];
@@ -34,14 +35,14 @@ export function SobreClient({ initialTestimonials }: SobreClientProps) {
                     {/* Card 1: Influenciadores */}
                     <div className="bg-white dark:bg-card-dark rounded-2xl p-8 shadow-sm border border-gray-100 dark:border-gray-800 flex flex-col h-full hover:shadow-lg transition-shadow">
                         <div className="w-14 h-14 bg-brand-red/10 rounded-xl flex items-center justify-center mb-6">
-                            <span className="material-symbols-outlined text-3xl text-brand-red">campaign</span>
+                            <Megaphone className="w-8 h-8 text-brand-red" />
                         </div>
                         <h3 className="text-2xl font-bold mb-4">Apoio aos Criadores</h3>
                         <p className="text-gray-600 dark:text-gray-400 flex-1 leading-relaxed">
                             Mapeamos e integramos a rede de influenciadores e criadores de conteúdo vinculados ao instituto. O hub serve como uma vitrine para amplificar as vozes daqueles que já traduzem a ciência complexa do IFUSP em materiais acessíveis ao grande público, como vídeos, podcasts e posts em redes sociais.
                         </p>
                         <Link href="/criadores" className="mt-6 text-brand-red font-semibold hover:underline flex items-center gap-1">
-                            Conheça os criadores <span className="material-symbols-outlined text-sm">arrow_forward</span>
+                            Conheça os criadores <ArrowRight className="w-4 h-4" />
                         </Link>
                     </div>
 
@@ -55,21 +56,21 @@ export function SobreClient({ initialTestimonials }: SobreClientProps) {
                             O coração do projeto é a construção de um grande Arquivo visual. Capturamos o cotidiano dos laboratórios, o maquinário e os bastidores das pesquisas de forma profissional. Nosso objetivo é ter um banco de imagens institucionais de alta qualidade, pronto para suprir demandas de jornalistas, designers e pesquisadores.
                         </p>
                         <Link href="/" className="mt-6 text-brand-blue font-semibold hover:underline flex items-center gap-1">
-                            Explore o acervo <span className="material-symbols-outlined text-sm">arrow_forward</span>
+                            Explore o acervo <ArrowRight className="w-4 h-4" />
                         </Link>
                     </div>
 
-                    {/* Card 3: Participação da Comunidade */}
+                    {/* Card 2.5: Community (Add Missing Card if needed, or stick to the 3 provided) */}
                     <div className="bg-white dark:bg-card-dark rounded-2xl p-8 shadow-sm border border-gray-100 dark:border-gray-800 flex flex-col h-full hover:shadow-lg transition-shadow">
                         <div className="w-14 h-14 bg-brand-yellow/10 rounded-xl flex items-center justify-center mb-6">
-                            <span className="material-symbols-outlined text-3xl text-brand-yellow">group_add</span>
+                            <UserPlus className="w-8 h-8 text-brand-yellow" />
                         </div>
                         <h3 className="text-2xl font-bold mb-4">Envios da Comunidade</h3>
                         <p className="text-gray-600 dark:text-gray-400 flex-1 leading-relaxed">
                             O Hub é colaborativo! Permitimos que qualquer aluno, técnico ou professor do Instituto possa enviar suas próprias fotos e vídeos do cotidiano do seu laboratório. Após uma rápida curadoria, o seu registro passa a integrar a galeria principal, ajudando a documentar a enorme produção do instituto em rede.
                         </p>
                         <Link href="/enviar" className="mt-6 text-brand-yellow font-semibold hover:underline flex items-center gap-1">
-                            Envie seu material <span className="material-symbols-outlined text-sm">arrow_forward</span>
+                            Envie seu material <ArrowRight className="w-4 h-4" />
                         </Link>
                     </div>
 
@@ -89,7 +90,7 @@ export function SobreClient({ initialTestimonials }: SobreClientProps) {
                                 Este Hub é uma ferramenta desenhada para resolver um problema histórico: a falta de acessibilidade visual e narrativa sobre a pesquisa de base. Ao unificar criadores, arquivistas e a própria comunidade de pesquisadores em um só lugar, criamos um motor contínuo de difusão do conhecimento.
                             </p>
                             <a href="https://labdiv.notion.site" target="_blank" rel="noopener noreferrer" className="inline-flex items-center text-brand-blue font-semibold hover:text-brand-blue/80 transition-colors mt-8 group">
-                                Conhecer mais <span className="material-symbols-outlined text-[20px] ml-1 group-hover:translate-x-1 transition-transform">arrow_forward</span>
+                                Conhecer mais <ArrowRight className="w-5 h-5 ml-1 group-hover:translate-x-1 transition-transform" />
                             </a>
                         </div>
                         <div className="hidden md:flex w-48 h-48 rounded-2xl items-center justify-center flex-shrink-0 overflow-hidden">
@@ -105,7 +106,7 @@ export function SobreClient({ initialTestimonials }: SobreClientProps) {
                     >
                         {/* Decorative background icon */}
                         <div className="absolute top-0 right-0 p-8 opacity-5">
-                            <span className="material-symbols-outlined text-[180px] md:text-[220px] rotate-12">workspace_premium</span>
+                            <Award size={220} className="rotate-12" />
                         </div>
 
                         <div className="relative z-10">
@@ -113,7 +114,7 @@ export function SobreClient({ initialTestimonials }: SobreClientProps) {
                                 <div className="max-w-2xl">
                                     <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white flex items-center gap-4 mb-3">
                                         <div className="w-12 h-12 bg-brand-yellow text-black rounded-2xl flex items-center justify-center shadow-lg shadow-brand-yellow/20">
-                                            <span className="material-symbols-outlined text-3xl">star</span>
+                                            <Star className="w-7 h-7" />
                                         </div>
                                         Impacto e Conquistas
                                     </h2>
@@ -126,7 +127,7 @@ export function SobreClient({ initialTestimonials }: SobreClientProps) {
                                     className="bg-brand-yellow text-black px-8 py-4 rounded-2xl font-bold hover:shadow-xl hover:-translate-y-1 transition-all flex items-center gap-2 group whitespace-nowrap"
                                 >
                                     Ver todas as conquistas
-                                    <span className="material-symbols-outlined text-xl transition-transform group-hover:translate-x-1">arrow_forward</span>
+                                    <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
                                 </Link>
                             </div>
 
@@ -134,8 +135,8 @@ export function SobreClient({ initialTestimonials }: SobreClientProps) {
                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                                 {initialTestimonials.length > 0 ? (
                                     initialTestimonials.map((item) => (
-                                        <div key={item.id}>
-                                            <MediaCard {...item} />
+                                        <div key={item.post.id}>
+                                            <MediaCard post={item.post} />
                                         </div>
                                     ))
                                 ) : (
@@ -144,7 +145,7 @@ export function SobreClient({ initialTestimonials }: SobreClientProps) {
                                             key={`placeholder-${i}`}
                                             className="aspect-[3/4] rounded-3xl bg-gray-50 dark:bg-background-dark/50 border border-gray-100 dark:border-gray-800 flex flex-col items-center justify-center text-gray-300 relative group/card overflow-hidden"
                                         >
-                                            <span className="material-symbols-outlined text-5xl mb-3 group-hover/card:scale-110 transition-transform duration-500">workspace_premium</span>
+                                            <Award size={48} className="mb-3 group-hover/card:scale-110 transition-transform duration-500" />
                                             <span className="text-[10px] uppercase font-bold tracking-[0.2em]">Conquista em breve</span>
                                         </div>
                                     ))

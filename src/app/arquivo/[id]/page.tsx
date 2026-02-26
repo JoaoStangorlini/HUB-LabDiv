@@ -1,7 +1,6 @@
 import { supabase } from '@/lib/supabase';
 import { createServerSupabase } from '@/lib/supabase/server';
-import { Header } from '@/components/layout/Header';
-import { Footer } from '@/components/layout/Footer';
+import { MainLayoutWrapper } from '@/components/layout/MainLayoutWrapper';
 import React from 'react';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
@@ -22,8 +21,6 @@ import { ViewTracker } from '@/components/ViewTracker';
 import { ReadingExperienceProvider } from '@/components/reading/ReadingExperienceProvider';
 import { ReadingViewManager } from '@/components/reading/ReadingViewManager';
 import { ReadingHistoryTracker } from '@/components/history/ReadingHistoryTracker';
-import { ReactionSystem } from '@/components/engagement/ReactionSystem';
-import { KudosButton } from '@/components/engagement/KudosButton';
 import { FollowTagButton } from '@/components/engagement/FollowTagButton';
 import { ArquivoItemClientHydration } from '@/components/engagement/ArquivoItemClientHydration';
 
@@ -91,11 +88,16 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     return {
         title: `${submission.title} — Hub Lab-Div`,
         description: cleanDescription,
+        alternates: {
+            canonical: `https://if-usp-ciencia.vercel.app/arquivo/${id}`,
+        },
         openGraph: {
             title: submission.title,
             description: cleanDescription,
-            images: [{ url: finalImage }],
+            images: [{ url: finalImage, width: 1200, height: 630, alt: submission.title }],
             type: 'article',
+            publishedTime: submission.created_at,
+            authors: [submission.authors],
             siteName: 'Hub de Comunicação Científica Lab-Div'
         },
         twitter: {
@@ -108,6 +110,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 }
 
 // Utility functions moved to @/lib/media-utils.ts
+
+import { Breadcrumbs } from '@/components/ui/Breadcrumbs';
 
 export default async function ArquivoItemPage({ params }: PageProps) {
     const { id } = await params;
@@ -151,13 +155,18 @@ export default async function ArquivoItemPage({ params }: PageProps) {
     const serverSupabase = await createServerSupabase();
     const { data: { user } } = await serverSupabase.auth.getUser();
 
+    const breadcrumbItems = [
+        { label: 'Arquivo Lab-Div', href: '/arquivo-labdiv' },
+        { label: submission.category, href: `/?collection=${encodeURIComponent(submission.category)}` },
+        { label: submission.title }
+    ];
+
     return (
         <ReadingExperienceProvider>
-            <div className="min-h-screen bg-background-light dark:bg-background-dark text-gray-900 dark:text-gray-100 flex flex-col">
-                <Header />
-
+            <MainLayoutWrapper focusMode={true}>
                 <ReadingViewManager submission={submission}>
-                    <main className="flex-1 max-w-5xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+                    <main id="main-content" className="flex-1 max-w-5xl mx-auto w-full py-8 sm:py-12 px-4 outline-none">
+                        <Breadcrumbs items={breadcrumbItems} />
 
                         {/* ─── Card de Introdução ao Índice (Hierarquia: 2º após Fogo) ─── */}
                         {submission.description && submission.description.length > 500 && (
@@ -178,19 +187,25 @@ export default async function ArquivoItemPage({ params }: PageProps) {
                             {submission.media_type !== 'text' && submission.media_type !== 'zip' && submission.media_type !== 'sdocx' && (
                                 <div className="bg-black flex items-center justify-center min-h-[300px] md:min-h-[500px]">
                                     {submission.media_type === 'video' ? (
-                                        urls.length > 0 ? (
-                                            <iframe
-                                                src={formatYoutubeUrl(urls[0])}
-                                                className="w-full aspect-video"
-                                                allowFullScreen
-                                                frameBorder="0"
-                                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                            />
-                                        ) : (
-                                            <span className="text-white">Vídeo não encontrado</span>
-                                        )
+                                        <div className="w-full h-full aspect-video">
+                                            {urls.length > 0 ? (
+                                                <iframe
+                                                    src={formatYoutubeUrl(urls[0])}
+                                                    className="w-full h-full"
+                                                    allowFullScreen
+                                                    frameBorder="0"
+                                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                                />
+                                            ) : (
+                                                <span className="text-white">Vídeo não encontrado</span>
+                                            )}
+                                        </div>
                                     ) : (
-                                        <ImageCarouselClient urls={urls} title={submission.title} />
+                                        <ImageCarouselClient
+                                            urls={urls}
+                                            title={submission.title}
+                                            slides={submission.slides}
+                                        />
                                     )}
                                 </div>
                             )}
@@ -249,8 +264,8 @@ export default async function ArquivoItemPage({ params }: PageProps) {
                                     submissionId={submission.id}
                                     userId={user?.id}
                                     receiverId={submission.user_id}
-                                    reactionsSummary={submission.reactions_summary || {}}
-                                    kudosTotal={submission.kudos_total || 0}
+                                    reactionsSummary={submission.energy_reactions || {}}
+                                    energyTotal={submission.atomic_excitation || 0}
                                 />
 
                                 {submission.description && (
@@ -356,16 +371,14 @@ export default async function ArquivoItemPage({ params }: PageProps) {
                         )}
                     </main>
                 </ReadingViewManager>
-
-                <Footer />
-            </div>
+            </MainLayoutWrapper>
             <ArquivoItemClientHydration
                 type="hub"
                 submissionId={submission.id}
                 userId={user?.id}
                 receiverId={submission.user_id}
-                reactionsSummary={submission.reactions_summary || {}}
-                kudosTotal={submission.kudos_total || 0}
+                reactionsSummary={submission.energy_reactions || {}}
+                energyTotal={submission.atomic_excitation || 0}
             />
         </ReadingExperienceProvider>
     );
