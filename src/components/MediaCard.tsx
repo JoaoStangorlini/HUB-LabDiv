@@ -32,12 +32,12 @@ import { m, AnimatePresence } from 'framer-motion';
 import { stripMarkdownAndLatex, highlightMatch } from '@/lib/utils';
 import { CardPresenceBadge } from './CardPresenceBadge';
 import { supabase } from '@/lib/supabase';
-import { FollowTagButton } from './engagement/FollowTagButton';
 import { CollectionManager } from './engagement/CollectionManager';
 import { DownloadModal } from './DownloadModal';
 import { AtomicReaction, AtomIcon } from './engagement/AtomicReaction';
 import { PostDTO } from '@/dtos/media';
 import { useMediaInteraction } from '@/hooks/useMediaInteraction';
+import { useAuth } from '@/providers/AuthProvider';
 import { useMemo } from 'react';
 
 export interface MediaCardProps {
@@ -50,7 +50,8 @@ export interface MediaCardProps {
  * Implements DTO Enforcement and hook-based logic.
  */
 export const MediaCard = React.memo(({ post, priority = false }: MediaCardProps) => {
-    const [userId, setUserId] = useState<string | undefined>(undefined);
+    const { user } = useAuth();
+    const userId = user?.id;
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
     const [isHovered, setIsHovered] = useState(false);
     const [showShareMenu, setShowShareMenu] = useState(false);
@@ -78,12 +79,6 @@ export const MediaCard = React.memo(({ post, priority = false }: MediaCardProps)
         initialSaves: post.saveCount || 0,
         userId
     });
-
-    useEffect(() => {
-        supabase.auth.getUser().then(({ data: { user } }) => {
-            if (user) setUserId(user.id);
-        });
-    }, []);
 
     const handleMouseEnter = () => {
         hoverTimeoutRef.current = setTimeout(() => {
@@ -269,20 +264,34 @@ export const MediaCard = React.memo(({ post, priority = false }: MediaCardProps)
                         </div>
                     </div>
                 ) : displayUrl ? (
-                    <m.div
-                        layoutId={`media-${post.id}`}
-                        className="relative w-full h-full"
-                    >
-                        <Image
-                            src={optimizedDisplayUrl}
-                            alt={`${post.title} - image ${currentImageIndex + 1}`}
-                            fill
-                            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                            className="object-cover object-center transition-transform duration-700 group-hover:scale-105"
-                            priority={priority}
-                            fetchPriority={priority ? "high" : "auto"}
-                        />
-                    </m.div>
+                    priority ? (
+                        <div className="relative w-full h-full">
+                            <Image
+                                src={optimizedDisplayUrl}
+                                alt={`${post.title} - image ${currentImageIndex + 1}`}
+                                fill
+                                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                                className="object-cover object-center transition-transform duration-700 group-hover:scale-105"
+                                priority={priority}
+                                fetchPriority="high"
+                            />
+                        </div>
+                    ) : (
+                        <m.div
+                            layoutId={`media-${post.id}`}
+                            className="relative w-full h-full"
+                        >
+                            <Image
+                                src={optimizedDisplayUrl}
+                                alt={`${post.title} - image ${currentImageIndex + 1}`}
+                                fill
+                                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                                className="object-cover object-center transition-transform duration-700 group-hover:scale-105"
+                                priority={priority}
+                                fetchPriority="auto"
+                            />
+                        </m.div>
+                    )
                 ) : (
                     <div className="h-full w-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center">
                         <ImageOff className="w-10 h-10 text-slate-400" />
@@ -315,10 +324,18 @@ export const MediaCard = React.memo(({ post, priority = false }: MediaCardProps)
             <div className="flex flex-col p-4 md:p-6 pt-3 md:pt-4">
                 <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-4">
-                        <AtomicReaction isActive={liked} count={likes} onClick={handleLike} />
-                        <Link href={`/arquivo/${post.id}#comments`} onClick={(e) => e.stopPropagation()} className="text-gray-700 dark:text-gray-200 hover:text-blue-400 flex items-center gap-1">
-                            <MessageCircle className="w-6 h-6" />
-                            <span className="text-xs font-bold tabular-nums">{post.commentCount}</span>
+                        <AtomicReaction
+                            isActive={liked}
+                            count={likes}
+                            onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                handleLike();
+                            }}
+                        />
+                        <Link href={`/arquivo/${post.id}#comments`} onClick={(e) => e.stopPropagation()} className="text-gray-700 dark:text-gray-200 hover:text-blue-400 flex items-center gap-1.5 transition-colors">
+                            <MessageCircle className="w-5 h-5" />
+                            <span className="text-[11px] font-black tabular-nums">{post.commentCount || 0}</span>
                         </Link>
                         <button onClick={(e) => { e.stopPropagation(); setShowShareMenu(true); }} className="text-gray-700 dark:text-gray-200 hover:text-brand-yellow"><Send className="w-6 h-6" /></button>
                         <button onClick={(e) => { e.stopPropagation(); handleReport(); }} className="text-gray-700 dark:text-gray-200 hover:text-red-500"><Flag className="w-6 h-6" /></button>
@@ -375,7 +392,6 @@ export const MediaCard = React.memo(({ post, priority = false }: MediaCardProps)
                                 <span onClick={(e) => { e.stopPropagation(); e.preventDefault(); router.push(`/?q=${tag.replace('#', '')}`); }} className={`px-2 py-0.5 ${colors[hash % colors.length]} text-[10px] font-extrabold rounded-md uppercase tracking-wide border transition-all hover:scale-105 cursor-pointer`}>
                                     #{highlightMatch(tag.replace('#', ''), query)}
                                 </span>
-                                <FollowTagButton tagName={tag.replace('#', '')} userId={userId} />
                             </React.Fragment>
                         );
                     })}

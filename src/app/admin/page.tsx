@@ -225,7 +225,7 @@ export default function AdminDashboardOverview() {
                         <h1 className="text-3xl font-display font-bold text-gray-900 dark:text-white tracking-tight">
                             Torre de <span className="text-[#0055ff]">Controle</span>
                         </h1>
-                        <p className="text-gray-500 dark:text-gray-400 mt-1">Centro de comando do Hub Lab-Div v2.3.5</p>
+                        <p className="text-gray-500 dark:text-gray-400 mt-1">Centro de comando do Hub Lab-Div v3.1.5</p>
                     </div>
                     <div className="hidden sm:flex items-center gap-2 bg-white dark:bg-card-dark px-4 py-2 rounded-xl border border-gray-100 dark:border-gray-800 shadow-sm">
                         <div className="w-2 h-2 rounded-full bg-[#0055ff] animate-pulse"></div>

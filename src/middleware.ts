@@ -37,6 +37,12 @@ export async function middleware(request: NextRequest) {
 
     // --- Admin Auth Check (Hardened) ---
     if (pathname.startsWith('/admin') && !pathname.startsWith('/admin/login')) {
+        // Check for password-based session cookie first (bypass)
+        const adminSession = request.cookies.get('admin_session');
+        if (adminSession?.value === 'authenticated') {
+            return response;
+        }
+
         const { data: { user } } = await supabase.auth.getUser();
 
         if (!user) {

@@ -76,12 +76,55 @@ export function SobreClient({ initialTestimonials }: SobreClientProps) {
 
                 </div>
 
+                {/* Project Overview Card (Premium) */}
+                <div className="bg-white dark:bg-card-dark rounded-[40px] p-8 md:p-16 shadow-2xl shadow-brand-blue/5 border border-gray-100 dark:border-gray-800 relative overflow-hidden mb-20">
+                    <div className="absolute top-0 right-0 w-64 h-64 bg-brand-blue/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
+
+                    <div className="relative z-10 flex flex-col lg:flex-row gap-16">
+                        <div className="flex-1">
+                            <h2 className="text-3xl md:text-5xl font-black uppercase italic tracking-tighter mb-8 leading-none">
+                                O Futuro da <br />
+                                <span className="text-brand-blue">Comunicação</span> Científica
+                            </h2>
+                            <div className="space-y-6 text-lg text-gray-600 dark:text-gray-400 font-medium leading-relaxed">
+                                <p>
+                                    O Hub Lab-Div não é apenas um repositório; é um motor de visibilidade. Nosso objetivo é transformar a ciência "invisível" que acontece nos laboratórios em narrativas visuais potentes.
+                                </p>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-6 border-t border-gray-100 dark:border-gray-800">
+                                    <div>
+                                        <h4 className="text-brand-red font-black uppercase tracking-widest text-xs mb-3">Nossa Missão</h4>
+                                        <p className="text-sm">Humanizar a ciência do IFUSP através de conteúdos autênticos, aproximando pesquisadores e sociedade.</p>
+                                    </div>
+                                    <div>
+                                        <h4 className="text-brand-yellow font-black uppercase tracking-widest text-xs mb-3">Nossa Meta 2026</h4>
+                                        <p className="text-sm">Alcançar 100% dos laboratórios do IF cadastrados e 5.000 registros históricos preservados.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Stats Panel */}
+                        <div className="w-full lg:w-72 shrink-0 grid grid-cols-2 lg:grid-cols-1 gap-4">
+                            <div className="bg-gray-50 dark:bg-white/5 p-8 rounded-3xl border border-gray-100 dark:border-white/5 flex flex-col justify-center text-center">
+                                <span className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Comunidade</span>
+                                <span className="text-4xl font-black text-brand-blue">247</span>
+                                <span className="text-xs font-bold text-gray-500 mt-1">Usuários Ativos</span>
+                            </div>
+                            <div className="bg-gray-50 dark:bg-white/5 p-8 rounded-3xl border border-gray-100 dark:border-white/5 flex flex-col justify-center text-center">
+                                <span className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Acervo Digital</span>
+                                <span className="text-4xl font-black text-brand-red">1.2k</span>
+                                <span className="text-xs font-bold text-gray-500 mt-1">Posts & Mídias</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 {/* Section About Lab-Div */}
                 <div className="bg-gradient-to-br from-brand-blue/5 to-brand-red/5 dark:from-blue-900/10 dark:to-red-900/10 rounded-3xl p-8 md:p-12 border border-brand-blue/10 mb-20">
                     <div className="flex flex-col md:flex-row items-center gap-10">
                         <div className="flex-1">
-                            <h2 className="text-3xl font-bold mb-6 text-gray-900 dark:text-white">
-                                O Papel do <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-red via-brand-blue to-brand-yellow">Lab-Div</span>
+                            <h2 className="text-3xl font-bold mb-6 text-gray-900 dark:text-white uppercase italic tracking-tighter">
+                                O Papel do <span className="text-brand-blue">Lab-Div</span>
                             </h2>
                             <p className="text-lg text-gray-700 dark:text-gray-300 leading-relaxed mb-6">
                                 O Laboratório de Divulgação Científica do IFUSP trabalha para reduzir o abismo entre o que é produzido na academia e o que chega à sociedade.
@@ -89,11 +132,11 @@ export function SobreClient({ initialTestimonials }: SobreClientProps) {
                             <p className="text-lg text-gray-700 dark:text-gray-300 leading-relaxed">
                                 Este Hub é uma ferramenta desenhada para resolver um problema histórico: a falta de acessibilidade visual e narrativa sobre a pesquisa de base. Ao unificar criadores, arquivistas e a própria comunidade de pesquisadores em um só lugar, criamos um motor contínuo de difusão do conhecimento.
                             </p>
-                            <a href="https://labdiv.notion.site" target="_blank" rel="noopener noreferrer" className="inline-flex items-center text-brand-blue font-semibold hover:text-brand-blue/80 transition-colors mt-8 group">
+                            <a href="https://labdiv.notion.site" target="_blank" rel="noopener noreferrer" className="inline-flex items-center text-brand-blue font-black hover:text-brand-blue/80 transition-colors mt-8 group uppercase text-xs tracking-widest">
                                 Conhecer mais <ArrowRight className="w-5 h-5 ml-1 group-hover:translate-x-1 transition-transform" />
                             </a>
                         </div>
-                        <div className="hidden md:flex w-48 h-48 rounded-2xl items-center justify-center flex-shrink-0 overflow-hidden">
+                        <div className="hidden md:flex w-48 h-48 rounded-2xl items-center justify-center flex-shrink-0 overflow-hidden bg-white/50 dark:bg-white/5 p-8">
                             <Image src="/labdiv-logo.png" alt="Logo do Lab-Div" width={192} height={192} className="object-contain" />
                         </div>
                     </div>

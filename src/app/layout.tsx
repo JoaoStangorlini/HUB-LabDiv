@@ -23,6 +23,7 @@ import { ReadingExperienceProvider } from "@/components/reading/ReadingExperienc
 import { SearchProvider } from "@/providers/SearchProvider";
 import { PwaManager } from "@/components/pwa/PwaManager";
 import { SkipLink } from "@/components/ui/SkipLink";
+import { AuthProvider } from "@/providers/AuthProvider";
 
 /**
  * V4.0.0 Layout - Protocol Apocalypse Certified
@@ -69,7 +70,7 @@ export default async function RootLayout({
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
+        <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" rel="stylesheet" />
         <link rel="preconnect" href="https://res.cloudinary.com" />
         <link rel="dns-prefetch" href="https://bqszadfunqgtfpaorwvx.supabase.co" />
         <script
@@ -111,24 +112,26 @@ export default async function RootLayout({
         suppressHydrationWarning
       >
         <LazyMotion features={domMax}>
-          <ReadingExperienceProvider>
-            <SearchProvider>
-              <Toaster position="top-right" toastOptions={{
-                duration: 4000,
-                style: {
-                  background: '#1E1E1E',
-                  color: '#fff',
-                  border: '1px solid #334155',
-                  borderRadius: '16px',
-                }
-              }} />
-              <PwaManager />
-              <ReadingProgressBar />
-              <SkipLink />
+          <AuthProvider>
+            <ReadingExperienceProvider>
+              <SearchProvider>
+                <Toaster position="top-right" toastOptions={{
+                  duration: 4000,
+                  style: {
+                    background: '#1E1E1E',
+                    color: '#fff',
+                    border: '1px solid #334155',
+                    borderRadius: '16px',
+                  }
+                }} />
+                <PwaManager />
+                <ReadingProgressBar />
+                <SkipLink />
 
-              {children}
-            </SearchProvider>
-          </ReadingExperienceProvider>
+                {children}
+              </SearchProvider>
+            </ReadingExperienceProvider>
+          </AuthProvider>
         </LazyMotion>
       </body>
     </html>

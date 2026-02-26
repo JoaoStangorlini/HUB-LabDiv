@@ -3,7 +3,6 @@
 import React from 'react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, ChevronRight, User } from 'lucide-react';
 
 interface SidebarTag {
     name: string;
@@ -36,60 +35,62 @@ export const SidebarRight = ({ tags, authors }: SidebarRightProps) => {
         <aside className="sticky top-24 h-[calc(100vh-6rem)] w-full flex flex-col gap-6 py-6 pl-4 overflow-y-auto hidden-scrollbar">
             {/* Discovery Search */}
             <div className="relative group">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-brand-blue transition-colors" />
+                <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-brand-blue transition-colors">
+                    search
+                </span>
                 <input
                     type="text"
                     placeholder="Pesquisar Partículas..."
                     className="w-full bg-gray-100 dark:bg-white/5 border border-transparent focus:border-brand-blue/30 focus:bg-white dark:focus:bg-card-dark rounded-2xl py-3 pl-12 pr-4 text-sm font-medium transition-all outline-none"
                 />
             </div>
-            {/* ISÓTOPOS EM ÓRBITA (TAGS - RESTAURADO) */}
-            <div className="bg-gray-50 dark:bg-white/5 rounded-3xl p-5 border border-gray-100 dark:border-gray-800">
+
+            {/* Trending Section */}
+            <div className="bg-gray-50 dark:bg-white/5 rounded-3xl p-5 border border-gray-100 dark:border-gray-800 overflow-hidden">
                 <div className="flex items-center justify-between mb-4">
                     <h3 className="text-sm font-black uppercase tracking-widest text-gray-900 dark:text-white">Isótopos em Órbita</h3>
                     <div className="flex gap-1">
                         {Array.from({ length: totalPages }).map((_, i) => (
-                            <div key={i} className={`w-1.5 h-1.5 rounded-full transition-all ${page === i ? 'bg-brand-blue w-4' : 'bg-gray-300 dark:bg-gray-700'}`} />
+                            <div key={i} className={`w-1 h-1 rounded-full transition-all ${page === i ? 'bg-brand-blue w-3' : 'bg-gray-300 dark:bg-gray-700'}`} />
                         ))}
                     </div>
                 </div>
 
-                <div className="relative min-h-[160px]">
+                <div className="relative h-[180px]">
                     <AnimatePresence mode="wait">
                         <motion.div
                             key={page}
                             initial={{ x: 20, opacity: 0 }}
                             animate={{ x: 0, opacity: 1 }}
                             exit={{ x: -20, opacity: 0 }}
-                            transition={{ duration: 0.2 }}
-                            className="flex flex-col gap-4"
+                            transition={{ duration: 0.2, ease: "easeOut" }}
+                            className="flex flex-col gap-4 absolute inset-0"
                         >
-                            {currentTags.length > 0 ? currentTags.map((tag) => (
+                            {currentTags.map((tag) => (
                                 <Link
                                     key={tag.name}
-                                    href={`/?category=${tag.name}`}
+                                    href={`/?tag=${tag.name}`}
                                     className="group flex flex-col hover:opacity-80 transition-opacity"
                                 >
                                     <span className="text-xs text-brand-blue font-bold">#{tag.name}</span>
                                     <span className="text-[10px] text-gray-500 uppercase tracking-wide font-medium">{tag.count} contribuições</span>
                                 </Link>
-                            )) : (
-                                <span className="text-xs text-gray-500 italic">Nenhum isótopo detectado...</span>
-                            )}
+                            ))}
                         </motion.div>
                     </AnimatePresence>
                 </div>
 
                 <button
                     onClick={handleNextPage}
-                    className="mt-4 text-xs font-bold text-brand-blue hover:underline flex items-center gap-1 group"
+                    className="block mt-4 text-xs font-bold text-brand-blue hover:underline flex items-center gap-1 group"
+                    title="Explorar mais isótopos"
                 >
                     Explorar mais isótopos
-                    <ChevronRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
+                    <span className="material-symbols-outlined text-sm group-hover:translate-x-1 transition-transform">chevron_right</span>
                 </button>
             </div>
 
-            {/* Scientific Authors Section */}
+            {/* Who to Follow */}
             <div className="bg-gray-50 dark:bg-white/5 rounded-3xl p-5 border border-gray-100 dark:border-gray-800">
                 <h3 className="text-sm font-black uppercase tracking-widest text-gray-900 dark:text-white mb-4">Cientistas em Órbita</h3>
                 <div className="flex flex-col gap-4">
@@ -102,7 +103,7 @@ export const SidebarRight = ({ tags, authors }: SidebarRightProps) => {
                                     </div>
                                 ) : (
                                     <div className="size-10 rounded-full bg-brand-blue/10 flex items-center justify-center text-brand-blue">
-                                        <User className="w-5 h-5" />
+                                        <span className="material-symbols-outlined">person</span>
                                     </div>
                                 )}
                                 <div className="flex flex-col">

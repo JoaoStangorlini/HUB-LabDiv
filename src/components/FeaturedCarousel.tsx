@@ -40,7 +40,7 @@ export function FeaturedCarousel({ items }: FeaturedCarouselProps) {
                         <Star className="relative text-brand-red dark:text-brand-yellow w-6 h-6 animate-pulse fill-current" />
                     </div>
                     <h2 className="text-xl font-black uppercase tracking-[0.2em] shimmer-text">
-                        Destaques Premiações
+                        Destaques do Lab-Div
                     </h2>
                 </div>
 
@@ -67,9 +67,9 @@ export function FeaturedCarousel({ items }: FeaturedCarouselProps) {
                 {items.map((item, index) => (
                     <m.div
                         key={item.post.id}
-                        initial={{ opacity: 0, scale: 0.9 }}
+                        initial={index === 0 ? false : { opacity: 0, scale: 0.9 }}
                         animate={{ opacity: 1, scale: 1 }}
-                        transition={{ delay: index * 0.1 }}
+                        transition={{ delay: index === 0 ? 0 : index * 0.1 }}
                         className="min-w-[300px] md:min-w-[380px] snap-start"
                     >
                         <MediaCard post={item.post} priority={index === 0} />

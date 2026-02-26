@@ -88,6 +88,14 @@ export const CATEGORIES = [
         examples: 'Copa, festas, reuniões informais.'
     },
     {
+        id: 'Nossa História',
+        title: 'Nossa História',
+        description: 'Relíquias, fotos antigas e marcos da história do Instituto de Física.',
+        icon: 'history_edu',
+        color: 'brand-blue',
+        examples: 'Fotos de 1934, antigos laboratórios, grandes descobertas.'
+    },
+    {
         id: 'Outros',
         title: 'Outros',
         description: 'Conteúdos que não se encaixam nas categorias acima.',

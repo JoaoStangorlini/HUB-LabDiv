@@ -143,7 +143,7 @@ export function Header() {
                                 </div>
                                 <div className="flex items-center gap-2 mt-0.5">
                                     <span className="text-[10px] font-bold text-gray-500/80 uppercase tracking-widest">Instituto de Física</span>
-                                    <span className="text-[8px] font-black px-1.5 py-0.5 rounded bg-gray-100 dark:bg-white/10 text-gray-400">v4.0.0</span>
+                                    <span className="text-[8px] font-black px-1.5 py-0.5 rounded bg-gray-100 dark:bg-white/10 text-gray-400">v3.1.5</span>
                                 </div>
                             </div>
                         </div>

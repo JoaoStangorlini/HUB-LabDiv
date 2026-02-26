@@ -132,7 +132,7 @@ export function CategoryStep() {
                 <button
                     onClick={handleNext}
                     disabled={!selectedCategory}
-                    className="bg-gray-900 dark:bg-white text-white dark:text-gray-900 px-10 py-4 rounded-2xl font-bold shadow-xl flex items-center gap-2 hover:-translate-y-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0"
+                    className="bg-brand-blue text-white px-10 py-4 rounded-2xl font-bold shadow-xl flex items-center gap-2 hover:-translate-y-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0"
                 >
                     Próximo Passo: Formato
                     <span className="material-symbols-outlined">arrow_forward</span>

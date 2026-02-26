@@ -19,6 +19,7 @@ import rehypeKatex from 'rehype-katex';
 import rehypeSanitize from 'rehype-sanitize';
 
 import { submissionSchema, type SubmissionFormData } from '../schema';
+import { CATEGORIES, FORMATS } from '../constants';
 
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
@@ -558,11 +559,40 @@ export function FormStep() {
                 </div>
             </motion.div>
 
-            <motion.div variants={itemVariants} custom={1} className="flex items-center gap-4">
-                <button onClick={() => setStep('format')} className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
-                    <span className="material-symbols-outlined">arrow_back</span>
-                </button>
-                <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Detalhes Finais</h1>
+            <motion.div variants={itemVariants} custom={1} className="flex items-center justify-between gap-4">
+                <div className="flex items-center gap-4">
+                    <button onClick={() => setStep('format')} className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+                        <span className="material-symbols-outlined">arrow_back</span>
+                    </button>
+                    <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Detalhes Finais</h1>
+                </div>
+
+                {/* Summary Card for Category and Format */}
+                <div className="flex items-center gap-3">
+                    {/* Category Summary */}
+                    {(() => {
+                        const cat = CATEGORIES.find(c => c.id === category);
+                        if (!cat) return null;
+                        return (
+                            <div className={`flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white dark:bg-card-dark border-2 border-${cat.color}/30 shadow-sm shadow-${cat.color}/5`}>
+                                <span className={`material-symbols-outlined text-sm text-${cat.color}`}>{cat.icon}</span>
+                                <span className="text-[10px] font-black uppercase tracking-wider text-gray-900 dark:text-gray-100">{cat.title}</span>
+                            </div>
+                        );
+                    })()}
+
+                    {/* Format Summary */}
+                    {(() => {
+                        const fmt = FORMATS.find(f => f.id === mediaType);
+                        if (!fmt) return null;
+                        return (
+                            <div className={`flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white dark:bg-card-dark border-2 border-${fmt.color}/30 shadow-sm shadow-${fmt.color}/5`}>
+                                <span className={`material-symbols-outlined text-sm text-${fmt.color}`}>{fmt.icon}</span>
+                                <span className="text-[10px] font-black uppercase tracking-wider text-gray-900 dark:text-gray-100">{fmt.title}</span>
+                            </div>
+                        );
+                    })()}
+                </div>
             </motion.div>
 
             {errorMsg && (

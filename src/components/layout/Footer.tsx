@@ -86,7 +86,7 @@ export function Footer() {
                         © {new Date().getFullYear()} Instituto de Física - USP. Todos os direitos reservados.
                     </p>
                     <div className="flex items-center gap-6">
-                        <span className="text-[10px] font-bold text-gray-400 dark:text-gray-600 border border-gray-100 dark:border-gray-800 px-2 py-0.5 rounded">v4.0.3</span>
+                        <span className="text-[10px] font-bold text-gray-400 dark:text-gray-600 border border-gray-100 dark:border-gray-800 px-2 py-0.5 rounded">v3.1.5</span>
                         <div className="flex gap-4">
                             <div className="w-3 h-3 rounded-sm bg-brand-blue shadow-sm shadow-brand-blue/50"></div>
                             <div className="w-3 h-3 rounded-sm bg-brand-red shadow-sm shadow-brand-red/50"></div>

@@ -101,7 +101,25 @@ export async function fetchTrendingSubmissions(): Promise<{ post: PostDTO }[]> {
 
     if (error || !submissions) return [];
 
-    return submissions.map(sub => ({ post: mapToPostDTO(sub) }));
+    const submissionIds = submissions.map(s => s.id);
+    const [commentCounts, saveCounts] = await Promise.all([
+        supabase.from('comments').select('submission_id').in('submission_id', submissionIds).eq('status', 'aprovado'),
+        supabase.from('saved_posts').select('submission_id').in('submission_id', submissionIds),
+    ]);
+
+    const commentMap: Record<string, number> = {};
+    commentCounts.data?.forEach(row => commentMap[row.submission_id] = (commentMap[row.submission_id] || 0) + 1);
+
+    const saveMap: Record<string, number> = {};
+    saveCounts.data?.forEach(row => saveMap[row.submission_id] = (saveMap[row.submission_id] || 0) + 1);
+
+    return submissions.map(sub => ({
+        post: mapToPostDTO(sub, {
+            likes: sub.like_count,
+            comments: commentMap[sub.id],
+            saves: saveMap[sub.id]
+        })
+    }));
 }
 
 export async function getFeaturedSubmissions(limit: number = 10): Promise<{ post: PostDTO }[]> {
@@ -114,7 +132,26 @@ export async function getFeaturedSubmissions(limit: number = 10): Promise<{ post
         .limit(limit);
 
     if (error || !submissions) return [];
-    return submissions.map(sub => ({ post: mapToPostDTO(sub) }));
+
+    const submissionIds = submissions.map(s => s.id);
+    const [commentCounts, saveCounts] = await Promise.all([
+        supabase.from('comments').select('submission_id').in('submission_id', submissionIds).eq('status', 'aprovado'),
+        supabase.from('saved_posts').select('submission_id').in('submission_id', submissionIds),
+    ]);
+
+    const commentMap: Record<string, number> = {};
+    commentCounts.data?.forEach(row => commentMap[row.submission_id] = (commentMap[row.submission_id] || 0) + 1);
+
+    const saveMap: Record<string, number> = {};
+    saveCounts.data?.forEach(row => saveMap[row.submission_id] = (saveMap[row.submission_id] || 0) + 1);
+
+    return submissions.map(sub => ({
+        post: mapToPostDTO(sub, {
+            likes: sub.like_count,
+            comments: commentMap[sub.id],
+            saves: saveMap[sub.id]
+        })
+    }));
 }
 
 export const getTrendingTags = unstable_cache(
