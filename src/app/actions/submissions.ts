@@ -196,14 +196,40 @@ export async function getScientistsInOrbit() {
 }
 
 export async function createSubmission(formData: z.infer<typeof SubmissionSchema>) {
+    console.log("Server Action: createSubmission received:", JSON.stringify(formData, null, 2));
     const validated = SubmissionSchema.safeParse(formData);
-    if (!validated.success) return { error: validated.error.flatten().fieldErrors };
+
+    if (!validated.success) {
+        const flattened = validated.error.flatten();
+        console.error("Server Action: Zod Validation Failed:", JSON.stringify(flattened.fieldErrors, null, 2));
+        return {
+            error: {
+                ...flattened.fieldErrors,
+                formErrors: flattened.formErrors
+            }
+        };
+    }
     const serverSupabase = await createServerSupabase();
     const { data: { user } } = await serverSupabase.auth.getUser();
     if (!user) return { error: { auth: ["Unauthorized"] } };
 
-    const { data, error } = await supabase.from('submissions').insert([{ ...validated.data, user_id: user.id, status: 'pendente' }]).select().single();
-    if (error) return { error: { database: ["ERR_DB"] } };
+    // [GOLDEN MASTER] DB Mapping & Cleaning
+    const { read_guide, accepted_cc, co_authors, ...insertData } = validated.data;
+    const co_author_ids = Array.isArray(co_authors)
+        ? co_authors.map(u => typeof u === 'string' ? u : u.id).filter(Boolean)
+        : [];
+
+    const { data, error } = await supabase.from('submissions').insert([{
+        ...insertData,
+        co_author_ids,
+        user_id: user.id,
+        status: 'pendente'
+    }]).select().single();
+
+    if (error) {
+        console.error("Server Action: DB Insert Failed:", error);
+        return { error: { database: [error.message || "Erro desconhecido no banco"] } };
+    }
 
     revalidatePath('/');
     revalidatePath('/admin/pendentes');

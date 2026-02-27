@@ -58,6 +58,8 @@ export interface Submission {
     view_count?: number;
     tags?: string[];
     reading_time?: number;
+    co_author_ids?: string[];
+    use_pseudonym?: boolean;
     event_date?: string;
     location_lat?: number;
     location_lng?: number;

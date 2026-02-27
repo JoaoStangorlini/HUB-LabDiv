@@ -13,6 +13,7 @@ import { supabase } from '@/lib/supabase';
 import { getTrendingTags, createSubmission } from '@/app/actions/submissions';
 import { generateCloudinarySignature } from '@/app/actions/media';
 import { useErrorMap } from '@/hooks/useErrorMap';
+import { toast } from 'react-hot-toast';
 import ReactMarkdown from 'react-markdown';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
@@ -56,16 +57,16 @@ export function FormStep() {
             authors: '',
             description: '',
             whatsapp: '',
-            videoUrl: '',
-            externalLink: '',
-            technicalDetails: '',
-            altText: '',
+            video_url: '',
+            external_link: '',
+            technical_details: '',
+            alt_text: '',
             testimonial: '',
-            readGuide: false,
-            acceptedCC: false,
+            read_guide: false,
+            accepted_cc: false,
             tags: [],
-            readingTime: 0,
-            coAuthors: [],
+            reading_time: 0,
+            co_authors: [],
             use_pseudonym: false
         }
     });
@@ -119,16 +120,16 @@ export function FormStep() {
     }, [searchTerm]);
 
     const addCoAuthor = (user: any) => {
-        const current = watchedValues.coAuthors || [];
+        const current = watchedValues.co_authors || [];
         if (current.find(c => c.id === user.id)) return;
-        setValue('coAuthors', [...current, user], { shouldDirty: true });
+        setValue('co_authors', [...current, user], { shouldDirty: true });
         setSearchTerm('');
         setSearchResults([]);
     };
 
     const removeCoAuthor = (id: string) => {
-        const current = watchedValues.coAuthors || [];
-        setValue('coAuthors', current.filter(c => c.id !== id), { shouldDirty: true });
+        const current = watchedValues.co_authors || [];
+        setValue('co_authors', current.filter(c => c.id !== id), { shouldDirty: true });
     };
 
     // Tag management
@@ -168,18 +169,20 @@ export function FormStep() {
 
         const totalWords = words + mathWeight;
         const time = Math.max(1, Math.ceil(totalWords / 200));
-        if (watchedValues.readingTime !== time) {
-            setValue('readingTime', time);
+        if (watchedValues.reading_time !== time) {
+            setValue('reading_time', time);
         }
-    }, [watchedValues.description, setValue, watchedValues.readingTime]);
+    }, [watchedValues.description, setValue, watchedValues.reading_time]);
 
+    const isInitialized = useRef(false);
+
+    // Initial Fetch & Flag Setup
     React.useEffect(() => {
         const fetchUser = async () => {
             const { data: { session } } = await supabase.auth.getSession();
             if (session?.user) {
                 setUserEmail(session.user.email || '');
 
-                // Fetch Profile for real name
                 const { data: profile } = await supabase
                     .from('profiles')
                     .select('full_name')
@@ -188,15 +191,21 @@ export function FormStep() {
 
                 if (profile?.full_name) {
                     setRealName(profile.full_name);
-                    // Set default author as real name if not using pseudonym
-                    if (!watchedValues.use_pseudonym) {
+
+                    // Force deactivate pseudonym only if not already initialized
+                    if (!isInitialized.current) {
+                        setValue('use_pseudonym', false);
                         setValue('authors', profile.full_name);
+                        isInitialized.current = true;
                     }
                 }
             }
         };
         fetchUser();
+    }, [setValue]); // Cleaned dependencies to prevent loops
 
+    // Before Unload Listener
+    useEffect(() => {
         const handleBeforeUnload = (e: BeforeUnloadEvent) => {
             if (isDirty) {
                 e.preventDefault();
@@ -205,7 +214,14 @@ export function FormStep() {
         };
         window.addEventListener('beforeunload', handleBeforeUnload);
         return () => window.removeEventListener('beforeunload', handleBeforeUnload);
-    }, [isDirty, watchedValues.use_pseudonym, setValue]);
+    }, [isDirty]);
+
+    // Reactive effect for syncing author name
+    useEffect(() => {
+        if (!usePseudonym && realName) {
+            setValue('authors', realName);
+        }
+    }, [usePseudonym, realName, setValue]);
 
 
 
@@ -365,7 +381,7 @@ export function FormStep() {
                 if (selectedFiles.length === 0) throw new Error("Selecione os arquivos.");
                 finalMediaUrl = await Promise.all(selectedFiles.map(f => uploadToCloudinary(f)));
             } else if (showVideoUrl) {
-                const vidId = parseYoutubeUrl(data.videoUrl || '');
+                const vidId = parseYoutubeUrl(data.video_url || '');
                 if (!vidId) throw new Error("Link YouTube inválido.");
                 finalMediaUrl = [`https://www.youtube.com/embed/${vidId}`];
             }
@@ -404,31 +420,50 @@ export function FormStep() {
                 }]);
             }
 
+            // [FIX] Map frontend media type to backend enum
+            const MEDIA_TYPE_MAP: Record<string, string> = {
+                'image': 'image',
+                'image/png': 'image',
+                'image/jpeg': 'image',
+                'image/gif': 'image',
+                'video': 'video',
+                'video/mp4': 'video',
+                'pdf': 'pdf',
+                'application/pdf': 'pdf',
+                'zip': 'zip',
+                'sdocx': 'sdocx',
+                'text': 'text'
+            };
+
             // Perform Server Action (Zod Hardened)
             const result = await createSubmission({
-                title: data.title,
-                authors: data.authors,
-                description: data.description,
+                ...data,
                 category: category || 'Outros',
-                whatsapp: data.whatsapp || null,
-                media_type: mediaType as any,
-                media_url: JSON.stringify(finalMediaUrl),
-                external_link: data.externalLink || null,
-                technical_details: data.technicalDetails || null,
-                alt_text: data.altText || null,
-                testimonial: data.testimonial || null,
-                co_authors: data.coAuthors || [],
-                tags: data.tags || [],
-                reading_time: data.readingTime || 0,
-                use_pseudonym: data.use_pseudonym
-            });
+                media_type: (MEDIA_TYPE_MAP[mediaType] || mediaType) as any,
+                media_url: mediaType === 'video' ? (data.video_url || '') : JSON.stringify(finalMediaUrl),
+            } as any);
 
             if (result.error) {
-                const firstErr = Object.values(result.error)[0];
-                const msg = Array.isArray(firstErr) ? firstErr[0] : "ERR_DATABASE_GENERAL";
+                console.error("Submission validation/server error:", result.error);
 
-                notifyError(msg);
-                throw new Error("Erro de validação processado.");
+                // [GOLDEN MASTER] Crash-proof Error Reporting
+                const errorKeys = Object.keys(result.error);
+                let displayMsg = "Falha na validação do servidor.";
+
+                if (errorKeys.length > 0) {
+                    const firstKey = errorKeys[0];
+                    const firstVal = (result.error as any)[firstKey];
+                    const detail = Array.isArray(firstVal) ? firstVal[0] : firstVal;
+                    displayMsg = `Campo [${firstKey}]: ${detail || 'Formato inválido'}`;
+                } else {
+                    // Se result.error existir mas for vazio, mostra o objeto stringificado
+                    displayMsg = `Erro do Servidor: ${JSON.stringify(result.error) !== '{}' ? JSON.stringify(result.error) : 'Erro desconhecido (DB/Auth)'}`;
+                }
+
+                toast.error(displayMsg);
+                setErrorMsg(displayMsg);
+                setIsLoading(false);
+                return;
             }
 
             fetch('/api/notify', {
@@ -691,9 +726,10 @@ export function FormStep() {
 
                     <input
                         type="tel" {...register('whatsapp')}
-                        className="w-full bg-white dark:bg-form-dark border-2 border-gray-100 dark:border-gray-800 rounded-2xl px-6 py-4 focus:border-gray-300 dark:focus:border-gray-600 outline-none transition-all dark:text-white"
+                        className={`w-full bg-white dark:bg-form-dark border-2 rounded-2xl px-6 py-4 focus:ring-4 outline-none transition-all dark:text-white ${errors.whatsapp ? 'border-red-500 focus:ring-red-500/10' : 'border-gray-100 dark:border-gray-800 focus:border-gray-300'}`}
                         placeholder="(11) 99999-9999"
                     />
+                    {errors.whatsapp && <p className="text-red-500 text-xs font-bold mt-1">{errors.whatsapp.message}</p>}
                 </div>
 
                 {/* Tags Input (Chips) */}
@@ -792,9 +828,9 @@ export function FormStep() {
                     )}
                 </div>
 
-                {watchedValues.coAuthors && watchedValues.coAuthors.length > 0 && (
+                {watchedValues.co_authors && watchedValues.co_authors.length > 0 && (
                     <div className="flex flex-wrap gap-2">
-                        {watchedValues.coAuthors.map((user: any) => (
+                        {watchedValues.co_authors.map((user: any) => (
                             <div key={user.id} className="bg-white dark:bg-form-dark border-2 border-brand-blue/20 rounded-xl px-4 py-2 flex items-center gap-3 group animate-in fade-in zoom-in duration-300">
                                 <div>
                                     <div className="text-xs font-black text-gray-900 dark:text-white">{user.full_name}</div>
@@ -825,7 +861,7 @@ export function FormStep() {
                         {watchedValues.description?.length > 0 && (
                             <span className="flex items-center gap-1 text-[10px] font-bold text-brand-blue dark:text-brand-yellow uppercase tracking-widest bg-brand-blue/5 dark:bg-brand-yellow/10 px-2 py-0.5 rounded-full border border-brand-blue/10 dark:border-brand-yellow/20 transition-all animate-in fade-in duration-300">
                                 <span className="material-symbols-outlined text-[14px]">schedule</span>
-                                {watchedValues.readingTime || 1} min de leitura
+                                {watchedValues.reading_time || 1} min de leitura
                             </span>
                         )}
                         <span className={`text-[10px] ${(watchedValues.description || '').length > 2000 ? 'text-red-500' : 'text-gray-400'}`}>
@@ -913,11 +949,11 @@ export function FormStep() {
                         </label>
 
                         <input
-                            type="url" {...register('videoUrl')}
-                            className={`w-full bg-white dark:bg-form-dark border-2 rounded-2xl px-6 py-4 focus:ring-4 outline-none transition-all dark:text-white ${errors.videoUrl ? 'border-red-500 focus:ring-red-500/10' : 'border-gray-100 dark:border-gray-800 focus:border-brand-red focus:ring-brand-red/10'}`}
+                            type="url" {...register('video_url')}
+                            className={`w-full bg-white dark:bg-form-dark border-2 rounded-2xl px-6 py-4 focus:ring-4 outline-none transition-all dark:text-white ${errors.video_url ? 'border-red-500 focus:ring-red-500/10' : 'border-gray-100 dark:border-gray-800 focus:border-brand-red focus:ring-brand-red/10'}`}
                             placeholder="https://youtu.be/..."
                         />
-                        {errors.videoUrl && <p className="text-red-500 text-xs font-bold">{errors.videoUrl?.message}</p>}
+                        {errors.video_url && <p className="text-red-500 text-xs font-bold">{errors.video_url?.message}</p>}
 
                     </motion.div>
                 )
@@ -1012,17 +1048,18 @@ export function FormStep() {
                                         Descreva o que aparece na imagem ou vídeo para pessoas com deficiência visual. Uma boa descrição foca no que é essencial para entender a cena.
                                     </div>
                                 </div>
-                                <span className={`text-[10px] font-bold ${(watchedValues.altText || '').length > 300 ? 'text-brand-red' : 'text-gray-400'}`}>
-                                    {(watchedValues.altText || '').length}/300
+                                <span className={`text-[10px] font-bold ${(watchedValues.alt_text || '').length > 300 ? 'text-brand-red' : 'text-gray-400'}`}>
+                                    {(watchedValues.alt_text || '').length}/300
                                 </span>
                             </div>
                         </label>
 
                         <textarea
-                            rows={2} {...register('altText')}
-                            className={`w-full bg-white dark:bg-form-dark border-2 rounded-2xl px-6 py-4 focus:ring-4 outline-none transition-all dark:text-white ${errors.altText ? 'border-red-500 focus:ring-red-500/10' : 'border-gray-100 dark:border-gray-800 focus:border-brand-blue focus:ring-brand-blue/10'}`}
+                            rows={2} {...register('alt_text')}
+                            className={`w-full bg-white dark:bg-form-dark border-2 rounded-2xl px-6 py-4 focus:ring-4 outline-none transition-all dark:text-white ${errors.alt_text ? 'border-red-500 focus:ring-red-500/10' : 'border-gray-100 dark:border-gray-800 focus:border-brand-blue focus:ring-brand-blue/10'}`}
                             placeholder="Descreva visualmente o conteúdo para quem não pode ver."
                         />
+                        {errors.alt_text && <p className="text-red-500 text-xs font-bold mt-1">{errors.alt_text.message}</p>}
                     </motion.div>
                 )
             }
@@ -1044,10 +1081,11 @@ export function FormStep() {
                     </label>
 
                     <input
-                        type="url" {...register('externalLink')}
-                        className="w-full bg-white dark:bg-form-dark border-2 border-gray-100 dark:border-gray-800 rounded-2xl px-6 py-4 outline-none focus:border-gray-300 dark:focus:border-gray-600 dark:text-white"
+                        type="url" {...register('external_link')}
+                        className={`w-full bg-white dark:bg-form-dark border-2 rounded-2xl px-6 py-4 outline-none transition-all dark:text-white ${errors.external_link ? 'border-red-500 focus:ring-red-500/10' : 'border-gray-100 dark:border-gray-800 focus:border-gray-300'}`}
                         placeholder="drive.google.com/..."
                     />
+                    {errors.external_link && <p className="text-red-500 text-xs font-bold mt-1">{errors.external_link.message}</p>}
                 </div>
                 <div className="space-y-3">
                     <label className="text-sm font-black uppercase tracking-widest flex items-center gap-2 text-gray-400">
@@ -1055,10 +1093,11 @@ export function FormStep() {
                         Detalhes Técnicos
                     </label>
                     <input
-                        type="text" {...register('technicalDetails')}
-                        className="w-full bg-white dark:bg-form-dark border-2 border-gray-100 dark:border-gray-800 rounded-2xl px-6 py-4 outline-none focus:border-gray-300 dark:focus:border-gray-600 dark:text-white"
+                        type="text" {...register('technical_details')}
+                        className={`w-full bg-white dark:bg-form-dark border-2 rounded-2xl px-6 py-4 outline-none transition-all dark:text-white ${errors.technical_details ? 'border-red-500 focus:ring-red-500/10' : 'border-gray-100 dark:border-gray-800 focus:border-gray-300'}`}
                         placeholder="Câmera, software, técnica..."
                     />
+                    {errors.technical_details && <p className="text-red-500 text-xs font-bold mt-1">{errors.technical_details.message}</p>}
                 </div>
             </motion.div>
 
@@ -1119,24 +1158,24 @@ export function FormStep() {
 
             <motion.div variants={itemVariants} custom={9} className="space-y-5 pt-10 border-t-2 border-gray-100 dark:border-gray-800">
                 <label className="flex items-start gap-4 cursor-pointer group">
-                    <div className={`mt-1 w-5 h-5 rounded border-2 flex items-center justify-center transition-colors ${watchedValues.readGuide ? 'bg-brand-blue border-brand-blue' : 'border-gray-300 group-hover:border-brand-blue'}`}>
-                        {watchedValues.readGuide && <span className="material-symbols-outlined text-white text-[14px] font-bold">check</span>}
-                        <input type="checkbox" className="hidden" {...register('readGuide')} />
+                    <div className={`mt-1 w-5 h-5 rounded border-2 flex items-center justify-center transition-colors ${watchedValues.read_guide ? 'bg-brand-blue border-brand-blue' : 'border-gray-300 group-hover:border-brand-blue'}`}>
+                        {watchedValues.read_guide && <span className="material-symbols-outlined text-white text-[14px] font-bold">check</span>}
+                        <input type="checkbox" className="hidden" {...register('read_guide')} />
                     </div>
                     <span className="text-xs text-white group-hover:text-white transition-colors font-black">
                         Confirmo que li o <Link href="/guia" target="_blank" className="text-brand-blue font-black underline decoration-4 decoration-brand-blue/30 hover:decoration-brand-blue transition-all">Guia de Boas Práticas</Link>. *
                     </span>
-                    {errors.readGuide && <p className="text-red-500 text-[10px] font-bold">{errors.readGuide?.message}</p>}
+                    {errors.read_guide && <p className="text-red-500 text-[10px] font-bold">{errors.read_guide?.message}</p>}
                 </label>
                 <label className="flex items-start gap-4 cursor-pointer group">
-                    <div className={`mt-1 w-5 h-5 rounded border-2 flex items-center justify-center transition-colors ${watchedValues.acceptedCC ? 'bg-brand-red border-brand-red' : 'border-gray-300 group-hover:border-brand-red'}`}>
-                        {watchedValues.acceptedCC && <span className="material-symbols-outlined text-white text-[14px] font-bold">check</span>}
-                        <input type="checkbox" className="hidden" {...register('acceptedCC')} />
+                    <div className={`mt-1 w-5 h-5 rounded border-2 flex items-center justify-center transition-colors ${watchedValues.accepted_cc ? 'bg-brand-red border-brand-red' : 'border-gray-300 group-hover:border-brand-red'}`}>
+                        {watchedValues.accepted_cc && <span className="material-symbols-outlined text-white text-[14px] font-bold">check</span>}
+                        <input type="checkbox" className="hidden" {...register('accepted_cc')} />
                     </div>
                     <span className="text-xs text-white group-hover:text-white transition-colors font-black">
                         Concordo em disponibilizar este material sob licença <span className="text-brand-red underline decoration-4 decoration-brand-red/30 hover:decoration-brand-red transition-all">Creative Commons</span>. *
                     </span>
-                    {errors.acceptedCC && <p className="text-red-500 text-[10px] font-bold">{errors.acceptedCC?.message}</p>}
+                    {errors.accepted_cc && <p className="text-red-500 text-[10px] font-bold">{errors.accepted_cc?.message}</p>}
                 </label>
 
 
@@ -1153,7 +1192,14 @@ export function FormStep() {
                 </button>
                 <button
                     type="button"
-                    onClick={handleSubmit(onFormSubmit as any)}
+                    onClick={() => {
+                        handleSubmit(onFormSubmit as any, (errors) => {
+                            console.warn("Validation errors prevent submission:", errors);
+                            const firstError = Object.values(errors)[0] as any;
+                            toast.error(`Verifique os campos: ${firstError?.message || 'Formato inválido'}`);
+                            setErrorMsg("Verifique os campos obrigatórios ou formatos inválidos.");
+                        })();
+                    }}
                     disabled={isLoading}
                     className={`group relative overflow-hidden px-12 py-5 rounded-2xl font-black uppercase tracking-widest shadow-2xl transition-all flex items-center gap-3 ${isLoading ? 'opacity-50 grayscale cursor-not-allowed' : 'hover:-translate-y-1 hover:shadow-brand-red/20 active:translate-y-0'}`}
                 >
