@@ -21,6 +21,9 @@ export const SubmissionSchema = z.object({
     reading_time: z.number().optional().nullable(),
     co_authors: z.array(z.any()).default([]), // jsonb
     use_pseudonym: z.boolean().optional(),
+    event_year: z.string().optional().nullable(),
+    pseudonym_id: z.string().uuid().optional().nullable(),
+    new_pseudonym: z.string().max(30).optional().nullable(),
     read_guide: z.boolean().optional(),
     accepted_cc: z.boolean().optional(),
 });

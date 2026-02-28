@@ -10,13 +10,14 @@ import { BottomNavBar } from './BottomNavBar';
 interface MainLayoutWrapperProps {
     children: React.ReactNode;
     focusMode?: boolean;
+    userId?: string;
 }
 
 /**
  * Standardized structure for V4.0 Golden Master pages.
  * Ensures consistent padding, header, and footer mounting.
  */
-export function MainLayoutWrapper({ children, focusMode = false }: MainLayoutWrapperProps) {
+export function MainLayoutWrapper({ children, focusMode = false, userId }: MainLayoutWrapperProps) {
     return (
         <div className="min-h-screen bg-background-light dark:bg-background-dark font-sans text-gray-900 dark:text-gray-100 flex flex-col">
             <Header />
@@ -26,7 +27,7 @@ export function MainLayoutWrapper({ children, focusMode = false }: MainLayoutWra
                     {/* Left Sidebar (Desktop) */}
                     <aside className="hidden xl:block w-[280px] shrink-0 border-r border-gray-200 dark:border-gray-800 bg-background-light dark:bg-background-dark/50">
                         <div className="sticky top-20">
-                            <SidebarLeft />
+                            <SidebarLeft userId={userId} />
                         </div>
                     </aside>
 

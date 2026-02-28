@@ -14,6 +14,7 @@ export enum AppRoutes {
     PERGUNTAS = '/perguntas',
     CRIADORES = '/criadores',
     ARQUIVO_LABDIV = '/arquivo-labdiv',
+    WIKI = '/wiki',
 }
 
 export interface UserMinimalDTO {

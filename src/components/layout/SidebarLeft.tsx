@@ -7,7 +7,8 @@ import {
     LayoutGrid,
     FlaskConical,
     Network,
-    Microscope,
+    BookOpen,
+    Route,
     HelpCircle,
     UserSearch,
     Map,
@@ -16,11 +17,16 @@ import {
     MessageCircle,
     Mail
 } from 'lucide-react';
+import { AppRoutes } from '@/types/navigation';
+import { fetchRecentEntanglements } from '@/app/actions/submissions';
+import { supabase } from '@/lib/supabase';
 
 const mainLinks = [
     { name: 'Fluxo', href: '/', icon: <LayoutGrid className="w-6 h-6" /> },
-    { name: 'Projeto Lab-Div', href: '/arquivo-labdiv', icon: <FlaskConical className="w-6 h-6" /> },
+    { name: 'Lab-Div', href: '/arquivo-labdiv', icon: <FlaskConical className="w-6 h-6" /> },
     { name: 'Grande Colisor', href: '/colisor', icon: <Network className="w-6 h-6" /> },
+    { name: 'Wiki', href: AppRoutes.WIKI, icon: <BookOpen className="w-6 h-6" /> },
+    { name: 'Trilhas', href: '/colisor/trilhas', icon: <Route className="w-6 h-6" /> },
     { name: 'Pergunte', href: '/perguntas', icon: <HelpCircle className="w-6 h-6" /> },
     { name: 'Criadores', href: '/criadores', icon: <UserSearch className="w-6 h-6" /> },
     { name: 'Mapa', href: '/mapa', icon: <Map className="w-6 h-6" /> },
@@ -33,6 +39,34 @@ const secondaryLinks = [
 
 export const SidebarLeft = ({ userId }: { userId?: string }) => {
     const pathname = usePathname();
+    const [recentEntanglements, setRecentEntanglements] = React.useState<any[]>([]);
+    const [isLoading, setIsLoading] = React.useState(true);
+
+    const loadEntanglements = async () => {
+        const data = await fetchRecentEntanglements();
+        setRecentEntanglements(data);
+        setIsLoading(false);
+    };
+
+    React.useEffect(() => {
+        loadEntanglements();
+
+        // Listen for new messages to update the recent list
+        const channel = supabase
+            .channel('sidebar_entanglements')
+            .on('postgres_changes', {
+                event: 'INSERT',
+                schema: 'public',
+                table: 'messages'
+            }, () => {
+                loadEntanglements();
+            })
+            .subscribe();
+
+        return () => {
+            supabase.removeChannel(channel);
+        };
+    }, []);
 
     return (
         <aside className="sticky top-24 h-[calc(100vh-6rem)] w-full flex flex-col gap-8 py-6 pr-4 overflow-y-auto hidden-scrollbar">
@@ -66,22 +100,69 @@ export const SidebarLeft = ({ userId }: { userId?: string }) => {
                     <Network className="w-6 h-6 group-hover:scale-110 transition-transform" />
                     <div className="flex flex-col overflow-hidden">
                         <span className="font-bold text-sm">Emaranhamento</span>
-                        <span className="text-[9px] opacity-60 uppercase tracking-wider font-bold truncate">Conversas Recentes</span>
+                        <span className="text-[9px] opacity-60 uppercase tracking-wider font-bold truncate">Conversas Ativas</span>
                     </div>
-                    <div className="ml-auto size-1.5 rounded-full bg-brand-blue animate-pulse" />
+                    {recentEntanglements.length > 0 && (
+                        <div className="ml-auto flex items-center gap-1.5">
+                            <span className="text-[9px] font-black bg-white/20 px-1.5 py-0.5 rounded-full">{recentEntanglements.length}</span>
+                            <div className="size-1.5 rounded-full bg-brand-blue animate-pulse" />
+                        </div>
+                    )}
                 </Link>
 
                 <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 mb-4 ml-1">Partículas Emaranhadas</h3>
-                <div className="space-y-4">
-                    <div className="flex items-center gap-3 p-2 rounded-xl border border-dashed border-gray-200 dark:border-gray-800 opacity-50">
-                        <div className="w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
-                            <MessageSquare className="w-5 h-5 text-gray-400" />
+                <div className="space-y-3">
+                    {isLoading && recentEntanglements.length === 0 ? (
+                        <div className="flex items-center gap-3 p-2 animate-pulse">
+                            <div className="w-10 h-10 rounded-full bg-gray-200 dark:bg-gray-800" />
+                            <div className="flex flex-col gap-1">
+                                <div className="w-20 h-2 bg-gray-200 dark:bg-gray-800 rounded" />
+                                <div className="w-12 h-1.5 bg-gray-100 dark:bg-gray-900 rounded" />
+                            </div>
                         </div>
-                        <div className="flex flex-col">
-                            <span className="text-xs font-bold text-gray-500">Sem conexões ativas</span>
-                            <span className="text-[10px] text-gray-400">Inicie um emaranhamento</span>
+                    ) : recentEntanglements.length > 0 ? (
+                        recentEntanglements.map((profile) => (
+                            <Link
+                                key={profile.id}
+                                href={`/emaranhamento?userId=${profile.id}`}
+                                className={`flex items-center gap-3 p-2 rounded-2xl transition-all group relative border border-transparent hover:border-white/5 ${pathname === '/emaranhamento' && userId === profile.id ? 'bg-white/10' : 'hover:bg-gray-100 dark:hover:bg-white/5'}`}
+                            >
+                                <div className="relative shrink-0">
+                                    {profile.avatar ? (
+                                        <img src={profile.avatar} alt={profile.name} className="w-10 h-10 rounded-full object-cover border border-white/10" />
+                                    ) : (
+                                        <div className="w-10 h-10 rounded-full bg-brand-blue/10 flex items-center justify-center text-brand-blue">
+                                            <span className="text-xs font-black uppercase">{profile.name[0]}</span>
+                                        </div>
+                                    )}
+                                    <div className="absolute -bottom-0.5 -right-0.5 size-3 bg-brand-blue border-2 border-white dark:border-[#121212] rounded-full" />
+                                </div>
+                                <div className="flex flex-col overflow-hidden min-w-0">
+                                    <div className="flex items-center justify-between gap-2">
+                                        <span className="text-xs font-bold text-gray-900 dark:text-white truncate">{profile.name}</span>
+                                        {profile.lastAt && (
+                                            <span className="text-[8px] text-gray-500 font-bold shrink-0">
+                                                {new Date(profile.lastAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                            </span>
+                                        )}
+                                    </div>
+                                    <span className="text-[10px] text-gray-400 font-medium truncate italic opacity-80 group-hover:opacity-100">
+                                        {profile.lastMessage || profile.handle}
+                                    </span>
+                                </div>
+                            </Link>
+                        ))
+                    ) : (
+                        <div className="flex items-center gap-3 p-2 rounded-xl border border-dashed border-gray-200 dark:border-gray-800 opacity-50">
+                            <div className="w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+                                <MessageSquare className="w-5 h-5 text-gray-400" />
+                            </div>
+                            <div className="flex flex-col">
+                                <span className="text-xs font-bold text-gray-500">Sem conexões ativas</span>
+                                <span className="text-[10px] text-gray-400">Inicie um emaranhamento</span>
+                            </div>
                         </div>
-                    </div>
+                    )}
                 </div>
             </div>
 

@@ -1,9 +1,11 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { fetchParticlePreview } from '@/app/actions/submissions';
+import { fetchParticlePreview, sendMessage, fetchMessages, getCurrentUserId } from '@/app/actions/submissions';
 import { toast } from 'react-hot-toast';
+import { Loader2 } from 'lucide-react';
+import { supabase } from '@/lib/supabase';
 
 interface ParticleReference {
     id: string;
@@ -13,10 +15,76 @@ interface ParticleReference {
     energy: number;
 }
 
-export const ParticleEntanglement = () => {
+interface ParticleEntanglementProps {
+    recipientId?: string;
+}
+
+export const ParticleEntanglement = ({ recipientId }: ParticleEntanglementProps) => {
     const [message, setMessage] = useState('');
+    const [messages, setMessages] = useState<any[]>([]);
     const [attachment, setAttachment] = useState<ParticleReference | null>(null);
     const [isSelectorOpen, setIsSelectorOpen] = useState(false);
+    const [isSending, setIsSending] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
+    const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+    const scrollRef = useRef<HTMLDivElement>(null);
+
+    const scrollToBottom = () => {
+        if (scrollRef.current) {
+            scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+        }
+    };
+
+    useEffect(() => {
+        scrollToBottom();
+    }, [messages]);
+
+    useEffect(() => {
+        const fetchUser = async () => {
+            const id = await getCurrentUserId();
+            setCurrentUserId(id);
+        };
+        fetchUser();
+    }, []);
+
+    useEffect(() => {
+        if (recipientId && currentUserId) {
+            const loadMessages = async () => {
+                setIsLoading(true);
+                const data = await fetchMessages(recipientId);
+                setMessages(data);
+                setIsLoading(false);
+            };
+            loadMessages();
+
+            // Realtime setup
+            const channel = supabase
+                .channel(`chat:${recipientId}`)
+                .on('postgres_changes', {
+                    event: 'INSERT',
+                    schema: 'public',
+                    table: 'messages'
+                }, (payload) => {
+                    const newMessage = payload.new;
+                    // Strict filter: belongs to this specific pair of users
+                    const isRelevant =
+                        (newMessage.sender_id === recipientId && newMessage.recipient_id === currentUserId) ||
+                        (newMessage.sender_id === currentUserId && newMessage.recipient_id === recipientId);
+
+                    if (isRelevant) {
+                        setMessages((prev) => {
+                            if (prev.find(m => m.id === newMessage.id)) return prev;
+                            return [...prev, newMessage];
+                        });
+                    }
+                })
+                .subscribe();
+
+            return () => {
+                supabase.removeChannel(channel);
+            };
+        }
+    }, [recipientId, currentUserId]);
 
     const handleAttach = async (id: string, type: 'article' | 'particle' = 'particle') => {
         const preview = await fetchParticlePreview(id);
@@ -34,16 +102,24 @@ export const ParticleEntanglement = () => {
         }
     };
 
-    const handleSend = () => {
-        console.log('Sending message with Context-Share:', {
-            content: message,
-            attachment_id: attachment?.id,
-            attachment_type: attachment?.type,
-            metadata: { source: 'Big Collider' }
-        });
-        // Implementation of Supabase insert here
+    const handleSend = async () => {
+        if (!recipientId || !message.trim()) return;
+
+        setIsSending(true);
+        const currentMessage = message;
+        const currentAttachment = attachment;
+
         setMessage('');
         setAttachment(null);
+
+        const res = await sendMessage(recipientId, currentMessage, currentAttachment?.id);
+
+        if (!res.success) {
+            toast.error(res.error || "Falha na conexão neural.");
+            setMessage(currentMessage);
+            setAttachment(currentAttachment);
+        }
+        setIsSending(false);
     };
 
     return (
@@ -54,19 +130,53 @@ export const ParticleEntanglement = () => {
                 <span className="material-symbols-outlined text-brand-blue text-sm">hub</span>
             </div>
 
-            {/* Chat Area - Placeholder */}
-            <div className="flex-1 p-4 overflow-y-auto space-y-4">
-                <div className="bg-white/5 p-3 rounded-2xl max-w-[80%] text-xs border border-white/5">
-                    Olá! Vamos colaborar nesta pesquisa?
-                </div>
+            {/* Chat Area */}
+            <div ref={scrollRef} className="flex-1 p-4 overflow-y-auto space-y-4 scroll-smooth">
+                {isLoading ? (
+                    <div className="flex items-center justify-center py-10">
+                        <Loader2 className="w-6 h-6 text-brand-blue animate-spin" />
+                    </div>
+                ) : messages.length > 0 ? (
+                    messages.map((msg) => {
+                        const isMine = msg.sender_id === currentUserId;
+                        return (
+                            <div
+                                key={msg.id}
+                                className={`flex flex-col ${isMine ? 'items-end' : 'items-start'} animate-in fade-in slide-in-from-bottom-2 duration-300`}
+                            >
+                                <div className={`p-3 rounded-2xl max-w-[85%] text-xs border ${isMine
+                                        ? 'bg-brand-blue/20 border-brand-blue/30 text-white rounded-tr-none'
+                                        : 'bg-white/5 border-white/5 text-gray-300 rounded-tl-none'
+                                    }`}>
+                                    {msg.content}
+                                    {msg.attachment_id && (
+                                        <div className="mt-2 p-2 bg-black/20 rounded-lg flex items-center gap-2 border border-white/5">
+                                            <span className="material-symbols-outlined text-[10px] text-brand-blue">link</span>
+                                            <span className="text-[10px] font-bold uppercase truncate">Artigo Anexado</span>
+                                        </div>
+                                    )}
+                                </div>
+                                <span className="text-[8px] text-gray-600 mt-1 uppercase font-bold tracking-widest">
+                                    {new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                </span>
+                            </div>
+                        );
+                    })
+                ) : (
+                    <div className="flex flex-col items-center justify-center py-10 text-center opacity-50">
+                        <span className="material-symbols-outlined text-3xl mb-2">bubble_chart</span>
+                        <p className="text-[10px] uppercase font-black tracking-widest">Inicie o emaranhamento de ideias</p>
+                    </div>
+                )}
             </div>
 
-            {/* Attachment Preview (Rich Card) */}
+            {/* Attachment Preview */}
             <AnimatePresence>
                 {attachment && (
                     <motion.div
                         initial={{ y: 10, opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
+                        exit={{ y: 10, opacity: 0 }}
                         className="px-4 py-2"
                     >
                         <div className="bg-brand-blue/10 border border-brand-blue/30 rounded-2xl p-4 flex flex-col gap-2 relative overflow-hidden group">
@@ -118,25 +228,29 @@ export const ParticleEntanglement = () => {
 
                     <button
                         onClick={handleSend}
-                        disabled={!message.trim() && !attachment}
-                        className="p-2 bg-brand-blue text-white rounded-xl shadow-lg shadow-brand-blue/20 disabled:opacity-50"
+                        disabled={(!message.trim() && !attachment) || isSending}
+                        className="p-2 bg-brand-blue text-white rounded-xl shadow-lg shadow-brand-blue/20 disabled:opacity-50 min-w-[40px] flex items-center justify-center"
                     >
-                        <span className="material-symbols-outlined text-[20px]">send</span>
+                        {isSending ? (
+                            <Loader2 className="w-5 h-5 animate-spin" />
+                        ) : (
+                            <span className="material-symbols-outlined text-[20px]">send</span>
+                        )}
                     </button>
                 </div>
 
-                {/* Literal Label for Neurodiversity */}
                 <p className="mt-2 text-[9px] text-gray-500 uppercase font-black tracking-widest text-center">
                     (Use o ícone de elo para anexar um artigo técnico)
                 </p>
             </div>
 
-            {/* Simple Selector Mockup */}
+            {/* Attachment Selector */}
             <AnimatePresence>
                 {isSelectorOpen && (
                     <motion.div
                         initial={{ opacity: 0, scale: 0.95 }}
                         animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.95 }}
                         className="absolute bottom-24 left-4 right-4 bg-gray-900 border border-white/10 rounded-2xl p-4 shadow-2xl z-50"
                     >
                         <h4 className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-3">Selecionar Recurso</h4>

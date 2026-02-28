@@ -167,15 +167,6 @@ export default function AdminDashboardOverview() {
             urgent: false,
         },
         {
-            title: 'Pseudônimos',
-            subtitle: 'Identidades Anônimas',
-            count: counts.tagsTotal, // Temporarily reusing tagsTotal or similar
-            icon: ' theater_comedy',
-            color: 'yellow' as const,
-            href: '/admin/pseudonyms',
-            urgent: false,
-        },
-        {
             title: 'Tags',
             subtitle: 'Termos Ativos',
             count: counts.tagsTotal,

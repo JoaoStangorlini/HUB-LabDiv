@@ -62,7 +62,7 @@ export const HomeClientView = ({
 
     const [selectedCategories, setSelectedCategories] = useState<string[]>([initialCategory]);
     const [selectedMediaTypes, setSelectedMediaTypes] = useState<string[]>([]);
-    const [selectedYear, setSelectedYear] = useState<string>('Todos');
+    const [selectedYears, setSelectedYears] = useState<string[]>(['Todos']);
     const [activePageIndex, setActivePageIndex] = useState(0);
     const [showAllCategories, setShowAllCategories] = useState(false);
     const [showAllYears, setShowAllYears] = useState(false);
@@ -129,10 +129,6 @@ export const HomeClientView = ({
 
     useEffect(() => {
         const fetchFiltered = async () => {
-            if (page === 1 && !isLoading) {
-                // Skip first set if it matches initialItems (handled by initial render)
-            }
-
             setIsLoading(true);
             try {
                 const res = await fetchSubmissions({
@@ -142,7 +138,7 @@ export const HomeClientView = ({
                     categories: selectedCategories.filter(c => c !== 'Todos' && c !== 'Destaques'),
                     is_featured: selectedCategories.includes('Destaques') ? true : undefined,
                     mediaTypes: selectedMediaTypes,
-                    year: selectedYear !== 'Todos' ? parseInt(selectedYear) : undefined,
+                    years: selectedYears.includes('Todos') ? undefined : selectedYears.map(y => parseInt(y)),
                     sort: 'recentes'
                 });
                 setItems(res.items);
@@ -156,14 +152,14 @@ export const HomeClientView = ({
         };
 
         // Don't run on mount if we already have initialItems and no custom filters
-        if (debouncedQuery === '' && selectedCategories.length === 1 && selectedCategories[0] === 'Todos' && selectedMediaTypes.length === 0 && selectedYear === 'Todos') {
+        if (debouncedQuery === '' && selectedCategories.length === 1 && selectedCategories[0] === 'Todos' && selectedMediaTypes.length === 0 && selectedYears.length === 1 && selectedYears[0] === 'Todos') {
             setItems(initialItems);
             setHasMore(initialHasMore);
             return;
         }
 
         fetchFiltered();
-    }, [debouncedQuery, selectedCategories, selectedMediaTypes]);
+    }, [debouncedQuery, selectedCategories, selectedMediaTypes, selectedYears]);
 
     const loadMore = async () => {
         if (isLoadingMore || !hasMore) return;
@@ -176,7 +172,7 @@ export const HomeClientView = ({
                 categories: selectedCategories.filter(c => c !== 'Todos' && c !== 'Destaques'),
                 is_featured: selectedCategories.includes('Destaques') ? true : undefined,
                 mediaTypes: selectedMediaTypes,
-                year: selectedYear !== 'Todos' ? parseInt(selectedYear) : undefined,
+                years: selectedYears.includes('Todos') ? undefined : selectedYears.map(y => parseInt(y)),
                 sort: 'recentes'
             });
             setItems(prev => [...prev, ...next.items]);
@@ -291,7 +287,17 @@ export const HomeClientView = ({
                                 return (
                                     <button
                                         key={c}
-                                        onClick={() => setSelectedCategories(isActive ? ['Todos'] : [c])}
+                                        onClick={() => {
+                                            setSelectedCategories(prev => {
+                                                if (c === 'Todos') return ['Todos'];
+                                                const filtered = prev.filter(item => item !== 'Todos');
+                                                if (isActive) {
+                                                    const next = filtered.filter(item => item !== c);
+                                                    return next.length === 0 ? ['Todos'] : next;
+                                                }
+                                                return [...filtered, c];
+                                            });
+                                        }}
                                         className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border-2 ${isActive ? 'bg-brand-blue text-white border-brand-blue shadow-lg' : 'bg-white dark:bg-white/5 text-gray-500 border-gray-100 dark:border-white/10 hover:border-brand-blue/30'}`}
                                     >
                                         {c}
@@ -311,19 +317,36 @@ export const HomeClientView = ({
                     {/* Ano */}
                     <div className="flex items-center gap-4">
                         <span className="text-[10px] font-black uppercase tracking-widest text-gray-400 shrink-0">Ano:</span>
-                        <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1 grow">
-                            {years.map(y => {
-                                const isActive = selectedYear === y;
+                        <div className="flex flex-wrap gap-2 grow">
+                            {(showAllYears ? years : years.slice(0, 10)).map(y => {
+                                const isActive = selectedYears.includes(y);
                                 return (
                                     <button
                                         key={y}
-                                        onClick={() => setSelectedYear(y)}
+                                        onClick={() => {
+                                            setSelectedYears(prev => {
+                                                if (y === 'Todos') return ['Todos'];
+                                                const filtered = prev.filter(item => item !== 'Todos');
+                                                if (isActive) {
+                                                    const next = filtered.filter(item => item !== y);
+                                                    return next.length === 0 ? ['Todos'] : next;
+                                                }
+                                                return [...filtered, y];
+                                            });
+                                        }}
                                         className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border-2 shrink-0 ${isActive ? 'bg-brand-blue text-white border-brand-blue shadow-lg' : 'bg-white dark:bg-white/5 text-gray-500 border-gray-100 dark:border-white/10 hover:border-brand-blue/30'}`}
                                     >
                                         {y}
                                     </button>
                                 );
                             })}
+                            <button
+                                onClick={() => setShowAllYears(!showAllYears)}
+                                className="px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest bg-gray-100 dark:bg-white/10 text-gray-500 hover:text-brand-blue transition-all flex items-center gap-1 border-2 border-transparent"
+                            >
+                                {showAllYears ? <Minus className="w-3 h-3" /> : <Plus className="w-3 h-3" />}
+                                {showAllYears ? 'Menos' : 'Mais'}
+                            </button>
                         </div>
                     </div>
                 </div>

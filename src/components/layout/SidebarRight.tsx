@@ -4,6 +4,8 @@ import React from 'react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, ChevronRight, User } from 'lucide-react';
+import { searchProfiles, followUser, unfollowUser, checkIsFollowing } from '@/app/actions/submissions';
+import { toast } from 'react-hot-toast';
 
 interface SidebarTag {
     name: string;
@@ -11,6 +13,7 @@ interface SidebarTag {
 }
 
 interface SidebarAuthor {
+    id: string;
     name: string;
     handle: string;
     avatar: string | null;
@@ -21,12 +24,102 @@ interface SidebarRightProps {
     authors: SidebarAuthor[];
 }
 
-export const SidebarRight = ({ tags, authors }: SidebarRightProps) => {
+export const SidebarRight = ({ tags, authors: initialAuthors }: SidebarRightProps) => {
     const [page, setPage] = React.useState(0);
+    const [activeTab, setActiveTab] = React.useState<'trending' | 'search'>('trending');
+    const [searchQuery, setSearchQuery] = React.useState('');
+    const [searchResults, setSearchResults] = React.useState<SidebarAuthor[]>([]);
+    const [isSearching, setIsSearching] = React.useState(false);
+    const [followingIds, setFollowingIds] = React.useState<Set<string>>(new Set());
+
     const tagsPerPage = 4;
     const totalPages = Math.ceil((tags.length || 1) / tagsPerPage);
 
     const currentTags = tags.slice(page * tagsPerPage, (page + 1) * tagsPerPage);
+
+    // Unified check for following status
+    React.useEffect(() => {
+        const checkFollows = async (authors: SidebarAuthor[]) => {
+            if (authors.length === 0) return;
+            const followStates = await Promise.all(
+                authors.map(async (author) => {
+                    const isFollowing = await checkIsFollowing(author.id);
+                    return { id: author.id, isFollowing };
+                })
+            );
+            setFollowingIds(prev => {
+                const next = new Set(prev);
+                followStates.forEach(f => {
+                    if (f.isFollowing) next.add(f.id);
+                    else next.delete(f.id);
+                });
+                return next;
+            });
+        };
+
+        checkFollows(initialAuthors);
+    }, [initialAuthors]);
+
+    React.useEffect(() => {
+        const checkFollows = async (authors: SidebarAuthor[]) => {
+            if (authors.length === 0) return;
+            const followStates = await Promise.all(
+                authors.map(async (author) => {
+                    const isFollowing = await checkIsFollowing(author.id);
+                    return { id: author.id, isFollowing };
+                })
+            );
+            setFollowingIds(prev => {
+                const next = new Set(prev);
+                followStates.forEach(f => {
+                    if (f.isFollowing) next.add(f.id);
+                    else next.delete(f.id);
+                });
+                return next;
+            });
+        };
+
+        checkFollows(searchResults);
+    }, [searchResults]);
+
+    // Fast Search
+    React.useEffect(() => {
+        const timer = setTimeout(async () => {
+            if (searchQuery.length >= 2) {
+                setIsSearching(true);
+                try {
+                    const results = await searchProfiles(searchQuery);
+                    setSearchResults(results as SidebarAuthor[]);
+                } catch (err) {
+                    console.error(err);
+                } finally {
+                    setIsSearching(false);
+                }
+            } else {
+                setSearchResults([]);
+            }
+        }, 300);
+        return () => clearTimeout(timer);
+    }, [searchQuery]);
+
+    const handleFollowToggle = async (id: string) => {
+        const isCurrentlyFollowing = followingIds.has(id);
+
+        // Optimistic update
+        const newIds = new Set(followingIds);
+        if (isCurrentlyFollowing) newIds.delete(id);
+        else newIds.add(id);
+        setFollowingIds(newIds);
+
+        const res = isCurrentlyFollowing ? await unfollowUser(id) : await followUser(id);
+        if (!res.success) {
+            toast.error(res.error || "Erro na conexão");
+            // Revert on error using the previous state (followingIds)
+            setFollowingIds(followingIds);
+        } else {
+            toast.success(isCurrentlyFollowing ? "Conexão encerrada" : "Conexão estabelecida!");
+        }
+    };
 
     const handleNextPage = () => {
         setPage((prev) => (prev + 1) % totalPages);
@@ -43,7 +136,8 @@ export const SidebarRight = ({ tags, authors }: SidebarRightProps) => {
                     className="w-full bg-gray-100 dark:bg-white/5 border border-transparent focus:border-brand-blue/30 focus:bg-white dark:focus:bg-card-dark rounded-2xl py-3 pl-12 pr-4 text-sm font-medium transition-all outline-none"
                 />
             </div>
-            {/* ISÓTOPOS EM ÓRBITA (TAGS - RESTAURADO) */}
+
+            {/* ISÓTOPOS EM ÓRBITA */}
             <div className="bg-gray-50 dark:bg-white/5 rounded-3xl p-5 border border-gray-100 dark:border-gray-800">
                 <div className="flex items-center justify-between mb-4">
                     <h3 className="text-sm font-black uppercase tracking-widest text-gray-900 dark:text-white">Isótopos em Órbita</h3>
@@ -89,34 +183,93 @@ export const SidebarRight = ({ tags, authors }: SidebarRightProps) => {
                 </button>
             </div>
 
-            {/* Scientific Authors Section */}
-            <div className="bg-gray-50 dark:bg-white/5 rounded-3xl p-5 border border-gray-100 dark:border-gray-800">
-                <h3 className="text-sm font-black uppercase tracking-widest text-gray-900 dark:text-white mb-4">Cientistas em Órbita</h3>
-                <div className="flex flex-col gap-4">
-                    {authors.length > 0 ? authors.map((user) => (
-                        <div key={user.handle} className="flex items-center justify-between gap-3">
-                            <div className="flex items-center gap-3">
-                                {user.avatar ? (
-                                    <div className="size-10 rounded-full overflow-hidden border border-gray-200 dark:border-gray-800">
-                                        <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
-                                    </div>
-                                ) : (
-                                    <div className="size-10 rounded-full bg-brand-blue/10 flex items-center justify-center text-brand-blue">
-                                        <User className="w-5 h-5" />
-                                    </div>
-                                )}
-                                <div className="flex flex-col">
-                                    <span className="text-xs font-bold text-gray-900 dark:text-white truncate max-w-[100px]" title={user.name}>{user.name}</span>
-                                    <span className="text-[10px] text-gray-500 truncate max-w-[100px]">{user.handle}</span>
+            {/* Usuários em Órbita Section */}
+            <div className="bg-gray-50 dark:bg-white/5 rounded-3xl pb-5 border border-gray-100 dark:border-gray-800 flex flex-col overflow-hidden">
+                <div className="flex border-b border-gray-100 dark:border-gray-800">
+                    <button
+                        onClick={() => setActiveTab('trending')}
+                        className={`flex-1 py-4 text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'trending' ? 'text-brand-blue border-b-2 border-brand-blue bg-brand-blue/5' : 'text-gray-400 hover:text-gray-600'}`}
+                    >
+                        Principais
+                    </button>
+                    <button
+                        onClick={() => setActiveTab('search')}
+                        className={`flex-1 py-4 text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'search' ? 'text-brand-blue border-b-2 border-brand-blue bg-brand-blue/5' : 'text-gray-400 hover:text-gray-600'}`}
+                    >
+                        Buscar
+                    </button>
+                </div>
+
+                <div className="p-5">
+                    <h3 className="text-xs font-black uppercase tracking-widest text-gray-900 dark:text-white mb-4">Usuários em Órbita</h3>
+
+                    {activeTab === 'search' && (
+                        <div className="relative mb-4 animate-in fade-in slide-in-from-top-2 duration-300">
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                            <input
+                                type="text"
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                placeholder="Nome ou @user..."
+                                className="w-full bg-white dark:bg-white/5 border border-gray-200 dark:border-transparent rounded-xl py-2 pl-9 pr-4 text-xs font-medium outline-none focus:border-brand-blue transition-all"
+                            />
+                            {isSearching && (
+                                <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                                    <div className="w-3 h-3 border-2 border-brand-blue border-t-transparent rounded-full animate-spin" />
                                 </div>
-                            </div>
-                            <button className="px-4 py-1.5 bg-brand-blue hover:bg-brand-blue/90 text-white text-[10px] font-black rounded-full hover:scale-105 active:scale-95 transition-all">
-                                Seguir
-                            </button>
+                            )}
                         </div>
-                    )) : (
-                        <span className="text-xs text-gray-500">Nenhum autor disponível.</span>
                     )}
+
+                    <div className="flex flex-col gap-4">
+                        {(activeTab === 'search' ? searchResults : initialAuthors).length > 0 ?
+                            (activeTab === 'search' ? searchResults : initialAuthors).map((user) => {
+                                const isFollowing = followingIds.has(user.id);
+                                return (
+                                    <div key={`${activeTab}-${user.id}`} className="flex items-center justify-between gap-3 animate-in fade-in duration-300">
+                                        <div className="flex items-center gap-3 overflow-hidden">
+                                            {user.avatar ? (
+                                                <div className="size-10 rounded-full overflow-hidden border border-gray-200 dark:border-gray-800 shrink-0">
+                                                    <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
+                                                </div>
+                                            ) : (
+                                                <div className="size-10 rounded-full bg-brand-blue/10 flex items-center justify-center text-brand-blue shrink-0">
+                                                    <User className="w-5 h-5" />
+                                                </div>
+                                            )}
+                                            <div className="flex flex-col overflow-hidden">
+                                                <span className="text-xs font-bold text-gray-900 dark:text-white truncate max-w-[100px]" title={user.name}>{user.name}</span>
+                                                <span className="text-[10px] text-gray-500 truncate max-w-[100px]">{user.handle}</span>
+                                            </div>
+                                        </div>
+
+                                        <div className="flex gap-1 shrink-0">
+                                            <button
+                                                onClick={() => handleFollowToggle(user.id)}
+                                                className={`px-3 py-1.5 text-[10px] font-black rounded-full transition-all ${isFollowing ? 'bg-gray-100 dark:bg-white/10 text-gray-500 hover:bg-red-500/10 hover:text-red-500' : 'bg-brand-blue text-white hover:scale-105'}`}
+                                            >
+                                                {isFollowing ? 'Seguindo' : 'Seguir'}
+                                            </button>
+
+                                            {isFollowing && (
+                                                <Link
+                                                    href={`/emaranhamento?userId=${user.id}`}
+                                                    className="p-1.5 bg-brand-blue/10 text-brand-blue rounded-full hover:bg-brand-blue/20 transition-all border border-brand-blue/20"
+                                                    title="Mandar mensagem"
+                                                >
+                                                    <span className="material-symbols-outlined text-sm">hub</span>
+                                                </Link>
+                                            )}
+                                        </div>
+                                    </div>
+                                );
+                            }) : (
+                                <span className="text-xs text-gray-500 italic">
+                                    {activeTab === 'search' && searchQuery.length < 2 ? 'Digite 2 caracteres para buscar...' : 'Nenhum usuário detectado.'}
+                                </span>
+                            )
+                        }
+                    </div>
                 </div>
             </div>
 

@@ -15,6 +15,9 @@ export const submissionSchema = z.object({
     tags: z.array(z.string()).default([]),
     reading_time: z.number().default(0),
     use_pseudonym: z.boolean().default(false),
+    event_year: z.string().min(4, 'Selecione o ano').default(new Date().getFullYear().toString()),
+    pseudonym_id: z.string().uuid().optional(),
+    new_pseudonym: z.string().max(30, 'Apelido muito longo').optional(),
     co_authors: z.array(z.any()).default([])
 });
 

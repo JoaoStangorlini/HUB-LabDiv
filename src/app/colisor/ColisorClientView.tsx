@@ -8,29 +8,6 @@ interface ColisorClientViewProps {
     oportunidades: any[] | null;
 }
 
-const wikiCategories = [
-    {
-        title: 'Wiki Hub',
-        description: 'Repositório central de documentação e conhecimento colaborativo.',
-        icon: 'menu_book',
-        links: [
-            { name: 'Manual do Hub', href: '/manual' },
-            { name: 'Glossário Científico', href: '/colisor/wiki' },
-            { name: 'Editais e Normas', href: '/colisor/normas' }
-        ]
-    },
-    {
-        title: 'Trilhas do Conhecimento',
-        description: 'Percursos estruturados de aprendizagem baseados no acervo do Hub.',
-        icon: 'auto_stories',
-        links: [
-            { name: 'Explorar Trilhas', href: '/colisor/trilhas' },
-            { name: 'Minhas Trilhas', href: '/perfil#trilhas' },
-            { name: 'Criar uma Trilha', href: '/enviar?type=trilha' }
-        ]
-    }
-];
-
 const getTipoConfig = (tipo: string) => {
     switch (tipo) {
         case 'palestra':
@@ -56,39 +33,8 @@ export function ColisorClientView({ oportunidades }: ColisorClientViewProps) {
                     <h1 className="text-3xl md:text-5xl font-black tracking-tighter uppercase italic">O Grande Colisor</h1>
                 </div>
                 <p className="text-gray-500 dark:text-gray-400 text-lg max-w-2xl leading-relaxed">
-                    O repositório técnico de conhecimento estruturado do Instituto de Física. Explore o emaranhamento entre guias, iniciativas e oportunidades.
+                    O repositório técnico de conhecimento estruturado do Instituto de Física. Explore o emaranhamento entre iniciativas e oportunidades.
                 </p>
-            </div>
-
-            {/* Grid Superior: Wiki & Trilhas */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-20">
-                {wikiCategories.map((cat, idx) => (
-                    <motion.div
-                        key={cat.title}
-                        initial={{ opacity: 0, scale: 0.95 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ delay: idx * 0.1 }}
-                        className="bg-white dark:bg-card-dark rounded-[32px] p-8 border border-gray-100 dark:border-white/10 hover:border-brand-blue/30 transition-all group shadow-xl shadow-gray-200/5"
-                    >
-                        <span className="material-symbols-outlined text-4xl text-brand-blue mb-6 block group-hover:scale-110 transition-transform">{cat.icon}</span>
-                        <h2 className="text-2xl font-black tracking-tight mb-3 text-gray-900 dark:text-white">{cat.title}</h2>
-                        <p className="text-sm text-gray-500 dark:text-gray-400 mb-8 leading-relaxed">
-                            {cat.description}
-                        </p>
-                        <div className="space-y-3">
-                            {cat.links.map(link => (
-                                <Link
-                                    key={link.name}
-                                    href={link.href}
-                                    className="flex items-center justify-between p-4 bg-gray-50 dark:bg-white/5 rounded-2xl hover:bg-brand-blue hover:text-white transition-all group/link"
-                                >
-                                    <span className="font-bold text-sm">{link.name}</span>
-                                    <span className="material-symbols-outlined text-sm group-hover/link:translate-x-1 transition-transform">arrow_forward</span>
-                                </Link>
-                            ))}
-                        </div>
-                    </motion.div>
-                ))}
             </div>
 
             {/* --- SEÇÃO OPORTUNIDADES --- */}
@@ -144,7 +90,7 @@ export function ColisorClientView({ oportunidades }: ColisorClientViewProps) {
                             <img src="/labdiv-logo.png" alt="Logo do Lab-Div" className="w-full h-full object-contain" />
                         </div>
                         <h2 className="text-2xl font-black tracking-tight mb-3">
-                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-red via-brand-blue to-brand-yellow">Projeto Lab-Div</span>
+                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-red via-brand-blue to-brand-yellow">Lab-Div</span>
                         </h2>
                         <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed mb-6">
                             Inspirada no CommLab do MIT, foca na comunicação científica no IFUSP. Oferece tutoria entre pares para escrita científica, apresentações e design.
@@ -154,7 +100,7 @@ export function ColisorClientView({ oportunidades }: ColisorClientViewProps) {
                         </a>
                     </div>
 
-                    {/* Hackerspace Card */}
+                    {/* Hackerspace IFUSP Card */}
                     <div className="bg-white dark:bg-card-dark rounded-[32px] p-8 border border-gray-100 dark:border-gray-800 shadow-xl shadow-gray-200/5 hover:-translate-y-1 transition-transform group">
                         <div className="w-16 h-16 bg-brand-green/10 rounded-2xl flex items-center justify-center mb-6">
                             <span className="material-symbols-outlined text-4xl text-brand-green">memory</span>

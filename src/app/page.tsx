@@ -10,7 +10,7 @@ import {
   getFeaturedSubmissions,
   getTrendingTags,
   getSidebarTags,
-  getScientistsInOrbit
+  getUsersInOrbit
 } from '@/app/actions/submissions';
 import { Rocket } from 'lucide-react';
 
@@ -51,7 +51,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ c
     getFeaturedSubmissions(10),
     getTrendingTags(),
     getSidebarTags(),
-    getScientistsInOrbit()
+    getUsersInOrbit(10)
   ]);
 
   return (

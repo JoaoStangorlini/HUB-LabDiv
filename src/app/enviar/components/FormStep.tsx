@@ -10,7 +10,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useSubmissionStore } from '@/store/useSubmissionStore';
 import { useFormAutoSave } from '@/hooks/useFormAutoSave';
 import { supabase } from '@/lib/supabase';
-import { getTrendingTags, createSubmission } from '@/app/actions/submissions';
+import { getTrendingTags, createSubmission, getUserPseudonyms, createPseudonym } from '@/app/actions/submissions';
 import { generateCloudinarySignature } from '@/app/actions/media';
 import { useErrorMap } from '@/hooks/useErrorMap';
 import { toast } from 'react-hot-toast';
@@ -67,7 +67,10 @@ export function FormStep() {
             tags: [],
             reading_time: 0,
             co_authors: [],
-            use_pseudonym: false
+            use_pseudonym: false,
+            event_year: new Date().getFullYear().toString(),
+            pseudonym_id: undefined,
+            new_pseudonym: ''
         }
     });
 
@@ -76,9 +79,12 @@ export function FormStep() {
 
     const [tagInput, setTagInput] = useState('');
     const [smartTags, setSmartTags] = useState<string[]>([]);
+    const [userPseudonyms, setUserPseudonyms] = useState<any[]>([]);
+    const [isCreatingPseudonym, setIsCreatingPseudonym] = useState(false);
 
     useEffect(() => {
         getTrendingTags().then(tags => setSmartTags(tags || [])).catch(() => { });
+        getUserPseudonyms().then(p => setUserPseudonyms(p || [])).catch(() => { });
     }, []);
 
 
@@ -220,8 +226,32 @@ export function FormStep() {
     useEffect(() => {
         if (!usePseudonym && realName) {
             setValue('authors', realName);
+            setValue('pseudonym_id', undefined);
         }
     }, [usePseudonym, realName, setValue]);
+
+    const handleCreatePseudonym = async () => {
+        const name = watch('new_pseudonym');
+        if (!name || name.length < 2) return;
+
+        setIsCreatingPseudonym(true);
+        const res = await createPseudonym(name);
+        if (res.success && res.data) {
+            setUserPseudonyms(prev => [...prev, res.data]);
+            setValue('pseudonym_id', res.data.id);
+            setValue('authors', res.data.name);
+            setValue('new_pseudonym', '');
+            toast.success("Apelido criado!");
+        } else {
+            toast.error(res.error || "Erro ao criar apelido");
+        }
+        setIsCreatingPseudonym(false);
+    };
+
+    const handleSelectPseudonym = (p: any) => {
+        setValue('pseudonym_id', p.id);
+        setValue('authors', p.name);
+    };
 
 
 
@@ -679,7 +709,7 @@ export function FormStep() {
                                 className="peer sr-only"
                             />
                             <div className="w-10 h-6 bg-gray-200 dark:bg-gray-700 rounded-full peer peer-checked:bg-brand-blue relative transition-all after:content-[''] after:absolute after:top-1 after:left-1 after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-4"></div>
-                            <span className="text-[10px] font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">Usar Pseudônimo</span>
+                            <span className="text-[10px] font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">Usar Apelido</span>
                         </label>
                     </div>
 
@@ -687,11 +717,11 @@ export function FormStep() {
                         <input
                             type="text"
                             {...register('authors')}
-                            readOnly={!usePseudonym}
+                            readOnly={true}
                             className={`w-full bg-white dark:bg-form-dark border-2 rounded-2xl px-6 py-4 focus:ring-4 outline-none transition-all dark:text-white 
-                                ${!usePseudonym ? 'opacity-60 cursor-not-allowed bg-gray-50/50 dark:bg-gray-800/10' : ''}
+                                opacity-60 cursor-not-allowed bg-gray-50/50 dark:bg-gray-800/10
                                 ${errors.authors ? 'border-red-500 focus:ring-red-500/10' : 'border-gray-100 dark:border-gray-800 focus:border-brand-red focus:ring-brand-red/10'}`}
-                            placeholder={usePseudonym ? "Nome Criativo / Pseudônimo" : "Nome do Perfil (Travado)"}
+                            placeholder={usePseudonym ? "Nome Criativo / Apelido" : "Nome do Perfil (Travado)"}
                         />
                         {!usePseudonym && (
                             <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-1 text-[10px] font-bold text-gray-400">
@@ -702,13 +732,67 @@ export function FormStep() {
                     </div>
 
                     {usePseudonym && (
-                        <p className="text-[10px] text-brand-yellow font-bold italic flex items-center gap-1 animate-in slide-in-from-top-1 duration-300">
-                            <span className="material-symbols-outlined text-sm">warning</span>
-                            Limite de 2 pseudônimos por conta. Use com sabedoria.
-                        </p>
+                        <div className="space-y-4 animate-in fade-in slide-in-from-top-2 duration-300">
+                            {userPseudonyms.length > 0 && (
+                                <div className="flex flex-wrap gap-2">
+                                    {userPseudonyms.map(p => (
+                                        <button
+                                            key={p.id}
+                                            type="button"
+                                            onClick={() => handleSelectPseudonym(p)}
+                                            className={`px-4 py-2 rounded-xl text-xs font-bold border-2 transition-all ${watch('pseudonym_id') === p.id ? 'border-brand-blue bg-brand-blue/10 text-brand-blue' : 'border-gray-100 dark:border-gray-800 hover:border-brand-blue/30'}`}
+                                        >
+                                            {p.name}
+                                        </button>
+                                    ))}
+                                </div>
+                            )}
+
+                            {userPseudonyms.length < 2 && (
+                                <div className="flex items-center gap-2">
+                                    <input
+                                        type="text"
+                                        {...register('new_pseudonym')}
+                                        placeholder="Novo apelido..."
+                                        className="flex-grow bg-white dark:bg-form-dark border-2 border-gray-100 dark:border-gray-800 rounded-xl px-4 py-2 text-xs outline-none focus:border-brand-blue transition-all"
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={handleCreatePseudonym}
+                                        disabled={isCreatingPseudonym || !watch('new_pseudonym')}
+                                        className="bg-brand-blue text-white px-4 py-2 rounded-xl text-xs font-bold hover:bg-brand-blue/80 disabled:opacity-50 transition-all flex items-center gap-2"
+                                    >
+                                        {isCreatingPseudonym ? <span className="material-symbols-outlined animate-spin text-sm">progress_activity</span> : <span className="material-symbols-outlined text-sm">add</span>}
+                                        Criar
+                                    </button>
+                                </div>
+                            )}
+
+                            <p className="text-[10px] text-brand-yellow font-bold italic flex items-center gap-1">
+                                <span className="material-symbols-outlined text-sm">warning</span>
+                                Limite de 2 apelidos por conta. Use com sabedoria.
+                            </p>
+                        </div>
                     )}
 
                     {errors.authors && <p className="text-red-500 text-xs font-bold">{errors.authors.message}</p>}
+                </div>
+                <div className="space-y-3">
+                    <label className="text-sm font-black uppercase tracking-widest flex items-center justify-between text-brand-blue">
+                        <div className="flex items-center gap-2">
+                            <span className="material-symbols-outlined text-xl">event</span>
+                            Ano do Trabalho/Evento *
+                        </div>
+                    </label>
+                    <select
+                        {...register('event_year')}
+                        className={`w-full bg-white dark:bg-form-dark border-2 rounded-2xl px-6 py-4 focus:ring-4 outline-none transition-all dark:text-white ${errors.event_year ? 'border-red-500 focus:ring-red-500/10' : 'border-gray-100 dark:border-gray-800 focus:border-brand-blue focus:ring-brand-blue/10'}`}
+                    >
+                        {Array.from({ length: new Date().getFullYear() - 1934 + 1 }, (_, i) => new Date().getFullYear() - i).map(year => (
+                            <option key={year} value={year.toString()}>{year}</option>
+                        ))}
+                    </select>
+                    {errors.event_year && <p className="text-red-500 text-xs font-bold mt-1">{errors.event_year.message}</p>}
                 </div>
                 <div className="space-y-3">
                     <label className="text-sm font-black uppercase tracking-widest flex items-center justify-between text-gray-400">

@@ -19,6 +19,8 @@ const navItems: NavItem[] = [
 const drawerLinks: NavItem[] = [
     { name: 'Laboratório Pessoal', href: AppRoutes.LAB, icon: 'science', isPrimary: true },
     { name: 'Pergunte', href: AppRoutes.PERGUNTAS, icon: 'help_outline' },
+    { name: 'Wiki', href: AppRoutes.WIKI, icon: 'menu_book' },
+    { name: 'Trilhas', href: '/colisor/trilhas', icon: 'auto_stories' },
     { name: 'Criadores', href: AppRoutes.CRIADORES, icon: 'person_search' },
     { name: 'Mapa', href: AppRoutes.MAPA, icon: 'map' },
     { name: 'Arquivo Lab-Div', href: AppRoutes.ARQUIVO_LABDIV, icon: 'science' },
