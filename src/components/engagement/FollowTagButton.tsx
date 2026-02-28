@@ -46,8 +46,8 @@ export const FollowTagButton = ({ tagName, userId }: FollowTagButtonProps) => {
             whileTap={{ scale: 0.95 }}
             onClick={handleFollow}
             className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider transition-all border ${isFollowing
-                    ? 'bg-brand-blue text-white border-brand-blue'
-                    : 'bg-white dark:bg-gray-800 text-brand-blue border-brand-blue/30 hover:bg-brand-blue/5'
+                ? 'bg-brand-yellow text-gray-900 border-brand-yellow shadow-lg shadow-brand-yellow/20'
+                : 'bg-white dark:bg-gray-800 text-brand-yellow border-brand-yellow/30 hover:bg-brand-yellow/5'
                 }`}
         >
             <span className="material-symbols-outlined text-[14px]">

@@ -40,7 +40,7 @@ export function FeaturedCarousel({ items }: FeaturedCarouselProps) {
                         <Star className="relative text-brand-red dark:text-brand-yellow w-6 h-6 animate-pulse fill-current" />
                     </div>
                     <h2 className="text-xl font-black uppercase tracking-[0.2em] shimmer-text">
-                        Destaques do Lab-Div
+                        Destacados pelo Lab-Div
                     </h2>
                 </div>
 

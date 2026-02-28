@@ -22,15 +22,15 @@ import { fetchRecentEntanglements } from '@/app/actions/submissions';
 import { supabase } from '@/lib/supabase';
 
 const mainLinks = [
-    { name: 'Fluxo', href: '/', icon: <LayoutGrid className="w-6 h-6" /> },
-    { name: 'Lab-Div', href: '/arquivo-labdiv', icon: <FlaskConical className="w-6 h-6" /> },
-    { name: 'Grande Colisor', href: '/colisor', icon: <Network className="w-6 h-6" /> },
-    { name: 'Wiki', href: AppRoutes.WIKI, icon: <BookOpen className="w-6 h-6" /> },
-    { name: 'Trilhas', href: '/colisor/trilhas', icon: <Route className="w-6 h-6" /> },
-    { name: 'Pergunte', href: '/perguntas', icon: <HelpCircle className="w-6 h-6" /> },
-    { name: 'Criadores', href: '/criadores', icon: <UserSearch className="w-6 h-6" /> },
-    { name: 'Mapa', href: '/mapa', icon: <Map className="w-6 h-6" /> },
-    { name: 'Sobre', href: '/sobre', icon: <HelpCircle className="w-6 h-6" /> },
+    { name: 'Fluxo', href: '/', icon: <LayoutGrid className="w-6 h-6" />, color: 'brand-blue' },
+    { name: 'Lab-Div', href: '/arquivo-labdiv', icon: <FlaskConical className="w-6 h-6" />, color: 'brand-yellow' },
+    { name: 'Grande Colisor', href: '/colisor', icon: <Network className="w-6 h-6" />, color: 'brand-blue' },
+    { name: 'Wiki', href: AppRoutes.WIKI, icon: <BookOpen className="w-6 h-6" />, color: 'brand-yellow' },
+    { name: 'Trilhas', href: '/colisor/trilhas', icon: <Route className="w-6 h-6" />, color: 'brand-red' },
+    { name: 'Pergunte', href: '/perguntas', icon: <HelpCircle className="w-6 h-6" />, color: 'brand-blue' },
+    { name: 'Criadores', href: '/criadores', icon: <UserSearch className="w-6 h-6" />, color: 'brand-yellow' },
+    { name: 'Mapa', href: '/mapa', icon: <Map className="w-6 h-6" />, color: 'brand-red' },
+    { name: 'Sobre', href: '/sobre', icon: <HelpCircle className="w-6 h-6" />, color: 'brand-blue' },
 ];
 
 const secondaryLinks = [
@@ -78,9 +78,9 @@ export const SidebarLeft = ({ userId }: { userId?: string }) => {
                         <Link
                             key={link.href}
                             href={link.href}
-                            className={`flex items-center gap-4 px-4 py-3 rounded-2xl transition-all group ${isActive ? 'bg-brand-blue/10 text-brand-blue' : 'text-gray-500 hover:bg-gray-100 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-white'}`}
+                            className={`flex items-center gap-4 px-4 py-3 rounded-2xl transition-all group ${isActive ? `bg-${link.color}/10 text-${link.color}` : `text-gray-500 hover:bg-${link.color}/5 dark:hover:bg-${link.color}/5 hover:text-${link.color}`}`}
                         >
-                            <span className={`transition-transform group-hover:scale-110 ${isActive ? 'text-brand-blue' : ''}`}>
+                            <span className={`transition-transform group-hover:scale-110 ${isActive ? `text-${link.color}` : ''}`}>
                                 {link.icon}
                             </span>
                             <span className={`font-bold text-base ${isActive ? 'text-gray-900 dark:text-white' : ''}`}>
@@ -95,9 +95,9 @@ export const SidebarLeft = ({ userId }: { userId?: string }) => {
             <div className="px-4 mt-4">
                 <Link
                     href="/emaranhamento"
-                    className={`flex items-center gap-4 px-4 py-3 rounded-2xl transition-all group mb-4 ${pathname === '/emaranhamento' ? 'bg-brand-blue text-white shadow-lg shadow-brand-blue/20' : 'text-gray-500 hover:bg-gray-100 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-white'}`}
+                    className={`flex items-center gap-4 px-4 py-3 rounded-2xl transition-all group mb-4 ${pathname === '/emaranhamento' ? 'bg-brand-blue text-white shadow-lg shadow-brand-blue/20' : 'text-gray-500 hover:bg-brand-blue/5 dark:hover:bg-brand-blue/5 hover:text-brand-blue'}`}
                 >
-                    <Network className="w-6 h-6 group-hover:scale-110 transition-transform" />
+                    <Network className={`w-6 h-6 group-hover:scale-110 transition-transform ${pathname === '/emaranhamento' ? 'text-white' : 'text-brand-blue'}`} />
                     <div className="flex flex-col overflow-hidden">
                         <span className="font-bold text-sm">Emaranhamento</span>
                         <span className="text-[9px] opacity-60 uppercase tracking-wider font-bold truncate">Conversas Ativas</span>
@@ -105,7 +105,7 @@ export const SidebarLeft = ({ userId }: { userId?: string }) => {
                     {recentEntanglements.length > 0 && (
                         <div className="ml-auto flex items-center gap-1.5">
                             <span className="text-[9px] font-black bg-white/20 px-1.5 py-0.5 rounded-full">{recentEntanglements.length}</span>
-                            <div className="size-1.5 rounded-full bg-brand-blue animate-pulse" />
+                            <div className="size-1.5 rounded-full bg-brand-blue animate-pulse shadow-[0_0_8px_rgba(59,130,246,0.8)]" />
                         </div>
                     )}
                 </Link>
@@ -135,7 +135,7 @@ export const SidebarLeft = ({ userId }: { userId?: string }) => {
                                             <span className="text-xs font-black uppercase">{profile.name[0]}</span>
                                         </div>
                                     )}
-                                    <div className="absolute -bottom-0.5 -right-0.5 size-3 bg-brand-blue border-2 border-white dark:border-[#121212] rounded-full" />
+                                    <div className="absolute -bottom-0.5 -right-0.5 size-3 bg-brand-blue border-2 border-white dark:border-[#121212] rounded-full shadow-[0_0_5px_rgba(59,130,246,0.5)]" />
                                 </div>
                                 <div className="flex flex-col overflow-hidden min-w-0">
                                     <div className="flex items-center justify-between gap-2">

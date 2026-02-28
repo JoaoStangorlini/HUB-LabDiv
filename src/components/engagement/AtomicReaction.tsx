@@ -8,6 +8,7 @@ interface AtomicReactionProps {
     count: number;
     onClick: (e: React.MouseEvent) => void;
     size?: number;
+    color?: string; // e.g. 'brand-blue', 'brand-red', 'brand-yellow'
 }
 
 export const AtomIcon = ({ filled, size = 24, className = "" }: { filled: boolean, size?: number, className?: string }) => (
@@ -18,9 +19,8 @@ export const AtomIcon = ({ filled, size = 24, className = "" }: { filled: boolea
         fill="none"
         stroke="currentColor"
         strokeWidth={filled ? "2.5" : "1.5"}
-        strokeLinecap="round"
         strokeLinejoin="round"
-        className={`${className} ${filled ? 'text-brand-blue drop-shadow-[0_0_8px_rgba(59,130,246,0.6)]' : 'text-gray-400'}`}
+        className={`${className} ${filled ? 'drop-shadow-[0_0_8px_rgba(59,130,246,0.6)]' : 'text-gray-400'}`}
     >
         {/* Chromatic Aberration Layers */}
         {filled && (
@@ -61,25 +61,25 @@ export const AtomIcon = ({ filled, size = 24, className = "" }: { filled: boolea
     </svg>
 );
 
-export const AtomicReaction = ({ isActive, count, onClick, size = 28 }: AtomicReactionProps) => {
+export const AtomicReaction = ({ isActive, count, onClick, size = 28, color = 'brand-blue' }: AtomicReactionProps) => {
     return (
         <m.button
             onClick={onClick}
             whileTap={{ scale: 0.8 }}
             aria-label={`Reagir com Átomo - Total: ${count}`}
-            className={`flex items-center gap-2 group transition-all p-2 rounded-lg min-h-[44px] min-w-[44px] ${isActive ? 'bg-brand-blue/10' : 'hover:bg-gray-100 dark:hover:bg-white/5'}`}
+            className={`flex items-center gap-2 group transition-all p-2 rounded-lg min-h-[44px] min-w-[44px] ${isActive ? `bg-${color}/10` : 'hover:bg-gray-100 dark:hover:bg-white/5'}`}
         >
             <div className="relative">
-                <AtomIcon filled={isActive} size={size} />
+                <AtomIcon filled={isActive} size={size} className={isActive ? `text-${color}` : ''} />
                 {isActive && (
                     <m.div
                         initial={{ scale: 0, opacity: 1 }}
                         animate={{ scale: 2, opacity: 0 }}
-                        className="absolute inset-0 bg-brand-blue rounded-full blur-md -z-10"
+                        className={`absolute inset-0 bg-${color} rounded-full blur-md -z-10`}
                     />
                 )}
             </div>
-            <span className={`text-xs font-bold tabular-nums ${isActive ? 'text-brand-blue' : 'text-gray-500'}`}>
+            <span className={`text-xs font-bold tabular-nums ${isActive ? `text-${color}` : 'text-gray-500'}`}>
                 {count} {count === 1 ? 'Átomo' : 'Átomos'}
             </span>
         </m.button>

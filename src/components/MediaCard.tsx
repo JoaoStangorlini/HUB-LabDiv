@@ -327,6 +327,7 @@ export const MediaCard = React.memo(({ post, priority = false }: MediaCardProps)
                         <AtomicReaction
                             isActive={liked}
                             count={likes}
+                            color={['brand-blue', 'brand-red', 'brand-yellow'][colorNum]}
                             onClick={(e) => {
                                 e.preventDefault();
                                 e.stopPropagation();
@@ -371,10 +372,11 @@ export const MediaCard = React.memo(({ post, priority = false }: MediaCardProps)
                                 e.stopPropagation(); e.preventDefault();
                                 router.push(`/?type=${encodeURIComponent(post.category!)}`);
                             }}
-                            className={`px-2 py-0.5 text-[10px] font-bold rounded-md uppercase tracking-wide cursor-pointer hover:opacity-80 transition-opacity
-                            ${['Laboratórios', 'Eventos', 'Uso Didático'].includes(post.category) ? 'bg-brand-yellow/10 text-brand-yellow border border-brand-yellow/20' :
-                                    ['Pesquisadores', 'Convivência', 'Mural do Deu Ruim'].includes(post.category) ? 'bg-brand-red/10 text-brand-red border border-brand-red/20' :
-                                        'bg-brand-blue/10 text-brand-blue dark:text-blue-400 border border-brand-blue/20 dark:border-blue-400/20'}`}
+                            className={`px-2 py-0.5 text-[10px] font-black rounded-md uppercase tracking-wide cursor-pointer hover:opacity-80 transition-opacity
+                            ${['Laboratórios', 'Uso Didático'].includes(post.category) ? 'bg-brand-yellow/10 text-brand-yellow border border-brand-yellow/20' :
+                                    ['Pesquisadores', 'Mural do Deu Ruim'].includes(post.category) ? 'bg-brand-red/10 text-brand-red border border-brand-red/20' :
+                                        ['Eventos', 'Convivência'].includes(post.category) ? 'bg-brand-blue/10 text-brand-blue border border-brand-blue/20' :
+                                            'bg-brand-blue/10 text-brand-blue border border-brand-blue/20'}`}
                         >
                             {post.category}
                         </span>
@@ -386,20 +388,27 @@ export const MediaCard = React.memo(({ post, priority = false }: MediaCardProps)
                     )}
                     {post.tags?.map((tag, idx) => {
                         const hash = tag.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-                        const colors = ['bg-brand-blue/10 text-brand-blue dark:text-blue-400 border-brand-blue/20', 'bg-brand-yellow/10 text-brand-yellow border-brand-yellow/20', 'bg-brand-red/10 text-brand-red border-brand-red/20'];
+                        const colors = [
+                            'bg-brand-blue/10 text-brand-blue border-brand-blue/20',
+                            'bg-brand-yellow/10 text-brand-yellow border-brand-yellow/20',
+                            'bg-brand-red/10 text-brand-red border-brand-red/20'
+                        ];
+                        // Cycle based on index + category hash for variety
+                        const categoryHash = post.category ? post.category.length : 0;
+                        const colorClass = colors[(idx + categoryHash) % colors.length];
                         return (
                             <React.Fragment key={idx}>
-                                <span onClick={(e) => { e.stopPropagation(); e.preventDefault(); router.push(`/?q=${tag.replace('#', '')}`); }} className={`px-2 py-0.5 ${colors[hash % colors.length]} text-[10px] font-extrabold rounded-md uppercase tracking-wide border transition-all hover:scale-105 cursor-pointer`}>
+                                <span onClick={(e) => { e.stopPropagation(); e.preventDefault(); router.push(`/?q=${tag.replace('#', '')}`); }} className={`px-2 py-0.5 ${colorClass} text-[10px] font-black rounded-md uppercase tracking-wide border transition-all hover:scale-110 cursor-pointer`}>
                                     #{highlightMatch(tag.replace('#', ''), query)}
                                 </span>
                             </React.Fragment>
                         );
                     })}
-                    <span className="flex items-center gap-1 px-2 py-0.5 bg-brand-blue/5 dark:bg-brand-yellow/10 text-brand-blue dark:text-brand-yellow text-[10px] font-bold rounded-md uppercase tracking-wide border border-brand-blue/10">
+                    <span className="flex items-center gap-1 px-2 py-0.5 bg-brand-yellow/10 text-brand-yellow text-[10px] font-bold rounded-md uppercase tracking-wide border border-brand-yellow/20">
                         <Clock className="w-3 h-3" /> {Math.max(1, post.readingTime || 1)} min
                     </span>
                     {post.views != null && (
-                        <span className="flex items-center gap-1 px-2 py-0.5 bg-gray-100 dark:bg-gray-800 text-gray-500 text-[10px] font-bold rounded-md uppercase tracking-wide border border-gray-200">
+                        <span className="flex items-center gap-1 px-2 py-0.5 bg-brand-blue/10 text-brand-blue text-[10px] font-bold rounded-md uppercase tracking-wide border border-brand-blue/20">
                             <Eye className="w-3 h-3" /> {post.views}
                         </span>
                     )}

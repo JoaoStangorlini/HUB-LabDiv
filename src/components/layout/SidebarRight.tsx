@@ -140,10 +140,10 @@ export const SidebarRight = ({ tags, authors: initialAuthors }: SidebarRightProp
             {/* ISÓTOPOS EM ÓRBITA */}
             <div className="bg-gray-50 dark:bg-white/5 rounded-3xl p-5 border border-gray-100 dark:border-gray-800">
                 <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-sm font-black uppercase tracking-widest text-gray-900 dark:text-white">Isótopos em Órbita</h3>
+                    <h3 className="text-sm font-black uppercase tracking-widest text-brand-blue">Isótopos em Órbita</h3>
                     <div className="flex gap-1">
                         {Array.from({ length: totalPages }).map((_, i) => (
-                            <div key={i} className={`w-1.5 h-1.5 rounded-full transition-all ${page === i ? 'bg-brand-blue w-4' : 'bg-gray-300 dark:bg-gray-700'}`} />
+                            <div key={i} className={`w-1.5 h-1.5 rounded-full transition-all ${page === i ? 'bg-brand-blue w-4 shadow-[0_0_8px_rgba(59,130,246,0.5)]' : 'bg-gray-300 dark:bg-gray-700'}`} />
                         ))}
                     </div>
                 </div>
@@ -164,7 +164,10 @@ export const SidebarRight = ({ tags, authors: initialAuthors }: SidebarRightProp
                                     href={`/?category=${tag.name}`}
                                     className="group flex flex-col hover:opacity-80 transition-opacity"
                                 >
-                                    <span className="text-xs text-brand-blue font-bold">#{tag.name}</span>
+                                    <span className={`text-xs font-black transition-colors ${tag.name.length % 3 === 0 ? 'text-brand-blue' :
+                                            tag.name.length % 3 === 1 ? 'text-brand-yellow' :
+                                                'text-brand-red'
+                                        }`}>#{tag.name}</span>
                                     <span className="text-[10px] text-gray-500 uppercase tracking-wide font-medium">{tag.count} contribuições</span>
                                 </Link>
                             )) : (
@@ -176,7 +179,7 @@ export const SidebarRight = ({ tags, authors: initialAuthors }: SidebarRightProp
 
                 <button
                     onClick={handleNextPage}
-                    className="mt-4 text-xs font-bold text-brand-blue hover:underline flex items-center gap-1 group"
+                    className="mt-4 text-xs font-bold text-brand-yellow hover:underline flex items-center gap-1 group"
                 >
                     Explorar mais isótopos
                     <ChevronRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
@@ -194,7 +197,7 @@ export const SidebarRight = ({ tags, authors: initialAuthors }: SidebarRightProp
                     </button>
                     <button
                         onClick={() => setActiveTab('search')}
-                        className={`flex-1 py-4 text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'search' ? 'text-brand-blue border-b-2 border-brand-blue bg-brand-blue/5' : 'text-gray-400 hover:text-gray-600'}`}
+                        className={`flex-1 py-4 text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'search' ? 'text-brand-red border-b-2 border-brand-red bg-brand-red/5' : 'text-gray-400 hover:text-gray-600'}`}
                     >
                         Buscar
                     </button>
@@ -233,7 +236,10 @@ export const SidebarRight = ({ tags, authors: initialAuthors }: SidebarRightProp
                                                     <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
                                                 </div>
                                             ) : (
-                                                <div className="size-10 rounded-full bg-brand-blue/10 flex items-center justify-center text-brand-blue shrink-0">
+                                                <div className={`size-10 rounded-full flex items-center justify-center shrink-0 ${(user.name.split('').reduce((a, b) => a + b.charCodeAt(0), 0)) % 3 === 0 ? 'bg-brand-blue/10 text-brand-blue' :
+                                                        (user.name.split('').reduce((a, b) => a + b.charCodeAt(0), 0)) % 3 === 1 ? 'bg-brand-yellow/10 text-brand-yellow' :
+                                                            'bg-brand-red/10 text-brand-red'
+                                                    }`}>
                                                     <User className="w-5 h-5" />
                                                 </div>
                                             )}
@@ -246,7 +252,11 @@ export const SidebarRight = ({ tags, authors: initialAuthors }: SidebarRightProp
                                         <div className="flex gap-1 shrink-0">
                                             <button
                                                 onClick={() => handleFollowToggle(user.id)}
-                                                className={`px-3 py-1.5 text-[10px] font-black rounded-full transition-all ${isFollowing ? 'bg-gray-100 dark:bg-white/10 text-gray-500 hover:bg-red-500/10 hover:text-red-500' : 'bg-brand-blue text-white hover:scale-105'}`}
+                                                className={`px-3 py-1.5 text-[10px] font-black rounded-full transition-all ${isFollowing ? 'bg-gray-100 dark:bg-white/10 text-gray-500 hover:bg-red-500/10 hover:text-red-500' :
+                                                        (user.name.split('').reduce((a, b) => a + b.charCodeAt(0), 0)) % 3 === 0 ? 'bg-brand-blue text-white hover:scale-105 shadow-lg shadow-brand-blue/10' :
+                                                            (user.name.split('').reduce((a, b) => a + b.charCodeAt(0), 0)) % 3 === 1 ? 'bg-brand-yellow text-gray-900 hover:scale-105 shadow-lg shadow-brand-yellow/10' :
+                                                                'bg-brand-red text-white hover:scale-105 shadow-lg shadow-brand-red/10'
+                                                    }`}
                                             >
                                                 {isFollowing ? 'Seguindo' : 'Seguir'}
                                             </button>

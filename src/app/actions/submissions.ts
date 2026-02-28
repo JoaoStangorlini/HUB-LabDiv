@@ -35,13 +35,14 @@ export interface FetchParams {
 }
 
 export async function fetchSubmissions({ page, limit, query, categories, mediaTypes, sort, author, is_featured: featured, years }: FetchParams): Promise<{ items: { post: PostDTO }[], hasMore: boolean }> {
-    let queryBuilder = supabase
+    const supabaseServer = await createServerSupabase();
+    let queryBuilder = supabaseServer
         .from('submissions')
         .select('*, energy_reactions, atomic_excitation', { count: 'exact' })
         .eq('status', 'aprovado');
 
     if (featured) queryBuilder = queryBuilder.eq('is_featured', true);
-    if (categories && categories.length > 0 && !categories.includes('Todos')) queryBuilder = queryBuilder.in('category', categories);
+    if (categories && categories.length > 0) queryBuilder = queryBuilder.in('category', categories);
     if (author) queryBuilder = queryBuilder.eq('authors', author);
     if (mediaTypes && mediaTypes.length > 0) queryBuilder = queryBuilder.in('media_type', mediaTypes);
 
@@ -65,7 +66,11 @@ export async function fetchSubmissions({ page, limit, query, categories, mediaTy
     queryBuilder = queryBuilder.range(from, to);
 
     const { data: submissions, error, count } = await queryBuilder;
-    if (error || !submissions) return { items: [], hasMore: false };
+    if (error) {
+        console.error("fetchSubmissions SQL Error:", error);
+        return { items: [], hasMore: false };
+    }
+    if (!submissions) return { items: [], hasMore: false };
 
     const submissionIds = submissions.map(s => s.id);
 

@@ -42,9 +42,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ c
       page: 1,
       limit: 12,
       query: initialQuery,
-      categories: initialCategory === 'Todos' || initialCategory === 'Destaques' ? [] : [initialCategory],
-      author: initialCollection || undefined,
-      is_featured: initialCategory === 'Destaques' ? true : undefined,
+      categories: initialCategory === 'Todos' ? [] : [initialCategory],
       sort: 'recentes'
     }),
     fetchTrendingSubmissions(),
