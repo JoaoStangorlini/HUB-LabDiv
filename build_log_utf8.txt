@@ -1,0 +1,133 @@
+﻿
+> if-usp-ciencia@0.1.0 prebuild
+> npm run step-zero
+
+
+> if-usp-ciencia@0.1.0 step-zero
+> node scripts/generate-id.js
+
+Γ£à [V3.6] sw.js gerado a partir do template com ID: 1772068758082
+Γ£à [V3.6] BUILD_ID '1772068758082' injetado em .env.production.local.
+
+> if-usp-ciencia@0.1.0 build
+> next build
+
+Γû▓ Next.js 16.1.6 (Turbopack)
+- Environments: .env.production.local, .env.local
+
+node.exe : ΓÜá The "middleware" file 
+convention is deprecated. Please use 
+"proxy" instead. Learn more: https://nex
+tjs.org/docs/messages/middleware-to-prox
+y
+No linha:1 caractere:1
++ & "C:\Program Files\nodejs/node.exe" 
+"C:\Program Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecif 
+   ied: (ΓÜá The "middle...leware-to-p  
+  roxy:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCom 
+   mandError
+ 
+  Creating an optimized production build ...
+Γ£ô Compiled successfully in 6.9s
+  Running TypeScript ...
+  Collecting page data using 11 workers ...
+ΓÜá Using edge runtime on a page 
+currently disables static generation 
+for that page
+  Generating static pages using 11 workers (0/45) ...
+ΓÜá metadataBase property in metadata 
+export is not set for resolving social 
+open graph or twitter images, using 
+"http://localhost:3000". See https://nex
+tjs.org/docs/app/api-reference/functions
+/generate-metadata#metadatabase
+ΓÜá metadataBase property in metadata 
+export is not set for resolving social 
+open graph or twitter images, using 
+"http://localhost:3000". See https://nex
+tjs.org/docs/app/api-reference/functions
+/generate-metadata#metadatabase
+  Generating static pages using 11 workers (11/45) 
+  Generating static pages using 11 workers (22/45) 
+  Generating static pages using 11 workers (33/45) 
+Γ£ô Generating static pages using 11 workers (45/45) in 2.0s
+  Finalizing page optimization ...
+
+Route (app)
+Γöî ╞Æ /
+Γö£ ╞Æ /_not-found
+Γö£ ╞Æ /admin
+Γö£ ╞Æ /admin/acervo
+Γö£ ╞Æ /admin/analytics
+Γö£ ╞Æ /admin/aprovados
+Γö£ ╞Æ /admin/autores
+Γö£ ╞Æ /admin/comentarios
+Γö£ ╞Æ /admin/correcoes
+Γö£ ╞Æ /admin/editar
+Γö£ ╞Æ /admin/login
+Γö£ ╞Æ /admin/narracao
+Γö£ ╞Æ /admin/negadas
+Γö£ ╞Æ /admin/oportunidades
+Γö£ ╞Æ /admin/pendentes
+Γö£ ╞Æ /admin/perguntas
+Γö£ ╞Æ /admin/ranking
+Γö£ ╞Æ /admin/reproducoes
+Γö£ ╞Æ /admin/trilhas
+Γö£ ╞Æ /api/avatar
+Γö£ ╞Æ /api/like
+Γö£ ╞Æ /api/notify
+Γö£ ╞Æ /api/og
+Γö£ ╞Æ /api/report
+Γö£ ╞Æ /api/test-db
+Γö£ ╞Æ /api/user-reaction
+Γö£ ╞Æ /arquivo/[id]
+Γö£ ╞Æ /auth/callback
+Γö£ ╞Æ /autor/[nome]
+Γö£ ╞Æ /colisor
+Γö£ ╞Æ /colisor/trilhas
+Γö£ ╞Æ /comunidade
+Γö£ ╞Æ /criadores
+Γö£ ╞Æ /dms
+Γö£ ╞Æ /emaranhamento
+Γö£ ╞Æ /enviar
+Γö£ ╞Æ /fluxo
+Γö£ Γùï /icon.svg
+Γö£ ╞Æ /iniciativas
+Γö£ ╞Æ /lab
+Γö£ ╞Æ /leaderboard
+Γö£ ╞Æ /login
+Γö£ ╞Æ /manual
+Γö£ ╞Æ /mapa
+Γö£ ╞Æ /offline
+Γö£ ╞Æ /perfil
+Γö£ ╞Æ /perguntas
+Γö£ ╞Æ /sobre
+Γö£ ╞Æ /timeline
+Γöö ╞Æ /wiki
+
+
+╞Æ Proxy (Middleware)
+
+Γùï  (Static)   prerendered as static content
+╞Æ  (Dynamic)  server-rendered on demand
+
+
+> if-usp-ciencia@0.1.0 postbuild
+> npm run audit-logs; node scripts/clean.js
+
+npm error Missing script: "audit-logs;"
+npm error
+npm error Did you mean this?
+npm error   npm run audit-logs # run 
+the "audit-logs" package script
+npm error
+npm error To see a list of scripts, run:
+npm error   npm run
+npm error A complete log of this run 
+can be found in: C:\Users\Stangorlini\Ap
+pData\Local\npm-cache\_logs\2026-02-26T0
+1_19_37_060Z-debug-0.log

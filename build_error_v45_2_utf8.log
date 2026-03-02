@@ -1,0 +1,148 @@
+﻿
+> if-usp-ciencia@0.1.0 prebuild
+> npm run step-zero
+
+
+> if-usp-ciencia@0.1.0 step-zero
+> node scripts/generate-id.js
+
+Γ£à [V3.6] sw.js gerado a partir do template com ID: 1772406703885
+Γ£à [V3.6] BUILD_ID '1772406703885' injetado em .env.production.local.
+
+> if-usp-ciencia@0.1.0 build
+> next build
+
+Γû▓ Next.js 16.1.6 (Turbopack)
+- Environments: .env.production.local, .env.local
+
+node.exe : ΓÜá The 
+"middleware" file 
+convention is 
+deprecated. Please use 
+"proxy" instead. Learn 
+more: https://nextjs.or
+g/docs/messages/middlew
+are-to-proxy
+No linha:1 caractere:1
++ & "C:\Program 
+Files\nodejs/node.exe" 
+"C:\Program 
+Files\nodejs/node_mo 
+...
++ ~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~
+~~
+    + CategoryInfo     
+         : 
+NotSpecified: (ΓÜá T   
+ he 
+"middle...leware-to-   
+ proxy:String) [], 
+Remot    eException
+    + 
+FullyQualifiedErrorId  
+   : NativeCommandError
+ 
+  Creating an optimized production build ...
+Γ£ô Compiled successfully in 9.6s
+  Running TypeScript ...
+  Collecting page data using 11 workers ...
+ΓÜá Using edge runtime 
+on a page currently 
+disables static 
+generation for that 
+page
+  Generating static pages using 11 workers (0/48) ...
+  Generating static pages using 11 workers (12/48) 
+  Generating static pages using 11 workers (24/48) 
+  Generating static pages using 11 workers (36/48) 
+Γ£ô Generating static pages using 11 workers (48/48) in 1636.1ms
+  Finalizing page optimization ...
+
+Route (app)
+Γöî ╞Æ /
+Γö£ ╞Æ /_not-found
+Γö£ ╞Æ /admin
+Γö£ ╞Æ /admin/acervo
+Γö£ ╞Æ /admin/analytics
+Γö£ ╞Æ /admin/aprovados
+Γö£ ╞Æ /admin/autores
+Γö£ ╞Æ /admin/comentarios
+Γö£ ╞Æ /admin/correcoes
+Γö£ ╞Æ /admin/editar
+Γö£ ╞Æ /admin/login
+Γö£ ╞Æ /admin/narracao
+Γö£ ╞Æ /admin/negadas
+Γö£ ╞Æ /admin/oportunidades
+Γö£ ╞Æ /admin/papeis
+Γö£ ╞Æ /admin/pendentes
+Γö£ ╞Æ /admin/perguntas
+Γö£ ╞Æ /admin/profiles
+Γö£ ╞Æ /admin/pseudonyms
+Γö£ ╞Æ /admin/ranking
+Γö£ ╞Æ /admin/reports
+Γö£ ╞Æ /admin/reproducoes
+Γö£ ╞Æ /admin/trilhas
+Γö£ ╞Æ /api/avatar
+Γö£ ╞Æ /api/like
+Γö£ ╞Æ /api/notify
+Γö£ ╞Æ /api/og
+Γö£ ╞Æ /arquivo-labdiv
+Γö£ ╞Æ /arquivo/[id]
+Γö£ ╞Æ /auth/callback
+Γö£ ╞Æ /autor/[nome]
+Γö£ ╞Æ /colisor
+Γö£ ╞Æ /colisor/trilhas
+Γö£ ╞Æ /comunidade
+Γö£ ╞Æ /criadores
+Γö£ ╞Æ /emaranhamento
+Γö£ ╞Æ /enviar
+Γö£ ╞Æ /fluxo
+Γö£ Γùï /icon.svg
+Γö£ ╞Æ /iniciativas
+Γö£ ╞Æ /lab
+Γö£ ╞Æ /leaderboard
+Γö£ ╞Æ /login
+Γö£ ╞Æ /manual
+Γö£ ╞Æ /mapa
+Γö£ ╞Æ /offline
+Γö£ ╞Æ /perfil
+Γö£ ╞Æ /perguntas
+Γö£ Γùï /robots.txt
+Γö£ Γùï /sitemap.xml
+Γö£ ╞Æ /sobre
+Γö£ ╞Æ /timeline
+Γö£ ╞Æ /wiki
+Γöö ╞Æ /wiki/[slug]
+
+
+╞Æ Proxy (Middleware)
+
+Γùï  (Static)   prerendered as static content
+╞Æ  (Dynamic)  server-rendered on demand
+
+
+> if-usp-ciencia@0.1.0 postbuild
+> npm run audit-logs; node scripts/clean.js
+
+npm error Missing 
+script: "audit-logs;"
+npm error
+npm error Did you mean 
+this?
+npm error   npm run 
+audit-logs # run the 
+"audit-logs" package 
+script
+npm error
+npm error To see a 
+list of scripts, run:
+npm error   npm run
+npm error A complete 
+log of this run can be 
+found in: C:\Users\Stan
+gorlini\AppData\Local\n
+pm-cache\_logs\2026-03-
+01T23_12_08_140Z-debug-
+0.log
