@@ -8,9 +8,7 @@ interface DashboardCounts {
     pendentes: number;
     aprovados: number;
     rejeitados: number;
-    denunciasPendentes: number;
     comentariosPendentes: number;
-    reproducoesPendentes: number;
     narracoesFaltantes: number;
     trilhasTotal: number;
     tagsTotal: number;
@@ -26,7 +24,7 @@ interface DashboardCounts {
 export default function AdminDashboardOverview() {
     const [counts, setCounts] = useState<DashboardCounts>({
         pendentes: 0, aprovados: 0, rejeitados: 0,
-        denunciasPendentes: 0, comentariosPendentes: 0, reproducoesPendentes: 0,
+        comentariosPendentes: 0,
         narracoesFaltantes: 0, trilhasTotal: 0, tagsTotal: 0,
         perguntasPendentes: 0, perguntasRespondidas: 0,
         totalAutores: 0, autoresFrequentes: 0, autoresMestres: 0,
@@ -41,7 +39,7 @@ export default function AdminDashboardOverview() {
 
             const [
                 pendentesRes, aprovadosRes, rejeitadosRes,
-                denunciasRes, comPendentesRes, repPendentesRes,
+                comPendentesRes,
                 narracoesRes, trilhasRes, tagsRes,
                 pergPendentesRes, pergRespondidasRes,
                 oportunidadesRes, subsWithAuthorsRes,
@@ -50,9 +48,7 @@ export default function AdminDashboardOverview() {
                 supabase.from('submissions').select('*', { count: 'exact', head: true }).eq('status', 'pendente'),
                 supabase.from('submissions').select('*', { count: 'exact', head: true }).eq('status', 'aprovado'),
                 supabase.from('submissions').select('*', { count: 'exact', head: true }).eq('status', 'rejeitado'),
-                supabase.from('reports').select('*', { count: 'exact', head: true }).eq('status', 'pendente'),
                 supabase.from('comments').select('*', { count: 'exact', head: true }).eq('status', 'pendente'),
-                supabase.from('reproductions').select('*', { count: 'exact', head: true }).eq('status', 'pendente'),
                 supabase.from('submissions').select('*', { count: 'exact', head: true }).eq('status', 'aprovado').or('description.is.null,description.eq.'),
                 supabase.from('learning_trails').select('*', { count: 'exact', head: true }),
                 supabase.from('submissions').select('tags').eq('status', 'aprovado'),
@@ -90,9 +86,7 @@ export default function AdminDashboardOverview() {
                 pendentes: pendentesRes.count || 0,
                 aprovados: aprovadosRes.count || 0,
                 rejeitados: rejeitadosRes.count || 0,
-                denunciasPendentes: denunciasRes.count || 0,
                 comentariosPendentes: comPendentesRes.count || 0,
-                reproducoesPendentes: repPendentesRes.count || 0,
                 narracoesFaltantes: narracoesRes.count || 0,
                 trilhasTotal: trilhasRes.count || 0,
                 tagsTotal: uniqueTagCount,
@@ -122,15 +116,6 @@ export default function AdminDashboardOverview() {
             urgent: (counts.pendentesPerfis || 0) > 0,
         },
         {
-            title: 'Denúncias',
-            subtitle: 'Pendentes de Análise',
-            count: counts.denunciasPendentes,
-            icon: 'flag',
-            color: 'red' as const,
-            href: '/admin/acervo',
-            urgent: counts.denunciasPendentes > 0,
-        },
-        {
             title: 'Comentários',
             subtitle: 'Aguardando Aprovação',
             count: counts.comentariosPendentes,
@@ -138,15 +123,6 @@ export default function AdminDashboardOverview() {
             color: 'electric' as const,
             href: '/admin/comentarios',
             urgent: counts.comentariosPendentes > 0,
-        },
-        {
-            title: 'Reproduções',
-            subtitle: 'Para Validar',
-            count: counts.reproducoesPendentes,
-            icon: 'science',
-            color: 'yellow' as const,
-            href: '/admin/reproducoes',
-            urgent: counts.reproducoesPendentes > 0,
         },
         {
             title: 'Narrações',

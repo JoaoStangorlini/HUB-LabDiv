@@ -21,10 +21,6 @@ export default function ArquivoLabDivPage() {
                                     <span className="material-symbols-outlined text-[20px]">science</span>
                                     Metodologia Completa
                                 </a>
-                                <Link href="/emaranhamento" className="px-6 py-3 bg-white dark:bg-card-dark text-brand-blue border border-gray-200 dark:border-gray-800 rounded-2xl font-bold flex items-center gap-2 hover:-translate-y-1 transition-transform">
-                                    <span className="material-symbols-outlined text-[20px]">forum</span>
-                                    Discutir Projetos
-                                </Link>
                             </div>
                         </div>
                         <div className="hidden md:block w-48 h-48 relative opacity-80">

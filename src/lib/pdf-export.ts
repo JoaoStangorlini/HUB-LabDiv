@@ -1,5 +1,5 @@
 import jsPDF from 'jspdf';
-import { toPng } from 'html-to-image';
+import { domToPng } from 'modern-screenshot';
 
 /**
  * Exporta um elemento HTML específico para um arquivo PDF com múltiplas páginas se necessário.
@@ -20,17 +20,11 @@ export async function exportElementToPDF(elementId: string, filename: string = '
         color: element.style.color,
     };
 
-    // Temporarily overriding styles for a clean "print" look
-    // This expects the element to contain prose prose-invert etc, which might still be dark
-    // For a robust solution, we use the user's current theme visually.
-
     try {
-        const dataUrl = await toPng(element, {
+        const dataUrl = await domToPng(element, {
             quality: 0.95,
             backgroundColor: window.matchMedia('(prefers-color-scheme: dark)').matches ? '#0a0a0b' : '#ffffff',
-            style: {
-                transform: 'scale(1)', // Fix translation issues if any
-            }
+            scale: 2, // Higher quality for PDF
         });
 
         const pdf = new jsPDF({

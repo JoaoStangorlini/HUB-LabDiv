@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useRef } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { MediaCard, MediaCardProps } from './MediaCard';
 import { m } from 'framer-motion';
 import { Star, ChevronLeft, ChevronRight } from 'lucide-react';
@@ -11,6 +11,23 @@ interface FeaturedCarouselProps {
 
 export function FeaturedCarousel({ items }: FeaturedCarouselProps) {
     const scrollRef = useRef<HTMLDivElement>(null);
+    const [canScrollLeft, setCanScrollLeft] = useState(false);
+    const [canScrollRight, setCanScrollRight] = useState(true);
+
+    const checkScroll = () => {
+        if (scrollRef.current) {
+            const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
+            setCanScrollLeft(scrollLeft > 0);
+            // Added 1px tolerance for rounding errors on some browsers
+            setCanScrollRight(Math.ceil(scrollLeft + clientWidth) < scrollWidth);
+        }
+    };
+
+    useEffect(() => {
+        checkScroll();
+        window.addEventListener('resize', checkScroll);
+        return () => window.removeEventListener('resize', checkScroll);
+    }, [items]);
 
     if (!items || items.length === 0) return null;
 
@@ -29,8 +46,8 @@ export function FeaturedCarousel({ items }: FeaturedCarouselProps) {
         <div className="relative mb-16 group">
             {/* Background Decorative Glow */}
             <div className="absolute -inset-x-4 -inset-y-8 z-0 overflow-hidden pointer-events-none sm:block hidden">
-                <div className="absolute top-1/2 left-1/4 size-96 bg-brand-yellow/10 rounded-full blur-[100px] animate-blob-bounce"></div>
-                <div className="absolute top-0 right-1/4 size-96 bg-brand-red/10 rounded-full blur-[100px] animate-blob-bounce" style={{ animationDelay: '2s' }}></div>
+                <div className="absolute top-1/2 left-1/4 size-96 bg-brand-yellow/5 rounded-full blur-[60px] animate-blob-bounce"></div>
+                <div className="absolute top-0 right-1/4 size-96 bg-brand-red/5 rounded-full blur-[60px] animate-blob-bounce" style={{ animationDelay: '2s' }}></div>
             </div>
 
             <div className="relative z-10 flex items-center justify-between mb-6 px-2">
@@ -47,13 +64,15 @@ export function FeaturedCarousel({ items }: FeaturedCarouselProps) {
                 <div className="flex gap-2">
                     <button
                         onClick={() => scroll('left')}
-                        className="p-2 rounded-full bg-white dark:bg-card-dark border border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-md hover:border-brand-blue transition-all"
+                        disabled={!canScrollLeft}
+                        className="p-2 rounded-full bg-white dark:bg-card-dark border border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-md hover:border-brand-blue transition-all disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:border-gray-100 dark:disabled:hover:border-gray-800"
                     >
                         <ChevronLeft className="w-5 h-5 text-gray-600 dark:text-gray-400" />
                     </button>
                     <button
                         onClick={() => scroll('right')}
-                        className="p-2 rounded-full bg-white dark:bg-card-dark border border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-md hover:border-brand-blue transition-all"
+                        disabled={!canScrollRight}
+                        className="p-2 rounded-full bg-white dark:bg-card-dark border border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-md hover:border-brand-blue transition-all disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:border-gray-100 dark:disabled:hover:border-gray-800"
                     >
                         <ChevronRight className="w-5 h-5 text-gray-600 dark:text-gray-400" />
                     </button>
@@ -62,6 +81,7 @@ export function FeaturedCarousel({ items }: FeaturedCarouselProps) {
 
             <div
                 ref={scrollRef}
+                onScroll={checkScroll}
                 className="flex gap-6 overflow-x-auto pb-6 px-2 no-scrollbar snap-x snap-mandatory scroll-smooth"
             >
                 {items.map((item, index) => (
@@ -72,7 +92,7 @@ export function FeaturedCarousel({ items }: FeaturedCarouselProps) {
                         transition={{ delay: index === 0 ? 0 : index * 0.1 }}
                         className="min-w-[300px] md:min-w-[380px] snap-start"
                     >
-                        <MediaCard post={item.post} priority={index === 0} />
+                        <MediaCard post={item.post} priority={index < 2} />
                     </m.div>
                 ))}
             </div>

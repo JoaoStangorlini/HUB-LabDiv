@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { m, AnimatePresence } from 'framer-motion';
 import ReactMarkdown from 'react-markdown';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
@@ -21,7 +21,7 @@ export function PresentationMode({ content, onClose }: PresentationModeProps) {
     const prevSlide = () => setCurrentSlide(prev => Math.max(prev - 1, 0));
 
     return (
-        <motion.div
+        <m.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -37,7 +37,7 @@ export function PresentationMode({ content, onClose }: PresentationModeProps) {
 
             <div className="flex-1 w-full max-w-5xl flex items-center justify-center">
                 <AnimatePresence mode="wait">
-                    <motion.div
+                    <m.div
                         key={currentSlide}
                         initial={{ x: 50, opacity: 0 }}
                         animate={{ x: 0, opacity: 1 }}
@@ -47,7 +47,7 @@ export function PresentationMode({ content, onClose }: PresentationModeProps) {
                         <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>
                             {slides[currentSlide]}
                         </ReactMarkdown>
-                    </motion.div>
+                    </m.div>
                 </AnimatePresence>
             </div>
 
@@ -76,12 +76,12 @@ export function PresentationMode({ content, onClose }: PresentationModeProps) {
 
             {/* Progress Bar */}
             <div className="fixed bottom-0 left-0 h-1.5 bg-brand-blue/20 w-full overflow-hidden">
-                <motion.div
+                <m.div
                     className="h-full bg-brand-blue"
                     initial={{ width: 0 }}
                     animate={{ width: `${((currentSlide + 1) / slides.length) * 100}%` }}
                 />
             </div>
-        </motion.div>
+        </m.div>
     );
 }

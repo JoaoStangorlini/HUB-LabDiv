@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { m, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import { fetchNotifications, markNotificationAsRead, getUnreadCount } from '@/app/actions/notifications';
 import { supabase } from '@/lib/supabase';
@@ -77,7 +77,7 @@ export const NotificationBell = ({ userId }: { userId: string | undefined }) => 
 
             <AnimatePresence>
                 {isOpen && (
-                    <motion.div
+                    <m.div
                         initial={{ opacity: 0, y: 10, scale: 0.95 }}
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: 10, scale: 0.95 }}
@@ -145,7 +145,7 @@ export const NotificationBell = ({ userId }: { userId: string | undefined }) => 
                                 </div>
                             </>
                         )}
-                    </motion.div>
+                    </m.div>
                 )}
             </AnimatePresence>
         </div>

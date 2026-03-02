@@ -1,6 +1,6 @@
 'use client';
 
-import { motion } from 'framer-motion';
+import { m, AnimatePresence } from 'framer-motion';
 import { Award, ShieldCheck, Zap, BookOpen, Star } from 'lucide-react';
 
 interface BadgeProps {
@@ -54,7 +54,7 @@ export const Badge = ({ name, description, type = 'colaborador', isLocked = fals
     const style = badgeStyles[type] || badgeStyles.colaborador;
 
     return (
-        <motion.div
+        <m.div
             whileHover={{ scale: 1.05 }}
             className={`relative p-4 rounded-2xl border ${style.border} ${style.bg} ${isLocked ? 'grayscale opacity-40' : ''} transition-all group overflow-hidden`}
         >
@@ -74,13 +74,13 @@ export const Badge = ({ name, description, type = 'colaborador', isLocked = fals
 
             {!isLocked && (
                 <div className="absolute top-1 right-1">
-                    <motion.div
+                    <m.div
                         animate={{ opacity: [0.5, 1, 0.5] }}
                         transition={{ repeat: Infinity, duration: 2 }}
                         className={`w-1 h-1 rounded-full ${style.color.replace('text-', 'bg-')}`}
                     />
                 </div>
             )}
-        </motion.div>
+        </m.div>
     );
 };

@@ -3,7 +3,7 @@
 import React, { useMemo } from 'react';
 import { Submission } from '@/types';
 import { TimelineItem } from './TimelineItem';
-import { motion } from 'framer-motion';
+import { m, AnimatePresence } from 'framer-motion';
 
 interface TimelineViewProps {
     submissions: Submission[];
@@ -23,13 +23,13 @@ const YearGroup = ({ year, yearSubmissions }: { year: string, yearSubmissions: S
                 <>
                     {/* Year Sticky Header */}
                     <div className="sticky top-24 z-20 flex justify-center mb-12">
-                        <motion.div
+                        <m.div
                             initial={{ scale: 0.8, opacity: 0 }}
                             animate={{ scale: 1, opacity: 1 }}
                             className="px-6 py-2 rounded-full bg-brand-blue text-white font-black text-xl shadow-xl border-4 border-white dark:border-[#121212]"
                         >
                             {year}
-                        </motion.div>
+                        </m.div>
                     </div>
 
                     {yearSubmissions.map((submission, index) => (

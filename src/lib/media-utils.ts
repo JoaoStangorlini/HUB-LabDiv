@@ -90,6 +90,10 @@ export const getOptimizedUrl = (url: string, width = 800, quality = 70, category
 
     // Cloudinary Optimization
     if (url.includes('cloudinary.com') && url.includes('/upload/')) {
+        // Regra Sênior: Se já existem transformações (w_, q_, f_), não aplicar novamente para evitar bugs de LCP/Otimização
+        if (url.includes('/upload/w_') || url.includes('/upload/q_') || url.includes('/upload/f_')) {
+            return url;
+        }
         return url.replace('/upload/', `/upload/w_${width},q_${finalQuality},f_auto/`);
     }
 

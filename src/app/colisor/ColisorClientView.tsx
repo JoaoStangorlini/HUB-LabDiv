@@ -33,7 +33,7 @@ export function ColisorClientView({ oportunidades }: ColisorClientViewProps) {
                     <h1 className="text-3xl md:text-5xl font-black tracking-tighter uppercase italic">O Grande Colisor</h1>
                 </div>
                 <p className="text-gray-500 dark:text-gray-400 text-lg max-w-2xl leading-relaxed">
-                    O repositório técnico de conhecimento estruturado do Instituto de Física. Explore o emaranhamento entre iniciativas e oportunidades.
+                    O repositório técnico de conhecimento estruturado do Instituto de Física. Explore a conexão entre iniciativas e oportunidades.
                 </p>
             </div>
 

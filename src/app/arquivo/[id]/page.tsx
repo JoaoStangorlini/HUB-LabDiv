@@ -8,9 +8,7 @@ import { Metadata } from 'next';
 import { ShareButtons } from './ShareButtons';
 import { ExportPDFButton } from './ExportPDFButton';
 import { CommentsSection, Comment } from './CommentsSection';
-import { ReproductionSection } from './ReproductionSection';
 import { ImageCarouselClient } from './ImageCarouselClient';
-import { fetchReproductionsBySubmission } from '@/app/actions/reproductions';
 import { getDownloadUrl, parseMediaUrl, formatYoutubeUrl } from '@/lib/media-utils';
 import ReactMarkdown from 'react-markdown';
 import remarkMath from 'remark-math';
@@ -22,7 +20,6 @@ import { ReadingExperienceProvider } from '@/components/reading/ReadingExperienc
 import { ReadingViewManager } from '@/components/reading/ReadingViewManager';
 import { ReadingHistoryTracker } from '@/components/history/ReadingHistoryTracker';
 import { FollowTagButton } from '@/components/engagement/FollowTagButton';
-import { ArquivoItemClientHydration } from '@/components/engagement/ArquivoItemClientHydration';
 
 interface PageProps {
     params: Promise<{ id: string }>;
@@ -140,9 +137,6 @@ export default async function ArquivoItemPage({ params }: PageProps) {
         }
     }
 
-    // Fetch reproductions
-    const routeReproductions = await fetchReproductionsBySubmission(submission.id);
-
     // Fetch comments
     const { data: routeComments } = await supabase
         .from('comments')
@@ -240,33 +234,33 @@ export default async function ArquivoItemPage({ params }: PageProps) {
                                     {submission.title}
                                 </h1>
 
-                                <div className="flex items-center gap-3 py-4 border-y border-gray-100 dark:border-gray-800">
-                                    <div className="size-12 rounded-full bg-primary/20 flex items-center justify-center text-primary dark:text-blue-400 font-bold text-sm uppercase shrink-0">
-                                        {submission.authors.substring(0, 2)}
-                                    </div>
-                                    <div className="flex flex-col">
-                                        <span className="text-xs text-gray-500 font-medium uppercase tracking-wider">Autore(s)</span>
-                                        <span className="text-base font-bold text-gray-900 dark:text-white">{submission.authors}</span>
-
-                                        {submission.co_authors && Array.isArray(submission.co_authors) && submission.co_authors.length > 0 && (
-                                            <div className="flex flex-wrap gap-2 mt-1">
-                                                {submission.co_authors.map((co: any, idx: number) => (
-                                                    <span key={idx} className="text-[10px] bg-gray-100 dark:bg-gray-800 px-2 py-0.5 rounded text-gray-500 dark:text-gray-400 border border-gray-200 dark:border-gray-700">
-                                                        {co.full_name} {co.email && `(${co.email})`}
-                                                    </span>
-                                                ))}
+                                <div className="flex flex-col py-4 border-y border-gray-100 dark:border-gray-800">
+                                    <div className="flex items-center justify-between gap-4">
+                                        <div className="flex items-center gap-3">
+                                            <div className="size-10 rounded-full bg-primary/20 flex items-center justify-center text-primary dark:text-blue-400 font-bold text-xs uppercase shrink-0">
+                                                {submission.authors.substring(0, 2)}
                                             </div>
-                                        )}
+                                            <div className="flex flex-col">
+                                                <span className="text-[10px] text-gray-500 font-medium uppercase tracking-wider">Autore(s)</span>
+                                                <span className="text-sm font-bold text-gray-900 dark:text-white">{submission.authors}</span>
+                                            </div>
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            <ExportPDFButton />
+                                            <ShareButtons title={submission.title} id={submission.id} />
+                                        </div>
                                     </div>
+
+                                    {submission.co_authors && Array.isArray(submission.co_authors) && submission.co_authors.length > 0 && (
+                                        <div className="flex flex-wrap gap-2 mt-3 pl-[52px]">
+                                            {submission.co_authors.map((co: any, idx: number) => (
+                                                <span key={idx} className="text-[10px] bg-gray-50 dark:bg-gray-800/50 px-2 py-0.5 rounded text-gray-500 dark:text-gray-400 border border-gray-100 dark:border-gray-700/50">
+                                                    {co.full_name}
+                                                </span>
+                                            ))}
+                                        </div>
+                                    )}
                                 </div>
-                                <ArquivoItemClientHydration
-                                    type="bar"
-                                    submissionId={submission.id}
-                                    userId={user?.id}
-                                    receiverId={submission.user_id}
-                                    reactionsSummary={submission.energy_reactions || {}}
-                                    energyTotal={submission.atomic_excitation || 0}
-                                />
 
                                 {submission.description && (
                                     <div id="submission-content" className="mt-8">
@@ -315,13 +309,6 @@ export default async function ArquivoItemPage({ params }: PageProps) {
                                 )}
                             </div>
                         </div>
-
-                        {/* Eu Reproduzi! Section */}
-                        <ReproductionSection
-                            submissionId={submission.id}
-                            submissionTitle={submission.title}
-                            initialReproductions={routeReproductions}
-                        />
 
                         {/* Interactive Comments */}
                         <CommentsSection
@@ -372,14 +359,7 @@ export default async function ArquivoItemPage({ params }: PageProps) {
                     </main>
                 </ReadingViewManager>
             </MainLayoutWrapper>
-            <ArquivoItemClientHydration
-                type="hub"
-                submissionId={submission.id}
-                userId={user?.id}
-                receiverId={submission.user_id}
-                reactionsSummary={submission.energy_reactions || {}}
-                energyTotal={submission.atomic_excitation || 0}
-            />
+
         </ReadingExperienceProvider>
     );
 }

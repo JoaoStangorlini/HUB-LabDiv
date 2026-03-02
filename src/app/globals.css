@@ -40,6 +40,14 @@ body {
   scroll-behavior: smooth;
 }
 
+/* Scientific background pattern - static, zero animations */
+html.dark body {
+  background-image: url('/bg-science.svg');
+  background-size: 1200px 1200px;
+  background-repeat: repeat;
+  background-attachment: fixed;
+}
+
 @plugin "@tailwindcss/typography";
 
 @theme {
@@ -63,7 +71,7 @@ body {
   *,
   ::after,
   ::before {
-    @apply border-gray-200 dark:border-gray-800 transition-colors duration-200;
+    @apply border-gray-200 dark:border-gray-800;
   }
 }
 
@@ -177,9 +185,7 @@ body {
     }
   }
 
-  .animate-atomic-pulse {
-    animation: atomic-pulse 0.4s ease-out;
-  }
+
 
   @keyframes metallic-shine {
     0% {

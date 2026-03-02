@@ -14,9 +14,7 @@ import { useSearch } from '@/providers/SearchProvider';
 import { useNavigationStore } from '@/store/useNavigationStore';
 import { UserMinimalDTO, SearchSuggestion } from '@/types/navigation';
 
-const ReportModal = dynamic(() => import('../feedback/ReportModal').then(m => ({ default: m.ReportModal })), {
-    ssr: false,
-});
+
 
 /**
  * V8.0 Header - Fort Knox Edition
@@ -37,7 +35,6 @@ export function Header() {
     } = useNavigationStore();
 
     const [user, setUser] = useState<UserMinimalDTO | null>(null);
-    const [isReportModalOpen, setIsReportModalOpen] = useState(false);
 
     // Search Suggestions V8.0 - Optimized logic
     const [suggestions, setSuggestions] = useState<SearchSuggestion[]>([]);
@@ -173,7 +170,7 @@ export function Header() {
                                     {isSearchLoading ? (
                                         <div className="p-4 flex items-center gap-3 text-gray-400 text-xs font-bold uppercase tracking-widest">
                                             <span className="material-symbols-outlined animate-spin text-brand-blue">progress_activity</span>
-                                            Sintonizando Partículas...
+                                            Pesquisando...
                                         </div>
                                     ) : (
                                         <div className="py-2">
@@ -200,13 +197,7 @@ export function Header() {
                     {/* Right: Sharded Actions */}
                     <div className="flex items-center gap-2 sm:gap-4 shrink-0">
                         <div className="flex items-center gap-1 sm:gap-2 pr-2 sm:pr-4 border-r border-gray-100 dark:border-white/10">
-                            <button
-                                onClick={() => setIsReportModalOpen(true)}
-                                className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-brand-red/10 text-brand-red transition-all relative group/btn"
-                                title="Reportar Erro Técnico"
-                            >
-                                <span className="material-symbols-outlined">report</span>
-                            </button>
+
 
                             <div className="flex items-center gap-2">
                                 <NotificationBell userId={user?.id} />
@@ -291,10 +282,7 @@ export function Header() {
                 </div>
             </header>
 
-            <ReportModal
-                isOpen={isReportModalOpen}
-                onClose={() => setIsReportModalOpen(false)}
-            />
+
         </>
     );
 }

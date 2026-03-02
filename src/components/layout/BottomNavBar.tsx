@@ -20,10 +20,10 @@ const drawerLinks: (NavItem & { color?: string })[] = [
     { name: 'Laboratório Pessoal', href: AppRoutes.LAB, icon: 'science', isPrimary: true, color: 'brand-red' },
     { name: 'Pergunte', href: AppRoutes.PERGUNTAS, icon: 'help_outline', color: 'brand-blue' },
     { name: 'Wiki', href: AppRoutes.WIKI, icon: 'menu_book', color: 'brand-yellow' },
-    { name: 'Trilhas', href: '/colisor/trilhas', icon: 'auto_stories', color: 'brand-red' },
+    { name: 'Trilhas', href: '/trilhas', icon: 'auto_stories', color: 'brand-red' },
     { name: 'Criadores', href: AppRoutes.CRIADORES, icon: 'person_search', color: 'brand-yellow' },
     { name: 'Mapa', href: AppRoutes.MAPA, icon: 'map', color: 'brand-red' },
-    { name: 'Arquivo Lab-Div', href: AppRoutes.ARQUIVO_LABDIV, icon: 'science', color: 'brand-blue' },
+    { name: 'LabDiv', href: AppRoutes.ARQUIVO_LABDIV, icon: 'science', color: 'brand-blue' },
     { name: 'Painel Admin', href: AppRoutes.ADMIN, icon: 'admin_panel_settings', color: 'brand-red' },
 ];
 

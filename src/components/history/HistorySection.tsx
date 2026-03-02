@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { motion } from 'framer-motion';
+import { m, AnimatePresence } from 'framer-motion';
 import { Submission } from '@/types';
 import Link from 'next/link';
 
@@ -44,11 +44,11 @@ export const HistorySection = ({ history }: HistorySectionProps) => {
 
                                 {/* Progress Bar Overlay */}
                                 <div className="absolute bottom-0 left-0 right-0 h-1 bg-gray-800">
-                                    <motion.div
+                                    <m.div
                                         initial={{ width: 0 }}
                                         animate={{ width: `${item.progress_percent}%` }}
                                         className="h-full bg-brand-blue shadow-[0_0_10px_#0077ff]"
-                                    ></motion.div>
+                                    ></m.div>
                                 </div>
 
                                 <div className="absolute bottom-3 left-3 right-3 text-[10px] font-black uppercase text-white tracking-widest flex items-center justify-between">

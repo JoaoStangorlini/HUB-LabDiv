@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useCallback } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { m, AnimatePresence } from 'framer-motion';
 
 /**
  * MarkdownImageLightbox
@@ -27,14 +27,14 @@ export function MarkdownImage(props: React.ImgHTMLAttributes<HTMLImageElement>) 
             {/* Full-screen Lightbox */}
             <AnimatePresence>
                 {isOpen && (
-                    <motion.div
+                    <m.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         onClick={handleClose}
                         className="fixed inset-0 z-[300] bg-black/90 backdrop-blur-md flex items-center justify-center p-4 cursor-zoom-out print:hidden"
                     >
-                        <motion.img
+                        <m.img
                             initial={{ scale: 0.8, opacity: 0 }}
                             animate={{ scale: 1, opacity: 1 }}
                             exit={{ scale: 0.8, opacity: 0 }}
@@ -50,7 +50,7 @@ export function MarkdownImage(props: React.ImgHTMLAttributes<HTMLImageElement>) 
                         >
                             <span className="material-symbols-outlined text-3xl">close</span>
                         </button>
-                    </motion.div>
+                    </m.div>
                 )}
             </AnimatePresence>
         </>

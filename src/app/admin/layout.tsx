@@ -17,15 +17,14 @@ export default function AdminLayout({
         { name: 'Gerenciador de Acervo', href: '/admin/acervo', icon: 'collections_bookmark' },
         { name: 'Submissões Pendentes', href: '/admin/pendentes', icon: 'assignment' },
         { name: 'Aprovação de Perfis', href: '/admin/profiles', icon: 'manage_accounts' },
+        { name: 'Gerenciamento de Papéis', href: '/admin/papeis', icon: 'admin_panel_settings' },
         { name: 'Pergunte a um Cientista', href: '/admin/perguntas', icon: 'quiz' },
         { name: 'Moderação de Comentários', href: '/admin/comentarios', icon: 'chat_bubble' },
-        { name: 'Moderação de Reproduções', href: '/admin/reproducoes', icon: 'science' },
         { name: 'Trilhas de Aprendizagem', href: '/admin/trilhas', icon: 'route' },
         { name: 'Narração & TTS', href: '/admin/narracao', icon: 'record_voice_over' },
         { name: 'Peer Review', href: '/admin/correcoes', icon: 'spellcheck' },
         { name: 'Ranking', href: '/admin/ranking', icon: 'trending_up' },
         { name: 'Oportunidades', href: '/admin/oportunidades', icon: 'event' },
-        { name: 'Relatórios de Feedback', href: '/admin/reports', icon: 'flag' },
     ];
 
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);

@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
-import { motion, AnimatePresence } from 'framer-motion';
+import { m, AnimatePresence } from 'framer-motion';
 
 export function PresenceIndicator({ submissionId }: { submissionId: string }) {
     const [presenceCount, setPresenceCount] = useState(0);
@@ -45,7 +45,7 @@ export function PresenceIndicator({ submissionId }: { submissionId: string }) {
 
     return (
         <AnimatePresence>
-            <motion.div
+            <m.div
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: 20 }}
@@ -56,7 +56,7 @@ export function PresenceIndicator({ submissionId }: { submissionId: string }) {
                     <span className="relative inline-flex rounded-full h-2 w-2 bg-brand-red"></span>
                 </span>
                 🔥 {presenceCount === 1 ? '1 aluno lendo agora' : `${presenceCount} alunos lendo agora`}
-            </motion.div>
+            </m.div>
         </AnimatePresence>
     );
 }

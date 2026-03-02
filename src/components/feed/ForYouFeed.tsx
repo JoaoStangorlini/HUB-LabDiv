@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { motion } from 'framer-motion';
+import { m, AnimatePresence } from 'framer-motion';
 import { MediaCard, MediaCardProps } from '../MediaCard';
 import { Sparkles } from 'lucide-react';
 
@@ -30,7 +30,7 @@ export const ForYouFeed = ({ items }: ForYouFeedProps) => {
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
                     {items.map((item, index) => (
-                        <motion.div
+                        <m.div
                             key={item.post.id}
                             initial={{ opacity: 0, y: 20 }}
                             whileInView={{ opacity: 1, y: 0 }}
@@ -38,7 +38,7 @@ export const ForYouFeed = ({ items }: ForYouFeedProps) => {
                             transition={{ delay: index * 0.1 }}
                         >
                             <MediaCard post={item.post} />
-                        </motion.div>
+                        </m.div>
                     ))}
                 </div>
             </div>

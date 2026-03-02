@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { motion } from 'framer-motion';
+import { m, AnimatePresence } from 'framer-motion';
 import { Submission } from '@/types';
 import { formatDate } from '@/lib/utils';
 import { parseMediaUrl, getYoutubeThumbnail } from '@/lib/media-utils';
@@ -22,7 +22,7 @@ export const TimelineItem = ({ submission, isLeft = true }: TimelineItemProps) =
     const formattedDate = date.toLocaleDateString('pt-BR', { month: 'short', day: 'numeric' });
 
     return (
-        <motion.div
+        <m.div
             initial={{ opacity: 0, x: isLeft ? -50 : 50 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true, margin: "-100px" }}
@@ -84,6 +84,6 @@ export const TimelineItem = ({ submission, isLeft = true }: TimelineItemProps) =
                     <div className="absolute -inset-0.5 bg-gradient-to-r from-brand-blue to-brand-red rounded-2xl opacity-0 group-hover:opacity-10 blur transition duration-500"></div>
                 </div>
             </Link>
-        </motion.div>
+        </m.div>
     );
 };

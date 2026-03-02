@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import dynamic from 'next/dynamic';
+import nextDynamic from 'next/dynamic';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { BottomNavBar } from '@/components/layout/BottomNavBar';
@@ -12,16 +12,19 @@ import {
   getSidebarTags,
   getUsersInOrbit
 } from '@/app/actions/submissions';
+import { checkUserLikes } from '@/app/actions/media';
 import { Rocket } from 'lucide-react';
 
 // V8.0 Performance Nuclear: Dynamic Isolation
-const HomeClientView = dynamic(() => import('@/components/HomeClientView').then(mod => mod.HomeClientView));
+const HomeClientView = nextDynamic(() => import('@/components/HomeClientView').then(mod => mod.HomeClientView));
+const SidebarLeft = nextDynamic(() => import('@/components/layout/SidebarLeft').then(mod => mod.SidebarLeft));
+const SidebarRight = nextDynamic(() => import('@/components/layout/SidebarRight').then(mod => mod.SidebarRight));
 
-const SidebarLeft = dynamic(() => import('@/components/layout/SidebarLeft').then(mod => mod.SidebarLeft));
+// V8.0 NUCLEAR ROOT: Force Dynamic to ensure fresh counts/atoms
+export const dynamic = 'force-dynamic';
 
-const SidebarRight = dynamic(() => import('@/components/layout/SidebarRight').then(mod => mod.SidebarRight));
-
-export const revalidate = 60;
+// V8.0 NUCLEAR ROOT: Parallel Data Fetching
+// export const revalidate = 60; // Removed to ensure fresh counts on reload
 
 export default async function Home({ searchParams }: { searchParams: Promise<{ category?: string, type?: string, collection?: string, q?: string }> }) {
   const params = await searchParams;
@@ -52,14 +55,22 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ c
     getUsersInOrbit(10)
   ]);
 
+  // Pre-fetch liked status for initial items if user is logged in
+  const allInitialIds = [
+    ...initialItems.map(i => i.post.id),
+    ...trendingItems.map(i => i.post.id),
+    ...featuredItems.map(i => i.post.id)
+  ];
+  const initialLikedIds = await checkUserLikes(allInitialIds);
+
   return (
     <SearchProvider>
-      <div className="bg-background-light dark:bg-background-dark text-text-main dark:text-gray-100 min-h-screen flex flex-col">
+      <div className="bg-background-light dark:bg-transparent text-text-main dark:text-gray-100 min-h-screen flex flex-col">
         <Header />
 
         <div className="flex-1 w-full max-w-[1920px] mx-auto flex justify-center">
           {/* Esquerda: Navegação / Side Menu */}
-          <aside className="hidden xl:block w-[280px] shrink-0 border-r border-gray-200 dark:border-gray-800 bg-background-light dark:bg-background-dark/50">
+          <aside className="hidden xl:block w-[280px] shrink-0 border-r border-gray-200 dark:border-gray-800 bg-background-light dark:bg-background-dark">
             <div className="sticky top-20">
               <SidebarLeft />
             </div>
@@ -74,11 +85,12 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ c
               trendingItems={trendingItems}
               featuredItems={featuredItems}
               trendingTags={trendingTags}
+              initialLikedIds={initialLikedIds}
             />
           </main>
 
           {/* Direita: Informações Extra / Trending */}
-          <aside className="hidden lg:block w-[320px] shrink-0 px-4 py-8 border-l border-gray-200 dark:border-gray-800 bg-background-light dark:bg-background-dark/50">
+          <aside className="hidden lg:block w-[320px] shrink-0 px-4 py-8 border-l border-gray-200 dark:border-gray-800 bg-background-light dark:bg-background-dark">
             <div className="sticky top-20">
               <SidebarRight tags={sidebarTags} authors={scientists} />
             </div>

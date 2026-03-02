@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { m, AnimatePresence } from 'framer-motion';
 import { ReactionType, toggleReaction, getUserReaction } from '@/app/actions/reactions';
 
 interface ReactionSystemProps {
@@ -95,7 +95,7 @@ export const ReactionSystem = ({ submissionId, userId, initialSummary }: Reactio
 
             {/* Main Action Button */}
             <div className="relative" onClick={(e) => e.stopPropagation()}>
-                <motion.button
+                <m.button
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     onMouseEnter={() => setIsMenuOpen(true)}
@@ -113,34 +113,33 @@ export const ReactionSystem = ({ submissionId, userId, initialSummary }: Reactio
                         {activeReaction ? REACTIONS.find(r => r.type === activeReaction)?.icon : 'add_reaction'}
                     </span>
                     {activeReaction ? REACTIONS.find(r => r.type === activeReaction)?.label : 'Reagir'}
-                </motion.button>
+                </m.button>
 
                 {/* Reaction Menu */}
                 <AnimatePresence>
                     {isMenuOpen && (
-                        <motion.div
-                            initial={{ opacity: 0, y: 10, scale: 0.9 }}
-                            animate={{ opacity: 1, y: 0, scale: 1 }}
-                            exit={{ opacity: 0, y: 10, scale: 0.9 }}
-                            onMouseLeave={() => setIsMenuOpen(false)}
+                        <m.div
+                            initial={{ opacity: 0, scale: 0.8, y: 10 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.8, y: 10 }}
                             className="absolute bottom-full mb-2 left-0 bg-white/95 dark:bg-[#1E1E1E]/95 backdrop-blur-xl border border-gray-100 dark:border-gray-800 rounded-2xl p-2 shadow-2xl flex gap-1 z-50 origin-bottom-left"
                         >
                             {REACTIONS.map((r) => (
-                                <motion.button
+                                <m.button
                                     key={r.type}
                                     whileHover={{ scale: 1.2, y: -5 }}
                                     whileTap={{ scale: 0.9 }}
-                                    onClick={() => handleReaction(r.type)}
-                                    className={`size-10 flex flex-col items-center justify-center rounded-xl transition-colors ${activeReaction === r.type
-                                        ? 'bg-gray-100 dark:bg-gray-800'
-                                        : 'hover:bg-gray-50 dark:hover:bg-gray-800/50'
-                                        }`}
+                                    onClick={() => {
+                                        handleReaction(r.type);
+                                        setIsMenuOpen(false);
+                                    }}
+                                    className="flex flex-col items-center p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-white/5 transition-colors"
                                 >
                                     <span className="material-symbols-outlined" style={{ color: r.color }}>{r.icon}</span>
                                     <span className="text-[8px] font-black uppercase mt-0.5" style={{ color: r.color }}>{r.label}</span>
-                                </motion.button>
+                                </m.button>
                             ))}
-                        </motion.div>
+                        </m.div>
                     )}
                 </AnimatePresence>
             </div>

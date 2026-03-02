@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'react-hot-toast';
 import { toggleLike, toggleSave } from '@/app/actions/media';
@@ -9,18 +9,24 @@ interface UseMediaInteractionProps {
     id: string;
     initialLikes: number;
     initialSaves: number;
+    initialLiked?: boolean;
     userId?: string;
 }
 
-export function useMediaInteraction({ id, initialLikes, initialSaves, userId }: UseMediaInteractionProps) {
+export function useMediaInteraction({ id, initialLikes, initialSaves, initialLiked = false, userId }: UseMediaInteractionProps) {
     const router = useRouter();
     const [likes, setLikes] = useState(initialLikes);
-    const [liked, setLiked] = useState(false);
+    const [liked, setLiked] = useState(initialLiked);
     const [saves, setSaves] = useState(initialSaves);
     const [saved, setSaved] = useState(false);
     const [isLiking, setIsLiking] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
-    const [showAtomicOverlay, setShowAtomicOverlay] = useState(false);
+
+    // V8.0 Sync: Keep internal state in sync with props
+    useEffect(() => {
+        setLikes(initialLikes);
+        setLiked(initialLiked);
+    }, [initialLikes, initialLiked]);
 
     const lastLikeClick = useRef<number>(0);
 
@@ -60,7 +66,7 @@ export function useMediaInteraction({ id, initialLikes, initialSaves, userId }: 
                 navigator.vibrate([10]);
             }
             if (!prevLiked) {
-                toast.success('Átomo sincronizado!', { icon: '⚛️' });
+                toast.success('Curtida sincronizada!', { icon: '❤️' });
             }
             // revalidatePath handles data sync
         } catch (err: any) {
@@ -111,8 +117,6 @@ export function useMediaInteraction({ id, initialLikes, initialSaves, userId }: 
         saved,
         isLiking,
         isSaving,
-        showAtomicOverlay,
-        setShowAtomicOverlay,
         handleLike,
         handleSave
     };

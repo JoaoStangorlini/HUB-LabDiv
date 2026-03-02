@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { m, AnimatePresence } from 'framer-motion';
 
 interface ShareMenuProps {
     id: string;
@@ -47,7 +47,7 @@ export const ShareMenu = ({ id, title, author, onClose }: ShareMenuProps) => {
 
     return (
         <div className="fixed inset-0 z-[100] flex items-end justify-center sm:items-center p-0 sm:p-4">
-            <motion.div
+            <m.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
@@ -55,7 +55,7 @@ export const ShareMenu = ({ id, title, author, onClose }: ShareMenuProps) => {
                 className="absolute inset-0 bg-black/60 backdrop-blur-sm"
             />
 
-            <motion.div
+            <m.div
                 initial={{ y: '100%' }}
                 animate={{ y: 0 }}
                 exit={{ y: '100%' }}
@@ -128,7 +128,7 @@ export const ShareMenu = ({ id, title, author, onClose }: ShareMenuProps) => {
                         </button>
                     )}
                 </div>
-            </motion.div>
+            </m.div>
         </div>
     );
 };

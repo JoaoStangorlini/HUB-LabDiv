@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { m, AnimatePresence } from 'framer-motion';
 import { MediaCardProps } from '../MediaCard';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
@@ -85,7 +85,7 @@ const CampusMapBase = ({ items }: CampusMapProps) => {
                     const y = (item.post.location_lat! / 100) * 600;
 
                     return (
-                        <motion.div
+                        <m.div
                             key={item.post.id}
                             data-pin-id={item.post.id}
                             initial={{ scale: 0, opacity: 0 }}
@@ -99,7 +99,7 @@ const CampusMapBase = ({ items }: CampusMapProps) => {
                             <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-[10px] font-bold px-2 py-1 rounded-md whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">
                                 {item.post.title}
                             </div>
-                        </motion.div>
+                        </m.div>
                     );
                 })}
             </div>
@@ -107,7 +107,7 @@ const CampusMapBase = ({ items }: CampusMapProps) => {
             {/* Selection Detail Panel */}
             <AnimatePresence>
                 {selectedItem && (
-                    <motion.div
+                    <m.div
                         initial={{ x: 300, opacity: 0 }}
                         animate={{ x: 0, opacity: 1 }}
                         exit={{ x: 300, opacity: 0 }}
@@ -141,7 +141,7 @@ const CampusMapBase = ({ items }: CampusMapProps) => {
                                 <ArrowRight className="w-4 h-4" />
                             </Link>
                         </div>
-                    </motion.div>
+                    </m.div>
                 )}
             </AnimatePresence>
         </div>

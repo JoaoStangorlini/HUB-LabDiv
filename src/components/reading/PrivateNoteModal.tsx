@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { m, AnimatePresence } from 'framer-motion';
 import { supabase } from '@/lib/supabase';
 import { toast } from 'react-hot-toast';
 import { addPrivateNote } from '@/app/actions/notes';
@@ -59,7 +59,7 @@ export function PrivateNoteModal({ selection, onClose, onSave }: PrivateNoteModa
 
     return (
         <div className="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-            <motion.div
+            <m.div
                 initial={{ scale: 0.9, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 className="bg-white dark:bg-card-dark rounded-2xl shadow-2xl w-full max-w-md max-h-[85vh] overflow-y-auto border border-gray-100 dark:border-gray-800"
@@ -108,7 +108,7 @@ export function PrivateNoteModal({ selection, onClose, onSave }: PrivateNoteModa
                         Apenas você pode ver esta nota.
                     </p>
                 </div>
-            </motion.div>
+            </m.div>
         </div>
     );
 }

@@ -1,18 +1,50 @@
-'use client';
-
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { CATEGORIES } from '../constants';
 import { useSubmissionStore } from '@/store/useSubmissionStore';
+import { supabase } from '@/lib/supabase';
 
 export function CategoryStep() {
     const { category: selectedCategory, setCategory, setStep } = useSubmissionStore();
+    const [userRole, setUserRole] = useState<string | null>(null);
+    const [isLoadingRole, setIsLoadingRole] = useState(true);
+
+    useEffect(() => {
+        const fetchUserRole = async () => {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (session?.user) {
+                const { data: profile } = await supabase
+                    .from('profiles')
+                    .select('role')
+                    .eq('id', session.user.id)
+                    .single();
+
+                if (profile) {
+                    setUserRole(profile.role);
+                }
+            }
+            setIsLoadingRole(false);
+        };
+        fetchUserRole();
+    }, []);
 
     const handleNext = () => {
         if (selectedCategory) {
-            setStep('format');
+            const isRestricted = selectedCategory === 'Lab-Div' && !['admin', 'labdiv', 'moderador', 'labdiv adm'].includes(userRole || '');
+            if (!isRestricted) {
+                setStep('format');
+            }
         }
     };
+
+    if (isLoadingRole) {
+        return (
+            <div className="flex flex-col items-center justify-center py-20 gap-4">
+                <div className="w-10 h-10 border-4 border-brand-blue border-t-transparent rounded-full animate-spin"></div>
+                <p className="text-sm font-bold text-gray-500 uppercase tracking-widest">Sincronizando Permissões...</p>
+            </div>
+        );
+    }
 
     return (
         <div className="space-y-12">
@@ -74,14 +106,7 @@ export function CategoryStep() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {CATEGORIES.map((cat, idx) => {
                     const isSelected = selectedCategory === cat.id;
-                    const isLeft = (idx % 3) === 0;
-                    const isRight = (idx % 3) === 2;
-
-                    // Exit strategy: separate from center
-                    // We'll use a wrapper or variants in the parent if we want more control,
-                    // but simple variants here work too.
-                    const exitX = isLeft ? -1000 : (isRight ? 1000 : 0);
-                    const exitY = !isLeft && !isRight ? 1000 : 0; // middle ones go down? OR middle ones slide according to index
+                    const isRestricted = cat.id === 'Lab-Div' && !['admin', 'labdiv', 'moderador', 'labdiv adm'].includes(userRole || '');
 
                     return (
                         <motion.button
@@ -94,8 +119,9 @@ export function CategoryStep() {
                                 transition: { duration: 0.5, ease: "easeInOut" }
                             }}
                             transition={{ delay: idx * 0.05 }}
+                            disabled={isRestricted}
                             onClick={() => setCategory(cat.id)}
-                            className={`text-left p-6 rounded-3xl border-2 group relative overflow-hidden h-full flex flex-col ${isSelected
+                            className={`text-left p-6 rounded-3xl border-2 group relative overflow-hidden h-full flex flex-col transition-all ${isRestricted ? 'opacity-40 grayscale cursor-not-allowed' : ''} ${isSelected
                                 ? `border-${cat.color} bg-${cat.color}/5 shadow-lg shadow-${cat.color}/10`
                                 : `border-gray-100 dark:border-gray-800 bg-white dark:bg-card-dark hover:border-${cat.color}/30`
                                 }`}
@@ -104,9 +130,16 @@ export function CategoryStep() {
                                 ? `bg-${cat.color} text-white shadow-lg shadow-${cat.color}/20`
                                 : `bg-${cat.color}/10 text-${cat.color}`
                                 }`}>
-                                <span className="material-symbols-outlined">{cat.icon}</span>
+                                <span className="material-symbols-outlined">{isRestricted ? 'lock' : cat.icon}</span>
                             </div>
-                            <h4 className="font-bold text-lg mb-2 text-gray-900 dark:text-white transition-colors group-hover:text-gray-900 dark:group-hover:text-white">{cat.title}</h4>
+                            <div className="flex items-center gap-2 mb-2">
+                                <h4 className="font-bold text-lg text-gray-900 dark:text-white transition-colors group-hover:text-gray-900 dark:group-hover:text-white">{cat.title}</h4>
+                                {isRestricted && (
+                                    <span className="px-2 py-0.5 rounded-md bg-white/10 text-[8px] font-black uppercase tracking-widest text-gray-400 border border-white/10">
+                                        Restrito
+                                    </span>
+                                )}
+                            </div>
                             <p className="text-sm text-gray-500 dark:text-gray-400 mb-4 line-clamp-2 flex-grow">{cat.description}</p>
                             <div className={`pt-4 border-t ${isSelected ? `border-${cat.color}/20` : 'border-gray-50 dark:border-gray-800'}`}>
                                 <span className={`text-[10px] uppercase font-bold tracking-wider ${isSelected ? `text-${cat.color}` : 'text-gray-400'}`}>Exemplos:</span>
@@ -131,7 +164,7 @@ export function CategoryStep() {
             <div className="flex justify-end pt-8">
                 <button
                     onClick={handleNext}
-                    disabled={!selectedCategory}
+                    disabled={!selectedCategory || (selectedCategory === 'Lab-Div' && !['admin', 'labdiv', 'moderador', 'labdiv adm'].includes(userRole || ''))}
                     className="bg-brand-blue text-white px-10 py-4 rounded-2xl font-bold shadow-xl flex items-center gap-2 hover:-translate-y-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0"
                 >
                     Próximo Passo: Formato

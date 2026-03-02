@@ -11,11 +11,10 @@ import {
     ChevronRight,
     Layers,
     Play,
-    MessageCircle,
-    Send,
-    Flag,
+    Pencil,
+    Rocket,
     Download,
-    Bookmark,
+    Star,
     Clock,
     ImageOff,
 } from 'lucide-react';
@@ -30,11 +29,12 @@ import { parseMediaUrl, getYoutubeThumbnail, getOptimizedUrl } from '@/lib/media
 import { ShareMenu } from './ShareMenu';
 import { m, AnimatePresence } from 'framer-motion';
 import { stripMarkdownAndLatex, highlightMatch } from '@/lib/utils';
+import { useInView } from 'react-intersection-observer';
 import { CardPresenceBadge } from './CardPresenceBadge';
 import { supabase } from '@/lib/supabase';
 import { CollectionManager } from './engagement/CollectionManager';
 import { DownloadModal } from './DownloadModal';
-import { AtomicReaction, AtomIcon } from './engagement/AtomicReaction';
+import { MediaReaction } from './engagement/MediaReaction';
 import { PostDTO } from '@/dtos/media';
 import { useMediaInteraction } from '@/hooks/useMediaInteraction';
 import { useAuth } from '@/providers/AuthProvider';
@@ -43,13 +43,14 @@ import { useMemo } from 'react';
 export interface MediaCardProps {
     post: PostDTO;
     priority?: boolean;
+    isLikedByUser?: boolean;
 }
 
 /**
  * V8.0 MediaCard - Hardened & Refactored
  * Implements DTO Enforcement and hook-based logic.
  */
-export const MediaCard = React.memo(({ post, priority = false }: MediaCardProps) => {
+export const MediaCard = React.memo(({ post, priority = false, isLikedByUser = false }: MediaCardProps) => {
     const { user } = useAuth();
     const userId = user?.id;
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -63,20 +64,23 @@ export const MediaCard = React.memo(({ post, priority = false }: MediaCardProps)
     const searchParams = useSearchParams();
     const query = searchParams.get('q') || searchParams.get('tag') || '';
     const clickTimerRef = useRef<NodeJS.Timeout | null>(null);
+    const { ref: contentRef, inView } = useInView({
+        triggerOnce: true,
+        rootMargin: '200px 0px',
+    });
 
     const {
         likes,
         liked,
         saves,
         saved,
-        showAtomicOverlay,
-        setShowAtomicOverlay,
         handleLike,
         handleSave
     } = useMediaInteraction({
         id: post.id,
         initialLikes: post.likeCount || 0,
         initialSaves: post.saveCount || 0,
+        initialLiked: isLikedByUser,
         userId
     });
 
@@ -98,11 +102,6 @@ export const MediaCard = React.memo(({ post, priority = false }: MediaCardProps)
             clearTimeout(clickTimerRef.current);
             clickTimerRef.current = null;
         }
-        if (!liked) {
-            handleLike();
-            setShowAtomicOverlay(true);
-            setTimeout(() => setShowAtomicOverlay(false), 1000);
-        }
     };
 
     const handleMediaClick = (e: React.MouseEvent) => {
@@ -115,15 +114,7 @@ export const MediaCard = React.memo(({ post, priority = false }: MediaCardProps)
         }, 250);
     };
 
-    const handleReport = () => {
-        if (!confirm('Deseja denunciar este conteúdo como inapropriado? Nossa curadoria irá analisar.')) return;
-        // In a real V8.0 app, this would also be a Server Action
-        fetch('/api/report', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ submission_id: post.id, reason: 'Denúncia de Usuário' }),
-        }).then(() => alert('Denúncia enviada com sucesso.'));
-    };
+
 
     const urls = useMemo(() => parseMediaUrl(post.mediaUrl), [post.mediaUrl]);
     const hasMultipleImages = useMemo(() => post.mediaType === 'image' && urls.length > 1, [post.mediaType, urls.length]);
@@ -177,10 +168,7 @@ export const MediaCard = React.memo(({ post, priority = false }: MediaCardProps)
                 )}
             </AnimatePresence>
 
-            <m.div
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.3 }}
+            <div
                 className="flex items-center justify-between p-4 md:p-6 border-b border-gray-100 dark:border-gray-800"
             >
                 <div className="flex items-center gap-2">
@@ -203,7 +191,7 @@ export const MediaCard = React.memo(({ post, priority = false }: MediaCardProps)
                         {post.authors}
                     </Link>
                 </div>
-                <m.div whileHover={{ scale: 1.05, x: 5 }} whileTap={{ scale: 0.95 }}>
+                <div className="hover:scale-105 transition-transform active:scale-95">
                     <Link
                         href={`/arquivo/${post.id}`}
                         onClick={(e) => e.stopPropagation()}
@@ -214,8 +202,8 @@ export const MediaCard = React.memo(({ post, priority = false }: MediaCardProps)
                             <ExternalLink className="w-3 h-3" />
                         </span>
                     </Link>
-                </m.div>
-            </m.div>
+                </div>
+            </div>
 
             <div
                 className={`relative w-full overflow-hidden shrink-0 ${post.mediaType === 'video' || !hasMultipleImages ? 'aspect-video' : 'aspect-square'} max-h-[500px] bg-gray-100 dark:bg-gray-800`}
@@ -224,25 +212,7 @@ export const MediaCard = React.memo(({ post, priority = false }: MediaCardProps)
                 onClick={handleMediaClick}
                 onDoubleClick={handleDoubleClick}
             >
-                <AnimatePresence>
-                    {showAtomicOverlay && (
-                        <m.div
-                            initial={{ scale: 0, opacity: 0, rotate: 0 }}
-                            animate={{ scale: 1.5, opacity: 1, rotate: 360 }}
-                            exit={{ scale: 2, opacity: 0 }}
-                            className="absolute inset-0 flex items-center justify-center z-20 pointer-events-none"
-                        >
-                            <div className="relative">
-                                <AtomIcon filled={true} size={120} className="text-brand-blue drop-shadow-[0_0_30px_rgba(59,130,246,0.8)]" />
-                                <m.div
-                                    animate={{ scale: [1, 2], opacity: [0.5, 0] }}
-                                    transition={{ duration: 0.8, repeat: Infinity }}
-                                    className="absolute inset-0 bg-brand-blue rounded-full blur-2xl -z-10"
-                                />
-                            </div>
-                        </m.div>
-                    )}
-                </AnimatePresence>
+
                 {post.mediaType === 'video' ? (
                     <Image
                         src={urls.length > 0 ? getYoutubeThumbnail(urls[0]) : "https://images.unsplash.com/photo-1616423640778-28d1b53229bd?auto=format&fit=crop&q=80&w=800"}
@@ -259,7 +229,13 @@ export const MediaCard = React.memo(({ post, priority = false }: MediaCardProps)
                         <div className="text-sm font-medium leading-relaxed max-w-full text-slate-700 dark:text-slate-200 relative overflow-hidden h-[9rem] prose prose-sm dark:prose-invert max-w-none">
                             {post.mediaType === 'zip' ? <p className="mt-8">Conteúdo Compactado (.ZIP)</p> :
                                 post.mediaType === 'sdocx' ? <p className="mt-8">Notas do Samsung Notes (.SDOCX)</p> :
-                                    <ScientificContent content={post.description || 'Texto completo'} />}
+                                    <div ref={contentRef}>
+                                        {inView ? (
+                                            <ScientificContent content={post.description || 'Texto completo'} />
+                                        ) : (
+                                            <div className="h-20 w-full animate-pulse bg-gray-100 dark:bg-gray-800 rounded-lg" />
+                                        )}
+                                    </div>}
                             <div className="absolute bottom-0 left-0 right-0 h-6 bg-gradient-to-t from-slate-100 dark:from-slate-800 to-transparent"></div>
                         </div>
                     </div>
@@ -300,21 +276,22 @@ export const MediaCard = React.memo(({ post, priority = false }: MediaCardProps)
 
                 {hasMultipleImages && (
                     <>
+                        {/* Simplified hover effect - removed blur for better performance */}
                         <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
-                        <button onClick={handlePrevImage} className="absolute left-2 top-1/2 -translate-y-1/2 size-8 bg-black/40 hover:bg-black/80 backdrop-blur-sm text-white rounded-full flex items-center justify-center z-10 hover:scale-110"><ChevronLeft className="w-5 h-5" /></button>
-                        <button onClick={handleNextImage} className="absolute right-2 top-1/2 -translate-y-1/2 size-8 bg-black/40 hover:bg-black/80 backdrop-blur-sm text-white rounded-full flex items-center justify-center z-10 hover:scale-110"><ChevronRight className="w-5 h-5" /></button>
-                        <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-1.5 z-10 px-2 py-1 rounded-full bg-black/30 backdrop-blur-md">
+                        <button onClick={handlePrevImage} className="absolute left-2 top-1/2 -translate-y-1/2 size-8 bg-black/60 hover:bg-black/90 text-white rounded-full flex items-center justify-center z-10 hover:scale-110"><ChevronLeft className="w-5 h-5" /></button>
+                        <button onClick={handleNextImage} className="absolute right-2 top-1/2 -translate-y-1/2 size-8 bg-black/60 hover:bg-black/90 text-white rounded-full flex items-center justify-center z-10 hover:scale-110"><ChevronRight className="w-5 h-5" /></button>
+                        <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-1.5 z-10 px-2 py-1 rounded-full bg-black/40">
                             {urls.map((_, idx) => (
                                 <div key={idx} className={`h-1.5 rounded-full transition-all duration-300 ${idx === currentImageIndex ? 'w-4 bg-white' : 'w-1.5 bg-white/50'}`} />
                             ))}
                         </div>
-                        <div className="absolute top-3 left-3 flex items-center gap-1 px-2 py-1 bg-primary text-white text-[10px] font-extrabold uppercase tracking-wider rounded backdrop-blur-md shadow-lg"><Layers className="w-3 h-3" /> Galeria</div>
+                        <div className="absolute top-3 left-3 flex items-center gap-1 px-2 py-1 bg-primary text-white text-[10px] font-extrabold uppercase tracking-wider rounded shadow-lg"><Layers className="w-3 h-3" /> Galeria</div>
                     </>
                 )}
 
                 {post.mediaType === 'video' && (
                     <div className="absolute inset-0 flex items-center justify-center bg-black/30 transition-colors group-hover:bg-black/40">
-                        <div className="flex h-14 w-14 items-center justify-center rounded-full bg-white text-primary shadow-2xl backdrop-blur-sm transition-transform group-hover:scale-110">
+                        <div className="flex h-14 w-14 items-center justify-center rounded-full bg-white text-primary shadow-2xl transition-transform group-hover:scale-110">
                             <Play className="w-6 h-6 fill-current" />
                         </div>
                     </div>
@@ -324,26 +301,26 @@ export const MediaCard = React.memo(({ post, priority = false }: MediaCardProps)
             <div className="flex flex-col p-4 md:p-6 pt-3 md:pt-4">
                 <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-4">
-                        <AtomicReaction
+                        <MediaReaction
                             isActive={liked}
                             count={likes}
-                            color={['brand-blue', 'brand-red', 'brand-yellow'][colorNum]}
+                            color="brand-blue"
                             onClick={(e) => {
                                 e.preventDefault();
                                 e.stopPropagation();
                                 handleLike();
                             }}
                         />
-                        <Link href={`/arquivo/${post.id}#comments`} onClick={(e) => e.stopPropagation()} className="text-gray-700 dark:text-gray-200 hover:text-blue-400 flex items-center gap-1.5 transition-colors">
-                            <MessageCircle className="w-5 h-5" />
+                        <Link href={`/arquivo/${post.id}#comments`} onClick={(e) => e.stopPropagation()} className="text-gray-700 dark:text-gray-200 hover:text-brand-red flex items-center gap-1.5 transition-colors">
+                            <Pencil className="w-5 h-5" />
                             <span className="text-[11px] font-black tabular-nums">{post.commentCount || 0}</span>
                         </Link>
-                        <button onClick={(e) => { e.stopPropagation(); setShowShareMenu(true); }} className="text-gray-700 dark:text-gray-200 hover:text-brand-yellow"><Send className="w-6 h-6" /></button>
-                        <button onClick={(e) => { e.stopPropagation(); handleReport(); }} className="text-gray-700 dark:text-gray-200 hover:text-red-500"><Flag className="w-6 h-6" /></button>
+                        <button onClick={(e) => { e.stopPropagation(); setShowShareMenu(true); }} className="text-gray-700 dark:text-gray-200 hover:text-brand-blue"><Rocket className="w-6 h-6" /></button>
+
                         {displayUrl && <button onClick={(e) => { e.stopPropagation(); setShowDownloadModal(true); }} className="text-gray-700 dark:text-gray-200 hover:text-brand-yellow"><Download className="w-6 h-6" /></button>}
                     </div>
-                    <button onClick={handleSave} className="flex items-center gap-1 text-gray-700 dark:text-gray-200 hover:text-blue-400">
-                        <Bookmark className={`w-6 h-6 ${saved ? 'fill-current' : ''}`} />
+                    <button onClick={handleSave} className="flex items-center gap-1 text-gray-700 dark:text-gray-200 hover:text-brand-yellow">
+                        <Star className={`w-6 h-6 ${saved ? 'fill-current text-brand-yellow' : ''}`} />
                         <span className="text-xs font-bold tabular-nums">{saves}</span>
                     </button>
                 </div>
@@ -375,7 +352,7 @@ export const MediaCard = React.memo(({ post, priority = false }: MediaCardProps)
                             className={`px-2 py-0.5 text-[10px] font-black rounded-md uppercase tracking-wide cursor-pointer hover:opacity-80 transition-opacity
                             ${['Laboratórios', 'Uso Didático'].includes(post.category) ? 'bg-brand-yellow/10 text-brand-yellow border border-brand-yellow/20' :
                                     ['Pesquisadores', 'Mural do Deu Ruim'].includes(post.category) ? 'bg-brand-red/10 text-brand-red border border-brand-red/20' :
-                                        ['Eventos', 'Convivência'].includes(post.category) ? 'bg-brand-blue/10 text-brand-blue border border-brand-blue/20' :
+                                        ['Eventos', 'Convivência', 'Lab-Div'].includes(post.category) ? 'bg-brand-blue/10 text-brand-blue border border-brand-blue/20' :
                                             'bg-brand-blue/10 text-brand-blue border border-brand-blue/20'}`}
                         >
                             {post.category}
@@ -417,7 +394,7 @@ export const MediaCard = React.memo(({ post, priority = false }: MediaCardProps)
 
             {showShareMenu && <ShareMenu id={post.id} title={post.title} author={post.authors} onClose={() => setShowShareMenu(false)} />}
             {showCollectionManager && <CollectionManager submissionId={post.id} userId={userId} onClose={() => setShowCollectionManager(false)} />}
-            {showDownloadModal && <DownloadModal id={post.id} title={post.title} authors={post.authors} description={post.description} mediaUrl={displayUrl} onClose={() => setShowDownloadModal(false)} />}
+            {showDownloadModal && <DownloadModal id={post.id} title={post.title} authors={post.authors} avatarUrl={post.avatarUrl} description={post.description} mediaUrl={displayUrl} onClose={() => setShowDownloadModal(false)} />}
         </div >
     );
 });

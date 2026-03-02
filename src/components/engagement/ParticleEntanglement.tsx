@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { m, AnimatePresence } from 'framer-motion';
 import { fetchParticlePreview, sendMessage, fetchMessages, getCurrentUserId } from '@/app/actions/submissions';
 import { toast } from 'react-hot-toast';
 import { Loader2 } from 'lucide-react';
@@ -145,15 +145,19 @@ export const ParticleEntanglement = ({ recipientId }: ParticleEntanglementProps)
                                 className={`flex flex-col ${isMine ? 'items-end' : 'items-start'} animate-in fade-in slide-in-from-bottom-2 duration-300`}
                             >
                                 <div className={`p-3 rounded-2xl max-w-[85%] text-xs border ${isMine
-                                        ? 'bg-brand-blue/20 border-brand-blue/30 text-white rounded-tr-none'
-                                        : 'bg-white/5 border-white/5 text-gray-300 rounded-tl-none'
+                                    ? 'bg-brand-blue/20 border-brand-blue/30 text-white rounded-tr-none'
+                                    : 'bg-white/5 border-white/5 text-gray-300 rounded-tl-none'
                                     }`}>
                                     {msg.content}
                                     {msg.attachment_id && (
-                                        <div className="mt-2 p-2 bg-black/20 rounded-lg flex items-center gap-2 border border-white/5">
+                                        <a
+                                            href={`/arquivo/${msg.attachment_id}`}
+                                            onClick={(e) => e.stopPropagation()}
+                                            className="mt-2 p-2 bg-black/20 rounded-lg flex items-center gap-2 border border-white/5 hover:bg-brand-blue/20 hover:border-brand-blue/30 transition-colors cursor-pointer"
+                                        >
                                             <span className="material-symbols-outlined text-[10px] text-brand-blue">link</span>
                                             <span className="text-[10px] font-bold uppercase truncate">Artigo Anexado</span>
-                                        </div>
+                                        </a>
                                     )}
                                 </div>
                                 <span className="text-[8px] text-gray-600 mt-1 uppercase font-bold tracking-widest">
@@ -173,7 +177,7 @@ export const ParticleEntanglement = ({ recipientId }: ParticleEntanglementProps)
             {/* Attachment Preview */}
             <AnimatePresence>
                 {attachment && (
-                    <motion.div
+                    <m.div
                         initial={{ y: 10, opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
                         exit={{ y: 10, opacity: 0 }}
@@ -204,7 +208,7 @@ export const ParticleEntanglement = ({ recipientId }: ParticleEntanglementProps)
                                 </div>
                             </div>
                         </div>
-                    </motion.div>
+                    </m.div>
                 )}
             </AnimatePresence>
 
@@ -247,7 +251,7 @@ export const ParticleEntanglement = ({ recipientId }: ParticleEntanglementProps)
             {/* Attachment Selector */}
             <AnimatePresence>
                 {isSelectorOpen && (
-                    <motion.div
+                    <m.div
                         initial={{ opacity: 0, scale: 0.95 }}
                         animate={{ opacity: 1, scale: 1 }}
                         exit={{ opacity: 0, scale: 0.95 }}
@@ -268,7 +272,7 @@ export const ParticleEntanglement = ({ recipientId }: ParticleEntanglementProps)
                                 🌌 Fluxo: Partícula Exemplo
                             </button>
                         </div>
-                    </motion.div>
+                    </m.div>
                 )}
             </AnimatePresence>
         </div>

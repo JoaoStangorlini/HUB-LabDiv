@@ -1,7 +1,7 @@
 'use client';
 
 import React, { Component, ErrorInfo, ReactNode, startTransition } from 'react';
-import { motion } from 'framer-motion';
+import { m, AnimatePresence } from 'framer-motion';
 import { AlertCircle, RefreshCcw } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
@@ -40,13 +40,13 @@ export class EliteErrorBoundary extends Component<Props, State> {
                     <div className="absolute top-0 right-0 w-32 h-32 bg-[#0055ff]/5 rounded-full -mr-16 -mt-16 blur-2xl group-hover:bg-[#0055ff]/10 transition-all" />
 
                     <div className="relative z-10 flex flex-col items-center text-center">
-                        <motion.div
+                        <m.div
                             initial={{ scale: 0.8, opacity: 0 }}
                             animate={{ scale: 1, opacity: 1 }}
                             className="size-16 bg-[#0055ff]/10 rounded-2xl flex items-center justify-center mb-6 border border-[#0055ff]/20"
                         >
                             <AlertCircle className="text-[#0055ff] size-8" />
-                        </motion.div>
+                        </m.div>
 
                         <h3 className="text-xl font-black text-gray-900 dark:text-white mb-2 uppercase tracking-tighter">
                             Módulo em Manutenção

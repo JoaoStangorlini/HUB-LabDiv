@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { m, AnimatePresence } from 'framer-motion';
 import { Trophy, Star, Sparkles } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import confetti from 'canvas-confetti';
@@ -59,7 +59,7 @@ export function LevelUpNotification() {
 
     return (
         <AnimatePresence>
-            <motion.div
+            <m.div
                 initial={{ opacity: 0, scale: 0.8, y: 50 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.8, y: 20 }}
@@ -70,13 +70,13 @@ export function LevelUpNotification() {
                     <div className="absolute inset-0 bg-brand-blue/5 rounded-[36px] animate-pulse" />
 
                     <div className="relative z-10">
-                        <motion.div
+                        <m.div
                             animate={{ rotate: [0, -10, 10, -5, 5, 0] }}
                             transition={{ duration: 0.5, repeat: 3 }}
                             className="inline-flex items-center justify-center size-20 bg-[#0055ff] rounded-2xl mb-6 shadow-lg shadow-[#0055ff]/40"
                         >
                             <Trophy className="text-white size-10" />
-                        </motion.div>
+                        </m.div>
 
                         <h2 className="text-3xl font-black mb-2 dark:text-white uppercase tracking-tighter">
                             Subiu de Nível!
@@ -103,7 +103,7 @@ export function LevelUpNotification() {
                         </button>
                     </div>
                 </div>
-            </motion.div>
+            </m.div>
         </AnimatePresence>
     );
 }

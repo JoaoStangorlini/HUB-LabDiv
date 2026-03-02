@@ -13,10 +13,7 @@ import {
     Wrench, History, Edit, Check, Ban
 } from 'lucide-react';
 
-const CustomPdfViewer = dynamic(
-    () => import('./CustomPdfViewer').then((mod) => mod.CustomPdfViewer),
-    { ssr: false }
-);
+
 
 interface AdminSubmissionLightboxProps {
     item: AdminPostDTO;
@@ -134,7 +131,14 @@ export function AdminSubmissionLightbox({
                             const pdfUrl = rawUrl ? getPdfViewerUrl(rawUrl) : '';
                             return pdfUrl ? (
                                 <div className="w-full h-full min-h-[60vh] md:min-h-full bg-white rounded-l-2xl md:rounded-l-3xl overflow-hidden relative">
-                                    <CustomPdfViewer fileUrl={pdfUrl} />
+                                    <div className="w-full h-full flex flex-col items-center justify-center p-12 bg-gray-50 dark:bg-gray-800">
+                                        <span className="material-symbols-outlined text-6xl text-brand-blue mb-4">description</span>
+                                        <p className="text-sm font-bold text-gray-500 dark:text-gray-400 mb-6">Visualização de PDF Otimizada</p>
+                                        <a href={pdfUrl} target="_blank" rel="noopener noreferrer" className="px-6 py-3 bg-brand-blue text-white rounded-xl font-bold flex items-center gap-2 hover:opacity-90 transition-all">
+                                            <ExternalLink className="w-5 h-5" />
+                                            Abrir PDF em Nova Aba
+                                        </a>
+                                    </div>
                                 </div>
                             ) : (
                                 <span className="text-white">PDF não encontrado</span>

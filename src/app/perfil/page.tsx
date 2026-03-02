@@ -8,11 +8,13 @@ import { PostDTO } from '@/dtos/media';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { getAvatarUrl } from '@/lib/utils';
-import { PasskeyManager } from '@/components/PasskeyManager';
-import { User, Grid, Medal, Lock, Image as ImageIcon, PlayCircle, FileText, Heart, MessageSquare, Info, Camera, ExternalLink, ShieldCheck } from 'lucide-react';
+import { parseMediaUrl, getYoutubeThumbnail, getOptimizedUrl } from '@/lib/media-utils';
+
+import { PseudonymManager } from '@/components/profile/PseudonymManager';
+import { User, Grid, Medal, Lock, Image as ImageIcon, PlayCircle, FileText, Heart, MessageSquare, Info, Camera, ExternalLink, ShieldCheck, Play } from 'lucide-react';
 import dynamic from 'next/dynamic';
 
-const OnboardingModal = dynamic(() => import('@/components/OnboardingModal'), { ssr: false });
+
 
 function ProfileContent() {
     const router = useRouter();
@@ -24,7 +26,7 @@ function ProfileContent() {
     const [submissions, setSubmissions] = useState<{ post: PostDTO }[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [activeTab, setActiveTab] = useState(initialTab);
-    const [isOnboardingOpen, setIsOnboardingOpen] = useState(false);
+
 
     useEffect(() => {
         const loadData = async () => {
@@ -43,14 +45,7 @@ function ProfileContent() {
 
             setProfile(profileData);
 
-            const isMissingData =
-                !profileData?.bio || profileData.bio.length < 5 ||
-                (profileData.is_usp_member && (!profileData.institute || !profileData.entrance_year)) ||
-                (!profileData.is_usp_member && !profileData.education_level);
 
-            if (isMissingData) {
-                setIsOnboardingOpen(true);
-            }
 
             const userSubs = await fetchUserSubmissions(session.user.id);
             setSubmissions(userSubs || []);
@@ -59,15 +54,7 @@ function ProfileContent() {
         loadData();
     }, [router]);
 
-    const handleOnboardingComplete = async () => {
-        const { data: profileData } = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('id', user.id)
-            .single();
-        setProfile(profileData);
-        setIsOnboardingOpen(false);
-    };
+
 
     if (isLoading || !user) {
         return (
@@ -191,6 +178,7 @@ function ProfileContent() {
                             { id: 'publicacoes', label: 'PUBLICAÇÕES', icon: <Grid className="w-4 h-4" /> },
                             { id: 'selos', label: 'SELOS', icon: <Medal className="w-4 h-4" /> },
                             { id: 'seguranca', label: 'SEGURANÇA', icon: <Lock className="w-4 h-4" /> },
+                            { id: 'pseudonimos', label: 'PSEUDÔNIMOS', icon: <User className="w-4 h-4" /> },
                         ].map((tab) => (
                             <button
                                 key={tab.id}
@@ -211,39 +199,67 @@ function ProfileContent() {
                             <div>
                                 {submissions.length > 0 ? (
                                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                        {submissions.map(sub => (
-                                            <a key={sub.post.id} href={`/arquivo/${sub.post.id}`} className="group relative aspect-video bg-gray-100 dark:bg-gray-800 overflow-hidden rounded-2xl cursor-pointer border border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-xl transition-all">
-                                                {sub.post.mediaType === 'image' ? (
-                                                    <img src={Array.isArray(sub.post.mediaUrl) ? sub.post.mediaUrl[0] : sub.post.mediaUrl} alt={sub.post.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                                                ) : sub.post.mediaType === 'video' ? (
-                                                    <div className="w-full h-full bg-black flex items-center justify-center">
-                                                        <PlayCircle className="w-12 h-12 text-white/50" />
-                                                    </div>
-                                                ) : (
-                                                    <div className="w-full h-full bg-blue-50 dark:bg-blue-900/20 flex flex-col items-center justify-center p-4 text-center">
-                                                        <FileText className="w-12 h-12 text-brand-blue/50 mb-2" />
-                                                        <span className="text-xs font-bold text-gray-700 dark:text-gray-300 line-clamp-2">{sub.post.title}</span>
-                                                    </div>
-                                                )}
+                                        {submissions.map(sub => {
+                                            const urls = parseMediaUrl(sub.post.mediaUrl);
+                                            const firstMedia = urls[0] || '';
+                                            const isImage = sub.post.mediaType === 'image';
+                                            const isVideo = sub.post.mediaType === 'video';
 
-                                                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-4 text-white">
-                                                    <div className="flex items-center gap-1.5 font-bold">
-                                                        <Heart className="w-5 h-5 fill-current" />
-                                                        <span>{sub.post.likeCount}</span>
-                                                    </div>
-                                                    <div className="flex items-center gap-1.5 font-bold">
-                                                        <MessageSquare className="w-5 h-5 fill-current" />
-                                                        <span>{sub.post.commentCount}</span>
-                                                    </div>
-                                                </div>
+                                            let thumbUrl = '';
+                                            if (isImage) {
+                                                thumbUrl = getOptimizedUrl(firstMedia, 400, 70, sub.post.category, 'image');
+                                            } else if (isVideo) {
+                                                thumbUrl = getYoutubeThumbnail(firstMedia);
+                                            }
 
-                                                {sub.post.status !== 'aprovado' && (
-                                                    <div className="absolute top-2 right-2 px-2 py-1 bg-black/80 backdrop-blur-md rounded text-[9px] font-bold text-white uppercase tracking-wider">
-                                                        {sub.post.status === 'pendente' ? 'Análise' : sub.post.status}
+                                            return (
+                                                <a key={sub.post.id} href={`/arquivo/${sub.post.id}`} className="group relative aspect-video bg-gray-100 dark:bg-gray-800 overflow-hidden rounded-2xl cursor-pointer border border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-xl transition-all">
+                                                    {thumbUrl ? (
+                                                        <>
+                                                            <img
+                                                                src={thumbUrl}
+                                                                alt={sub.post.title}
+                                                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                                            />
+                                                            {isVideo && (
+                                                                <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/40 transition-colors">
+                                                                    <div className="w-12 h-12 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center border border-white/30">
+                                                                        <Play className="w-6 h-6 text-white fill-current" />
+                                                                    </div>
+                                                                </div>
+                                                            )}
+                                                        </>
+                                                    ) : sub.post.mediaType === 'pdf' ? (
+                                                        <div className="w-full h-full bg-brand-yellow/5 dark:bg-brand-yellow/10 flex flex-col items-center justify-center p-4 text-center">
+                                                            <FileText className="w-12 h-12 text-brand-yellow/50 mb-2" />
+                                                            <span className="text-[10px] font-black text-brand-yellow uppercase tracking-widest leading-tight px-4">{sub.post.title}</span>
+                                                        </div>
+                                                    ) : (
+                                                        <div className="w-full h-full bg-brand-blue/5 dark:bg-brand-blue/10 flex flex-col items-center justify-center p-4 text-center">
+                                                            <FileText className="w-12 h-12 text-brand-blue/50 mb-2" />
+                                                            <span className="text-[10px] font-black text-brand-blue uppercase tracking-widest leading-tight px-4">{sub.post.title}</span>
+                                                        </div>
+                                                    )}
+
+                                                    <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-4 text-white">
+                                                        <div className="flex items-center gap-1.5 font-bold">
+                                                            <Heart className="w-5 h-5 fill-current" />
+                                                            <span>{sub.post.likeCount}</span>
+                                                        </div>
+                                                        <div className="flex items-center gap-1.5 font-bold">
+                                                            <MessageSquare className="w-5 h-5 fill-current" />
+                                                            <span>{sub.post.commentCount}</span>
+                                                        </div>
                                                     </div>
-                                                )}
-                                            </a>
-                                        ))}
+
+                                                    {sub.post.status !== 'aprovado' && (
+                                                        <div className="absolute top-2 right-2 px-2 py-1 bg-black/80 backdrop-blur-md rounded text-[9px] font-bold text-white uppercase tracking-wider">
+                                                            {sub.post.status === 'pendente' ? 'Análise' : sub.post.status}
+                                                        </div>
+                                                    )}
+                                                </a>
+                                            );
+                                        })}
                                     </div>
                                 ) : (
                                     <div className="flex flex-col items-center justify-center py-20 text-center">
@@ -291,20 +307,24 @@ function ProfileContent() {
                         )}
 
                         {activeTab === 'seguranca' && (
-                            <PasskeyManager />
+                            <div className="space-y-6">
+                                <h3 className="text-xl font-bold dark:text-white">Segurança da Conta</h3>
+                                <div className="p-4 bg-gray-50 dark:bg-[#1A1A1A] border border-gray-200 dark:border-gray-800 rounded-2xl flex flex-col items-center justify-center min-h-[150px] text-center">
+                                    <span className="material-symbols-outlined text-4xl text-gray-400 mb-2">lock</span>
+                                    <p className="text-gray-500 font-medium">Você utiliza autenticação delegada do sistema (Google, GitHub ou Email Seguro). Para redefinir sua senha, solicite-a no Login.</p>
+                                </div>
+                            </div>
+                        )}
+
+                        {activeTab === 'pseudonimos' && (
+                            <PseudonymManager />
                         )}
                     </div>
                 </div>
             </main>
             <Footer />
 
-            {isOnboardingOpen && (
-                <OnboardingModal
-                    userId={user.id}
-                    email={user.email}
-                    onComplete={handleOnboardingComplete}
-                />
-            )}
+
         </div>
     );
 }

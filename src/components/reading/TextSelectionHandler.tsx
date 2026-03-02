@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { m, AnimatePresence } from 'framer-motion';
 
 interface SelectionToolbarProps {
     onComment: (text: string, range: Range) => void;
@@ -64,7 +64,7 @@ export function TextSelectionHandler({ onComment, onNote, onCorrection }: Select
     return (
         <AnimatePresence>
             {position.show && (
-                <motion.div
+                <m.div
                     initial={{ opacity: 0, y: 10, x: '-50%' }}
                     animate={{ opacity: 1, y: 0, x: '-50%' }}
                     exit={{ opacity: 0, y: 10, x: '-50%' }}
@@ -91,7 +91,7 @@ export function TextSelectionHandler({ onComment, onNote, onCorrection }: Select
                         label="Corrigir"
                         onClick={() => handleAction('correction')}
                     />
-                </motion.div>
+                </m.div>
             )}
         </AnimatePresence>
     );

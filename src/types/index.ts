@@ -32,9 +32,6 @@ export interface Profile {
     has_scholarship: boolean;
     seeking_scholarship: boolean;
     interest_in_team: boolean;
-    atomic_excitation: number;
-    half_life_rate: number;
-    last_energy_update: string;
     created_at: string;
 }
 
@@ -64,8 +61,6 @@ export interface Submission {
     location_lat?: number;
     location_lng?: number;
     location_name?: string;
-    energy_reactions?: Record<string, number>;
-    atomic_excitation?: number;
     ocr_content?: string;
     ai_suggested_tags?: string[];
     ai_suggested_alt?: string;
@@ -93,20 +88,6 @@ export interface Comment {
     created_at: string;
 }
 
-export interface Reproduction {
-    id: string;
-    submission_id: string;
-    user_id: string;
-    title?: string;
-    text_content: string;
-    media_url?: string;
-    status: SubmissionStatus;
-    created_at: string;
-    profiles?: {
-        full_name: string;
-        avatar_url: string;
-    };
-}
 
 export interface Correction {
     id: string;

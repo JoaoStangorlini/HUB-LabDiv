@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { motion } from 'framer-motion';
+import { m, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import {
     ChevronRight,
@@ -34,7 +34,7 @@ export const TechnicalAccordion = ({ title, children }: { title: string, childre
                 <span className="text-sm font-black uppercase tracking-wider text-gray-200">{title}</span>
                 <ChevronRight className={`w-5 h-5 text-brand-blue transition-transform duration-500 ${isOpen ? 'rotate-90' : ''}`} />
             </button>
-            <motion.div
+            <m.div
                 initial={false}
                 animate={{ height: isOpen ? 'auto' : 0, opacity: isOpen ? 1 : 0 }}
                 className="overflow-hidden"
@@ -42,7 +42,7 @@ export const TechnicalAccordion = ({ title, children }: { title: string, childre
                 <div className="px-8 pb-8 text-gray-400 text-sm leading-relaxed font-medium">
                     {children}
                 </div>
-            </motion.div>
+            </m.div>
         </div>
     );
 };
@@ -64,8 +64,8 @@ export const ActionButton = ({ label, icon, href, variant = 'primary' }: { label
         href={href}
         target="_blank"
         className={`flex items-center justify-center gap-3 px-8 py-4 rounded-[24px] font-black text-xs uppercase tracking-wider transition-all active:scale-95 ${variant === 'primary'
-                ? 'bg-brand-blue text-white shadow-xl shadow-brand-blue/20 hover:scale-105'
-                : 'bg-white/5 text-gray-300 border border-white/10 hover:bg-white/10'
+            ? 'bg-brand-blue text-white shadow-xl shadow-brand-blue/20 hover:scale-105'
+            : 'bg-white/5 text-gray-300 border border-white/10 hover:bg-white/10'
             }`}
     >
         {icon}

@@ -1,8 +1,7 @@
 'use server';
 
 import { v2 as cloudinary } from 'cloudinary';
-import { createServerClient } from '@supabase/ssr';
-import { cookies } from 'next/headers';
+import { createServerSupabase } from '@/lib/supabase/server';
 import { z } from 'zod';
 import { revalidatePath } from 'next/cache';
 
@@ -34,19 +33,7 @@ export async function toggleLike(formData: { submission_id: string }) {
     const validated = submissionSchema.safeParse(formData);
     if (!validated.success) return { error: 'Invalid input' };
 
-    const cookieStore = await cookies();
-    const supabase = createServerClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-        {
-            cookies: {
-                get(name: string) { return cookieStore.get(name)?.value; },
-                set(name: string, value: string, options: any) { cookieStore.set({ name, value, ...options }); },
-                remove(name: string, options: any) { cookieStore.set({ name, value: '', ...options }); },
-            }
-        }
-    );
-
+    const supabase = await createServerSupabase();
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return { error: 'Unauthorized' };
 
@@ -56,76 +43,107 @@ export async function toggleLike(formData: { submission_id: string }) {
 
     const { data: existing } = await supabase
         .from('curtidas')
-        .select('*')
+        .select('id')
         .eq('submission_id', validated.data.submission_id)
         .eq('user_id', user.id)
         .maybeSingle();
 
-    if (existing) {
-        await supabase.from('curtidas').delete().eq('id', existing.id);
-    } else {
-        await supabase.from('curtidas').insert({
-            submission_id: validated.data.submission_id,
-            user_id: user.id
-        });
-    }
+    try {
+        if (existing) {
+            const { error } = await supabase.from('curtidas').delete().eq('id', existing.id);
+            if (error) throw error;
+        } else {
+            const { error } = await supabase.from('curtidas').insert({
+                submission_id: validated.data.submission_id,
+                user_id: user.id,
+                fingerprint: user.id, // Use full ID as fingerprint to ensure uniqueness
+            });
+            if (error) throw error;
+        }
 
-    revalidatePath('/');
-    return { success: true };
+        revalidatePath('/');
+        revalidatePath(`/arquivo/${validated.data.submission_id}`);
+        return { success: true, liked: !existing };
+    } catch (err: any) {
+        console.error('Action toggleLike error:', err);
+        return { error: err.message || 'Error syncing atom (like)' };
+    }
+}
+
+export async function checkUserLikes(submissionIds: string[]): Promise<string[]> {
+    if (!submissionIds.length) return [];
+
+    const supabase = await createServerSupabase();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return [];
+
+    const { data, error } = await supabase
+        .from('curtidas')
+        .select('submission_id')
+        .eq('user_id', user.id)
+        .in('submission_id', submissionIds);
+
+    if (error) {
+        console.error('Action checkUserLikes error:', error);
+        return [];
+    }
+    return data?.map(d => d.submission_id) || [];
 }
 
 export async function toggleSave(formData: { submission_id: string }) {
     const validated = submissionSchema.safeParse(formData);
     if (!validated.success) return { error: 'Invalid input' };
 
-    const cookieStore = await cookies();
-    const supabase = createServerClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-        {
-            cookies: {
-                get(name: string) { return cookieStore.get(name)?.value; },
-                set(name: string, value: string, options: any) { cookieStore.set({ name, value, ...options }); },
-                remove(name: string, options: any) { cookieStore.set({ name, value: '', ...options }); },
-            }
-        }
-    );
-
+    const supabase = await createServerSupabase();
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return { error: 'Unauthorized' };
 
     const { data: existing } = await supabase
-        .from('saved_items')
-        .select('*')
+        .from('saved_posts')
+        .select('id')
         .eq('submission_id', validated.data.submission_id)
         .eq('user_id', user.id)
         .maybeSingle();
 
-    if (existing) {
-        await supabase.from('saved_items').delete().eq('id', existing.id);
-    } else {
-        await supabase.from('saved_items').insert({
-            submission_id: validated.data.submission_id,
-            user_id: user.id
-        });
-    }
+    try {
+        if (existing) {
+            const { error } = await supabase.from('saved_posts').delete().eq('id', existing.id);
+            if (error) throw error;
+        } else {
+            const { error } = await supabase.from('saved_posts').insert({
+                submission_id: validated.data.submission_id,
+                user_id: user.id,
+            });
+            if (error) throw error;
+        }
 
-    revalidatePath('/');
-    return { success: true };
+        revalidatePath('/');
+        return { success: true, saved: !existing };
+    } catch (err: any) {
+        console.error('Action toggleSave error:', err);
+        return { error: err.message || 'Error syncing save' };
+    }
+}
+
+export async function checkUserSaves(submissionIds: string[]): Promise<string[]> {
+    if (!submissionIds.length) return [];
+
+    const supabase = await createServerSupabase();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return [];
+
+    const { data, error } = await supabase
+        .from('saved_posts')
+        .select('submission_id')
+        .eq('user_id', user.id)
+        .in('submission_id', submissionIds);
+
+    if (error) return [];
+    return data?.map(d => d.submission_id) || [];
 }
 
 export async function generateCloudinarySignature() {
-    const cookieStore = await cookies();
-    const supabase = createServerClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-        {
-            cookies: {
-                get(name: string) { return cookieStore.get(name)?.value; },
-            }
-        }
-    );
-
+    const supabase = await createServerSupabase();
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return { error: 'Unauthorized' };
 

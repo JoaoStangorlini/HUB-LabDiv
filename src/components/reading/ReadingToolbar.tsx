@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useReadingExperience } from './ReadingExperienceProvider';
-import { motion, AnimatePresence } from 'framer-motion';
+import { m, AnimatePresence } from 'framer-motion';
 import { exportElementToPDF } from '@/lib/pdf-export';
 import { toast } from 'react-hot-toast';
 
@@ -42,7 +42,7 @@ export function ReadingToolbar({ submissionTitle, submissionId, authors }: { sub
 
     return (
         <div className={`fixed bottom-8 left-1/2 -translate-x-1/2 z-[100] transition-all duration-500 ${isFocusMode ? 'focus-toolbar' : ''}`}>
-            <motion.div
+            <m.div
                 initial={{ y: 100, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 className="bg-white/90 dark:bg-card-dark/90 backdrop-blur-xl border border-gray-200 dark:border-gray-800 rounded-full px-4 py-2 shadow-2xl flex items-center gap-2 sm:gap-4"
@@ -85,7 +85,7 @@ export function ReadingToolbar({ submissionTitle, submissionId, authors }: { sub
 
                     <AnimatePresence>
                         {showTtsPopup && !isAudioPlaying && (
-                            <motion.div
+                            <m.div
                                 initial={{ opacity: 0, y: 10, scale: 0.95 }}
                                 animate={{ opacity: 1, y: 0, scale: 1 }}
                                 exit={{ opacity: 0, scale: 0.95 }}
@@ -119,7 +119,7 @@ export function ReadingToolbar({ submissionTitle, submissionId, authors }: { sub
                                         <span className="text-lg">🇺🇸</span> Listen in English
                                     </button>
                                 </div>
-                            </motion.div>
+                            </m.div>
                         )}
                     </AnimatePresence>
                 </div>
@@ -153,7 +153,7 @@ export function ReadingToolbar({ submissionTitle, submissionId, authors }: { sub
                     color="gray-500"
                     active={isExporting}
                 />
-            </motion.div>
+            </m.div>
         </div>
     );
 }
@@ -193,7 +193,7 @@ function ToolbarButton({
             </span>
 
             {active && (
-                <motion.div
+                <m.div
                     layoutId="active-pill"
                     className={`absolute inset-0 rounded-full border-2 ${colorClasses[color].split(' ')[2]} opacity-50`}
                     transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}

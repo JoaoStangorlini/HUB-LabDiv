@@ -1,5 +1,13 @@
 export const CATEGORIES = [
     {
+        id: 'Lab-Div',
+        title: 'Lab-Div',
+        description: 'Conteúdos oficiais, comunicados e projetos do Laboratório de Divulgação Científica.',
+        icon: 'science',
+        color: 'brand-blue',
+        examples: 'Divulgações oficiais, parcerias, grandes comunicados.'
+    },
+    {
         id: 'Laboratórios',
         title: 'Laboratórios',
         description: 'Fotos e vídeos de experimentos, equipamentos e infraestrutura de pesquisa.',

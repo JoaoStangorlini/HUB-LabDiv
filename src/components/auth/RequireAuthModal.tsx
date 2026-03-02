@@ -1,6 +1,6 @@
 'use client';
 
-import { motion, AnimatePresence } from 'framer-motion';
+import { m, AnimatePresence } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 
 interface RequireAuthModalProps {
@@ -23,7 +23,7 @@ export function RequireAuthModal({
     return (
         <AnimatePresence>
             <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6">
-                <motion.div
+                <m.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
@@ -31,7 +31,7 @@ export function RequireAuthModal({
                     onClick={onClose}
                 />
 
-                <motion.div
+                <m.div
                     initial={{ opacity: 0, scale: 0.95, y: 20 }}
                     animate={{ opacity: 1, scale: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.95, y: 20 }}
@@ -65,7 +65,7 @@ export function RequireAuthModal({
                             </button>
                         </div>
                     </div>
-                </motion.div>
+                </m.div>
             </div>
         </AnimatePresence>
     );

@@ -4,7 +4,7 @@ const resendApiKey = process.env.RESEND_API_KEY;
 const resend = resendApiKey ? new Resend(resendApiKey) : null;
 const adminEmail = process.env.ADMIN_EMAIL || 'joao@stangorlini.com';
 
-export type NotificationType = 'submission' | 'question' | 'comment' | 'reproduction';
+export type NotificationType = 'submission' | 'question' | 'comment';
 
 interface NotificationData {
     type: NotificationType;
@@ -29,62 +29,59 @@ export async function sendAdminNotification(data: NotificationData) {
 
     switch (data.type) {
         case 'submission':
-            subject = `Nova submissão pendente: ${data.title}`;
-            dashboardLink = 'https://hub.lab-div.com/admin/perguntas'; // FormStep.tsx suggest this link
+            subject = `Nº de Submissão Pendente: ${data.title}`;
+            dashboardLink = 'https://hub.labdiv.if.usp.br/admin/acervo';
             emailTemplate = `
-                <div style="font-family: sans-serif; padding: 20px; color: #333;">
-                    <h2 style="color: #0b2e59;">Nova submissão pendente no Hub Lab-Div</h2>
-                    <p>Uma nova submissão foi enviada para moderação.</p>
-                    <table style="width: 100%; border-collapse: collapse; margin: 20px 0; background: #f8fafc;">
-                        <tr><td style="padding: 10px; border-bottom: 1px solid #e2e8f0; font-weight: bold;">Autor(es):</td><td style="padding: 10px; border-bottom: 1px solid #e2e8f0;">${data.authors}</td></tr>
-                        <tr><td style="padding: 10px; border-bottom: 1px solid #e2e8f0; font-weight: bold;">Título:</td><td style="padding: 10px; border-bottom: 1px solid #e2e8f0;">${data.title}</td></tr>
-                        <tr><td style="padding: 10px; border-bottom: 1px solid #e2e8f0; font-weight: bold;">Categoria:</td><td style="padding: 10px; border-bottom: 1px solid #e2e8f0;">${data.category}</td></tr>
-                    </table>
+                <h2 style="color: #1a1a1a; margin-top: 0; font-size: 20px;">Nova submissão aguardando análise</h2>
+                <p style="color: #4a5568; line-height: 1.6; font-size: 15px;">Um novo material científico foi submetido ao Hub e precisa da sua aprovação para se tornar público.</p>
+                <div style="background-color: #f8fafc; border-left: 4px solid #004282; padding: 16px; margin: 24px 0; border-radius: 4px;">
+                    <p style="margin: 0 0 8px 0; font-size: 14px;"><strong style="color: #1a1a1a;">Autor(es):</strong> <span style="color: #4a5568;">${data.authors}</span></p>
+                    <p style="margin: 0 0 8px 0; font-size: 14px;"><strong style="color: #1a1a1a;">Título:</strong> <span style="color: #4a5568;">${data.title}</span></p>
+                    <p style="margin: 0; font-size: 14px;"><strong style="color: #1a1a1a;">Categoria:</strong> <span style="color: #4a5568;">${data.category}</span></p>
                 </div>`;
             break;
 
         case 'question':
-            subject = `Nova pergunta de ${data.userName}`;
-            dashboardLink = 'https://hub-labdiv--hub-lab-div-f7f28.us-east4.hosted.app/admin/perguntas';
+            subject = `Hub Lab-Div: Pergunta de ${data.userName}`;
+            dashboardLink = 'https://hub.labdiv.if.usp.br/admin/perguntas';
             emailTemplate = `
-                <div style="font-family: sans-serif; padding: 20px; color: #333;">
-                    <h2 style="color: #0b2e59;">Nova pergunta: Pergunte a um Cientista</h2>
-                    <p><strong>De:</strong> ${data.userName}</p>
-                    <p><strong>Pergunta:</strong> ${data.question}</p>
+                <h2 style="color: #1a1a1a; margin-top: 0; font-size: 20px;">Nova Pergunta Científica</h2>
+                <p style="color: #4a5568; line-height: 1.6; font-size: 15px;">O usuário <strong>${data.userName}</strong> enviou uma nova dúvida no Pergunte a um Cientista.</p>
+                <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; padding: 20px; margin: 24px 0; border-radius: 8px; font-style: italic; color: #2d3748;">
+                    "${data.question}"
                 </div>`;
             break;
 
         case 'comment':
-            subject = `Novo comentário pendente: ${data.userName}`;
-            dashboardLink = 'https://hub.lab-div.com/admin';
+            subject = `Hub Lab-Div: Comentário pendente de ${data.userName}`;
+            dashboardLink = 'https://hub.labdiv.if.usp.br/admin';
             emailTemplate = `
-                <div style="font-family: sans-serif; padding: 20px; color: #333;">
-                    <h2 style="color: #0b2e59;">Novo comentário pendente</h2>
-                    <p><strong>Autor:</strong> ${data.userName}</p>
-                    <p><strong>No material:</strong> ${data.submissionTitle}</p>
-                    <p><strong>Conteúdo:</strong> ${data.content}</p>
+                <h2 style="color: #1a1a1a; margin-top: 0; font-size: 20px;">Comentário recebido</h2>
+                <p style="color: #4a5568; line-height: 1.6; font-size: 15px;">O usuário <strong>${data.userName}</strong> comentou no material <strong>${data.submissionTitle}</strong>.</p>
+                <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; padding: 20px; margin: 24px 0; border-radius: 8px; font-style: italic; color: #2d3748;">
+                    "${data.content}"
                 </div>`;
             break;
 
-        case 'reproduction':
-            subject = `Nova reprodução pendente: ${data.userName}`;
-            dashboardLink = 'https://hub.lab-div.com/admin';
-            emailTemplate = `
-                <div style="font-family: sans-serif; padding: 20px; color: #333;">
-                    <h2 style="color: #0b2e59;">Nova reprodução: Eu Reproduzi!</h2>
-                    <p><strong>Autor:</strong> ${data.userName}</p>
-                    <p><strong>No material:</strong> ${data.submissionTitle}</p>
-                    <p><strong>Relato:</strong> ${data.content}</p>
-                </div>`;
-            break;
     }
 
     const finalHtml = `
-        ${emailTemplate}
-        <div style="text-align: center; margin-top: 30px;">
-            <a href="${dashboardLink}" style="display: inline-block; padding: 12px 24px; background-color: #0b2e59; color: #ffffff; text-decoration: none; border-radius: 6px; font-weight: bold;">
-                Acessar Painel Admin
-            </a>
+        <div style="max-width: 600px; margin: 0 auto; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; border: 1px solid #eaeaea; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+            <div style="background-color: #004282; padding: 32px 24px; text-align: center;">
+                <h1 style="color: #ffffff; margin: 0; font-size: 28px; font-weight: 900; letter-spacing: -0.5px;">LAB-DIV HUB</h1>
+                <p style="color: #8bb8e8; margin: 6px 0 0 0; font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px;">Instituto de Física | USP</p>
+            </div>
+            <div style="padding: 40px 32px; background-color: #ffffff;">
+                ${emailTemplate}
+                <div style="text-align: center; margin-top: 48px;">
+                    <a href="${dashboardLink}" style="display: inline-block; padding: 14px 32px; background-color: #004282; color: #ffffff; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 15px; box-shadow: 0 4px 6px rgba(0,66,130,0.2);">
+                        Acessar Painel Central
+                    </a>
+                </div>
+            </div>
+            <div style="background-color: #f8f9fa; padding: 24px; text-align: center; border-top: 1px solid #eaeaea;">
+                <p style="color: #6c757d; margin: 0; font-size: 12px; line-height: 1.5;">Este é um e-mail automático enviado pelo Hub de Comunicação Científica do Lab-Div.<br>Por favor, não responda diretamente a este endereço.</p>
+            </div>
         </div>
     `;
 

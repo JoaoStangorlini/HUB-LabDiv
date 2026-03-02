@@ -35,14 +35,14 @@ export interface FetchParams {
 }
 
 export async function fetchSubmissions({ page, limit, query, categories, mediaTypes, sort, author, is_featured: featured, years }: FetchParams): Promise<{ items: { post: PostDTO }[], hasMore: boolean }> {
-    const supabaseServer = await createServerSupabase();
-    let queryBuilder = supabaseServer
+    const serverSupabase = await createServerSupabase();
+    let queryBuilder = serverSupabase
         .from('submissions')
         .select('*, energy_reactions, atomic_excitation', { count: 'exact' })
         .eq('status', 'aprovado');
 
     if (featured) queryBuilder = queryBuilder.eq('is_featured', true);
-    if (categories && categories.length > 0) queryBuilder = queryBuilder.in('category', categories);
+    if (categories && categories.length > 0 && !categories.includes('Todos')) queryBuilder = queryBuilder.in('category', categories);
     if (author) queryBuilder = queryBuilder.eq('authors', author);
     if (mediaTypes && mediaTypes.length > 0) queryBuilder = queryBuilder.in('media_type', mediaTypes);
 
@@ -66,32 +66,10 @@ export async function fetchSubmissions({ page, limit, query, categories, mediaTy
     queryBuilder = queryBuilder.range(from, to);
 
     const { data: submissions, error, count } = await queryBuilder;
-    if (error) {
-        console.error("fetchSubmissions SQL Error:", error);
-        return { items: [], hasMore: false };
-    }
-    if (!submissions) return { items: [], hasMore: false };
-
-    const submissionIds = submissions.map(s => s.id);
-
-    // Optimized Counts Fetch
-    const [commentCounts, saveCounts] = await Promise.all([
-        supabase.from('comments').select('submission_id').in('submission_id', submissionIds).eq('status', 'aprovado'),
-        supabase.from('saved_posts').select('submission_id').in('submission_id', submissionIds),
-    ]);
-
-    const commentMap: Record<string, number> = {};
-    commentCounts.data?.forEach(row => commentMap[row.submission_id] = (commentMap[row.submission_id] || 0) + 1);
-
-    const saveMap: Record<string, number> = {};
-    saveCounts.data?.forEach(row => saveMap[row.submission_id] = (saveMap[row.submission_id] || 0) + 1);
+    if (error || !submissions) return { items: [], hasMore: false };
 
     const items = submissions.map(sub => ({
-        post: mapToPostDTO(sub, {
-            likes: sub.like_count,
-            comments: commentMap[sub.id],
-            saves: saveMap[sub.id]
-        })
+        post: mapToPostDTO(sub)
     }));
 
     const hasMore = count ? from + submissions.length < count : false;
@@ -99,65 +77,35 @@ export async function fetchSubmissions({ page, limit, query, categories, mediaTy
 }
 
 export async function fetchTrendingSubmissions(): Promise<{ post: PostDTO }[]> {
-    const { data: submissions, error } = await supabase
+    const serverSupabase = await createServerSupabase();
+    const { data: submissions, error } = await serverSupabase
         .from('submissions')
-        .select('*, like_count')
+        .select('*')
         .eq('status', 'aprovado')
         .order('views', { ascending: false })
         .limit(6);
 
     if (error || !submissions) return [];
 
-    const submissionIds = submissions.map(s => s.id);
-    const [commentCounts, saveCounts] = await Promise.all([
-        supabase.from('comments').select('submission_id').in('submission_id', submissionIds).eq('status', 'aprovado'),
-        supabase.from('saved_posts').select('submission_id').in('submission_id', submissionIds),
-    ]);
-
-    const commentMap: Record<string, number> = {};
-    commentCounts.data?.forEach(row => commentMap[row.submission_id] = (commentMap[row.submission_id] || 0) + 1);
-
-    const saveMap: Record<string, number> = {};
-    saveCounts.data?.forEach(row => saveMap[row.submission_id] = (saveMap[row.submission_id] || 0) + 1);
-
     return submissions.map(sub => ({
-        post: mapToPostDTO(sub, {
-            likes: sub.like_count,
-            comments: commentMap[sub.id],
-            saves: saveMap[sub.id]
-        })
+        post: mapToPostDTO(sub)
     }));
 }
 
 export async function getFeaturedSubmissions(limit: number = 10): Promise<{ post: PostDTO }[]> {
-    const { data: submissions, error } = await supabase
+    const serverSupabase = await createServerSupabase();
+    const { data: submissions, error } = await serverSupabase
         .from('submissions')
         .select('*')
-        .eq('status', 'aprovado')
         .eq('is_featured', true)
+        .eq('status', 'aprovado')
         .order('created_at', { ascending: false })
         .limit(limit);
 
     if (error || !submissions) return [];
 
-    const submissionIds = submissions.map(s => s.id);
-    const [commentCounts, saveCounts] = await Promise.all([
-        supabase.from('comments').select('submission_id').in('submission_id', submissionIds).eq('status', 'aprovado'),
-        supabase.from('saved_posts').select('submission_id').in('submission_id', submissionIds),
-    ]);
-
-    const commentMap: Record<string, number> = {};
-    commentCounts.data?.forEach(row => commentMap[row.submission_id] = (commentMap[row.submission_id] || 0) + 1);
-
-    const saveMap: Record<string, number> = {};
-    saveCounts.data?.forEach(row => saveMap[row.submission_id] = (saveMap[row.submission_id] || 0) + 1);
-
     return submissions.map(sub => ({
-        post: mapToPostDTO(sub, {
-            likes: sub.like_count,
-            comments: commentMap[sub.id],
-            saves: saveMap[sub.id]
-        })
+        post: mapToPostDTO(sub)
     }));
 }
 
@@ -426,10 +374,14 @@ export async function fetchUserSubmissions(userId: string): Promise<{ post: Post
 
     // Get counts for these submissions
     const submissionIds = submissions.map(s => s.id);
-    const [commentCounts, saveCounts] = await Promise.all([
+    const [likeCounts, commentCounts, saveCounts] = await Promise.all([
+        supabase.from('curtidas').select('submission_id').in('submission_id', submissionIds),
         supabase.from('comments').select('submission_id').in('submission_id', submissionIds).eq('status', 'aprovado'),
         supabase.from('saved_posts').select('submission_id').in('submission_id', submissionIds),
     ]);
+
+    const likeMap: Record<string, number> = {};
+    likeCounts.data?.forEach(row => likeMap[row.submission_id] = (likeMap[row.submission_id] || 0) + 1);
 
     const commentMap: Record<string, number> = {};
     commentCounts.data?.forEach(row => commentMap[row.submission_id] = (commentMap[row.submission_id] || 0) + 1);
@@ -439,7 +391,7 @@ export async function fetchUserSubmissions(userId: string): Promise<{ post: Post
 
     return submissions.map(sub => ({
         post: mapToPostDTO(sub, {
-            likes: sub.like_count,
+            likes: likeMap[sub.id] || 0,
             comments: commentMap[sub.id],
             saves: saveMap[sub.id]
         })

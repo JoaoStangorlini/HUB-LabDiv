@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { MediaCard, MediaCardProps } from './MediaCard';
 import { SkeletonCard } from './ui/SkeletonCard';
 import { fetchSubmissions } from '@/app/actions/submissions';
+import { checkUserLikes } from '@/app/actions/media';
 import { m, AnimatePresence } from 'framer-motion';
 import dynamic from 'next/dynamic';
 
@@ -40,6 +41,7 @@ interface HomeClientViewProps {
     trendingItems?: MediaCardProps[];
     featuredItems?: MediaCardProps[];
     trendingTags?: string[];
+    initialLikedIds?: string[];
 }
 
 export const HomeClientView = ({
@@ -48,7 +50,8 @@ export const HomeClientView = ({
     initialCategory = 'Todos',
     trendingItems = [],
     featuredItems = [],
-    trendingTags = []
+    trendingTags = [],
+    initialLikedIds = []
 }: HomeClientViewProps) => {
     const searchParams = useSearchParams();
     const router = useRouter();
@@ -59,6 +62,7 @@ export const HomeClientView = ({
     const [hasMore, setHasMore] = useState(initialHasMore);
     const [isLoading, setIsLoading] = useState(false);
     const [isLoadingMore, setIsLoadingMore] = useState(false);
+    const [likedIds, setLikedIds] = useState<Set<string>>(new Set(initialLikedIds));
 
     const [selectedCategories, setSelectedCategories] = useState<string[]>([initialCategory]);
     const [selectedMediaTypes, setSelectedMediaTypes] = useState<string[]>([]);
@@ -96,6 +100,19 @@ export const HomeClientView = ({
             window.removeEventListener('resize', checkScroll);
         };
     }, [trendingItems]);
+
+    // Fetch user liked IDs whenever items change
+    useEffect(() => {
+        const ids = [
+            ...items.map(i => i.post.id),
+            ...trendingItems.map(i => i.post.id),
+            ...featuredItems.map(i => i.post.id)
+        ];
+        const unique = [...new Set(ids)];
+        if (unique.length > 0) {
+            checkUserLikes(unique).then(liked => setLikedIds(new Set(liked)));
+        }
+    }, [items, trendingItems, featuredItems]);
 
     const scrollTrending = (direction: 'left' | 'right') => {
         if (trendingScrollRef.current) {
@@ -183,34 +200,18 @@ export const HomeClientView = ({
         }
     };
 
-    // Hero Mouse Movement Logic
-    const headerRef = useRef<HTMLElement>(null);
-    const handleMouseMove = (e: React.MouseEvent<HTMLElement>) => {
-        if (!headerRef.current) return;
-        const x = (e.clientX / window.innerWidth - 0.5) * 2;
-        const y = (e.clientY / window.innerHeight - 0.5) * 2;
-        headerRef.current.style.setProperty('--mouse-x', x.toString());
-        headerRef.current.style.setProperty('--mouse-y', y.toString());
-    };
+
 
     return (
         <div className="space-y-4">
             {/* HERÓI / INTRODUÇÃO */}
-            <header
-                ref={headerRef}
-                className="relative pt-12 pb-24 overflow-hidden flex-shrink-0"
-                onMouseMove={handleMouseMove}
-            >
-                {/* IDV Blobs Optimized */}
-                <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-brand-blue/20 dark:bg-blue-500/20 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/3 transition-transform duration-1000 pointer-events-none"
-                    style={{ transform: `translate(calc(-10% + var(--mouse-x, 0) * -80px), calc(-20% + var(--mouse-y, 0) * -80px))` }}></div>
-                <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-brand-red/20 dark:bg-red-500/20 rounded-full blur-[120px] translate-y-1/3 -translate-x-1/4 transition-transform duration-1000 pointer-events-none"
-                    style={{ transform: `translate(calc(-25% + var(--mouse-x, 0) * 60px), calc(33% + var(--mouse-y, 0) * 60px))` }}></div>
-
-                {/* Softening Overlays */}
-                <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-background-light dark:from-background-dark to-transparent z-10 pointer-events-none" />
-                <div className="absolute inset-y-0 left-0 w-32 bg-gradient-to-r from-background-light dark:from-background-dark to-transparent z-10 pointer-events-none" />
-                <div className="absolute inset-y-0 right-0 w-32 bg-gradient-to-l from-background-light dark:from-background-dark to-transparent z-10 pointer-events-none" />
+            <header className="relative pt-12 pb-24 flex-shrink-0 overflow-hidden rounded-[40px]">
+                {/* Degradê sutil nas cores da marca */}
+                <div className="absolute inset-0 pointer-events-none">
+                    <div className="absolute top-0 left-0 w-[500px] h-[500px] bg-brand-blue/8 rounded-full blur-[80px] -translate-x-1/3 -translate-y-1/4"></div>
+                    <div className="absolute top-1/3 left-1/2 w-[400px] h-[400px] bg-brand-yellow/6 rounded-full blur-[80px] -translate-x-1/2"></div>
+                    <div className="absolute bottom-0 right-0 w-[500px] h-[500px] bg-brand-red/8 rounded-full blur-[80px] translate-x-1/3 translate-y-1/4"></div>
+                </div>
 
                 <div className="max-w-4xl mx-auto px-4 relative z-10 text-center">
                     <m.div
@@ -358,7 +359,7 @@ export const HomeClientView = ({
 
             {/* EM ÓRBITA NO IFUSP (Trending Horizontal - Mover abaixo dos filtros) */}
             {!debouncedQuery && selectedCategories.includes('Todos') && trendingItems.length > 0 && (
-                <section className="w-full py-8 bg-white dark:bg-white/5 rounded-[40px] border border-gray-100 dark:border-gray-800/50 shadow-sm mb-12">
+                <section className="w-full py-8 bg-white dark:bg-card-dark rounded-[40px] border border-gray-100 dark:border-gray-800/50 shadow-sm mb-12">
                     <div className="px-8">
                         <div className="flex items-center justify-between mb-8">
                             <div className="flex flex-col">
@@ -415,7 +416,7 @@ export const HomeClientView = ({
                                     transition={{ delay: index * 0.05 }}
                                     className="min-w-[280px] md:min-w-[320px] snap-start"
                                 >
-                                    <MediaCard post={item.post} />
+                                    <MediaCard post={item.post} priority={index < 2} isLikedByUser={likedIds.has(item.post.id)} />
                                 </m.div>
                             ))}
                         </div>
@@ -439,6 +440,7 @@ export const HomeClientView = ({
                             <MediaCard
                                 post={item.post}
                                 priority={index < 4}
+                                isLikedByUser={likedIds.has(item.post.id)}
                             />
                         </m.div>
                     ))
