@@ -736,6 +736,131 @@ DROP FUNCTION IF EXISTS public.prune_kudos_logs();
 DROP FUNCTION IF EXISTS public.accept_ai_suggestions(uuid);
 DROP FUNCTION IF EXISTS public.accept_ai_suggestions_bulk(uuid[]);
 
+-- ╔══════════════════════════════════════════════════════════╗
+-- ║               16. INITIAL SEEDING - QUIZ                ║
+-- ╚══════════════════════════════════════════════════════════╝
+
+-- Limpa questões de teste anteriores
+TRUNCATE public.quiz_questions;
+
+INSERT INTO public.quiz_questions (question, options, explanation, points) VALUES
+-- 1. Guia de Boas Práticas
+('Qual é a recomendação de resolução mínima para imagens e vídeos no Hub?', 
+ '[{"text": "720p", "isCorrect": false}, {"text": "1080p", "isCorrect": true}, {"text": "480p", "isCorrect": false}, {"text": "4K apenas", "isCorrect": false}]',
+ 'Conforme o Guia de Boas Práticas, 1080p é o padrão para garantir alta fidelidade na comunicação científica.', 10),
+
+('Qual é o licenciamento padrão para o conteúdo postado no Hub?', 
+ '[{"text": "Copyright Reservado", "isCorrect": false}, {"text": "Creative Commons CC-BY-SA", "isCorrect": true}, {"text": "Domínio Público", "isCorrect": false}, {"text": "Uso restrito ao IFUSP", "isCorrect": false}]',
+ 'O Hub utiliza CC-BY-SA para garantir que o conhecimento circule mantendo os créditos aos autores.', 15),
+
+('Qual categoria da Wiki é focada especificamente em Tutoriais?', 
+ '[{"text": "Refração", "isCorrect": false}, {"text": "Síncrotron", "isCorrect": true}, {"text": "Colisor", "isCorrect": false}, {"text": "Laboratório", "isCorrect": false}]',
+ 'O Síncrotron é o hub de tutoriais e guias técnicos da nossa comunidade.', 10),
+
+-- 2. Iniciação de Partículas (Calouros)
+('Qual ônibus circular liga a Cidade Universitária à CPTM?', 
+ '[{"text": "8012", "isCorrect": false}, {"text": "8022", "isCorrect": false}, {"text": "8032", "isCorrect": true}, {"text": "BusUSP Leste", "isCorrect": false}]',
+ 'A linha 8032 é a responsável pela integração com a estação da CPTM.', 10),
+
+('O que é necessário para utilizar o CEPEUSP (Centro de Esportes)?', 
+ '[{"text": "Apenas pagar mensalidade", "isCorrect": false}, {"text": "Carteirinha USP e exame médico", "isCorrect": true}, {"text": "Ser atleta federado", "isCorrect": false}, {"text": "Agendamento por e-mail", "isCorrect": false}]',
+ 'O acesso é gratuito para alunos, exigindo apenas a carteirinha e o exame oficial.', 10),
+
+('Qual órgão é responsável por resolver trancamentos e matrículas no IF?', 
+ '[{"text": "Pró-Aluno", "isCorrect": false}, {"text": "Seção de Alunos", "isCorrect": true}, {"text": "Diretoria", "isCorrect": false}, {"text": "CAASO", "isCorrect": false}]',
+ 'A Seção de Alunos cuida da burocracia acadêmica; o Pró-Aluno foca em informática.', 10),
+
+-- 3. Emissão de Luz (Divulgação)
+('Na fotografia, o que a "Regra dos Terços" busca criar no enquadramento?', 
+ '[{"text": "Simetria perfeita central", "isCorrect": false}, {"text": "Equilíbrio em intersecções", "isCorrect": true}, {"text": "Redução de brilho", "isCorrect": false}, {"text": "Foco no fundo", "isCorrect": false}]',
+ 'Posicionar o objeto nas intersecções da grade cria uma composição mais harmônica e equilibrada.', 15),
+
+('Para evitar ruído em fotos técnicas com celular/câmera, como o ISO deve ser configurado?', 
+ '[{"text": "Sempre no máximo (3200+)", "isCorrect": false}, {"text": "Baixo (100-400)", "isCorrect": true}, {"text": "No modo Automático Noturno", "isCorrect": false}, {"text": "Depende apenas da lente", "isCorrect": false}]',
+ 'ISO baixo garante uma imagem limpa e sem granulação, essencial para precisão experimental.', 15),
+
+('Qual recurso do LabDiv oferece assets visuais e tipografia oficial?', 
+ '[{"text": "KitDiv", "isCorrect": true}, {"text": "Wiki-Assets", "isCorrect": false}, {"text": "Drive-Geral", "isCorrect": false}, {"text": "PhotoHub", "isCorrect": false}]',
+ 'O KitDiv é o pacote oficial de identidade visual para nossos divulgadores.', 10),
+
+-- 4. Protocolos de Proteção
+('Qual destes programas oferece tratamento psiquiátrico/psicoterapêutico no campus?', 
+ '[{"text": "Física Acolhe", "isCorrect": false}, {"text": "Hospital Universitário (HU)", "isCorrect": true}, {"text": "Pró-Reitoria de Graduação", "isCorrect": false}, {"text": "Seção de Alunos", "isCorrect": false}]',
+ 'O HU possui serviço especializado de saúde mental para a comunidade universitária.', 15),
+
+('O que o Programa ECOS foca em oferecer aos alunos?', 
+ '[{"text": "Aulas de reforço", "isCorrect": false}, {"text": "Escuta e acolhimento", "isCorrect": true}, {"text": "Bolsas de intercâmbio", "isCorrect": false}, {"text": "Empréstimo de livros", "isCorrect": false}]',
+ 'O ECOS é focado em escuta qualificada e orientação em casos de conflitos.', 10),
+
+('Iniciativa interna do IFUSP para suporte direto aos alunos:', 
+ '[{"text": "Física Em Dobro", "isCorrect": false}, {"text": "Física Acolhe", "isCorrect": true}, {"text": "Radar-IF", "isCorrect": false}, {"text": "Hub-Social", "isCorrect": false}]',
+ 'O Física Acolhe é o nosso canal institucional interno de apoio ao bem-estar.', 10),
+
+-- 5. Interações de Fronteira (Extensão)
+('Qual grupo de extensão do IFUSP foca na participação de mulheres na física?', 
+ '[{"text": "Vaca Esférica", "isCorrect": false}, {"text": "Amélia Império", "isCorrect": true}, {"text": "Show de Física", "isCorrect": false}, {"text": "G-Astro", "isCorrect": false}]',
+ 'O Coletivo Amélia Império é focado na representatividade e apoio às mulheres na ciência.', 15),
+
+('Qual coletivo debate ética, sociedade e o papel da ciência no síncrotron?', 
+ '[{"text": "HS (Humanidades no Síncrotron)", "isCorrect": true}, {"text": "Astro-Ética", "isCorrect": false}, {"text": "Lab-Debate", "isCorrect": false}, {"text": "Partículas-Sociais", "isCorrect": false}]',
+ 'O HS é o espaço para discussões interdisciplinares sobre ciência e humanidades.', 15),
+
+('Onde fica o local de vivência oficial dos alunos de física (o "Aquário")?', 
+ '[{"text": "Perto da Biblioteca", "isCorrect": false}, {"text": "Na Ala Didática", "isCorrect": true}, {"text": "No Prédio Principal", "isCorrect": false}, {"text": "Dentro do Pelletron", "isCorrect": false}]',
+ 'O Aquário é o coração da convivência estudantil na Ala Didática.', 10),
+
+-- 6. Energia de Permanência (Bolsas)
+('Qual bolsa é essencial para alunos que atuam em escolas desde o início da Licenciatura?', 
+ '[{"text": "PUB", "isCorrect": false}, {"text": "PIBID", "isCorrect": true}, {"text": "FAPESP", "isCorrect": false}, {"text": "PROIAD", "isCorrect": false}]',
+ 'O PIBID é o Programa Institucional de Bolsas de Iniciação à Docência.', 15),
+
+('O que significa a sigla PUB no contexto de auxílio estudantil?', 
+ '[{"text": "Programa USP de Bibliotecas", "isCorrect": false}, {"text": "Programa Unificado de Bolsas", "isCorrect": true}, {"text": "Projeto Unitário de Bem-estar", "isCorrect": false}, {"text": "Portal das Unidades de Biofísica", "isCorrect": false}]',
+ 'O PUB unifica bolsas de ensino, pesquisa e extensão.', 10),
+
+('Onde fica localizado o conjunto residencial estudantil da USP?', 
+ '[{"text": "SAS-B", "isCorrect": false}, {"text": "CRUSP", "isCorrect": true}, {"text": "Hostel-USP", "isCorrect": false}, {"text": "Vila-1371", "isCorrect": false}]',
+ 'O CRUSP (Conjunto Residencial da USP) é o local de moradia estudantil.', 10),
+
+-- 7. Estrutura da Matéria (Carreira)
+('Físicos têm alta demanda no mercado de trabalho em qual destas áreas?', 
+ '[{"text": "Culinária molecular", "isCorrect": false}, {"text": "Ciência de Dados e Mercado Financeiro", "isCorrect": true}, {"text": "Direito Internacional", "isCorrect": false}, {"text": "Marketing Digital apenas", "isCorrect": false}]',
+ 'A capacidade analítica do físico é muito valorizada em dados e finanças.', 10),
+
+('Onde deve ser feito o cadastro para iniciar um estágio (obrigatório ou não)?', 
+ '[{"text": "Diretamente na empresa", "isCorrect": false}, {"text": "No sistema oficial (Júpiter/Ateneu) e Secretaria", "isCorrect": true}, {"text": "Não precisa de cadastro", "isCorrect": false}, {"text": "Apenas por e-mail", "isCorrect": false}]',
+ 'Todo estágio precisa de formalização institucional via sistemas e secretaria.', 15),
+
+('Qual habilitação do Bacharelado envolve o estudo de astros?', 
+ '[{"text": "Geofísica", "isCorrect": false}, {"text": "Astronomia", "isCorrect": true}, {"text": "Nuclear", "isCorrect": false}, {"text": "Sólida", "isCorrect": false}]',
+ 'O Bacharelado no IF tem habilitação específica em Astronomia.', 10),
+
+-- 8. Sistemas de Pesquisa
+('Qual sistema é usado para cadastrar e acompanhar projetos de Iniciação Científica (IC)?', 
+ '[{"text": "Ateneu", "isCorrect": true}, {"text": "Júpiter", "isCorrect": false}, {"text": "Janus", "isCorrect": false}, {"text": "Portal-Net", "isCorrect": false}]',
+ 'O sistema Ateneu é o hub da pesquisa e extensão na USP.', 15),
+
+('Fomento à pesquisa de nível estadual (São Paulo) muito comum no IF:', 
+ '[{"text": "CNPq", "isCorrect": false}, {"text": "FAPESP", "isCorrect": true}, {"text": "CAPES", "isCorrect": false}, {"text": "Finep", "isCorrect": false}]',
+ 'A FAPESP é a agência de fomento principal do estado de SP.', 10),
+
+('Qual acelerador de partículas do IFUSP foi inaugurado em 1972?', 
+ '[{"text": "Síncrotron", "isCorrect": false}, {"text": "Pelletron", "isCorrect": true}, {"text": "LHC-BR", "isCorrect": false}, {"text": "Cíclotron", "isCorrect": false}]',
+ 'O Pelletron é o icônico acelerador eletrostático inaugurado nos anos 70.', 15),
+
+-- 9. Vetores de Carreira
+('O que significa EUF para quem quer seguir carreira acadêmica?', 
+ '[{"text": "Exame Unificado de Física", "isCorrect": true}, {"text": "Escola de União de Físicos", "isCorrect": false}, {"text": "Estágio em Unidades de Fronteira", "isCorrect": false}, {"text": "Entrada Única de Formatura", "isCorrect": false}]',
+ 'O EUF é o exame nacional para ingresso na pós-graduação em física.', 20),
+
+('Uma das áreas de inovação para físicos na indústria:', 
+ '[{"text": "Óptica de precisão", "isCorrect": true}, {"text": "Escrita criativa", "isCorrect": false}, {"text": "Design de moda", "isCorrect": false}, {"text": "Turismo espacial apenas", "isCorrect": false}]',
+ 'Físicos atuam fortemente em óptica, materiais e tecnologia de ponta.', 15),
+
+('Quem pode te orientar em uma Iniciação Científica (IC)?', 
+ '[{"text": "Qualquer aluno veterano", "isCorrect": false}, {"text": "Docentes e pesquisadores doutores", "isCorrect": true}, {"text": "Secretaria apenas", "isCorrect": false}, {"text": "Apenas o Diretor", "isCorrect": false}]',
+ 'A orientation deve ser feita por um docente ou pesquisador qualificado.', 10);
+
 -- ════════════════════════════════════════════════════════════
 -- FIM DO GOD SQL v5.0.0
 -- ════════════════════════════════════════════════════════════

@@ -42,24 +42,40 @@ const pageContent: Record<string, any> = {
         color: 'brand-blue',
         sections: [
             {
-                title: 'Co-autoria e Créditos',
-                content: 'A ciência é um esforço coletivo. No Hub de Comunicação Científica, incentivamos que você marque todos os colaboradores que participaram da criação do material. Use o campo de co-autores para buscar perfis ou cite nomes diretamente no campo de autores para garantir os devidos créditos.'
+                title: 'Categorias',
+                content: 'Refração (Notícias), Síncrotron (Tutoriais), Colisor (Debates) e Laboratório (Perfil). Escolha a categoria que melhor colide com seu objetivo de comunicação.'
             },
             {
-                title: 'Fotografia no Laboratório',
-                content: 'Priorize luz natural suave. Evite o flash direto que gera reflexos indesejados em vidrarias ou metais. No enquadramento, mostre o experimento em contexto, mas capture "close-ups" dos detalhes técnicos que realmente importam para a explicação.'
+                title: 'Formatos',
+                content: 'Aceitamos Imagens (PNG/JPG), Vídeos (MP4) e Documentos Técnicos (PDF). Cada formato tem um papel na emissão de conhecimento científico.'
             },
             {
-                title: 'Produção de Vídeo',
-                content: 'Estabilidade é a chave para uma boa divulgação: utilize tripés ou superfícies fixas. Garanta um áudio limpo, evitando ruídos de compressores ou ar-condicionado. Narre o processo para guiar o espectador através da colisão de ideias.'
+                title: 'Apelidos',
+                content: 'Seu nome no Hub pode ser seu nome real ou um apelido acadêmico. Mantenha o respeito e a integridade da identidade visual do LabDiv.'
             },
             {
-                title: 'Padrões Técnicos',
-                content: 'Imagens devem estar em PNG ou JPG de alta resolução (até 10MB). Para vídeos, utilize o formato MP4. Documentos técnicos e guias devem ser submetidos em PDF para garantir a integridade da formatação original.'
+                title: 'Links Externos',
+                content: 'Sempre cite fontes confiáveis (ArXiv, Nature, Portal USP). Links para sites externos devem ser verificados para evitar quebras de simetria na informação.'
             },
             {
-                title: 'Categorias e Objetivos',
-                content: 'Cada categoria no Hub (Refração, Síncrotron, Colisor) possui objetivos distintos. Certifique-se de que sua submissão está alinhada com o propósito da seção para maximizar o impacto da sua comunicação científica.'
+                title: 'Detalhes Técnicos',
+                content: 'Resolução mínima de 1080p para imagens e vídeos. Limite de 10MB para arquivos estáticos. Alta fidelidade é essencial para a precisão experimental.'
+            },
+            {
+                title: 'Descrição',
+                content: 'O corpo do texto deve ser claro, conciso e acessível. Use parágrafos curtos e destaque conceitos-chave para facilitar a absorção de radiação informativa.'
+            },
+            {
+                title: 'Título',
+                content: 'Crie títulos de impacto que gerem curiosidade técnica. Evite generalismos; seja específico sobre qual fenômeno ou conceito está sendo abordado.'
+            },
+            {
+                title: 'Creative Commons',
+                content: 'Todo conteúdo no Hub é, por padrão, CC-BY-SA. Isso garante que o conhecimento circule livremente, mantendo os créditos devidos aos autores originais.'
+            },
+            {
+                title: 'Vídeos',
+                content: 'Utilize compressão H.264 para garantir carregamento fluido. Vídeos curtos (até 2 min) têm maior taxa de colisão com o público universitário.'
             }
         ],
         dates: [
@@ -73,26 +89,34 @@ const pageContent: Record<string, any> = {
     },
     'calouro': {
         title: 'Iniciação de Partículas',
-        subtitle: 'Guia de Sobrevivência Matão 1371',
+        subtitle: 'Manual de Sobrevivência na USP',
         icon: <Zap className="w-12 h-12" />,
         color: 'brand-yellow',
         sections: [
             {
-                title: 'Logística do Campus',
-                content: 'Navegação entre o Edifício Principal, Ala Central (Laboratórios) e Ala Didática. Dicas de horários dos circulares e segurança no período noturno.'
+                title: 'Mobilidade (Circulares e BUSP)',
+                content: 'As rotas 8012 e 8022 circulam dentro da Cidade Universitária e chegam ao Metrô Butantã. Use a 8032 para ligação com a CPTM Cidade Universitária. O cartão BUSP é obrigatório para gratuidade; sem ele, a tarifa é cobrada via Bilhete Único.'
             },
             {
-                title: 'Bandejão e SAS',
-                content: 'Como carregar créditos no cartão USP via Júpiter Web ou APP. Localização das unidades de alimentação e cardápios em tempo real.'
+                title: 'Guia do Bandejão',
+                content: 'Temos a Central, Física (mais próximo) e Química. O Bandejão da Física é famoso pela proximidade, mas o da Química costuma ter filas menores. Carregue créditos via Júpiter Web e confira o cardápio no app Cardápio USP.'
             },
             {
-                title: 'Checklist Matrícula',
-                content: 'Primeiros passos no Júpiter Web, criação do e-mail @usp.br e acesso às bibliotecas virtuais e físicas do instituto.'
+                title: 'Esporte e Lazer (CEPEUSP)',
+                content: 'O CEPE oferece piscinas, quadras e academia gratuitas para alunos. Para utilizar, basta fazer o exame médico no local e apresentar a carteirinha USP digital. É o local ideal para desintegrar o estresse das provas.'
+            },
+            {
+                title: 'Burocracia e Infraestrutura',
+                content: 'A Seção de Alunos resolve trancamentos e matrículas. O Pró-Aluno é seu hub de computação: use para imprimir trabalhos e acessar softwares técnicos necessários para os laboratórios.'
+            },
+            {
+                title: 'Networking Acadêmico',
+                content: 'Dica de Ouro: Professores são pesquisadores. Não tenha medo de bater na porta durante as horas de monitoria. Uma conversa educada sobre um tema de aula pode ser o gatilho para sua primeira Iniciação Científica.'
             }
         ],
         dates: [
-            { label: 'Boas-vindas', value: 'Março/2026' },
-            { label: 'Unidades SAS', value: '3 Centrais' }
+            { label: 'BUSP', value: 'Obrigatório' },
+            { label: 'Bandejão', value: 'R$ 2,00' }
         ],
         actions: [
             { label: 'Acessar Júpiter', icon: <ExternalLink className="w-4 h-4" />, href: 'https://jupiterweb.usp.br' },
@@ -101,21 +125,21 @@ const pageContent: Record<string, any> = {
     },
     'ifusp': {
         title: 'Estrutura da Matéria',
-        subtitle: 'Matrizes Curriculares e Governança',
+        subtitle: 'Evolução Acadêmica e Estágios',
         icon: <Atom className="w-12 h-12" />,
         color: 'brand-red',
         sections: [
             {
-                title: 'PPPs 2025',
-                content: 'Detalhamento dos Projetos Político-Pedagógicos para Bacharelado, Licenciatura e Física Médica. Entenda os fluxogramas técnicos sugeridos.'
+                title: 'Evolução de Créditos (O Roadmap)',
+                content: 'Bacharelado (Habilitação em Física e Astronomia), Licenciatura e Física Médica possuem fluxos distintos. Acompanhe sua evolução pelo Júpiter Web e certifique-se de cumprir os créditos optativos eletivos e livres para fechar sua vertente.'
+            },
+            {
+                title: 'Guia de Estágios',
+                content: 'Estágios obrigatórios e não-obrigatórios exigem cadastro no sistema. Procure a secretaria para validação do plano de atividades. Físicos têm alta demanda em áreas de modelagem, ciência de dados e mercado financeiro.'
             },
             {
                 title: 'Comissões CG/CoC',
                 content: 'O papel da Comissão de Graduação e das Comissões de Curso na vida do estudante. Saiba como protocolar requerimentos e petições.'
-            },
-            {
-                title: 'ATPAs e Optativas',
-                content: 'Guia de Atividades Teórico-Práticas Aprofundadas. Saiba como validar horas de pesquisa e extensão para integralização do curso.'
             }
         ],
         dates: [
@@ -129,26 +153,30 @@ const pageContent: Record<string, any> = {
     },
     'bolsas': {
         title: 'Energia de Permanência',
-        subtitle: 'Editais e Auxílio Estudantil',
+        subtitle: 'Bolsas e Auxílios Completos',
         icon: <Coins className="w-12 h-12" />,
         color: 'brand-red',
         sections: [
             {
-                title: 'PAPFE 2026',
-                content: 'O Programa de Apoio à Permanência e Formação Estudantil. Informações sobre auxílio moradia, alimentação e transporte para estudantes em vulnerabilidade.'
+                title: 'PIBID e Residência Pedagógica',
+                content: 'Essenciais para licenciandos: o PIBID insere o aluno na escola desde o início; a Residência Pedagógica foca na prática docente avançada. Ambos oferecem bolsas vinculadas à CAPES.'
             },
             {
-                title: 'Bolsas Monitoria',
-                content: 'Oportunidades para atuar como monitor em disciplinas de graduação e laboratórios didáticos. Requisitos: Aprovação na disciplina e bom rendimento.'
+                title: 'PROIAD e PUB',
+                content: 'O PROIAD incentiva alunos de destaque. O PUB (Programa Unificado de Bolsas) abrange projetos de Ensino, Pesquisa e Extensão em todo o campus, com foco em inclusão.'
             },
             {
-                title: 'Iniciação Científica',
-                content: 'Como ingressar em projetos de pesquisa com fomento (FAPESP, CNPq, Santander). Explore os laboratórios do IF desde o primeiro ano.'
+                title: 'PAPFE e Auxílio Moradia (CRUSP)',
+                content: 'O PAPFE oferece auxílio alimentação, transporte e moradia. O CRUSP é o conjunto residencial para alunos com necessidade de permanência estudantil comprovada via SAS.'
+            },
+            {
+                title: 'Monitoria (PEEG) e IC',
+                content: 'O PEEG foca no apoio a disciplinas de graduação. A Iniciação Científica (FAPESP, CNPq, Santander) é o motor da formação em pesquisa no IF desde o primeiro ano.'
             }
         ],
         dates: [
-            { label: 'PAPFE Início', value: '12/JAN/2026' },
-            { label: 'PAPFE Fim', value: '10/FEV/2026' }
+            { label: 'PUB Inscrição', value: 'Agosto/ANUAL' },
+            { label: 'PAPFE Início', value: 'Janeiro/ANUAL' }
         ],
         actions: [
             { label: 'Editais Ativos', icon: <Calendar className="w-4 h-4" />, href: '#' },
@@ -157,45 +185,49 @@ const pageContent: Record<string, any> = {
     },
     'divulgacao': {
         title: 'Emissão de Luz',
-        subtitle: 'Toolkit de Impacto Visual Hub',
+        subtitle: 'Mini-curso de Criação LabDiv',
         icon: <Telescope className="w-12 h-12" />,
         color: 'brand-blue',
         sections: [
             {
-                title: 'Visual LabDiv',
-                content: 'Guia de marca: Uso do "Azul Elétrico", tipografia Outfit e padrões de design para posters acadêmicos e redes sociais.'
+                title: 'Fotografia Essencial',
+                content: 'Aplique a Regra dos Terços: posicione o objeto de interesse nas intersecções da grade para criar equilíbrio. Busque ângulos que revelem a tridimensionalidade dos equipamentos.'
             },
             {
-                title: 'Guia MIT Style',
-                content: 'Metodologia baseada no MIT Communication Lab para simplificar dados técnicos sem perder a precisão científica.'
+                title: 'Iluminação e Modo Pro',
+                content: 'Configure o ISO baixo (100-400) para evitar ruído. Ajuste o Tempo de Obturador para capturar o movimento exato ou congelar fenômenos de alta energia. No celular, use o bloqueio de foco/exposição.'
             },
             {
-                title: 'Mídias Imersivas',
-                content: 'Tutoriais para produção de vídeos 360°, realidade virtual e visualizações de dados complexos em 3D.'
+                title: 'Redação e Divulgação',
+                content: 'Escreva para humanos: comece com o gancho (o "porquê" importa), explique o mecanismo e termine com o impacto. Divulgação científica é o transporte de conceitos complexos para mentes curiosas.'
+            },
+            {
+                title: 'Recursos Lab-Div',
+                content: 'Utilize o KitDiv para assets visuais e tipografia oficial. Caso precise de suporte personalizado, agende uma Mentoria com nossa equipe técnica de comunicação.'
             }
         ],
         dates: [
-            { label: 'Toolkit V', value: '3.1.5' },
-            { label: 'Linguagem', value: 'Multimodal' }
+            { label: 'Toolkit V', value: '4.0.0' },
+            { label: 'Acesso', value: 'KitDiv Online' }
         ],
         actions: [
-            { label: 'Baixar Assets', icon: <Download className="w-4 h-4" />, href: '#' },
-            { label: 'Tutorial VR', icon: <Brain className="w-4 h-4" />, href: '#' }
+            { label: 'Acessar KitDiv', icon: <Download className="w-4 h-4" />, href: '#' },
+            { label: 'Agendar Mentoria', icon: <Brain className="w-4 h-4" />, href: '#' }
         ]
     },
     'protecao': {
         title: 'Protocolos de Proteção',
-        subtitle: 'Bem-estar e Pertencimento',
+        subtitle: 'Saúde Mental e Acolhimento',
         icon: <HeartHandshake className="w-12 h-12" />,
         color: 'brand-yellow',
         sections: [
             {
-                title: 'Guia Direitos TEA',
-                content: 'Apoio técnico para estudantes autistas. Conheça as adaptações razoáveis e as rotas de suporte pedagógico personalizado.'
+                title: 'Física Acolhe e Programa ECOS',
+                content: 'A iniciativa Física Acolhe oferece suporte direto aos alunos do instituto. O Programa ECOS foca na escuta e acolhimento em casos de conflitos ou necessidade de orientação institucional.'
             },
             {
-                title: 'Acolhimento Psicológico',
-                content: 'Contatos do IP-USP (Apoio à Carreira e Saúde Mental) e rede de psicólogos voluntários no campus.'
+                title: 'Hospital Universitário (HU)',
+                content: 'O HU oferece tratamento psicoterapêutico e psiquiátrico de qualidade para a comunidade USP. Procure o serviço de triagem para encaminhamento especializado dentro do campus.'
             },
             {
                 title: 'Ouvidoria de Inclusão',
@@ -203,8 +235,8 @@ const pageContent: Record<string, any> = {
             }
         ],
         dates: [
-            { label: 'Suporte', value: '24/7 (Online)' },
-            { label: 'Emergência', value: 'Ramal 9999' }
+            { label: 'Suporte', value: 'Física Acolhe' },
+            { label: 'Saúde Mental', value: 'HU/ECOS' }
         ],
         actions: [
             { label: 'Solicitar Apoio', icon: <Users className="w-4 h-4" />, href: '#' },
@@ -213,21 +245,17 @@ const pageContent: Record<string, any> = {
     },
     'extensao': {
         title: 'Interações de Fronteira',
-        subtitle: 'Cultura e Extensão IFUSP',
+        subtitle: 'Mapa da Integração IFUSP',
         icon: <Network className="w-12 h-12" />,
         color: 'brand-blue',
         sections: [
             {
-                title: 'Catálogo de Grupos',
-                content: 'Explore os diversos grupos de extensão do instituto, desde astronomia amadora até física médica aplicada. Oportunidades para todos os períodos.'
+                title: 'Mapeamento de Grupos',
+                content: 'O IFUSP pulsa com coletivos: o Amélia Império destaca mulheres na física; a Vaca Esférica é nossa rádio/divulgação; o Show de Física encanta escolas e o HS (Humanidades no Síncrotron) debate ética e sociedade.'
             },
             {
-                title: 'Física para Todos',
-                content: 'Série de palestras e eventos de divulgação científica aberta à comunidade. Saiba como participar da organização ou sugerir novos temas.'
-            },
-            {
-                title: 'Propor Projetos',
-                content: 'Guia para estudantes que desejam criar novos projetos de cultura e extensão. Saiba como obter apoio institucional e validação de créditos.'
+                title: 'Guia de Integração',
+                content: 'Para se enturmar, frequente o Aquário (vivência dos alunos) ou participe das reuniões abertas dos grupos. Procure os editais de cultura e extensão para validar suas horas e gerar impacto real fora dos laboratórios.'
             }
         ],
         dates: [
