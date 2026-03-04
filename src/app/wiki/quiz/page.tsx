@@ -108,7 +108,7 @@ export default function RadiationQuizPage() {
                             </div>
 
                             <Link
-                                href="/laboratorio"
+                                href="/lab"
                                 className="inline-flex items-center gap-3 bg-white text-black px-8 py-4 rounded-2xl font-black uppercase tracking-widest hover:bg-brand-red hover:text-white transition-all shadow-xl shadow-brand-red/10"
                             >
                                 Ver no Perfil <Zap className="w-4 h-4" />

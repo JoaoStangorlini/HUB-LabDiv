@@ -31,7 +31,7 @@ export async function submitQuizResults(score: number, xpAwarded: number) {
         console.error('Quiz attempt log error:', attemptError);
     }
 
-    revalidatePath('/laboratorio')
+    revalidatePath('/lab')
     revalidatePath('/wiki/quiz')
 
     return { success: true }
