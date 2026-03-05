@@ -17,6 +17,7 @@ import {
     Star,
     Clock,
     ImageOff,
+    Atom,
 } from 'lucide-react';
 import dynamic from 'next/dynamic';
 
@@ -48,6 +49,8 @@ export interface MediaCardProps {
     isLikedByUser?: boolean;
 }
 
+import { CATEGORY_STYLES, DEFAULT_STYLE } from '@/lib/constants';
+
 /**
  * V8.0 MediaCard - Hardened & Refactored
  * Implements DTO Enforcement and hook-based logic.
@@ -60,12 +63,12 @@ export const MediaCard = React.memo(({ post, priority = false, isLikedByUser = f
     const [showShareMenu, setShowShareMenu] = useState(false);
     const [showCollectionManager, setShowCollectionManager] = useState(false);
     const [showDownloadModal, setShowDownloadModal] = useState(false);
+    const [showAtomAnimation, setShowAtomAnimation] = useState(false);
 
     const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
     const router = useRouter();
     const searchParams = useSearchParams();
     const query = searchParams.get('q') || searchParams.get('tag') || '';
-    const clickTimerRef = useRef<NodeJS.Timeout | null>(null);
     const { ref: contentRef, inView } = useInView({
         triggerOnce: true,
         rootMargin: '200px 0px',
@@ -100,20 +103,15 @@ export const MediaCard = React.memo(({ post, priority = false, isLikedByUser = f
     const handleDoubleClick = (e: React.MouseEvent) => {
         e.stopPropagation();
         e.preventDefault();
-        if (clickTimerRef.current) {
-            clearTimeout(clickTimerRef.current);
-            clickTimerRef.current = null;
-        }
-    };
 
-    const handleMediaClick = (e: React.MouseEvent) => {
-        e.stopPropagation();
-        e.preventDefault();
-        if (clickTimerRef.current) return;
-        clickTimerRef.current = setTimeout(() => {
-            router.push(`/arquivo/${post.id}`);
-            clickTimerRef.current = null;
-        }, 250);
+        // Trigger Adam animation
+        setShowAtomAnimation(true);
+        setTimeout(() => setShowAtomAnimation(false), 1000);
+
+        // Give like if not already liked
+        if (!liked) {
+            handleLike();
+        }
     };
 
 
@@ -141,13 +139,14 @@ export const MediaCard = React.memo(({ post, priority = false, isLikedByUser = f
     }, [urls, currentImageIndex, post.mediaType]);
 
     const optimizedDisplayUrl = useMemo(() => getOptimizedUrl(displayUrl, 600, 70, post.category, post.mediaType), [displayUrl, post.category, post.mediaType]);
-    const colorNum = useMemo(() => post.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) % 3, [post.id]);
-    const buttonColorClass = useMemo(() => ['bg-brand-blue text-white', 'bg-brand-red text-white', 'bg-brand-yellow text-gray-900'][colorNum], [colorNum]);
+
+    // Use dynamic category styles
+    const categoryStyle = post.category ? (CATEGORY_STYLES[post.category] || DEFAULT_STYLE) : DEFAULT_STYLE;
+    const buttonColorClass = `${categoryStyle.bg} ${categoryStyle.text}`;
 
     return (
         <div
             className={`masonry-item group relative flex flex-col overflow-hidden rounded-2xl bg-white dark:bg-card-dark shadow-sm transition-all hover:shadow-xl border cursor-pointer gpu-isolate ${post.isFeatured ? 'border-brand-yellow/50 animate-premium-glow z-10' : 'border-gray-100 dark:border-gray-800'} ${sizeModifierStyles}`}
-            onClick={() => router.push(`/arquivo/${post.id}`)}
         >
             <CardPresenceBadge submissionId={post.id} />
 
@@ -179,6 +178,8 @@ export const MediaCard = React.memo(({ post, priority = false, isLikedByUser = f
                         name={post.authors}
                         size="sm"
                         className="border-2 border-white dark:border-[#1E1E1E] shadow-sm hover:scale-110 transition-transform duration-300"
+                        xp={post.authorXp}
+                        level={post.authorLevel}
                     />
                     <Link
                         href={post.authors.startsWith('@') ? `/?collection=${encodeURIComponent(post.authors)}` : `/?autor=${encodeURIComponent(post.authors)}`}
@@ -207,12 +208,24 @@ export const MediaCard = React.memo(({ post, priority = false, isLikedByUser = f
             </div>
 
             <div
-                className={`relative w-full overflow-hidden shrink-0 ${post.mediaType === 'video' || !hasMultipleImages ? 'aspect-video' : 'aspect-square'} max-h-[500px] bg-gray-100 dark:bg-gray-800`}
+                className={`relative w-full overflow-hidden shrink-0 ${post.mediaType === 'video' || !hasMultipleImages ? 'aspect-video' : 'aspect-square'} max-h-[500px] bg-gray-100 dark:bg-gray-800 cursor-pointer select-none`}
                 onMouseEnter={handleMouseEnter}
                 onMouseLeave={handleMouseLeave}
-                onClick={handleMediaClick}
                 onDoubleClick={handleDoubleClick}
             >
+                <AnimatePresence>
+                    {showAtomAnimation && (
+                        <m.div
+                            initial={{ scale: 0.5, opacity: 0, rotate: -20 }}
+                            animate={{ scale: [1.2, 1], opacity: 1, rotate: 0 }}
+                            exit={{ scale: 0.8, opacity: 0 }}
+                            transition={{ duration: 0.4, type: 'spring', bounce: 0.6 }}
+                            className="absolute inset-0 z-[100] flex items-center justify-center pointer-events-none drop-shadow-2xl"
+                        >
+                            <Atom className="w-24 h-24 text-white fill-brand-blue/90 animate-pulse-fast drop-shadow-[0_0_15px_rgba(0,119,255,0.8)]" />
+                        </m.div>
+                    )}
+                </AnimatePresence>
 
                 {post.mediaType === 'video' ? (
                     <Image
@@ -351,10 +364,7 @@ export const MediaCard = React.memo(({ post, priority = false, isLikedByUser = f
                                 router.push(`/?type=${encodeURIComponent(post.category!)}`);
                             }}
                             className={`px-2 py-0.5 text-[10px] font-black rounded-md uppercase tracking-wide cursor-pointer hover:opacity-80 transition-opacity
-                            ${['Laboratórios', 'Uso Didático'].includes(post.category) ? 'bg-brand-yellow/10 text-brand-yellow border border-brand-yellow/20' :
-                                    ['Pesquisadores', 'Mural do Deu Ruim'].includes(post.category) ? 'bg-brand-red/10 text-brand-red border border-brand-red/20' :
-                                        ['Eventos', 'Convivência', 'Lab-Div'].includes(post.category) ? 'bg-brand-blue/10 text-brand-blue border border-brand-blue/20' :
-                                            'bg-brand-blue/10 text-brand-blue border border-brand-blue/20'}`}
+                            ${categoryStyle.cardBadge}`}
                         >
                             {post.category}
                         </span>

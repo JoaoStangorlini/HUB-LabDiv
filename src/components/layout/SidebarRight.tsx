@@ -18,6 +18,8 @@ interface SidebarAuthor {
     name: string;
     handle: string;
     avatar: string | null;
+    xp?: number;
+    level?: number;
 }
 
 interface SidebarRightProps {
@@ -128,15 +130,6 @@ export const SidebarRight = ({ tags, authors: initialAuthors }: SidebarRightProp
 
     return (
         <aside className="sticky top-24 h-[calc(100vh-6rem)] w-full flex flex-col gap-6 py-6 pl-4 overflow-y-auto hidden-scrollbar">
-            {/* Discovery Search */}
-            <div className="relative group">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-brand-blue transition-colors" />
-                <input
-                    type="text"
-                    placeholder="Pesquisar Partículas..."
-                    className="w-full bg-gray-100 dark:bg-card-dark border border-transparent focus:border-brand-blue/30 focus:bg-white dark:focus:bg-card-dark rounded-2xl py-3 pl-12 pr-4 text-sm font-medium transition-all outline-none"
-                />
-            </div>
 
             {/* ISÓTOPOS EM ÓRBITA */}
             <div className="bg-gray-50 dark:bg-card-dark rounded-3xl p-5 border border-gray-100 dark:border-gray-800">
@@ -237,6 +230,8 @@ export const SidebarRight = ({ tags, authors: initialAuthors }: SidebarRightProp
                                                 name={user.name}
                                                 size="md"
                                                 customSize="size-10"
+                                                xp={user.xp}
+                                                level={user.level}
                                             />
                                             <div className="flex flex-col overflow-hidden">
                                                 <span className="text-xs font-bold text-gray-900 dark:text-white truncate max-w-[100px]" title={user.name}>{user.name}</span>
@@ -272,9 +267,9 @@ export const SidebarRight = ({ tags, authors: initialAuthors }: SidebarRightProp
 
             {/* Footer Links */}
             <div className="px-5 py-2 flex flex-wrap gap-x-4 gap-y-1 text-[10px] text-gray-400 font-medium">
-                <Link href="/manual" className="hover:underline">Privacidade</Link>
-                <Link href="/manual" className="hover:underline">Termos</Link>
-                <Link href="/manual" className="hover:underline">Cookies</Link>
+                <Link href="/sobre" className="hover:underline">Privacidade</Link>
+                <Link href="/sobre" className="hover:underline">Termos</Link>
+                <Link href="/sobre" className="hover:underline">Cookies</Link>
                 <span>© 2026 IFUSP Lab-Div - Hub de Comunicação Científica</span>
             </div>
         </aside>

@@ -14,26 +14,39 @@ import { FormStep } from './components/FormStep';
 import { Stepper } from './components/Stepper';
 
 
+import { useAuth } from '@/providers/AuthProvider';
+
 export default function SubmitPage() {
     const router = useRouter();
+    const { user, loading: authLoading } = useAuth();
     const { currentStep, reset } = useSubmissionStore();
-    const [isAuthChecking, setIsAuthChecking] = useState(true);
+    const [isInitializing, setIsInitializing] = useState(true);
 
     useEffect(() => {
-        const fetchUser = async () => {
-            const { data: { session } } = await supabase.auth.getSession();
-            if (!session?.user) {
-                router.push('/perfil');
+        // Safety timeout to prevent permanent hang
+        const timeout = setTimeout(() => {
+            if (isInitializing) {
+                console.warn('Submission initialization timeout');
+                setIsInitializing(false);
+            }
+        }, 5000);
+
+        if (!authLoading) {
+            if (!user) {
+                router.push('/lab');
                 return;
             }
-            setIsAuthChecking(false);
-        };
-        fetchUser();
-        // Reset store on mount to ensure fresh state
-        reset();
-    }, [router, reset]);
 
-    if (isAuthChecking) {
+            // Initialization sequence
+            reset();
+            setIsInitializing(false);
+            clearTimeout(timeout);
+        }
+
+        return () => clearTimeout(timeout);
+    }, [authLoading, user, router, reset, isInitializing]);
+
+    if (authLoading || isInitializing) {
         return (
             <div className="min-h-screen bg-background-light dark:bg-background-dark flex items-center justify-center">
                 <div className="animate-pulse flex flex-col items-center gap-4">

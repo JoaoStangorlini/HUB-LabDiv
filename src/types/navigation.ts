@@ -10,11 +10,10 @@ export enum AppRoutes {
     COLISOR = '/colisor',
     MAPA = '/mapa',
     ADMIN = '/admin',
-    INICIATIVAS = '/iniciativas',
     PERGUNTAS = '/perguntas',
-    CRIADORES = '/criadores',
     ARQUIVO_LABDIV = '/arquivo-labdiv',
     WIKI = '/wiki',
+    EMARANHAMENTO = '/emaranhamento',
 }
 
 export interface UserMinimalDTO {
@@ -22,6 +21,8 @@ export interface UserMinimalDTO {
     full_name: string;
     avatar_url?: string;
     email: string;
+    xp?: number;
+    level?: number;
 }
 
 export interface SearchSuggestion {

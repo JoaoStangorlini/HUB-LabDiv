@@ -8,6 +8,7 @@ import { supabase } from '@/lib/supabase';
 import { signOut } from '@/app/actions/auth';
 import { getAvatarUrl } from '@/lib/utils';
 import { NotificationBell } from './NotificationBell';
+import { ReportModal } from '../feedback/ReportModal';
 import dynamic from 'next/dynamic';
 import { useTheme } from '@/hooks/useTheme';
 import { useSearch } from '@/providers/SearchProvider';
@@ -32,6 +33,8 @@ export function Header() {
         setProfileMenuOpen,
         isSuggestionsVisible,
         setSuggestionsVisible,
+        isReportModalOpen,
+        setReportModalOpen,
         closeAll
     } = useNavigationStore();
 
@@ -85,29 +88,49 @@ export function Header() {
 
     // Auth Sync - VIP PII Protection
     useEffect(() => {
+        const fetchUserProfile = async (userId: string, defaultData: any) => {
+            const { data: profile } = await supabase
+                .from('profiles')
+                .select('xp, level, avatar_url, full_name')
+                .eq('id', userId)
+                .single();
+
+            return {
+                ...defaultData,
+                full_name: profile?.full_name || defaultData.full_name,
+                avatar_url: profile?.avatar_url || defaultData.avatar_url,
+                xp: profile?.xp || 0,
+                level: profile?.level || 1,
+            };
+        };
+
         const checkUser = async () => {
             const { data: { session } } = await supabase.auth.getSession();
             if (session?.user) {
-                setUser({
+                const userData = {
                     id: session.user.id,
                     full_name: session.user.user_metadata?.full_name || 'Usuário',
                     avatar_url: session.user.user_metadata?.avatar_url,
                     email: session.user.email || '',
-                });
+                };
+                const profileData = await fetchUserProfile(session.user.id, userData);
+                setUser(profileData);
             } else {
                 setUser(null);
             }
         };
         checkUser();
 
-        const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+        const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
             if (session?.user) {
-                setUser({
+                const userData = {
                     id: session.user.id,
                     full_name: session.user.user_metadata?.full_name || 'Usuário',
                     avatar_url: session.user.user_metadata?.avatar_url,
                     email: session.user.email || '',
-                });
+                };
+                const profileData = await fetchUserProfile(session.user.id, userData);
+                setUser(profileData);
             } else {
                 setUser(null);
             }
@@ -201,19 +224,30 @@ export function Header() {
 
 
                             <div className="flex items-center gap-2">
+                                <button
+                                    onClick={() => setReportModalOpen(true)}
+                                    className="relative size-10 flex items-center justify-center rounded-xl bg-brand-red/10 text-brand-red hover:bg-brand-red/20 transition-all border border-brand-red/20 group animate-pulse hover:animate-none"
+                                    title="Reportar Erro / Feedback"
+                                >
+                                    <span className="material-symbols-outlined text-[20px] group-hover:scale-110 transition-transform">report</span>
+                                    <span className="absolute -top-1 -right-1 size-2 bg-brand-red rounded-full ring-2 ring-background-dark"></span>
+                                </button>
+
                                 <NotificationBell userId={user?.id} />
 
                                 {user ? (
                                     <div className="relative" id="profile-menu-container">
                                         <button
                                             onClick={() => setProfileMenuOpen(!isProfileMenuOpen)}
-                                            className="w-10 h-10 rounded-full overflow-hidden border-2 border-brand-blue/20 hover:border-brand-blue/50 transition-colors"
+                                            className="relative flex items-center justify-center group"
                                         >
                                             <Avatar
                                                 src={user.avatar_url}
                                                 name={user.full_name}
                                                 size="md"
                                                 customSize="w-10 h-10"
+                                                xp={user.xp}
+                                                level={user.level}
                                             />
                                         </button>
 
@@ -283,6 +317,11 @@ export function Header() {
                     </div>
                 </div>
             </header>
+
+            <ReportModal
+                isOpen={isReportModalOpen}
+                onClose={() => setReportModalOpen(false)}
+            />
 
 
         </>

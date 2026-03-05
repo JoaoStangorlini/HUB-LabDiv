@@ -19,13 +19,14 @@ export function createClientSupabase() {
     });
 }
 
-// Singleton instance
-let supabaseInstance: ReturnType<typeof createClientSupabase> | null = null;
-
+// Singleton instance to prevent Next.js Fast Refresh (HMR) zombie clients
 export const supabase = (() => {
     if (typeof window === 'undefined') return createClientSupabase();
-    if (!supabaseInstance) {
-        supabaseInstance = createClientSupabase();
+
+    // Check if we already have an instance saved on the window object
+    if (!(window as any)._supabaseInstance) {
+        (window as any)._supabaseInstance = createClientSupabase();
     }
-    return supabaseInstance;
+
+    return (window as any)._supabaseInstance as ReturnType<typeof createClientSupabase>;
 })();

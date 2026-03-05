@@ -20,6 +20,7 @@ export interface AdminUpdate {
     external_link?: string | null;
     technical_details?: string | null;
     is_priority?: boolean;
+    event_date?: string | null;
 }
 
 export interface FetchParams {
@@ -38,7 +39,7 @@ export async function fetchSubmissions({ page, limit, query, categories, mediaTy
     const supabaseServer = await createServerSupabase();
     let queryBuilder = supabaseServer
         .from('submissions')
-        .select('*, profiles(avatar_url), energy_reactions, atomic_excitation', { count: 'exact' })
+        .select('*, profiles(avatar_url, xp, level), energy_reactions, atomic_excitation', { count: 'exact' })
         .eq('status', 'aprovado');
 
     if (featured) queryBuilder = queryBuilder.eq('is_featured', true);
@@ -83,7 +84,7 @@ export async function fetchSubmissions({ page, limit, query, categories, mediaTy
 export async function fetchTrendingSubmissions(): Promise<{ post: PostDTO }[]> {
     const { data: submissions, error } = await supabase
         .from('submissions')
-        .select('*, profiles(avatar_url), like_count')
+        .select('*, profiles(avatar_url, xp, level), like_count')
         .eq('status', 'aprovado')
         .order('views', { ascending: false })
         .limit(6);
@@ -98,7 +99,7 @@ export async function fetchTrendingSubmissions(): Promise<{ post: PostDTO }[]> {
 export async function getFeaturedSubmissions(limit: number = 10): Promise<{ post: PostDTO }[]> {
     const { data: submissions, error } = await supabase
         .from('submissions')
-        .select('*, profiles(avatar_url)')
+        .select('*, profiles(avatar_url, xp, level)')
         .eq('status', 'aprovado')
         .eq('is_featured', true)
         .order('created_at', { ascending: false })
@@ -205,7 +206,7 @@ export async function getSidebarTags() {
 export async function getUsersInOrbit(limit = 5) {
     const { data: profiles } = await supabase
         .from('profiles')
-        .select('id, full_name, email, avatar_url')
+        .select('id, full_name, email, avatar_url, xp, level')
         .limit(limit);
 
     return profiles?.map(p => ({
@@ -213,6 +214,8 @@ export async function getUsersInOrbit(limit = 5) {
         name: p.full_name || 'Usuário',
         handle: p.email ? `@${p.email.split('@')[0]}` : '@usuario',
         avatar: p.avatar_url,
+        xp: p.xp,
+        level: p.level
     })) || [];
 }
 
@@ -221,7 +224,7 @@ export async function searchProfiles(query: string) {
 
     const { data: profiles, error } = await supabase
         .from('profiles')
-        .select('id, full_name, email, avatar_url')
+        .select('id, full_name, email, avatar_url, xp, level')
         .or(`full_name.ilike.%${query}%,email.ilike.%${query}%`)
         .limit(10);
 
@@ -235,6 +238,8 @@ export async function searchProfiles(query: string) {
         name: p.full_name || 'Usuário',
         handle: p.email ? `@${p.email.split('@')[0]}` : '@colaborador',
         avatar: p.avatar_url,
+        xp: p.xp,
+        level: p.level
     })) || [];
 }
 
@@ -398,7 +403,7 @@ export async function createSubmission(formData: z.infer<typeof SubmissionSchema
 export async function fetchUserSubmissions(userId: string): Promise<{ post: PostDTO }[]> {
     const { data: submissions, error } = await supabase
         .from('submissions')
-        .select('*, profiles(avatar_url), energy_reactions, atomic_excitation')
+        .select('*, profiles(avatar_url, xp, level), energy_reactions, atomic_excitation')
         .eq('user_id', userId)
         .order('created_at', { ascending: false });
 
@@ -473,49 +478,79 @@ export async function fetchRecentEntanglements() {
     const { data: { user } } = await supabaseServer.auth.getUser();
     if (!user) return [];
 
-    // Busca mensagens onde o usuário é remetente ou destinatário
-    const { data: messages, error } = await supabaseServer
+    // 1. Busca mensagens para identificar conversas ativas
+    const { data: messages, error: mError } = await supabaseServer
         .from('messages')
         .select('sender_id, recipient_id, content, created_at')
         .or(`sender_id.eq.${user.id},recipient_id.eq.${user.id}`)
         .order('created_at', { ascending: false });
 
-    if (error || !messages) return [];
+    if (mError) {
+        console.error("Fetch messages error:", mError);
+    }
+
+    // 2. Busca usuários que o usuário atual segue
+    const { data: follows, error: fError } = await supabaseServer
+        .from('follows')
+        .select('following_id')
+        .eq('follower_id', user.id);
+
+    if (fError) {
+        console.error("Fetch follows error:", fError);
+    }
 
     // Agrupa por usuário para pegar a ÚLTIMA mensagem de cada conversa
-    const recentConversations = new Map();
-    messages.forEach(m => {
+    const conversationMap = new Map();
+    messages?.forEach(m => {
         const peerId = m.sender_id === user.id ? m.recipient_id : m.sender_id;
-        if (!recentConversations.has(peerId)) {
-            recentConversations.set(peerId, {
+        if (!conversationMap.has(peerId)) {
+            conversationMap.set(peerId, {
                 lastMessage: m.content,
                 lastAt: m.created_at
             });
         }
     });
 
-    const uniqueIds = Array.from(recentConversations.keys());
+    // Pega IDs de seguidos que ainda não estão no mapa de conversas
+    const followedIds = follows?.map(f => f.following_id) || [];
 
-    if (uniqueIds.length === 0) return [];
+    // Lista final de IDs únicos (conversas + seguidos)
+    const allPeerIds = Array.from(new Set([
+        ...Array.from(conversationMap.keys()),
+        ...followedIds
+    ]));
 
-    // Busca perfis para esses IDs
+    if (allPeerIds.length === 0) return [];
+
+    // 3. Busca perfis para todos esses IDs
     const { data: profiles, error: pError } = await supabaseServer
         .from('profiles')
-        .select('id, full_name, email, avatar_url')
-        .in('id', uniqueIds);
+        .select('id, full_name, email, avatar_url, xp, level')
+        .in('id', allPeerIds);
 
     if (pError || !profiles) return [];
 
-    // Mapeia para o formato esperado pela UI, incluindo a última mensagem
+    // 4. Mapeia para o formato esperado pela UI
     return profiles.map(p => {
-        const conv = recentConversations.get(p.id);
+        const conv = conversationMap.get(p.id);
+        const isFollowed = followedIds.includes(p.id);
+
         return {
             id: p.id,
             name: p.full_name || 'Usuário',
             handle: p.email ? `@${p.email.split('@')[0]}` : '@usuario',
             avatar: p.avatar_url,
+            xp: p.xp,
+            level: p.level,
             lastMessage: conv?.lastMessage,
-            lastAt: conv?.lastAt
+            lastAt: conv?.lastAt,
+            isFollowed
         };
-    }).sort((a, b) => new Date(b.lastAt).getTime() - new Date(a.lastAt).getTime());
+    }).sort((a, b) => {
+        // Ordena por data da última mensagem, ou coloca seguidos sem conversa no final
+        if (a.lastAt && b.lastAt) return new Date(b.lastAt).getTime() - new Date(a.lastAt).getTime();
+        if (a.lastAt) return -1;
+        if (b.lastAt) return 1;
+        return 0;
+    });
 }

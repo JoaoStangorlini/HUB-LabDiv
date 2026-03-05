@@ -1,5 +1,9 @@
+'use client';
+
+import React from 'react';
 import { MainLayoutWrapper } from "@/components/layout/MainLayoutWrapper";
 import { LabDivCatalogExplorer } from "@/components/LabDivCatalogExplorer";
+import { LabDivTeam } from "@/components/labdiv/LabDivTeam";
 import Link from "next/link";
 
 export default function ArquivoLabDivPage() {
@@ -70,16 +74,27 @@ export default function ArquivoLabDivPage() {
                     </div>
                 </section>
 
-                {/* Integration with existing archive */}
-                <section className="py-12 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 border-t border-gray-100 dark:border-gray-800">
+                {/* Integration with existing archive & Team */}
+                <section id="catalogo" className="py-12 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 border-t border-gray-100 dark:border-gray-800">
                     <div className="mb-12">
                         <h2 className="text-3xl font-black uppercase tracking-tighter text-gray-900 dark:text-white mb-2">
                             Catálogo de Material de <span className="text-brand-yellow">Divulgação Padrão Ouro</span>
                         </h2>
-                        <div className="h-1.5 w-24 bg-brand-yellow rounded-full mb-8"></div>
+                        <div className="h-1.5 w-24 rounded-full mb-2 bg-brand-yellow"></div>
                     </div>
 
                     <LabDivCatalogExplorer />
+                </section>
+
+                <section id="equipe" className="py-12 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 border-t border-gray-100 dark:border-gray-800">
+                    <div className="mb-12">
+                        <h2 className="text-3xl font-black uppercase tracking-tighter text-gray-900 dark:text-white mb-2">
+                            Nossa <span className="text-brand-blue">Equipe</span>
+                        </h2>
+                        <div className="h-1.5 w-24 rounded-full mb-2 bg-brand-blue"></div>
+                    </div>
+
+                    <LabDivTeam />
                 </section>
             </main>
         </MainLayoutWrapper>

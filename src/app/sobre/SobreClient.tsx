@@ -33,12 +33,12 @@ export function SobreClient({ initialTestimonials }: SobreClientProps) {
                     <div className="w-14 h-14 bg-brand-red/10 rounded-xl flex items-center justify-center mb-6">
                         <Megaphone className="w-8 h-8 text-brand-red" />
                     </div>
-                    <h3 className="text-2xl font-bold mb-4">Apoio aos Criadores</h3>
+                    <h3 className="text-2xl font-bold mb-4">Apoio aos Influenciadores</h3>
                     <p className="text-gray-600 dark:text-gray-400 flex-1 leading-relaxed">
                         Mapeamos e integramos a rede de influenciadores e criadores de conteúdo vinculados ao instituto. O hub serve como uma vitrine para amplificar as vozes daqueles que já traduzem a ciência complexa do IFUSP em materiais acessíveis ao grande público, como vídeos, podcasts e posts em redes sociais.
                     </p>
-                    <Link href="/criadores" className="mt-6 text-brand-red font-semibold hover:underline flex items-center gap-1">
-                        Conheça os criadores <ArrowRight className="w-4 h-4" />
+                    <Link href="/colisor" className="mt-6 text-brand-red font-semibold hover:underline flex items-center gap-1">
+                        Conheça os influenciadores <ArrowRight className="w-4 h-4" />
                     </Link>
                 </div>
 

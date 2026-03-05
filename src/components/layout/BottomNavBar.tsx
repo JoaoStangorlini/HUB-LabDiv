@@ -10,7 +10,7 @@ import FocusLock from 'react-focus-lock';
 
 const navItems: (NavItem & { color?: string })[] = [
     { name: 'Fluxo', href: AppRoutes.HOME, icon: 'grain', color: 'brand-blue' },
-    { name: 'Colisor', href: AppRoutes.COLISOR, icon: 'auto_awesome', color: 'brand-yellow' },
+    { name: 'Emaranhamento', href: AppRoutes.EMARANHAMENTO, icon: 'hub', color: 'brand-blue' },
     { name: 'Lançar', href: AppRoutes.ENVAR, icon: 'rocket_launch', isAction: true, color: 'brand-blue' },
     { name: 'Wiki', href: AppRoutes.WIKI, icon: 'menu_book', color: 'brand-yellow' },
     { name: 'Mais', href: '#', icon: 'add', isDrawerTrigger: true, color: 'brand-blue' },
@@ -19,8 +19,8 @@ const navItems: (NavItem & { color?: string })[] = [
 const drawerLinks: (NavItem & { color?: string })[] = [
     { name: 'Laboratório Pessoal', href: AppRoutes.LAB, icon: 'science', isPrimary: true, color: 'brand-blue' },
     { name: 'Pergunte', href: AppRoutes.PERGUNTAS, icon: 'help_outline', color: 'brand-blue' },
+    { name: 'Colisor', href: AppRoutes.COLISOR, icon: 'auto_awesome', color: 'brand-yellow' },
     { name: 'Trilhas', href: '/trilhas', icon: 'route', color: 'brand-red' },
-    { name: 'Criadores', href: AppRoutes.CRIADORES, icon: 'person_search', color: 'brand-yellow' },
     { name: 'Mapa', href: AppRoutes.MAPA, icon: 'map', color: 'brand-red' },
     { name: 'Sobre', href: '/sobre', icon: 'info', color: 'brand-blue' },
     { name: 'LabDiv', href: AppRoutes.ARQUIVO_LABDIV, icon: 'campaign', color: 'brand-blue' },

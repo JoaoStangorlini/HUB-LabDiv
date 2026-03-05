@@ -59,19 +59,23 @@ export const DataCard = ({ label, value, icon, color = 'brand-blue' }: { label: 
     </div>
 );
 
-export const ActionButton = ({ label, icon, href, variant = 'primary' }: { label: string, icon: React.ReactNode, href: string, variant?: 'primary' | 'secondary' }) => (
-    <Link
-        href={href}
-        target="_blank"
-        className={`flex items-center justify-center gap-3 px-8 py-4 rounded-[24px] font-black text-xs uppercase tracking-wider transition-all active:scale-95 ${variant === 'primary'
-            ? 'bg-brand-blue text-white shadow-xl shadow-brand-blue/20 hover:scale-105'
-            : 'bg-white/5 text-gray-300 border border-white/10 hover:bg-white/10'
-            }`}
-    >
-        {icon}
-        {label}
-    </Link>
-);
+export const ActionButton = ({ label, icon, href, variant = 'primary' }: { label: string, icon: React.ReactNode, href: string, variant?: 'primary' | 'secondary' }) => {
+    const isExternal = href.startsWith('http');
+    return (
+        <Link
+            href={href}
+            target={isExternal ? "_blank" : undefined}
+            rel={isExternal ? "noopener noreferrer" : undefined}
+            className={`flex items-center justify-center gap-3 px-8 py-4 rounded-[24px] font-black text-xs uppercase tracking-wider transition-all active:scale-95 ${variant === 'primary'
+                ? 'bg-brand-blue text-white shadow-xl shadow-brand-blue/20 hover:scale-105'
+                : 'bg-white/5 text-gray-300 border border-white/10 hover:bg-white/10'
+                }`}
+        >
+            {icon}
+            {label}
+        </Link>
+    );
+};
 
 export const ContentSection = ({ title, children }: { title: string, children: React.ReactNode }) => (
     <section className="mb-16">

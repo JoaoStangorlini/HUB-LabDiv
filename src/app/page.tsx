@@ -70,7 +70,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ c
 
         <div className="flex-1 w-full max-w-[1920px] mx-auto flex justify-center">
           {/* Esquerda: Navegação / Side Menu */}
-          <aside className="hidden xl:block w-[280px] shrink-0 border-r border-gray-200 dark:border-gray-800 bg-background-light dark:bg-background-dark">
+          <aside className="hidden xl:block w-[280px] shrink-0 border-r border-gray-200 dark:border-gray-800 bg-background-light dark:bg-transparent">
             <div className="sticky top-20">
               <SidebarLeft />
             </div>
@@ -90,7 +90,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ c
           </main>
 
           {/* Direita: Informações Extra / Trending */}
-          <aside className="hidden lg:block w-[320px] shrink-0 px-4 py-8 border-l border-gray-200 dark:border-gray-800 bg-background-light dark:bg-background-dark">
+          <aside className="hidden lg:block w-[320px] shrink-0 px-4 py-8 border-l border-gray-200 dark:border-gray-800 bg-background-light dark:bg-transparent">
             <div className="sticky top-20">
               <SidebarRight tags={sidebarTags} authors={scientists} />
             </div>

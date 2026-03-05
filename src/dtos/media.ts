@@ -21,6 +21,8 @@ export interface PostDTO {
     saveCount: number;
     commentCount: number;
     avatarUrl?: string;
+    authorXp?: number;
+    authorLevel?: number;
     priority?: boolean;
     location_lat?: number;
     location_lng?: number;
@@ -39,6 +41,8 @@ export interface AdminPostDTO extends PostDTO {
     aiSuggestedTags?: string[];
     aiSuggestedAlt?: string;
     aiStatus?: string;
+    whatsapp?: string;
+    eventDate?: string;
 }
 
 /**
@@ -57,6 +61,8 @@ export interface UserDTO {
  * Converter: Map database Submission to PostDTO
  */
 export function mapToPostDTO(submission: any, counts?: { likes?: number, saves?: number, comments?: number }, avatarUrl?: string): PostDTO {
+    const profile = submission.profiles || {};
+
     return {
         id: submission.id,
         title: submission.title,
@@ -73,7 +79,9 @@ export function mapToPostDTO(submission: any, counts?: { likes?: number, saves?:
         likeCount: Number(counts?.likes ?? submission.like_count ?? 0),
         saveCount: Number(counts?.saves ?? 0),
         commentCount: Number(counts?.comments ?? 0),
-        avatarUrl: avatarUrl || submission.avatar_url,
+        avatarUrl: avatarUrl || profile.avatar_url || submission.avatar_url,
+        authorXp: profile.xp,
+        authorLevel: profile.level,
         location_lat: typeof submission.location_lat === 'number' ? submission.location_lat : undefined,
         location_lng: typeof submission.location_lng === 'number' ? submission.location_lng : undefined,
         location_name: submission.location_name,
@@ -94,5 +102,7 @@ export function mapToAdminPostDTO(submission: any, counts?: { likes?: number, sa
         aiSuggestedTags: submission.ai_suggested_tags,
         aiSuggestedAlt: submission.ai_suggested_alt,
         aiStatus: submission.ai_status,
+        whatsapp: submission.whatsapp,
+        eventDate: submission.event_date ? String(submission.event_date) : undefined,
     };
 }

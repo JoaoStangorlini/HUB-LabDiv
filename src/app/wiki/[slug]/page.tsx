@@ -4,6 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { motion } from 'framer-motion';
+import { useNavigationStore } from '@/store/useNavigationStore';
 import {
     MainLayoutWrapper
 } from '@/components/layout/MainLayoutWrapper';
@@ -43,23 +44,23 @@ const pageContent: Record<string, any> = {
         sections: [
             {
                 title: 'Categorias',
-                content: 'Refração (Notícias), Síncrotron (Tutoriais), Colisor (Debates) e Laboratório (Perfil). Escolha a categoria que melhor colide com seu objetivo de comunicação.'
+                content: 'Lab-Div (bloqueada só para membros), Mentorados Lab-Div (caso tenha recebido ajuda de nossas mentorias), Laboratórios, Pesquisadores, Bastidores da Ciência, etc. Escolha a categoria que melhor se encaixe com seu objetivo de comunicação.'
             },
             {
                 title: 'Formatos',
-                content: 'Aceitamos Imagens (PNG/JPG), Vídeos (MP4) e Documentos Técnicos (PDF). Cada formato tem um papel na emissão de conhecimento científico.'
+                content: 'Aceitamos Imagens (PNG/JPG/GIF), Documentos Técnicos (PDF), Notas de estudo (arquivos nativos como Samsung Notes, etc) e coleções compactadas (ZIP). O limite rígido para upload direto no Hub é de 10MB por arquivo. Para Vídeos, o envio deve ser feito exclusivamente através de Link do YouTube. A plataforma também permite adicionar links externos apontando para pastas do Google Drive, repositórios do GitHub, Notion, etc.'
             },
             {
                 title: 'Apelidos',
-                content: 'Seu nome no Hub pode ser seu nome real ou um apelido acadêmico. Mantenha o respeito e a integridade da identidade visual do LabDiv.'
+                content: 'Seu nome de exibição no Hub pode ser seu nome real ou um apelido acadêmico que você já use. A regra é simples: mantenha o respeito e o bom senso. Nomes ofensivos, preconceituosos ou que tentem se passar por entidades oficiais do instituto serão banidos. A integridade da nossa comunidade vem em primeiro lugar.'
             },
             {
                 title: 'Links Externos',
-                content: 'Sempre cite fontes confiáveis (ArXiv, Nature, Portal USP). Links para sites externos devem ser verificados para evitar quebras de simetria na informação.'
+                content: 'Em links externos diga que pode mandar um link do drive, repositorio git, notion, canva, pdf maior que 10mbs ou algo que complemente a publicacao. Além das referências bibliográficas, este campo é a ferramenta ideal para contornar o limite de 10MB. Utilize-o para anexar links de pastas do Google Drive com datasets pesados, repositórios de código no GitHub, páginas do Notion ou links de vídeos do YouTube. Certifique-se de que os links estejam com as permissões abertas para leitura.'
             },
             {
                 title: 'Detalhes Técnicos',
-                content: 'Resolução mínima de 1080p para imagens e vídeos. Limite de 10MB para arquivos estáticos. Alta fidelidade é essencial para a precisão experimental.'
+                content: 'Este campo deve ser usado para descrever os bastidores da criação. Detalhe as técnicas de redação utilizadas, especificações de equipamento (como a lente e câmera escolhidas), configurações técnicas como ISO e velocidade do obturador, além de softwares utilizados para edição e pós-processamento. A transparência técnica fortalece o rigor do seu trabalho.'
             },
             {
                 title: 'Descrição',
@@ -74,8 +75,8 @@ const pageContent: Record<string, any> = {
                 content: 'Todo conteúdo no Hub é, por padrão, CC-BY-SA. Isso garante que o conhecimento circule livremente, mantendo os créditos devidos aos autores originais.'
             },
             {
-                title: 'Vídeos',
-                content: 'Utilize compressão H.264 para garantir carregamento fluido. Vídeos curtos (até 2 min) têm maior taxa de colisão com o público universitário.'
+                title: 'Dicas de Vídeos/Fotos',
+                content: 'Não é permitido o upload direto de arquivos de vídeo no Hub, independentemente do tamanho. Todo conteúdo em vídeo deve ser hospedado no YouTube e compartilhado através do link oficial. Isso garante que o conteúdo seja carregado instantaneamente e com a máxima qualidade possível para o público universitário.'
             }
         ],
         dates: [
@@ -83,8 +84,8 @@ const pageContent: Record<string, any> = {
             { label: 'Revisão', value: 'Março/2026' }
         ],
         actions: [
-            { label: 'Baixar Checklist', icon: <Download className="w-4 h-4" />, href: '#' },
-            { label: 'Ver Exemplos', icon: <Telescope className="w-4 h-4" />, href: '#' }
+            { label: 'Por em Prática', icon: <Zap className="w-4 h-4" />, href: '/enviar' },
+            { label: 'Ver Exemplos', icon: <Telescope className="w-4 h-4" />, href: '/arquivo-labdiv#catalogo' }
         ]
     },
     'calouro': {
@@ -206,13 +207,10 @@ const pageContent: Record<string, any> = {
                 content: 'Utilize o KitDiv para assets visuais e tipografia oficial. Caso precise de suporte personalizado, agende uma Mentoria com nossa equipe técnica de comunicação.'
             }
         ],
-        dates: [
-            { label: 'Toolkit V', value: '4.0.0' },
-            { label: 'Acesso', value: 'KitDiv Online' }
-        ],
+        dates: [],
         actions: [
-            { label: 'Acessar KitDiv', icon: <Download className="w-4 h-4" />, href: '#' },
-            { label: 'Agendar Mentoria', icon: <Brain className="w-4 h-4" />, href: '#' }
+            { label: 'Acessar KitDiv', icon: <Download className="w-4 h-4" />, href: '/arquivo-labdiv' },
+            { label: 'Agendar Mentoria', icon: <Brain className="w-4 h-4" />, href: '/arquivo-labdiv' }
         ]
     },
     'protecao': {
@@ -357,6 +355,7 @@ export default function WikiSubPage() {
     const params = useParams();
     const slug = params.slug as string;
     const content = pageContent[slug];
+    const { setReportModalOpen } = useNavigationStore();
 
     if (!content) {
         return (
@@ -404,16 +403,34 @@ export default function WikiSubPage() {
                                     </div>
                                 </div>
 
-                                {content.sections.map((section: any, idx: number) => (
-                                    <ContentSection key={idx} title={section.title}>
-                                        <TechnicalAccordion title={`Mais sobre ${section.title}`}>
-                                            {section.content}
-                                        </TechnicalAccordion>
-                                        <p className="text-gray-400 font-medium leading-relaxed bg-white/2 p-8 rounded-[40px] border border-white/5">
-                                            {section.content}
-                                        </p>
-                                    </ContentSection>
-                                ))}
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 relative">
+                                    {/* Decorative vertical line */}
+                                    <div className="absolute left-4 top-0 bottom-0 w-px bg-gradient-to-b from-brand-blue/50 via-brand-red/50 to-transparent hidden md:block opacity-20" />
+
+                                    {content.sections.map((section: any, idx: number) => (
+                                        <motion.div
+                                            key={idx}
+                                            initial={{ opacity: 0, y: 20 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            transition={{ duration: 0.5, delay: idx * 0.1 }}
+                                            className={`${idx % 3 === 0 ? 'md:col-span-2' : 'md:col-span-1'}`}
+                                        >
+                                            <ContentSection title={section.title}>
+                                                <div className="relative group">
+                                                    {/* Premium Glow effect */}
+                                                    <div className="absolute -inset-0.5 bg-gradient-to-r from-brand-blue to-brand-red rounded-[40px] opacity-0 group-hover:opacity-10 transition-opacity duration-500 blur-xl" />
+
+                                                    <div className="relative text-gray-400 font-medium leading-relaxed bg-[#1E1E1E] p-8 rounded-[40px] border border-white/5 hover:border-white/10 transition-all hover:-translate-y-1 shadow-2xl">
+                                                        <div className="absolute top-4 right-8 text-[10px] font-black uppercase tracking-[0.2em] text-white/5 group-hover:text-brand-blue/20 transition-colors">
+                                                            SEÇÃO {String(idx + 1).padStart(2, '0')}
+                                                        </div>
+                                                        {section.content}
+                                                    </div>
+                                                </div>
+                                            </ContentSection>
+                                        </motion.div>
+                                    ))}
+                                </div>
                             </motion.div>
                         </div>
 
@@ -426,12 +443,14 @@ export default function WikiSubPage() {
                                 className="sticky top-24 space-y-8"
                             >
                                 {/* Dates/DataCards */}
-                                <div className="space-y-4">
-                                    <h4 className="text-[10px] font-black uppercase tracking-[0.4em] text-gray-600 mb-6">Métricas de Colisão</h4>
-                                    {content.dates.map((date: any, idx: number) => (
-                                        <DataCard key={idx} label={date.label} value={date.value} color={content.color} />
-                                    ))}
-                                </div>
+                                {content.dates && content.dates.length > 0 && (
+                                    <div className="space-y-4">
+                                        <h4 className="text-[10px] font-black uppercase tracking-[0.4em] text-gray-600 mb-6">Métricas de Colisão</h4>
+                                        {content.dates.map((date: any, idx: number) => (
+                                            <DataCard key={idx} label={date.label} value={date.value} color={content.color} />
+                                        ))}
+                                    </div>
+                                )}
 
                                 {/* Actions/ActionButtons */}
                                 <div className="space-y-4 pt-8 border-t border-white/5">
@@ -441,12 +460,15 @@ export default function WikiSubPage() {
                                     ))}
                                 </div>
 
-                                {/* Support Card */}
-                                <div className="p-8 bg-gradient-to-br from-brand-red/10 to-transparent border border-white/5 rounded-[40px] mt-12">
-                                    <AlertCircle className="w-8 h-8 text-brand-red mb-4" />
+                                {/* Support Card (Report System) */}
+                                <div className="p-8 bg-gradient-to-br from-brand-red/10 to-transparent border border-white/5 rounded-[40px] mt-12 group">
+                                    <AlertCircle className="w-8 h-8 text-brand-red mb-4 group-hover:scale-110 transition-transform" />
                                     <h5 className="text-sm font-black text-white uppercase italic mb-2">Dúvida Técnica?</h5>
-                                    <p className="text-[11px] text-gray-500 font-bold leading-relaxed mb-6">Utilize o botão de Pânico no topo para reportar flutuações de dados incorretas.</p>
-                                    <Link href="/perguntas" className="text-xs font-black text-brand-red uppercase hover:underline">Abrir Ticket</Link>
+                                    <p className="text-[11px] text-gray-500 font-bold leading-relaxed mb-6">Utilize o canal de Report para informar flutuações de dados ou problemas técnicos.</p>
+                                    <button onClick={() => setReportModalOpen(true)} className="w-full text-xs font-black text-brand-red uppercase hover:underline border border-brand-red/20 rounded-xl px-4 py-2 hover:bg-brand-red/10 transition-all flex items-center justify-center gap-2">
+                                        <span className="material-symbols-outlined text-[16px]">report</span>
+                                        Reportar Problema
+                                    </button>
                                 </div>
                             </motion.div>
                         </aside>

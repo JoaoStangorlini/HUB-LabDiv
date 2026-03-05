@@ -29,7 +29,6 @@ const mainLinks = [
     { name: 'Wiki', href: AppRoutes.WIKI, icon: <BookOpen className="w-6 h-6" /> },
     { name: 'Trilhas', href: '/trilhas', icon: <Route className="w-6 h-6" /> },
     { name: 'Pergunte', href: '/perguntas', icon: <HelpCircle className="w-6 h-6" /> },
-    { name: 'Criadores', href: '/criadores', icon: <UserSearch className="w-6 h-6" /> },
     { name: 'Mapa', href: '/mapa', icon: <Map className="w-6 h-6" /> },
     { name: 'Sobre', href: '/sobre', icon: <span className="material-symbols-outlined text-2xl">info</span> },
 ];
@@ -133,6 +132,8 @@ export const SidebarLeft = ({ userId }: { userId?: string }) => {
                                     name={profile.name}
                                     size="md"
                                     className="border border-white/10"
+                                    xp={profile.xp}
+                                    level={profile.level}
                                 />
                                 <div className="absolute -bottom-0.5 -right-0.5 size-3 bg-brand-blue border-2 border-white dark:border-[#121212] rounded-full" />
                                 <div className="flex flex-col overflow-hidden min-w-0">

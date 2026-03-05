@@ -5,7 +5,6 @@ import { supabase } from '@/lib/supabase';
 import { MediaCard } from '@/components/MediaCard';
 import { AdminSubmissionLightbox } from '@/components/AdminSubmissionLightbox';
 import { CATEGORIES } from '@/app/enviar/constants';
-import { validateAISuggestionsBulk, reprocessAI } from '@/app/actions/admin';
 import { fetchAdminSubmissions, updateSubmissionAdmin } from '@/app/actions/submissions';
 import { AdminPostDTO, mapToAdminPostDTO } from '@/dtos/media';
 import {
@@ -132,6 +131,9 @@ export default function GerenciadorAcervoPage() {
             authors: editingItem.authors,
             category: editingItem.category,
             description: editingItem.description,
+            tags: editingItem.tags,
+            external_link: editingItem.externalLink,
+            event_date: editingItem.eventDate,
         });
 
         if (error) {
@@ -157,19 +159,6 @@ export default function GerenciadorAcervoPage() {
     const toggleSelectAll = () => {
         if (isAllSelected) setSelectedIds(new Set());
         else setSelectedIds(new Set(filteredSubmissions.map(s => s.id)));
-    };
-
-    const handleBulkValidateAI = async () => {
-        if (selectedIds.size === 0) return;
-        setIsLoading(true);
-        const res = await validateAISuggestionsBulk(Array.from(selectedIds));
-        if (res.error) toast.error(res.error);
-        else {
-            toast.success('Sugestões validadas!');
-            await fetchAll();
-            setSelectedIds(new Set());
-        }
-        setIsLoading(false);
     };
 
     const handleBulkApprove = async () => {
@@ -271,9 +260,6 @@ export default function GerenciadorAcervoPage() {
                     <div className="flex flex-wrap items-center justify-center md:justify-end gap-2 w-full md:w-auto">
                         <button onClick={handleBulkApprove} className="px-4 py-2 bg-brand-blue text-white hover:bg-brand-blue/80 rounded-xl text-xs font-bold transition-all flex items-center gap-2">
                             <CheckCheck className="w-4 h-4" /> Aprovar
-                        </button>
-                        <button onClick={handleBulkValidateAI} className="px-4 py-2 bg-purple-500/10 text-purple-600 border border-purple-200 rounded-xl text-xs font-bold transition-all flex items-center gap-2">
-                            <Sparkles className="w-4 h-4" /> Validar IA
                         </button>
                         <button onClick={handleBulkReject} className="px-4 py-2 bg-brand-red text-white hover:bg-brand-red/80 rounded-xl text-xs font-bold transition-all flex items-center gap-2">
                             <XCircle className="w-4 h-4" /> Rejeitar
@@ -410,6 +396,48 @@ export default function GerenciadorAcervoPage() {
                                         className="w-full rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-background-dark text-gray-900 dark:text-white py-2.5 px-4 focus:ring-2 focus:ring-brand-blue/50 focus:border-brand-blue text-sm resize-none"
                                     />
                                 </div>
+                                <div className="space-y-2">
+                                    <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300">Ano (AAAA)</label>
+                                    <input
+                                        type="text"
+                                        maxLength={4}
+                                        value={editingItem.eventDate ? editingItem.eventDate.substring(0, 4) : ''}
+                                        onChange={e => {
+                                            const val = e.target.value.replace(/\D/g, '');
+                                            setEditingItem({ ...editingItem, eventDate: val ? `${val}-01-01T12:00:00Z` : undefined });
+                                        }}
+                                        className="w-full rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-background-dark text-gray-900 dark:text-white py-2.5 px-4 focus:ring-2 focus:ring-brand-blue/50 focus:border-brand-blue text-sm"
+                                        placeholder="Ex: 2024"
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300">Tags (Separadas por vírgula)</label>
+                                    <input
+                                        type="text"
+                                        value={editingItem.tags?.join(', ') || ''}
+                                        onChange={e => setEditingItem({ ...editingItem, tags: e.target.value.split(',').map(t => t.trim()).filter(Boolean) })}
+                                        className="w-full rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-background-dark text-gray-900 dark:text-white py-2.5 px-4 focus:ring-2 focus:ring-brand-blue/50 focus:border-brand-blue text-sm"
+                                        placeholder="ciencia, fisica, astronomia"
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300">Link Externo</label>
+                                    <input
+                                        type="url"
+                                        value={editingItem.externalLink || ''}
+                                        onChange={e => setEditingItem({ ...editingItem, externalLink: e.target.value })}
+                                        className="w-full rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-background-dark text-gray-900 dark:text-white py-2.5 px-4 focus:ring-2 focus:ring-brand-blue/50 focus:border-brand-blue text-sm"
+                                        placeholder="https://..."
+                                    />
+                                </div>
+                                {editingItem.whatsapp && (
+                                    <div className="space-y-2">
+                                        <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300">Contato (WhatsApp)</label>
+                                        <div className="w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 text-gray-700 dark:text-gray-300 py-2.5 px-4 text-sm font-mono select-all">
+                                            {editingItem.whatsapp}
+                                        </div>
+                                    </div>
+                                )}
                             </form>
                         </div>
 

@@ -20,6 +20,7 @@ export default function AdminLayout({
         { name: 'Gerenciamento de Papéis', href: '/admin/papeis', icon: 'admin_panel_settings' },
         { name: 'Pergunte a um Cientista', href: '/admin/perguntas', icon: 'quiz' },
         { name: 'Moderação de Comentários', href: '/admin/comentarios', icon: 'chat_bubble' },
+        { name: 'Central de Anomalias', href: '/admin/reports', icon: 'bug_report' },
         { name: 'Trilhas de Aprendizagem', href: '/admin/trilhas', icon: 'route' },
         { name: 'Narração & TTS', href: '/admin/narracao', icon: 'record_voice_over' },
         { name: 'Peer Review', href: '/admin/correcoes', icon: 'spellcheck' },
@@ -72,6 +73,7 @@ export default function AdminLayout({
                                 <Link
                                     key={link.href}
                                     href={link.href}
+                                    prefetch={true}
                                     onClick={() => setIsMobileMenuOpen(false)}
                                     className={`flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl transition-all group ${isActive
                                         ? 'bg-[#0055ff] border border-[#0055ff]/50 text-white shadow-lg shadow-[#0055ff]/20'

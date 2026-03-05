@@ -19,6 +19,7 @@ interface DashboardCounts {
     autoresMestres: number;
     oportunidadesTotal: number;
     pendentesPerfis: number;
+    reportsPendentes: number;
 }
 
 export default function AdminDashboardOverview() {
@@ -30,6 +31,7 @@ export default function AdminDashboardOverview() {
         totalAutores: 0, autoresFrequentes: 0, autoresMestres: 0,
         oportunidadesTotal: 0,
         pendentesPerfis: 0,
+        reportsPendentes: 0,
     });
     const [isLoading, setIsLoading] = useState(true);
 
@@ -44,6 +46,7 @@ export default function AdminDashboardOverview() {
                 pergPendentesRes, pergRespondidasRes,
                 oportunidadesRes, subsWithAuthorsRes,
                 profilesPendentesRes,
+                reportsPendentesRes,
             ] = await Promise.all([
                 supabase.from('submissions').select('*', { count: 'exact', head: true }).eq('status', 'pendente'),
                 supabase.from('submissions').select('*', { count: 'exact', head: true }).eq('status', 'aprovado'),
@@ -57,6 +60,7 @@ export default function AdminDashboardOverview() {
                 supabase.from('oportunidades').select('*', { count: 'exact', head: true }),
                 supabase.from('submissions').select('user_id').eq('status', 'aprovado'),
                 supabase.from('profiles').select('*', { count: 'exact', head: true }).eq('review_status', 'pending'),
+                supabase.from('feedback_reports').select('*', { count: 'exact', head: true }).neq('status', 'closed'),
             ]);
 
             // Calculate unique tags from all approved submissions
@@ -97,6 +101,7 @@ export default function AdminDashboardOverview() {
                 autoresMestres,
                 oportunidadesTotal: oportunidadesRes.count || 0,
                 pendentesPerfis: profilesPendentesRes.count || 0,
+                reportsPendentes: reportsPendentesRes.count || 0,
             });
 
             setIsLoading(false);
@@ -141,6 +146,15 @@ export default function AdminDashboardOverview() {
             color: 'electric' as const,
             href: '/admin/trilhas',
             urgent: false,
+        },
+        {
+            title: 'Anomalias',
+            subtitle: 'Aguardando Análise',
+            count: counts.reportsPendentes,
+            icon: 'bug_report',
+            color: 'red' as const,
+            href: '/admin/reports',
+            urgent: counts.reportsPendentes > 0,
         },
         {
             title: 'Tags',

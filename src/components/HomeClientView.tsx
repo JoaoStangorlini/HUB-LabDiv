@@ -33,6 +33,7 @@ import {
 } from 'lucide-react';
 
 import { useSearch } from '@/providers/SearchProvider';
+import { CATEGORIES as CATEGORY_LIST, CATEGORY_STYLES, DEFAULT_STYLE } from '@/lib/constants';
 
 interface HomeClientViewProps {
     initialItems: MediaCardProps[];
@@ -124,17 +125,18 @@ export const HomeClientView = ({
         }
     };
 
-    const categories = ['Todos', 'Lab-Div', 'Equipamentos', 'Laboratórios', 'Física Experimental', 'Teoria', 'Pesquisadores', 'Uso Didático', 'Bastidores da Ciência', 'Gambiarras Técnicas', 'Impacto e Conquistas', 'Nossa História', 'Central de Anotações', 'Eventos', 'Física Fora da Caixa', 'Convivência', 'Mural do Deu Ruim', 'Guia de Sobrevivência', 'Outros'];
+    const categories = ['Todos', 'Lab-Div', 'Mentorados Lab-Div', 'Laboratórios', 'Pesquisadores', 'Bastidores da Ciência', 'Eventos', 'Nossa História', 'Uso Didático', 'Convivência', 'Central de Anotações', 'Mural do Deu Ruim', 'Outros'];
     const currentYear = 2026; // Fixed for Hub 3.1.5 context
     const years = ['Todos', ...Array.from({ length: currentYear - 1934 + 1 }, (_, i) => (currentYear - i).toString())];
 
     const mediaTypeOptions = [
-        { label: 'Imagens', value: 'image', icon: ImageIcon, color: 'brand-blue' },
+        { label: 'Fotos', value: 'image', icon: ImageIcon, color: 'brand-blue' },
         { label: 'Vídeos', value: 'video', icon: Video, color: 'brand-red' },
-        { label: 'Artigos', value: 'pdf', icon: FileText, color: 'brand-yellow' },
-        { label: 'Relatórios', value: 'pdf', icon: BarChart, color: 'brand-blue' },
-        { label: 'ZIPs', value: 'zip', icon: FolderArchive, color: 'brand-red' },
-        { label: 'Notas', value: 'sdocx', icon: Edit3, color: 'brand-yellow' },
+        { label: 'PDF', value: 'pdf', icon: FileText, color: 'brand-yellow' },
+        { label: 'ZIP', value: 'zip', icon: FolderArchive, color: 'brand-blue' },
+        { label: 'Notes', value: 'sdocx', icon: Edit3, color: 'brand-red' },
+        { label: 'Texto', value: 'text', icon: FileText, color: 'brand-blue' },
+        { label: 'Outros', value: 'other', icon: Sparkles, color: 'gray-500' },
     ];
 
     // Sync filters with data fetching
@@ -258,7 +260,7 @@ export const HomeClientView = ({
                 <div className="flex flex-col gap-6">
                     {/* Formato */}
                     <div className="flex items-center gap-4">
-                        <span className="text-[10px] font-black uppercase tracking-widest text-gray-400 shrink-0">Formato:</span>
+                        <span className="text-[10px] uppercase tracking-widest text-gray-400 shrink-0">Formato:</span>
                         <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
                             {mediaTypeOptions.map((option, idx) => {
                                 const isActive = selectedMediaTypes.includes(option.value);
@@ -268,7 +270,7 @@ export const HomeClientView = ({
                                     <button
                                         key={option.label}
                                         onClick={() => setSelectedMediaTypes(isActive ? prev => prev.filter(t => t !== option.value) : prev => [...prev, option.value])}
-                                        className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border-2 shrink-0 ${isActive ? `bg-${activeColor} text-white border-${activeColor} shadow-lg ring-2 ring-${activeColor}/20` : 'bg-white dark:bg-white/5 text-gray-500 border-gray-100 dark:border-white/10 hover:border-brand-blue/30'}`}
+                                        className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[10px] uppercase tracking-widest transition-all border-2 shrink-0 ${isActive ? `bg-${activeColor} text-white border-${activeColor} shadow-lg ring-2 ring-${activeColor}/20` : 'bg-white dark:bg-white/5 text-gray-500 border-gray-100 dark:border-white/10 hover:border-brand-blue/30'}`}
                                     >
                                         <Icon className="w-3.5 h-3.5" />
                                         {option.label}
@@ -280,12 +282,10 @@ export const HomeClientView = ({
 
                     {/* Categoria */}
                     <div className="flex items-center gap-4">
-                        <span className="text-[10px] font-black uppercase tracking-widest text-gray-400 shrink-0">Categorias:</span>
+                        <span className="text-[10px] uppercase tracking-widest text-gray-400 shrink-0">Categorias:</span>
                         <div className="flex flex-wrap gap-2">
                             {(showAllCategories ? categories : categories.slice(0, 6)).map((c, idx) => {
                                 const isActive = selectedCategories.includes(c);
-                                const filterColors = ['brand-blue', 'brand-yellow', 'brand-red'];
-                                const activeColor = filterColors[idx % filterColors.length];
                                 return (
                                     <button
                                         key={c}
@@ -300,7 +300,7 @@ export const HomeClientView = ({
                                                 return [...filtered, c];
                                             });
                                         }}
-                                        className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border-2 ${isActive ? `bg-${activeColor} text-white border-${activeColor} shadow-lg ring-2 ring-${activeColor}/20` : 'bg-white dark:bg-white/5 text-gray-500 border-gray-100 dark:border-white/10 hover:border-brand-blue/30'}`}
+                                        className={`px-4 py-2 rounded-xl text-[10px] uppercase tracking-widest transition-all border-2 ${isActive ? (CATEGORY_STYLES[c]?.filterActive || DEFAULT_STYLE.filterActive) : (CATEGORY_STYLES[c]?.filterInactive || DEFAULT_STYLE.filterInactive)}`}
                                     >
                                         {c}
                                     </button>
@@ -308,7 +308,7 @@ export const HomeClientView = ({
                             })}
                             <button
                                 onClick={() => setShowAllCategories(!showAllCategories)}
-                                className="px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest bg-gray-100 dark:bg-white/10 text-gray-500 hover:text-brand-blue transition-all flex items-center gap-1 border-2 border-transparent"
+                                className="px-4 py-2 rounded-xl text-[10px] uppercase tracking-widest bg-gray-100 dark:bg-white/10 text-gray-500 hover:text-brand-blue transition-all flex items-center gap-1 border-2 border-transparent"
                             >
                                 {showAllCategories ? <Minus className="w-3 h-3" /> : <Plus className="w-3 h-3" />}
                                 {showAllCategories ? 'Menos' : 'Mais'}
@@ -318,7 +318,7 @@ export const HomeClientView = ({
 
                     {/* Ano */}
                     <div className="flex items-center gap-4">
-                        <span className="text-[10px] font-black uppercase tracking-widest text-gray-400 shrink-0">Ano:</span>
+                        <span className="text-[10px] uppercase tracking-widest text-gray-400 shrink-0">Ano:</span>
                         <div className="flex flex-wrap gap-2 grow">
                             {(showAllYears ? years : years.slice(0, 10)).map((y, idx) => {
                                 const isActive = selectedYears.includes(y);
@@ -339,7 +339,7 @@ export const HomeClientView = ({
                                                 return [...filtered, y];
                                             });
                                         }}
-                                        className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border-2 shrink-0 ${isActive ? `bg-${activeColor} text-white border-${activeColor} shadow-lg ring-2 ring-${activeColor}/20` : 'bg-white dark:bg-white/5 text-gray-500 border-gray-100 dark:border-white/10 hover:border-brand-blue/30'}`}
+                                        className={`px-4 py-2 rounded-xl text-[10px] uppercase tracking-widest transition-all border-2 shrink-0 ${isActive ? `bg-${activeColor} text-white border-${activeColor} shadow-lg ring-2 ring-${activeColor}/20` : 'bg-white dark:bg-white/5 text-gray-500 border-gray-100 dark:border-white/10 hover:border-brand-blue/30'}`}
                                     >
                                         {y}
                                     </button>
@@ -347,7 +347,7 @@ export const HomeClientView = ({
                             })}
                             <button
                                 onClick={() => setShowAllYears(!showAllYears)}
-                                className="px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest bg-gray-100 dark:bg-white/10 text-gray-500 hover:text-brand-blue transition-all flex items-center gap-1 border-2 border-transparent"
+                                className="px-4 py-2 rounded-xl text-[10px] uppercase tracking-widest bg-gray-100 dark:bg-white/10 text-gray-500 hover:text-brand-blue transition-all flex items-center gap-1 border-2 border-transparent"
                             >
                                 {showAllYears ? <Minus className="w-3 h-3" /> : <Plus className="w-3 h-3" />}
                                 {showAllYears ? 'Menos' : 'Mais'}
