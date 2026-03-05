@@ -65,11 +65,16 @@ body {
 }
 
 /* Scientific background pattern - static, zero animations */
-html.dark body {
+body {
   background-image: url('/bg-science.svg');
   background-size: 1200px 1200px;
   background-repeat: repeat;
   background-attachment: scroll;
+}
+
+/* Optional: Slight dimming for the background symbols in light mode if they are too loud */
+:root:not(.dark) body {
+  background-image: linear-gradient(rgba(248, 250, 252, 0.4), rgba(248, 250, 252, 0.4)), url('/bg-science.svg');
 }
 
 /* Performance: CSS-only animation replaces framer-motion in hero (no JS blocking) */
