@@ -6,9 +6,21 @@ export async function GET(request: NextRequest) {
     const code = searchParams.get('code');
     const next = searchParams.get('next') ?? '/';
 
+    // Robust Origin Detection: Prevents internal server IPs (0.0.0.0) from leaking in hosted envs
+    const getPublicOrigin = () => {
+        const host = request.headers.get('x-forwarded-host') || request.nextUrl.host;
+        const proto = request.headers.get('x-forwarded-proto') || 'https';
+        // If it's local development on a specific port, this handles it via request.nextUrl.origin fallback
+        // but prioritized x-forwarded headers for production accuracy.
+        if (host.includes('localhost') || host.includes('0.0.0.0') || host.includes('127.0.0.1')) {
+            return request.nextUrl.origin;
+        }
+        return `${proto}://${host}`;
+    };
+
+    const publicOrigin = getPublicOrigin();
+
     if (code) {
-        // Use the cookie-aware server client so the session
-        // is properly persisted in the browser via set-cookie headers
         const supabase = await createServerSupabase();
         const { data: { session }, error } = await supabase.auth.exchangeCodeForSession(code);
 
@@ -17,42 +29,28 @@ export async function GET(request: NextRequest) {
             const email = session.user.email || '';
             const isUspDomain = email.endsWith('@usp.br') || email.endsWith('@alumni.usp.br');
 
-            // Hard-Lock Security Refined: If they chose the USP track but didn't provide a USP email
             if (track === 'usp' && !isUspDomain) {
                 console.warn(`Auth Conflict: Non-USP email attempted USP login: ${email}`);
-                // Redirect back to login with conflict flag instead of silent signOut
-                const conflictUrl = new URL('/login', request.url);
+                const conflictUrl = new URL('/login', publicOrigin);
                 conflictUrl.searchParams.set('conflict', 'true');
                 conflictUrl.searchParams.set('email', email);
                 conflictUrl.searchParams.set('next', next);
-                return NextResponse.redirect(conflictUrl);
+                return NextResponse.redirect(conflictUrl.toString());
             }
 
-            // Sync profile data (simple set is_usp_member based on domain)
-            const { error: profileError } = await supabase
+            await supabase
                 .from('profiles')
                 .update({ is_usp_member: isUspDomain })
                 .eq('id', session.user.id);
 
-            if (profileError) {
-                console.error('Profile sync error:', profileError);
-            }
-
-            // Ensure redirect is absolute or properly constructed
-            console.log(`Auth Success: Redirecting to ${next}`);
-            const baseUrl = request.nextUrl.origin;
-            const redirectUrl = new URL(next, baseUrl);
-
+            console.log(`Auth Success: Redirecting to ${next} via ${publicOrigin}`);
+            const redirectUrl = new URL(next, publicOrigin);
             return NextResponse.redirect(redirectUrl.toString());
         }
         console.error('Auth callback: Code exchange failed or no session', error);
-    } else {
-        console.warn('Auth callback: No code provided in URL');
     }
 
-    // Error: redirect back to login with a specific error flag
-    const baseUrl = request.nextUrl.origin;
-    const errorUrl = new URL('/login', baseUrl);
+    const errorUrl = new URL('/login', publicOrigin);
     errorUrl.searchParams.set('error', 'auth-code-error');
     return NextResponse.redirect(errorUrl.toString());
 }

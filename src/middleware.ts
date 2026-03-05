@@ -74,15 +74,14 @@ export async function middleware(request: NextRequest) {
         }
     }
 
-    // --- V8.0 Security Hardening: Strict CSP & Headers ---
-    // style-src: 'unsafe-inline' is required for Framer Motion and KaTeX runtime styles.
+    const isProd = process.env.NODE_ENV === 'production';
     const cspHeader = `
         default-src 'self';
         script-src 'self' 'unsafe-eval' 'unsafe-inline' blob: https://*.supabase.co https://*.cloudinary.com https://*.youtube.com;
         style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
-        img-src 'self' blob: data: https://*.supabase.co https://*.cloudinary.com https://i.ytimg.com https://*.ytimg.com https://*.googleusercontent.com https://*.discordapp.com;
+        img-src 'self' blob: data: https://*.supabase.co https://*.cloudinary.com https://i.ytimg.com https://*.ytimg.com https://*.googleusercontent.com https://*.google.com https://*.google-analytics.com https://*.googletagmanager.com;
         font-src 'self' data: https://fonts.gstatic.com;
-        connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.cloudinary.com https://*.resend.com https://fonts.googleapis.com;
+        connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.cloudinary.com https://*.resend.com https://fonts.googleapis.com https://*.google-analytics.com https://*.googletagmanager.com;
         media-src 'self' https://*.supabase.co https://*.cloudinary.com https://*.youtube.com;
         frame-src 'self' https://*.youtube.com https://*.youtube-nocookie.com;
         object-src 'none';
@@ -90,7 +89,7 @@ export async function middleware(request: NextRequest) {
         form-action 'self';
         frame-ancestors 'none';
         block-all-mixed-content;
-        upgrade-insecure-requests;
+        ${isProd ? 'upgrade-insecure-requests;' : ''}
     `.replace(/\s{2,}/g, ' ').trim();
 
     response.headers.set('Content-Security-Policy', cspHeader);
@@ -98,7 +97,10 @@ export async function middleware(request: NextRequest) {
     response.headers.set('X-Content-Type-Options', 'nosniff');
     response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
     response.headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
-    response.headers.set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
+
+    if (isProd) {
+        response.headers.set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
+    }
 
     return response;
 }
