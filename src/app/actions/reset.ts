@@ -1,6 +1,6 @@
 'use server';
 
-import { supabase } from '@/lib/supabase';
+import { createServerSupabase } from '@/lib/supabase/server';
 import { purgeStorageFolder } from '@/lib/cloudinary-admin';
 import { z } from 'zod';
 import { revalidatePath } from 'next/cache';
@@ -18,9 +18,21 @@ const ResetSchema = z.object({
  */
 export async function executeNuclearReset(formData: FormData) {
     // 1. Double-Lock Authentication (Admin Role + Secret Key)
-    const { data: { session } } = await supabase.auth.getSession();
+    const supabase = await createServerSupabase();
+    const { data: { user } } = await supabase.auth.getUser();
 
-    if (!session || session.user.role !== 'admin') {
+    if (!user) {
+        return { success: false, error: 'Acesso negado. Usuário não autenticado.' };
+    }
+
+    // Fetch profile role
+    const { data: profile } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', user.id)
+        .single();
+
+    if (!profile || profile.role !== 'admin') {
         return { success: false, error: 'Acesso negado. Apenas administradores podem iniciar o Protocolo Zero Kelvin.' };
     }
 
@@ -34,12 +46,12 @@ export async function executeNuclearReset(formData: FormData) {
         return { success: false, error: validation.error.issues[0].message };
     }
 
-    if (validation.data.secret_key !== process.env.ADMIN_SECRET_KEY) {
+    if (validation.data.secret_key !== process.env.ADMIN_PASSWORD) {
         return { success: false, error: 'Chave secreta de administração inválida.' };
     }
 
     try {
-        console.warn('[V3.1.0] PROTOCOLO ZERO KELVIN INICIADO POR:', session.user.email);
+        console.warn('[V3.1.0] PROTOCOLO ZERO KELVIN INICIADO POR:', user.email);
 
         // 2. Limpeza de Storage (Cloudinary)
         // Purging submissions and reproductions folders

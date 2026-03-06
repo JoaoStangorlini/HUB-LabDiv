@@ -13,3 +13,9 @@ env:
     value: "re_KWALhNHv_9rj3WmMxAGwdBtqkrnZj6NZb"
   - variable: ADMIN_EMAIL
     value: "joaopaulostangorlini@usp.br"
+  - variable: CLOUDINARY_API_KEY
+    value: "YOUR_CLOUDINARY_API_KEY_HERE"
+  - variable: CLOUDINARY_API_SECRET
+    value: "YOUR_CLOUDINARY_API_SECRET_HERE"
+  - variable: ADMIN_SECRET_KEY
+    value: "labdiv-tecla56"

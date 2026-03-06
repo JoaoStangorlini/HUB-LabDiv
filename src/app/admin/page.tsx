@@ -393,31 +393,34 @@ export default function AdminDashboardOverview() {
                         <div className="bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-900/50 rounded-3xl p-6 md:p-8">
                             <h3 className="text-lg font-bold text-red-700 dark:text-red-400 mb-2">Protocolo Nuclear V4.0</h3>
                             <p className="text-sm text-red-600/80 dark:text-red-300/80 mb-6">
-                                Esta ação executará um TRUNCATE CASCADE em todas as tabelas de submissões, comentários, reações e perguntas. E wipes completos da pasta Cloudinary `labdiv_hub/`. As contas de usuários serão mantidas intactas.
+                                Esta ação executará um TRUNCATE CASCADE em todas as tabelas de submissões, comentários, reações e perguntas. E wipes completos da pasta Cloudinary `labdiv_hub/`. <strong>Todos os perfis e contas de usuários (incluindo admins)</strong> serão dizimados. Você precisará recriar seu super-admin após o vácuo.
                             </p>
                             <button
                                 onClick={async () => {
-                                    const confirm = window.confirm('ATENÇÃO: Você está prestes a apagar TODOS os dados e mídias do Hub. Esta ação não pode ser desfeita. Digite "NUCLEAR" para continuar.');
-                                    if (confirm) {
+                                    const confirm = window.prompt('ATENÇÃO: Você está prestes a apagar TODOS os dados e mídias do Hub. Esta ação não pode ser desfeita. Digite "NUCLEAR" para continuar.');
+                                    if (confirm === 'NUCLEAR') {
                                         const pass = window.prompt('Digite a senha de administrador da aplicação:');
                                         if (pass) {
                                             try {
-                                                const res = await fetch('/api/admin/nuclear-reset', {
-                                                    method: 'POST',
-                                                    headers: { 'Content-Type': 'application/json' },
-                                                    body: JSON.stringify({ admin_password: pass })
-                                                });
-                                                const data = await res.json();
-                                                if (res.ok) {
-                                                    alert('✅ SUCESSO: ' + data.message);
+                                                const formData = new FormData();
+                                                formData.append('secret_key', pass);
+                                                formData.append('confirm_phrase', 'ESTOU CIENTE DA DESTRUIÇÃO TOTAL DOS DADOS');
+
+                                                const { executeNuclearReset } = await import('@/app/actions/reset');
+                                                const res = await executeNuclearReset(formData);
+
+                                                if (res.success) {
+                                                    alert('✅ SUCESSO: ' + res.message);
                                                     window.location.reload();
                                                 } else {
-                                                    alert('❌ ERRO: ' + data.error);
+                                                    alert('❌ ERRO: ' + res.error);
                                                 }
                                             } catch (e: any) {
                                                 alert('❌ Falha na comunicação: ' + e.message);
                                             }
                                         }
+                                    } else if (confirm !== null) {
+                                        alert('Protocolo abortado. Confirmação incorreta.');
                                     }
                                 }}
                                 className="px-6 py-3 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl shadow-lg shadow-red-500/20 transition-all flex items-center gap-2"
