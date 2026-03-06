@@ -232,7 +232,7 @@ export const HomeClientView = ({
 
 
             {/* FILTROS (Restaurados) */}
-            <section className="z-40 bg-transparent py-4 -mx-4 px-4 border-b border-gray-100 dark:border-gray-800/50 mb-8 sticky top-16">
+            <section className="z-40 bg-transparent py-4 -mx-4 px-4 border-b border-gray-100 dark:border-gray-800/50 mb-8">
                 <div className="flex flex-col gap-6">
                     {/* Formato */}
                     <div className="flex items-center gap-4">

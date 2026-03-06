@@ -29,7 +29,7 @@ export function SobreClient({ initialTestimonials }: SobreClientProps) {
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-20">
 
                 {/* Card 1: Influenciadores */}
-                <div className="bg-white dark:bg-card-dark rounded-2xl p-8 shadow-sm border border-gray-100 dark:border-gray-800 flex flex-col h-full hover:shadow-lg transition-shadow">
+                <div className="glass-card rounded-2xl p-8 flex flex-col h-full hover:shadow-lg transition-shadow">
                     <div className="w-14 h-14 bg-brand-red/10 rounded-xl flex items-center justify-center mb-6">
                         <Megaphone className="w-8 h-8 text-brand-red" />
                     </div>
@@ -43,7 +43,7 @@ export function SobreClient({ initialTestimonials }: SobreClientProps) {
                 </div>
 
                 {/* Card 2: Arquivo Feito por Nós */}
-                <div className="bg-white dark:bg-card-dark rounded-2xl p-8 shadow-sm border border-gray-100 dark:border-gray-800 flex flex-col h-full hover:shadow-lg transition-shadow">
+                <div className="glass-card rounded-2xl p-8 flex flex-col h-full hover:shadow-lg transition-shadow">
                     <div className="w-14 h-14 rounded-xl flex items-center justify-center mb-6 overflow-hidden">
                         <Image src="/arquivo-logo.png" alt="Logo do Arquivo" width={56} height={56} className="object-contain" />
                     </div>
@@ -57,7 +57,7 @@ export function SobreClient({ initialTestimonials }: SobreClientProps) {
                 </div>
 
                 {/* Card 3: Envios da Comunidade */}
-                <div className="bg-white dark:bg-card-dark rounded-2xl p-8 shadow-sm border border-gray-100 dark:border-gray-800 flex flex-col h-full hover:shadow-lg transition-shadow">
+                <div className="glass-card rounded-2xl p-8 flex flex-col h-full hover:shadow-lg transition-shadow">
                     <div className="w-14 h-14 bg-brand-yellow/10 rounded-xl flex items-center justify-center mb-6">
                         <UserPlus className="w-8 h-8 text-brand-yellow" />
                     </div>
@@ -72,7 +72,7 @@ export function SobreClient({ initialTestimonials }: SobreClientProps) {
 
             </div>
             {/* O Fluxo Section */}
-            <div className="bg-white dark:bg-card-dark rounded-[40px] p-8 md:p-12 shadow-xl border border-gray-100 dark:border-gray-800 relative overflow-hidden mb-20 group">
+            <div className="glass-card rounded-[40px] p-8 md:p-12 shadow-xl relative overflow-hidden mb-20 group">
                 <div className="absolute top-0 right-0 w-96 h-96 bg-brand-blue/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 group-hover:bg-brand-blue/10 transition-colors"></div>
                 <div className="relative z-10 flex flex-col md:flex-row items-center gap-10">
                     <div className="flex-1">
@@ -108,7 +108,7 @@ export function SobreClient({ initialTestimonials }: SobreClientProps) {
             </div>
 
             {/* Project Overview Card (Premium) */}
-            <div className="bg-white dark:bg-card-dark rounded-[40px] p-8 md:p-16 shadow-2xl shadow-brand-blue/5 border border-gray-100 dark:border-gray-800 relative overflow-hidden mb-20">
+            <div className="glass-card rounded-[40px] p-8 md:p-16 shadow-2xl shadow-brand-blue/5 relative overflow-hidden mb-20">
                 <div className="absolute top-0 right-0 w-64 h-64 bg-brand-blue/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
 
                 <div className="relative z-10 flex flex-col lg:flex-row gap-16">
@@ -182,7 +182,7 @@ export function SobreClient({ initialTestimonials }: SobreClientProps) {
                     <div className="h-px bg-gradient-to-r from-brand-blue/20 via-brand-red/20 to-transparent w-full mb-8"></div>
                 </div>
 
-                <div className="bg-white/5 dark:bg-card-dark rounded-3xl p-10 border border-gray-100 dark:border-gray-800 hover:border-brand-blue/20 transition-all group h-full flex flex-col shadow-sm hover:shadow-lg">
+                <div className="glass-card rounded-3xl p-10 hover:border-brand-blue/20 transition-all group h-full flex flex-col hover:shadow-lg">
                     <div className="size-12 rounded-2xl bg-brand-blue/10 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                         <Star className="text-brand-blue w-6 h-6" />
                     </div>
@@ -195,7 +195,7 @@ export function SobreClient({ initialTestimonials }: SobreClientProps) {
                     </Link>
                 </div>
 
-                <div className="bg-white/5 dark:bg-card-dark rounded-3xl p-10 border border-gray-100 dark:border-gray-800 hover:border-brand-red/20 transition-all group h-full flex flex-col shadow-sm hover:shadow-lg">
+                <div className="glass-card rounded-3xl p-10 hover:border-brand-red/20 transition-all group h-full flex flex-col hover:shadow-lg">
                     <div className="size-12 rounded-2xl bg-brand-red/10 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                         <ExternalLink className="text-brand-red w-6 h-6" />
                     </div>
@@ -208,7 +208,7 @@ export function SobreClient({ initialTestimonials }: SobreClientProps) {
                     </Link>
                 </div>
 
-                <div className="bg-white/5 dark:bg-card-dark rounded-3xl p-10 border border-gray-100 dark:border-gray-800 hover:border-brand-yellow/20 transition-all group h-full flex flex-col shadow-sm hover:shadow-lg">
+                <div className="glass-card rounded-3xl p-10 hover:border-brand-yellow/20 transition-all group h-full flex flex-col hover:shadow-lg">
                     <div className="size-12 rounded-2xl bg-brand-yellow/10 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                         <Megaphone className="text-brand-yellow w-6 h-6" />
                     </div>
@@ -225,7 +225,7 @@ export function SobreClient({ initialTestimonials }: SobreClientProps) {
             {/* Dynamic Impacto e Conquistas Section */}
             <div className="space-y-12">
                 <div
-                    className="bg-white dark:bg-card-dark rounded-[40px] p-8 md:p-12 shadow-xl border border-gray-100 dark:border-gray-800 relative overflow-hidden"
+                    className="glass-card rounded-[40px] p-8 md:p-12 shadow-xl relative overflow-hidden"
                 >
                     {/* Decorative background icon */}
                     <div className="absolute top-0 right-0 p-8 opacity-5">

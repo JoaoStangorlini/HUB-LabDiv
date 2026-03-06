@@ -226,7 +226,7 @@ export default function AdminDashboardOverview() {
                 <>
                     {/* ─── Submission Status Row ─── */}
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <Link href="/admin/pendentes" className="relative group bg-white/5 dark:bg-card-dark/5 backdrop-blur-md rounded-3xl p-6 border border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-xl hover:border-brand-yellow/30 transition-all overflow-hidden cursor-pointer">
+                        <Link href="/admin/pendentes" className="relative group bg-white/40 dark:bg-card-dark/5 backdrop-blur-md rounded-3xl p-6 border border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-xl hover:border-brand-yellow/30 transition-all overflow-hidden cursor-pointer">
                             <div className="absolute top-0 right-0 w-32 h-32 bg-brand-yellow/5 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2 group-hover:bg-brand-yellow/10 transition-colors"></div>
                             <div className="relative z-10 flex flex-col gap-4">
                                 <div className="flex items-center justify-between">
@@ -242,7 +242,7 @@ export default function AdminDashboardOverview() {
                             </div>
                         </Link>
 
-                        <div className="relative group bg-white/5 dark:bg-card-dark/5 backdrop-blur-md rounded-3xl p-6 border border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-xl hover:border-[#0055ff]/30 transition-all overflow-hidden">
+                        <div className="relative group bg-white/40 dark:bg-card-dark/5 backdrop-blur-md rounded-3xl p-6 border border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-xl hover:border-[#0055ff]/30 transition-all overflow-hidden">
                             <div className="absolute top-0 right-0 w-32 h-32 bg-[#0055ff]/5 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2 group-hover:bg-[#0055ff]/10 transition-colors"></div>
                             <div className="relative z-10 flex flex-col gap-4">
                                 <div className="flex items-center justify-between">
@@ -258,7 +258,7 @@ export default function AdminDashboardOverview() {
                             </div>
                         </div>
 
-                        <div className="relative group bg-white/5 dark:bg-card-dark/5 backdrop-blur-md rounded-3xl p-6 border border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-xl hover:border-brand-red/30 transition-all overflow-hidden">
+                        <div className="relative group bg-white/40 dark:bg-card-dark/5 backdrop-blur-md rounded-3xl p-6 border border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-xl hover:border-brand-red/30 transition-all overflow-hidden">
                             <div className="absolute top-0 right-0 w-32 h-32 bg-brand-red/5 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2 group-hover:bg-brand-red/10 transition-colors"></div>
                             <div className="relative z-10 flex flex-col gap-4">
                                 <div className="flex items-center justify-between">
@@ -288,7 +288,7 @@ export default function AdminDashboardOverview() {
                                     <Link
                                         key={card.title}
                                         href={card.href}
-                                        className={`relative group bg-white/5 dark:bg-card-dark/5 backdrop-blur-md rounded-3xl p-6 border border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-xl ${colors.border} transition-all overflow-hidden cursor-pointer`}
+                                        className={`relative group bg-white/40 dark:bg-card-dark/5 backdrop-blur-md rounded-3xl p-6 border border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-xl ${colors.border} transition-all overflow-hidden cursor-pointer`}
                                     >
                                         <div className={`absolute top-0 right-0 w-32 h-32 ${colors.glow} rounded-full blur-2xl -translate-y-1/2 translate-x-1/2 group-hover:opacity-100 opacity-50 transition-opacity`}></div>
                                         <div className="relative z-10 flex flex-col gap-4">
@@ -321,7 +321,7 @@ export default function AdminDashboardOverview() {
                             Pergunte a um Cientista
                         </h2>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <Link href="/admin/perguntas" className="relative group bg-white/5 dark:bg-card-dark/5 backdrop-blur-md rounded-3xl p-6 border border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-xl hover:border-brand-red/30 transition-all overflow-hidden cursor-pointer">
+                            <Link href="/admin/perguntas" className="relative group bg-white/40 dark:bg-card-dark/5 backdrop-blur-md rounded-3xl p-6 border border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-xl hover:border-brand-red/30 transition-all overflow-hidden cursor-pointer">
                                 <div className="relative z-10 flex flex-col gap-4">
                                     <div className="flex items-center justify-between">
                                         <span className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Aguardando Resposta</span>
@@ -338,7 +338,7 @@ export default function AdminDashboardOverview() {
                                 </div>
                             </Link>
 
-                            <div className="relative group bg-white/5 dark:bg-card-dark/5 backdrop-blur-md rounded-3xl p-6 border border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-xl hover:border-[#0055ff]/30 transition-all overflow-hidden">
+                            <div className="relative group bg-white/40 dark:bg-card-dark/5 backdrop-blur-md rounded-3xl p-6 border border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-xl hover:border-[#0055ff]/30 transition-all overflow-hidden">
                                 <div className="relative z-10 flex flex-col gap-4">
                                     <div className="flex items-center justify-between">
                                         <span className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Respondidas</span>
@@ -362,22 +362,22 @@ export default function AdminDashboardOverview() {
                             Engajamento da Comunidade
                         </h2>
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                            <div className="bg-white dark:bg-card-dark rounded-3xl p-6 border border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-md transition-all">
+                            <div className="bg-white/40 dark:bg-card-dark/5 backdrop-blur-md rounded-3xl p-6 border border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-md transition-all">
                                 <span className="text-[10px] font-black uppercase text-gray-400 tracking-wider">Total Autores</span>
                                 <div className="text-3xl font-black text-gray-900 dark:text-white mt-1">{counts.totalAutores}</div>
                                 <div className="text-[10px] font-bold text-[#0055ff] mt-1">PESQUISADORES ATIVOS</div>
                             </div>
-                            <div className="bg-white dark:bg-card-dark rounded-3xl p-6 border border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-md transition-all">
+                            <div className="bg-white/40 dark:bg-card-dark/5 backdrop-blur-md rounded-3xl p-6 border border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-md transition-all">
                                 <span className="text-[10px] font-black uppercase text-gray-400 tracking-wider">Frequentes (3+)</span>
                                 <div className="text-3xl font-black text-gray-900 dark:text-white mt-1">{counts.autoresFrequentes}</div>
                                 <div className="text-[10px] font-bold text-brand-yellow mt-1">RUMO À MAESTRIA</div>
                             </div>
-                            <div className="bg-white dark:bg-card-dark rounded-3xl p-6 border border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-md transition-all">
+                            <div className="bg-white/40 dark:bg-card-dark/5 backdrop-blur-md rounded-3xl p-6 border border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-md transition-all">
                                 <span className="text-[10px] font-black uppercase text-gray-400 tracking-wider">Mestres (10+)</span>
                                 <div className="text-3xl font-black text-gray-900 dark:text-white mt-1">{counts.autoresMestres}</div>
                                 <div className="text-[10px] font-bold text-brand-red mt-1">LÍDERES DE DIVULGAÇÃO</div>
                             </div>
-                            <div className="bg-white dark:bg-card-dark rounded-3xl p-6 border border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-md transition-all">
+                            <div className="bg-white/40 dark:bg-card-dark/5 backdrop-blur-md rounded-3xl p-6 border border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-md transition-all">
                                 <span className="text-[10px] font-black uppercase text-gray-400 tracking-wider">Oportunidades</span>
                                 <div className="text-3xl font-black text-gray-900 dark:text-white mt-1">{counts.oportunidadesTotal}</div>
                                 <div className="text-[10px] font-bold text-[#0055ff] mt-1">MURAL ATIVO</div>

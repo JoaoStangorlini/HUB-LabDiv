@@ -6,16 +6,26 @@ export async function GET(request: NextRequest) {
     const code = searchParams.get('code');
     const next = searchParams.get('next') ?? '/';
 
-    // Robust Origin Detection: Prevents internal server IPs (0.0.0.0) from leaking in hosted envs
+    // Improved Origin Detection for Local/Prod
     const getPublicOrigin = () => {
-        const host = request.headers.get('x-forwarded-host') || request.nextUrl.host;
-        const proto = request.headers.get('x-forwarded-proto') || 'https';
-        // If it's local development on a specific port, this handles it via request.nextUrl.origin fallback
-        // but prioritized x-forwarded headers for production accuracy.
-        if (host.includes('localhost') || host.includes('0.0.0.0') || host.includes('127.0.0.1')) {
-            return request.nextUrl.origin;
+        const host = request.headers.get('host');
+        const xForwardedHost = request.headers.get('x-forwarded-host');
+        const xForwardedProto = request.headers.get('x-forwarded-proto') || 'https';
+
+        console.log(`[Auth Callback] Detection - Host: ${host}, ForwardedHost: ${xForwardedHost}, Proto: ${xForwardedProto}`);
+
+        // 1. Prioritize localhost for local development
+        if (host?.includes('localhost')) {
+            return `http://${host}`;
         }
-        return `${proto}://${host}`;
+
+        // 2. Use forwarded headers for production (SSL offloading)
+        if (xForwardedHost && !xForwardedHost.includes('localhost')) {
+            return `${xForwardedProto}://${xForwardedHost}`;
+        }
+
+        // 3. Fallback to request origin
+        return request.nextUrl.origin;
     };
 
     const publicOrigin = getPublicOrigin();

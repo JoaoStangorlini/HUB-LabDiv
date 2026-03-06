@@ -1,3 +1,5 @@
+'use client';
+
 import Link from 'next/link';
 import { AppRoutes } from '@/types/navigation';
 
@@ -50,7 +52,17 @@ export function Footer() {
                                 <span className="material-symbols-outlined text-sm mt-0.5 text-brand-blue">person</span>
                                 <div>
                                     <p className="font-medium text-gray-900 dark:text-gray-200">João Paulo</p>
-                                    <a href="mailto:joaopaulostangorlini@usp.br" className="hover:text-brand-blue transition-colors">joaopaulostangorlini@usp.br</a>
+                                    <button
+                                        onClick={() => {
+                                            const email = "joaopaulostangorlini@usp.br";
+                                            navigator.clipboard.writeText(email);
+                                            import('react-hot-toast').then(m => m.toast.success('E-mail copiado!'));
+                                            window.location.href = `mailto:${email}`;
+                                        }}
+                                        className="hover:text-brand-blue transition-colors text-left"
+                                    >
+                                        joaopaulostangorlini@usp.br
+                                    </button>
                                 </div>
                             </li>
                             <li className="flex items-start gap-3 text-sm text-gray-600 dark:text-gray-400">
@@ -69,7 +81,17 @@ export function Footer() {
                         <ul className="space-y-4">
                             <li className="flex items-start gap-3 text-sm text-gray-600 dark:text-gray-400">
                                 <span className="material-symbols-outlined text-sm mt-0.5 text-brand-red">email</span>
-                                <a href="mailto:joaopaulostangorlini@usp.br" className="hover:text-brand-red transition-colors">joaopaulostangorlini@usp.br</a>
+                                <button
+                                    onClick={() => {
+                                        const email = "joaopaulostangorlini@usp.br";
+                                        navigator.clipboard.writeText(email);
+                                        import('react-hot-toast').then(m => m.toast.success('E-mail copiado!'));
+                                        window.location.href = `mailto:${email}`;
+                                    }}
+                                    className="hover:text-brand-red transition-colors text-left"
+                                >
+                                    joaopaulostangorlini@usp.br
+                                </button>
                             </li>
                             <li className="flex items-start gap-3 text-sm text-gray-600 dark:text-gray-400">
                                 <span className="material-symbols-outlined text-sm mt-0.5 text-brand-red">language</span>

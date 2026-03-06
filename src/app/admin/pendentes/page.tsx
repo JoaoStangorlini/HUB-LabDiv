@@ -94,7 +94,7 @@ function CarouselSection({
             </div>
 
             {items.length === 0 ? (
-                <div className="text-center py-8 bg-white/5 dark:bg-card-dark/5 backdrop-blur-md rounded-2xl border border-gray-100 dark:border-gray-800">
+                <div className="text-center py-8 bg-white/40 dark:bg-card-dark/5 backdrop-blur-md rounded-2xl border border-gray-100 dark:border-gray-800">
                     <Inbox className="w-8 h-8 text-gray-300 dark:text-gray-600 mx-auto" />
                     <p className="text-gray-500 text-sm mt-2">{emptyMessage}</p>
                 </div>
@@ -334,7 +334,7 @@ export default function AdminSubmissionsPage() {
                         placeholder="Buscar por título ou autor..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-full pl-12 pr-4 py-3 bg-white/5 dark:bg-card-dark/5 backdrop-blur-md border border-gray-200 dark:border-gray-800 rounded-2xl outline-none focus:ring-2 focus:ring-brand-blue/20 focus:border-brand-blue transition-all text-sm shadow-sm"
+                        className="w-full pl-12 pr-4 py-3 bg-white/40 dark:bg-card-dark/5 backdrop-blur-md border border-gray-100 dark:border-gray-800 rounded-2xl outline-none focus:ring-2 focus:ring-brand-blue/20 focus:border-brand-blue transition-all text-sm shadow-sm text-gray-900 dark:text-white"
                     />
                     {isLoading && (
                         <div className="absolute right-4 top-1/2 -translate-y-1/2">
@@ -345,7 +345,7 @@ export default function AdminSubmissionsPage() {
             </div>
 
             {isLoading ? (
-                <div className="w-full flex flex-col items-center justify-center py-32 bg-white/5 dark:bg-card-dark/5 backdrop-blur-md rounded-2xl border border-gray-100 dark:border-gray-800 animate-pulse">
+                <div className="w-full flex flex-col items-center justify-center py-32 bg-white/40 dark:bg-card-dark/5 backdrop-blur-md rounded-2xl border border-gray-100 dark:border-gray-800 animate-pulse">
                     <Loader2 className="w-10 h-10 text-brand-red animate-spin mb-6" />
                     <p className="text-gray-500 font-bold uppercase tracking-widest text-xs">Sincronizando Torre de Controle...</p>
                 </div>
@@ -353,7 +353,7 @@ export default function AdminSubmissionsPage() {
                 <>
                     <Link
                         href="/admin/acervo"
-                        className="flex items-center gap-4 p-5 bg-white/5 dark:bg-card-dark/5 backdrop-blur-md rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-xl hover:border-brand-blue/40 transition-all group cursor-pointer"
+                        className="flex items-center gap-4 p-5 bg-white/40 dark:bg-card-dark/5 backdrop-blur-md rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-xl hover:border-brand-blue/40 transition-all group cursor-pointer"
                     >
                         <div className="w-14 h-14 flex items-center justify-center rounded-2xl bg-brand-blue/10 text-brand-blue group-hover:bg-brand-blue group-hover:text-white transition-all">
                             <Bookmark className="w-8 h-8" />

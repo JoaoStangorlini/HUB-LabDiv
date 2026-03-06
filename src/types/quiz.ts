@@ -9,6 +9,7 @@ export interface QuizQuestion {
     options: QuizOption[];
     explanation?: string;
     points: number;
+    category?: string;
 }
 
 export interface QuizAttempt {

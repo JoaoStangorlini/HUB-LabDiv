@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import {
@@ -10,21 +10,19 @@ import {
     Coins,
     Telescope,
     Brain,
-    Search,
     ChevronRight,
     AlertCircle,
-    Info,
     ArrowLeft,
-    BookOpen,
     HeartHandshake,
     Network,
     Microscope,
-    Compass
+    Compass,
+    Landmark
 } from 'lucide-react';
 import { MainLayoutWrapper } from '@/components/layout/MainLayoutWrapper';
 
 // --- DATA STRUCTURE (O Síncrotron) ---
-const wikiCells = [
+export const wikiCells = [
     // --- Blue Group (Produção e Comunicação) ---
     {
         id: 'guia-de-boas-praticas',
@@ -176,6 +174,23 @@ const wikiCells = [
     }
 ];
 
+export const institutoCell = {
+    id: 'instituto',
+    title: 'O Instituto de Física',
+    subtitle: 'Estrutura, História e Espaços.',
+    icon: <Landmark className="w-8 h-8" />,
+    color: '#17739A',
+    href: '/wiki/instituto',
+    description: 'Mergulhe na história do IFUSP e entenda como um dos institutos de física mais respeitados do mundo é organizado atualmente.',
+    details: [
+        'Organização: Diretoria, Conselhos e Comissões',
+        'História: Legado e Pioneirismo na Ciência',
+        'Departamentos e Centros de Pesquisa'
+    ],
+    keywords: ['ifusp', 'instituto', 'física', 'departamento', 'auditório', 'história', 'alimentação', 'convivência', 'mapa'],
+    cta: 'Aprender sobre o IF'
+};
+
 const quizCell = {
     id: 'quiz',
     title: 'Teste de Radiação',
@@ -204,28 +219,17 @@ const slugToPageId: Record<string, string> = {
     'extensao': 'extensao',
     'pesquisa': 'pesquisa',
     'carreira': 'carreira',
+    'instituto': 'instituto',
     'quiz': 'quiz'
 };
 
 export default function WikiPage() {
-    const [searchQuery, setSearchQuery] = useState('');
 
     // --- Search Logic (Keyword Optimized) ---
-    const filteredCells = useMemo(() => {
-        const query = searchQuery.toLowerCase().trim();
-        if (!query) return wikiCells;
-
-        return wikiCells.filter(cell =>
-            cell.title.toLowerCase().includes(query) ||
-            cell.subtitle.toLowerCase().includes(query) ||
-            cell.description.toLowerCase().includes(query) ||
-            cell.keywords.some(k => k.includes(query))
-        );
-    }, [searchQuery]);
 
     return (
         <MainLayoutWrapper>
-            <div className="min-h-screen bg-transparent pt-12 pb-12 px-4 overflow-x-hidden">
+            <div className="min-h-screen bg-transparent pb-12 px-4 overflow-x-hidden">
                 <div className="max-w-6xl mx-auto">
 
                     {/* --- Elite Header --- */}
@@ -247,12 +251,7 @@ export default function WikiPage() {
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ duration: 0.6 }}
                             >
-                                <div className="flex items-center gap-4 mb-4">
-                                    <div className="size-14 bg-brand-blue rounded-3xl flex items-center justify-center text-white shadow-2xl shadow-brand-blue/20 ring-1 ring-white/10">
-                                        <BookOpen className="w-8 h-8" />
-                                    </div>
-                                    <span className="text-xs font-black uppercase tracking-[0.3em] text-brand-blue">Biblioteca Central</span>
-                                </div>
+
                                 <h1 className="text-5xl md:text-7xl font-black tracking-tighter uppercase italic leading-[0.8] mb-4 text-gray-900 dark:text-white">
                                     WIKI <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-red via-brand-blue to-brand-yellow">HUB</span>
                                 </h1>
@@ -274,31 +273,13 @@ export default function WikiPage() {
                             </motion.div>
                         </div>
 
-                        {/* --- Search Engine --- */}
-                        <motion.div
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.3 }}
-                            className="relative group max-w-2xl"
-                        >
-                            <div className="absolute -inset-1 bg-gradient-to-r from-brand-red/20 via-brand-blue/20 to-brand-yellow/20 rounded-[24px] blur-xl opacity-0 group-focus-within:opacity-100 transition-opacity"></div>
-                            <div className="relative">
-                                <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-6 h-6 text-gray-500 group-focus-within:text-brand-blue transition-colors" />
-                                <input
-                                    type="text"
-                                    placeholder="Acesse o conhecimento... (ex: 'Bandejão', 'Plágio', 'Física Médica')"
-                                    value={searchQuery}
-                                    onChange={(e) => setSearchQuery(e.target.value)}
-                                    className="w-full h-16 bg-white dark:bg-[#1E1E1E] border border-gray-200 dark:border-white/5 focus:border-brand-blue/50 rounded-[22px] pl-16 pr-6 text-lg font-medium text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-600 outline-none transition-all shadow-2xl"
-                                />
-                            </div>
-                        </motion.div>
+
                     </div>
 
                     {/* --- Wiki Matrix (Grid de Elite 3x3) --- */}
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
                         <AnimatePresence mode="popLayout">
-                            {filteredCells.map((cell: any, idx) => (
+                            {wikiCells.map((cell: any, idx) => (
                                 <motion.div
                                     key={cell.id}
                                     layout
@@ -309,7 +290,7 @@ export default function WikiPage() {
                                 >
                                     <Link
                                         href={cell.href}
-                                        className={`relative block h-full group bg-white dark:bg-card-dark border border-gray-200 dark:border-white/5 rounded-[40px] p-8 hover:border-${cell.color}/30 transition-all shadow-2xl overflow-hidden ${cell.glow ? 'ring-1 ring-emerald-500/20 shadow-[0_0_30px_rgba(16,185,129,0.05)]' : ''}`}
+                                        className={`relative block h-full group glass-card rounded-[40px] p-8 hover:border-${cell.color}/30 transition-all shadow-2xl overflow-hidden ${cell.glow ? 'ring-1 ring-emerald-500/20 shadow-[0_0_30px_rgba(16,185,129,0.05)]' : ''}`}
                                     >
                                         {/* Background Glow */}
                                         <div className={`absolute -right-20 -top-20 size-64 bg-${cell.color}/5 blur-[100px] group-hover:bg-${cell.color}/10 transition-colors`}></div>
@@ -371,69 +352,89 @@ export default function WikiPage() {
                         </AnimatePresence>
                     </div>
 
+                    {/* --- Horizontal Instituto Banner --- */}
+                    <motion.div
+                        initial={{ opacity: 0, y: 40 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.8, delay: 0.5 }}
+                        className="relative group w-full mb-8"
+                    >
+                        <div className="absolute -inset-0.5 bg-[#17739A]/30 rounded-[32px] blur opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+
+                        <Link
+                            href={institutoCell.href}
+                            className="relative flex flex-col md:flex-row items-center justify-between w-full p-8 md:p-12 rounded-[32px] bg-gradient-to-r from-[#17739A]/20 to-brand-blue/10 backdrop-blur-2xl border border-white/5 hover:border-[#17739A]/40 transition-all overflow-hidden"
+                        >
+                            <div className="absolute top-0 right-0 w-64 h-64 bg-[#17739A]/5 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/4"></div>
+
+                            <div className="flex flex-col md:flex-row items-center gap-8 relative z-10">
+                                <div className="size-20 bg-[#17739A]/10 text-[#17739A] rounded-[28px] flex items-center justify-center ring-1 ring-[#17739A]/20 group-hover:scale-110 transition-all duration-700 shadow-2xl shadow-[#17739A]/20">
+                                    {institutoCell.icon}
+                                </div>
+                                <div className="text-center md:text-left">
+                                    <div className="flex items-center justify-center md:justify-start gap-4 mb-2">
+                                        <h3 className="text-3xl md:text-4xl font-black text-gray-900 dark:text-white italic uppercase tracking-tighter">
+                                            {institutoCell.title}
+                                        </h3>
+                                        <span className="hidden md:block px-3 py-1 bg-[#17739A]/20 border border-[#17739A]/30 text-[#17739A] text-[10px] font-black uppercase rounded-full italic">Institucional</span>
+                                    </div>
+                                    <p className="text-gray-400 font-medium max-w-md">
+                                        {institutoCell.description}
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div className="mt-8 md:mt-0 relative z-10">
+                                <div className="px-12 py-5 bg-[#17739A] text-white font-black rounded-[24px] group-hover:scale-105 active:scale-95 transition-all text-sm uppercase tracking-widest flex items-center gap-4 shadow-2xl shadow-[#17739A]/30">
+                                    {institutoCell.cta} <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                                </div>
+                            </div>
+                        </Link>
+                    </motion.div>
+
                     {/* --- Horizontal Quiz Banner (V4.1) --- */}
-                    {!searchQuery && (
-                        <motion.div
-                            initial={{ opacity: 0, y: 40 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.8, delay: 0.6 }}
-                            className="relative group w-full mb-4"
+                    <motion.div
+                        initial={{ opacity: 0, y: 40 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.8, delay: 0.6 }}
+                        className="relative group w-full mb-4"
+                    >
+                        {/* Pulsing Border Effect */}
+                        <div className="absolute -inset-0.5 bg-brand-blue/30 rounded-[32px] blur opacity-0 group-hover:opacity-100 animate-pulse transition-opacity duration-500"></div>
+
+                        <Link
+                            href={quizCell.href}
+                            className="relative flex flex-col md:flex-row items-center justify-between w-full p-8 md:p-12 rounded-[32px] bg-gradient-to-r from-blue-900/20 to-purple-900/20 backdrop-blur-2xl border border-white/5 hover:border-brand-blue/40 transition-all overflow-hidden"
                         >
-                            {/* Pulsing Border Effect */}
-                            <div className="absolute -inset-0.5 bg-brand-blue/30 rounded-[32px] blur opacity-0 group-hover:opacity-100 animate-pulse transition-opacity duration-500"></div>
+                            {/* Decorative elements */}
+                            <div className="absolute top-0 right-0 w-64 h-64 bg-brand-blue/5 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/4"></div>
+                            <div className="absolute bottom-0 left-0 w-64 h-64 bg-purple-500/5 rounded-full blur-[100px] translate-y-1/2 -translate-x-1/4"></div>
 
-                            <Link
-                                href={quizCell.href}
-                                className="relative flex flex-col md:flex-row items-center justify-between w-full p-8 md:p-12 rounded-[32px] bg-gradient-to-r from-blue-900/20 to-purple-900/20 backdrop-blur-2xl border border-white/5 hover:border-brand-blue/40 transition-all overflow-hidden"
-                            >
-                                {/* Decorative elements */}
-                                <div className="absolute top-0 right-0 w-64 h-64 bg-brand-blue/5 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/4"></div>
-                                <div className="absolute bottom-0 left-0 w-64 h-64 bg-purple-500/5 rounded-full blur-[100px] translate-y-1/2 -translate-x-1/4"></div>
-
-                                <div className="flex flex-col md:flex-row items-center gap-8 relative z-10">
-                                    <div className="size-20 bg-brand-red/10 text-brand-red rounded-[28px] flex items-center justify-center ring-1 ring-brand-red/20 group-hover:scale-110 group-hover:rotate-12 transition-all duration-700 shadow-2xl shadow-brand-red/20">
-                                        {quizCell.icon}
-                                    </div>
-                                    <div className="text-center md:text-left">
-                                        <div className="flex items-center justify-center md:justify-start gap-4 mb-2">
-                                            <h3 className="text-3xl md:text-4xl font-black text-gray-900 dark:text-white italic uppercase tracking-tighter">
-                                                {quizCell.title}
-                                            </h3>
-                                            <span className="hidden md:block px-3 py-1 bg-brand-red/20 border border-brand-red/30 text-brand-red text-[10px] font-black uppercase rounded-full">Gamificação</span>
-                                        </div>
-                                        <p className="text-gray-400 font-medium max-w-md">
-                                            {quizCell.description} <span className="text-brand-blue font-bold">Exploda o contador Geiger.</span>
-                                        </p>
-                                    </div>
+                            <div className="flex flex-col md:flex-row items-center gap-8 relative z-10">
+                                <div className="size-20 bg-brand-red/10 text-brand-red rounded-[28px] flex items-center justify-center ring-1 ring-brand-red/20 group-hover:scale-110 group-hover:rotate-12 transition-all duration-700 shadow-2xl shadow-brand-red/20">
+                                    {quizCell.icon}
                                 </div>
-
-                                <div className="mt-8 md:mt-0 relative z-10">
-                                    <div className="px-12 py-5 bg-brand-blue text-white font-black rounded-[24px] group-hover:scale-105 active:scale-95 transition-all text-sm uppercase tracking-widest flex items-center gap-4 shadow-2xl shadow-brand-blue/30">
-                                        {quizCell.cta} <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                                <div className="text-center md:text-left">
+                                    <div className="flex items-center justify-center md:justify-start gap-4 mb-2">
+                                        <h3 className="text-3xl md:text-4xl font-black text-gray-900 dark:text-white italic uppercase tracking-tighter text-glow-red">
+                                            {quizCell.title}
+                                        </h3>
+                                        <span className="hidden md:block px-3 py-1 bg-brand-red/20 border border-brand-red/30 text-brand-red text-[10px] font-black uppercase rounded-full">Gamificação</span>
                                     </div>
+                                    <p className="text-gray-400 font-medium max-w-md">
+                                        {quizCell.description} <span className="text-brand-blue font-bold">Exploda o contador Geiger.</span>
+                                    </p>
                                 </div>
-                            </Link>
-                        </motion.div>
-                    )}
+                            </div>
 
-                    {/* --- No Results State --- */}
-                    {filteredCells.length === 0 && (
-                        <motion.div
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            className="text-center py-24 bg-white dark:bg-card-dark rounded-[40px] border border-dashed border-gray-200 dark:border-white/10"
-                        >
-                            <Info className="size-16 text-gray-400 dark:text-gray-700 mx-auto mb-6" />
-                            <h3 className="text-2xl font-black text-gray-900 dark:text-white mb-2 uppercase italic tracking-tighter">Colisão sem resultados</h3>
-                            <p className="text-gray-500 font-medium">Não encontramos conhecimento com esse padrão. Tente palavras-chave como 'bolsa' ou 'ifusp'.</p>
-                            <button
-                                onClick={() => setSearchQuery('')}
-                                className="mt-8 text-brand-blue font-black text-xs uppercase hover:underline"
-                            >
-                                Resetar Síncrotron
-                            </button>
-                        </motion.div>
-                    )}
+                            <div className="mt-8 md:mt-0 relative z-10">
+                                <div className="px-12 py-5 bg-brand-blue text-white font-black rounded-[24px] group-hover:scale-105 active:scale-95 transition-all text-sm uppercase tracking-widest flex items-center gap-4 shadow-2xl shadow-brand-blue/30">
+                                    {quizCell.cta} <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                                </div>
+                            </div>
+                        </Link>
+                    </motion.div>
+
 
                 </div>
             </div>

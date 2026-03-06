@@ -44,6 +44,22 @@ export interface Profile {
     created_at: string;
 }
 
+export interface Freshman {
+    id: string;
+    full_name?: string;
+    username?: string;
+    use_nickname?: boolean;
+    avatar_url?: string;
+    course?: string;
+    institute?: string;
+    entrance_year?: number;
+    bio?: string;
+    whatsapp?: string;
+    email?: string;
+    xp?: number;
+    level?: number;
+}
+
 export interface Submission {
     id: string;
     user_id?: string;

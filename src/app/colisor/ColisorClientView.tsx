@@ -134,7 +134,7 @@ export function ColisorClientView({ oportunidades }: ColisorClientViewProps) {
             </div>
 
             {/* --- SEÇÃO OPORTUNIDADES --- */}
-            <section className="mb-20">
+            <section id="oportunidades" className="mb-20">
                 <div className="mb-8 flex items-center gap-3">
                     <span className="material-symbols-outlined text-brand-red text-3xl">event_available</span>
                     <h2 className="text-2xl font-black uppercase italic tracking-tight">Oportunidades no IF</h2>
@@ -173,7 +173,7 @@ export function ColisorClientView({ oportunidades }: ColisorClientViewProps) {
             </section>
 
             {/* --- SEÇÃO PROJETOS & ESPAÇOS --- */}
-            <section>
+            <section id="iniciativas-espacos">
                 <div className="mb-8 flex items-center gap-3">
                     <span className="material-symbols-outlined text-brand-yellow text-3xl">hub</span>
                     <h2 className="text-2xl font-black uppercase italic tracking-tight">Iniciativas & Espaços</h2>

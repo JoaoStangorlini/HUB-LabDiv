@@ -18,6 +18,8 @@ function LoginContent() {
             const next = searchParams.get('next') || '/';
             const redirectTo = `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}&track=${track}`;
 
+            console.log(`[Auth Login] Generated RedirectTo: ${redirectTo}`);
+
             const options: any = {
                 redirectTo,
                 queryParams: {

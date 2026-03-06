@@ -59,15 +59,18 @@ export const DataCard = ({ label, value, icon, color = 'brand-blue' }: { label: 
     </div>
 );
 
-export const ActionButton = ({ label, icon, href, variant = 'primary' }: { label: string, icon: React.ReactNode, href: string, variant?: 'primary' | 'secondary' }) => {
+export const ActionButton = ({ label, icon, href, variant = 'primary', color = 'brand-blue' }: { label: string, icon: React.ReactNode, href: string, variant?: 'primary' | 'secondary', color?: string }) => {
     const isExternal = href.startsWith('http');
+    const colorClass = color.startsWith('#') ? `bg-[${color}]` : `bg-${color}`;
+    const shadowClass = color.startsWith('#') ? `shadow-[${color}]/20` : `shadow-${color}/20`;
+
     return (
         <Link
             href={href}
             target={isExternal ? "_blank" : undefined}
             rel={isExternal ? "noopener noreferrer" : undefined}
             className={`flex items-center justify-center gap-3 px-8 py-4 rounded-[24px] font-black text-xs uppercase tracking-wider transition-all active:scale-95 ${variant === 'primary'
-                ? 'bg-brand-blue text-white shadow-xl shadow-brand-blue/20 hover:scale-105'
+                ? `${colorClass} text-white shadow-xl ${shadowClass} hover:scale-105`
                 : 'bg-white/5 text-gray-300 border border-white/10 hover:bg-white/10'
                 }`}
         >
@@ -77,10 +80,10 @@ export const ActionButton = ({ label, icon, href, variant = 'primary' }: { label
     );
 };
 
-export const ContentSection = ({ title, children }: { title: string, children: React.ReactNode }) => (
+export const ContentSection = ({ title, children, color = 'brand-blue' }: { title: string, children: React.ReactNode, color?: string }) => (
     <section className="mb-16">
         <h2 className="text-3xl font-black text-white italic uppercase tracking-tighter mb-8 flex items-center gap-4">
-            <div className="h-8 w-1.5 bg-brand-blue rounded-full" />
+            <div className={`h-8 w-1.5 ${color.startsWith('#') ? `bg-[${color}]` : `bg-${color}`} rounded-full`} />
             {title}
         </h2>
         <div className="space-y-6">

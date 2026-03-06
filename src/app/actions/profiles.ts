@@ -2,7 +2,7 @@
 
 import { createServerSupabase } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
-import { Profile } from '@/types';
+import { Profile, Freshman } from '@/types';
 
 export async function updateProfile(updates: Partial<Profile>) {
     const supabase = await createServerSupabase();
@@ -54,13 +54,30 @@ export async function updateProfile(updates: Partial<Profile>) {
 
 export async function approveProfile(profileId: string) {
     const supabase = await createServerSupabase();
-    const { data: { user: adminUser } } = await supabase.auth.getUser();
+    const { data: { user: adminUser }, error: authError } = await supabase.auth.getUser();
 
-    if (!adminUser) return { error: 'Não autorizado' };
+    if (authError) {
+        console.error('Auth check error:', authError);
+        return { error: `Erro de autenticação: ${authError.message}` };
+    }
+
+    if (!adminUser) {
+        console.warn('No user found in session for approveProfile');
+        return { error: 'Não autorizado: Sessão não encontrada' };
+    }
 
     // Admin check
-    const { data: adminProfile } = await supabase.from('profiles').select('role').eq('id', adminUser.id).single();
-    if (adminProfile?.role !== 'admin') return { error: 'Acesso negado' };
+    const { data: adminProfile, error: profileError } = await supabase.from('profiles').select('role').eq('id', adminUser.id).single();
+
+    if (profileError) {
+        console.error('Error fetching admin profile:', profileError);
+        return { error: `Erro ao verificar permissões: ${profileError.message}` };
+    }
+
+    if (adminProfile?.role !== 'admin') {
+        console.warn(`User ${adminUser.id} attempted admin action with role: ${adminProfile?.role}`);
+        return { error: `Acesso negado: Perfil ${adminProfile?.role} não tem permissão de admin` };
+    }
 
     const { data: profile } = await supabase
         .from('profiles')
@@ -168,4 +185,146 @@ export async function getEnrollmentProofUrl(path: string) {
     }
 
     return { success: true, url: data.signedUrl };
+}
+
+export async function fetchFreshmenForAdoption() {
+    const supabase = await createServerSupabase();
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (!user) return { error: 'Não autorizado' };
+
+    // Get IDs of freshmen who already have a pending or approved adoption
+    const { data: activeAdoptions } = await supabase
+        .from('adoptions')
+        .select('freshman_id')
+        .in('status', ['pending', 'approved']);
+
+    const excludedIds = activeAdoptions?.map(a => a.freshman_id) || [];
+
+    let query = supabase
+        .from('profiles')
+        .select('id, full_name, username, use_nickname, avatar_url, course, institute, entrance_year, bio, whatsapp, email')
+        .eq('seeking_mentor', true)
+        .eq('review_status', 'approved');
+
+    if (excludedIds.length > 0) {
+        query = query.not('id', 'in', `(${excludedIds.join(',')})`);
+    }
+
+    const { data, error } = await query.order('created_at', { ascending: false });
+
+    if (error) {
+        console.error('Error fetching freshmen:', error);
+        return { error: 'Erro ao buscar bixos interessados' };
+    }
+
+    return { success: true, data };
+}
+
+export async function fetchMyAdoptedFreshmen() {
+    const supabase = await createServerSupabase();
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (!user) return { error: 'Não autorizado' };
+
+    const { data: adoptions, error } = await supabase
+        .from('adoptions')
+        .select(`
+            freshman:profiles!freshman_id(id, full_name, username, use_nickname, avatar_url, course, institute, entrance_year, bio, whatsapp, email)
+        `)
+        .eq('mentor_id', user.id)
+        .eq('status', 'approved');
+
+    if (error) {
+        console.error('Error fetching my adopted freshmen:', error);
+        return { error: 'Erro ao buscar seus bixos adotados' };
+    }
+
+    // Supabase can return the joined profile as an object or an array of one element
+    const flattened = (adoptions || []).map((a: any) =>
+        Array.isArray(a.freshman) ? a.freshman[0] : a.freshman
+    ).filter(Boolean);
+
+    return { success: true, data: flattened as Freshman[] };
+}
+
+export async function requestAdoption(freshmanId: string) {
+    const supabase = await createServerSupabase();
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (!user) return { error: 'Não autorizado' };
+
+    const { data, error } = await supabase
+        .from('adoptions')
+        .insert({
+            mentor_id: user.id,
+            freshman_id: freshmanId,
+            status: 'pending'
+        })
+        .select()
+        .single();
+
+    if (error) {
+        if (error.code === '23505') return { error: 'Você já solicitou a adoção deste bixo' };
+        console.error('Error requesting adoption:', error);
+        return { error: 'Erro ao solicitar adoção' };
+    }
+
+    return { success: true, data };
+}
+
+export async function fetchAdoptions() {
+    const supabase = await createServerSupabase();
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (!user) return { error: 'Não autorizado' };
+
+    // Admin check
+    const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single();
+
+    let query = supabase
+        .from('adoptions')
+        .select(`
+            *,
+            mentor:profiles!mentor_id(*),
+            freshman:profiles!freshman_id(*)
+        `);
+
+    if (profile?.role !== 'admin') {
+        // Users see only their relevant adoptions
+        query = query.or(`mentor_id.eq.${user.id},freshman_id.eq.${user.id}`);
+    }
+
+    const { data, error } = await query.order('created_at', { ascending: false });
+
+    if (error) {
+        console.error('Error fetching adoptions:', error);
+        return { error: 'Erro ao buscar adoções' };
+    }
+
+    return { success: true, data };
+}
+
+export async function updateAdoptionStatus(adoptionId: string, status: 'approved' | 'rejected') {
+    const supabase = await createServerSupabase();
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (!user) return { error: 'Não autorizado' };
+
+    // Admin check
+    const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single();
+    if (profile?.role !== 'admin') return { error: 'Acesso negado' };
+
+    const { error } = await supabase
+        .from('adoptions')
+        .update({ status, updated_at: new Date().toISOString() })
+        .eq('id', adoptionId);
+
+    if (error) {
+        console.error('Error updating adoption status:', error);
+        return { error: 'Erro ao atualizar status da adoção' };
+    }
+
+    revalidatePath('/admin/adocoes');
+    return { success: true };
 }

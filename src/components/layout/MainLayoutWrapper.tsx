@@ -32,7 +32,7 @@ export function MainLayoutWrapper({ children, focusMode = false, userId }: MainL
                     </aside>
 
                     {/* Content Area */}
-                    <main className="flex-1 max-w-[800px] w-full px-4 sm:px-6 py-8 lg:py-12">
+                    <main className="flex-1 max-w-[800px] w-full px-4 sm:px-6 pt-32 pb-8 lg:pb-12">
                         {children}
                     </main>
 

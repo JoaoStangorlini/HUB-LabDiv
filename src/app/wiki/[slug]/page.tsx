@@ -31,7 +31,9 @@ import {
     Users,
     Download,
     ExternalLink,
-    AlertCircle
+    AlertCircle,
+    Info,
+    Landmark
 } from 'lucide-react';
 
 // --- TECHNICAL DATA SHARD ---
@@ -79,10 +81,7 @@ const pageContent: Record<string, any> = {
                 content: 'Não é permitido o upload direto de arquivos de vídeo no Hub, independentemente do tamanho. Todo conteúdo em vídeo deve ser hospedado no YouTube e compartilhado através do link oficial. Isso garante que o conteúdo seja carregado instantaneamente e com a máxima qualidade possível para o público universitário.'
             }
         ],
-        dates: [
-            { label: 'Versão', value: 'v4.2.0' },
-            { label: 'Revisão', value: 'Março/2026' }
-        ],
+        dates: [],
         actions: [
             { label: 'Por em Prática', icon: <Zap className="w-4 h-4" />, href: '/enviar' },
             { label: 'Ver Exemplos', icon: <Telescope className="w-4 h-4" />, href: '/arquivo-labdiv#catalogo' }
@@ -96,11 +95,11 @@ const pageContent: Record<string, any> = {
         sections: [
             {
                 title: 'Mobilidade (Circulares e BUSP)',
-                content: 'As rotas 8012 e 8022 circulam dentro da Cidade Universitária e chegam ao Metrô Butantã. Use a 8032 para ligação com a CPTM Cidade Universitária. O cartão BUSP é obrigatório para gratuidade; sem ele, a tarifa é cobrada via Bilhete Único.'
+                content: 'As linhas circulares principais são: 8082-10, 8083-10, 8084-10 e 8085-10. Nos fins de semana e madrugadas, operam apenas as linhas 8012-10 e 8022-10. O cartão BUSP é obrigatório para gratuidade; sem ele, a tarifa é cobrada via Bilhete Único.'
             },
             {
                 title: 'Guia do Bandejão',
-                content: 'Temos a Central, Física (mais próximo) e Química. O Bandejão da Física é famoso pela proximidade, mas o da Química costuma ter filas menores. Carregue créditos via Júpiter Web e confira o cardápio no app Cardápio USP.'
+                content: 'Embora o Bandejão da Física seja o mais próximo, ele não é a maior preferência dos uspianos, sendo o Central o mais preferido. Caso não tenha muito tempo ou as filas estejam grandes, o da Prefeitura também é melhor avaliado que o da Física. Para recarregar os créditos, utilize a seção RU Card do aplicativo Cardápio USP via PIX. Caso seja beneficiário do PAPFE, o sistema carrega os créditos automaticamente para você.'
             },
             {
                 title: 'Esporte e Lazer (CEPEUSP)',
@@ -112,16 +111,39 @@ const pageContent: Record<string, any> = {
             },
             {
                 title: 'Networking Acadêmico',
-                content: 'Dica de Ouro: Professores são pesquisadores. Não tenha medo de bater na porta durante as horas de monitoria. Uma conversa educada sobre um tema de aula pode ser o gatilho para sua primeira Iniciação Científica.'
+                content: 'Dica de Ouro: Professores são pesquisadores. A melhor forma de conseguir uma Iniciação Científica é a proatividade: mande um email formal, apresente seu interesse e pergunte quando pode ir à sala dele para conversar brevemente.'
+            },
+            {
+                title: 'Conheça o Instituto de Física',
+                fullWidth: true,
+                content: (
+                    <div className="p-8 rounded-[40px] border-2 border-[#17739A]/30 bg-gradient-to-br from-[#17739A]/15 via-[#17739A]/5 to-transparent group hover:border-[#17739A]/50 transition-all duration-500 overflow-hidden relative">
+                        <div className="absolute inset-0 bg-gradient-to-r from-[#17739A]/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                        <div className="relative flex flex-col md:flex-row md:items-center gap-8">
+                            <div className="flex-1">
+                                <div className="flex items-center gap-3 mb-4">
+                                    <div className="p-2.5 rounded-2xl bg-[#17739A]/20 border border-[#17739A]/30">
+                                        <Landmark className="w-6 h-6 text-[#17739A]" />
+                                    </div>
+                                    <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#17739A]">Instituto de Física da USP</span>
+                                </div>
+                                <h5 className="text-white text-lg font-black uppercase italic mb-3">O seu Instituto por Dentro</h5>
+                                <p className="text-xs text-gray-400 leading-relaxed mb-6">
+                                    Mergulhe na história do IFUSP e entenda como um dos institutos de física mais respeitados do mundo é organizado atualmente. Descubra o legado, os departamentos e a estrutura de governança do nosso instituto.
+                                </p>
+                                <ActionButton label="Aprender sobre o IFUSP" icon={<Landmark className="w-4 h-4" />} href="/wiki/instituto" variant="primary" />
+                            </div>
+                        </div>
+                    </div>
+                )
             }
         ],
-        dates: [
-            { label: 'BUSP', value: 'Obrigatório' },
-            { label: 'Bandejão', value: 'R$ 2,00' }
-        ],
+        dates: [],
         actions: [
             { label: 'Acessar Júpiter', icon: <ExternalLink className="w-4 h-4" />, href: 'https://jupiterweb.usp.br' },
-            { label: 'Mapa do Matão', icon: <Download className="w-4 h-4" />, href: '#' }
+            { label: 'Mapa da USP', icon: <Download className="w-4 h-4" />, href: 'https://www.puspc.usp.br/wp-content/uploads/sites/159/2016/08/Mapa-do-Campus-abril-de-2019.pdf' },
+            { label: 'Mapa do IFUSP', icon: <Download className="w-4 h-4" />, href: 'https://portal.if.usp.br/ifusp/pt-br/media-gallery/lightbox/1518/441827' },
+            { label: 'Mapa dos Circulares', icon: <Download className="w-4 h-4" />, href: 'https://www5.usp.br/wp-content/uploads/2011/02/Captura-de-tela-2024-09-19-065302.png' }
         ]
     },
     'ifusp': {
@@ -131,26 +153,13 @@ const pageContent: Record<string, any> = {
         color: 'brand-red',
         sections: [
             {
-                title: 'Evolução de Créditos (O Roadmap)',
-                content: 'Bacharelado (Habilitação em Física e Astronomia), Licenciatura e Física Médica possuem fluxos distintos. Acompanhe sua evolução pelo Júpiter Web e certifique-se de cumprir os créditos optativos eletivos e livres para fechar sua vertente.'
-            },
-            {
-                title: 'Guia de Estágios',
-                content: 'Estágios obrigatórios e não-obrigatórios exigem cadastro no sistema. Procure a secretaria para validação do plano de atividades. Físicos têm alta demanda em áreas de modelagem, ciência de dados e mercado financeiro.'
-            },
-            {
-                title: 'Comissões CG/CoC',
-                content: 'O papel da Comissão de Graduação e das Comissões de Curso na vida do estudante. Saiba como protocolar requerimentos e petições.'
+                title: 'Em Desenvolvimento',
+                fullWidth: true,
+                content: 'Esta aba está em construção. No futuro, teremos aqui um guia completo sobre a progressão dos cursos do IFUSP, incluindo os Projetos Político-Pedagógicos (PPPs), informações essenciais do manual de cada habilitação, quantidade de créditos necessários, grade de matérias, semestres, horas de Atividades de Extensão (AEx) e tudo o que você precisa saber para entender como e quando se formar.'
             }
         ],
-        dates: [
-            { label: 'PPP Atual', value: 'V.2025' },
-            { label: 'Créditos Totais', value: 'Varia por curso' }
-        ],
-        actions: [
-            { label: 'Baixar Matriz', icon: <Download className="w-4 h-4" />, href: '#' },
-            { label: 'Portal CG IFUSP', icon: <ExternalLink className="w-4 h-4" />, href: '#' }
-        ]
+        dates: [],
+        actions: []
     },
     'bolsas': {
         title: 'Energia de Permanência',
@@ -159,29 +168,154 @@ const pageContent: Record<string, any> = {
         color: 'brand-red',
         sections: [
             {
-                title: 'PIBID e Residência Pedagógica',
-                content: 'Essenciais para licenciandos: o PIBID insere o aluno na escola desde o início; a Residência Pedagógica foca na prática docente avançada. Ambos oferecem bolsas vinculadas à CAPES.'
+                title: 'PAPFE (Auxílio de Permanência)',
+                fullWidth: true,
+                content: 'O Programa de Apoio à Permanência e Formação Estudantil (PAPFE) oferece auxílios fundamentais para alimentação, transporte e manutenção para alunos em situação de vulnerabilidade socioeconômica. A inscrição é anual via PRIP.'
             },
             {
-                title: 'PROIAD e PUB',
-                content: 'O PROIAD incentiva alunos de destaque. O PUB (Programa Unificado de Bolsas) abrange projetos de Ensino, Pesquisa e Extensão em todo o campus, com foco em inclusão.'
+                title: 'CRUSP (Moradia Estudantil)',
+                fullWidth: true,
+                content: 'O Conjunto Residencial da USP (CRUSP) oferece moradia gratuita dentro do campus para alunos selecionados. É o principal hub de convivência e suporte para alunos que residem na Cidade Universitária.'
             },
             {
-                title: 'PAPFE e Auxílio Moradia (CRUSP)',
-                content: 'O PAPFE oferece auxílio alimentação, transporte e moradia. O CRUSP é o conjunto residencial para alunos com necessidade de permanência estudantil comprovada via SAS.'
+                title: 'Bolsas de Docência (Licenciatura)',
+                fullWidth: true,
+                content: (
+                    <div className="space-y-8">
+                        <p className="text-gray-400 text-sm italic">Iniciativas essenciais para alunos de Licenciatura que buscam experiência prática em sala de aula e apoio financeiro.</p>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div className="glass-card p-6 rounded-3xl border-white/5 flex flex-col justify-between hover:border-brand-red/20 transition-colors">
+                                <div>
+                                    <h4 className="text-white font-black uppercase italic mb-2 text-sm text-brand-red">PIBID</h4>
+                                    <p className="text-[11px] text-gray-500 leading-relaxed mb-6">Programa de iniciação à docência focado na introdução do aluno ao cotidiano de escolas públicas desde o início do curso, promovendo a integração entre teoria e prática.</p>
+                                </div>
+                                <ActionButton label="Edital PIBID" icon={<Download className="w-4 h-4" />} href="https://prg.usp.br/wp-content/uploads/Edital-Bolsas-Pibid-Discentes-complementar-170325.pdf" variant="secondary" />
+                            </div>
+                            <div className="glass-card p-6 rounded-3xl border-white/5 flex flex-col justify-between hover:border-brand-red/20 transition-colors">
+                                <div>
+                                    <h4 className="text-white font-black uppercase italic mb-2 text-sm text-brand-red">PROIAD</h4>
+                                    <p className="text-[11px] text-gray-500 leading-relaxed mb-6">Incentivo à monitoria e apoio pedagógico, auxiliando na adaptação e no desempenho acadêmico de outros discentes através de orientação especializada.</p>
+                                </div>
+                                <ActionButton label="Edital PROIAD" icon={<Download className="w-4 h-4" />} href="https://prg.usp.br/wp-content/uploads/Edital-PROIAD-2026.pdf" variant="secondary" />
+                            </div>
+                            <div className="glass-card p-6 rounded-3xl border-white/5 flex flex-col justify-between hover:border-brand-red/20 transition-colors">
+                                <div>
+                                    <h4 className="text-white font-black uppercase italic mb-2 text-sm text-brand-red">SEDUC</h4>
+                                    <p className="text-[11px] text-gray-500 leading-relaxed mb-6">Atuação direta em escolas da rede estadual, conectando a formação de física com os desafios reais e a estrutura do sistema de ensino de São Paulo.</p>
+                                </div>
+                                <ActionButton label="Edital SEDUC" icon={<Download className="w-4 h-4" />} href="https://prg.usp.br/wp-content/uploads/Edital-Bolsa-Seduc-2026.pdf" variant="secondary" />
+                            </div>
+                        </div>
+                    </div>
+                )
             },
             {
-                title: 'Monitoria (PEEG) e IC',
-                content: 'O PEEG foca no apoio a disciplinas de graduação. A Iniciação Científica (FAPESP, CNPq, Santander) é o motor da formação em pesquisa no IF desde o primeiro ano.'
+                title: 'Bolsas USP (Ensino e Apoio)',
+                fullWidth: true,
+                content: (
+                    <div className="space-y-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="glass-card p-6 rounded-3xl border-white/5 flex flex-col justify-between hover:border-brand-blue/20 transition-colors">
+                                <div>
+                                    <h4 className="text-white font-black uppercase italic mb-3 text-sm text-brand-blue">PEEG</h4>
+                                    <p className="text-[11px] text-gray-500 leading-relaxed mb-6">
+                                        O **Programa de Estímulo ao Ensino de Graduação** é focado no aprimoramento do ensino através da monitoria acadêmica. Como bolsista PEEG, você atuará diretamente com docentes no suporte a disciplinas, auxiliando na preparação de materiais didáticos e no suporte pedagógico aos alunos.
+                                    </p>
+                                </div>
+                                <ActionButton label="Edital PEEG" icon={<Download className="w-4 h-4" />} href="https://prg.usp.br/wp-content/uploads/Edital_PEEG_1_sem_2026.pdf" variant="secondary" />
+                            </div>
+                            <div className="glass-card p-6 rounded-3xl border-white/5 flex flex-col justify-between hover:border-brand-blue/20 transition-colors">
+                                <div>
+                                    <h4 className="text-white font-black uppercase italic mb-3 text-sm text-brand-blue">PUB</h4>
+                                    <p className="text-[11px] text-gray-500 leading-relaxed mb-6">
+                                        O **Programa Unificado de Bolsas** é a principal iniciativa da USP para integrar formação e permanência. Com projetos abrangendo Ensino, Pesquisa, Extensão e Cultura, permite a participação de atividades transversais com suporte financeiro mensal.
+                                    </p>
+                                </div>
+                                <ActionButton label="Edital PUB" icon={<Download className="w-4 h-4" />} href="https://www.eca.usp.br/sites/default/files/inline-files/Edital-PUB-2025-2026_0_0_0.pdf" variant="secondary" />
+                            </div>
+                        </div>
+                    </div>
+                )
+            },
+            {
+                title: 'Iniciação Científica (Pesquisa e Inovação)',
+                fullWidth: true,
+                content: (
+                    <div className="space-y-10">
+                        <div className="p-8 glass-card border-brand-red/20 rounded-[40px] bg-brand-red/5 group">
+                            <div className="flex flex-col md:flex-row md:items-center gap-8">
+                                <div className="flex-1">
+                                    <h5 className="text-white text-xl font-black uppercase italic mb-3">Como começar na IC?</h5>
+                                    <p className="text-xs text-gray-400 leading-relaxed mb-6">
+                                        A jornada na pesquisa científica exige proatividade e planejamento. Antes de buscar uma bolsa, é fundamental entender como escolher orientador, definir um tema e navegar pelos sistemas. Confira nosso guia técnico completo.
+                                    </p>
+                                    <ActionButton label="Acessar Guia de Sistemas de Pesquisa" icon={<Microscope className="w-4 h-4" />} href="/wiki/pesquisa" variant="primary" />
+                                </div>
+                                <div className="hidden md:flex size-32 rounded-full border border-brand-red/10 items-center justify-center bg-brand-red/10 group-hover:scale-105 transition-transform duration-500">
+                                    <Microscope className="w-12 h-12 text-brand-red" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="glass-card p-6 rounded-3xl border-white/5 flex flex-col justify-between hover:border-brand-red/20 transition-colors">
+                                <div>
+                                    <h4 className="text-white font-black uppercase italic mb-2 text-xs text-brand-red">PIBIC - Pesquisa Acadêmica</h4>
+                                    <p className="text-[10px] text-gray-500 leading-relaxed mb-4">Focado em iniciação científica padrão, o PIBIC visa introduzir o aluno na metodologia científica e no pensamento crítico acadêmico.</p>
+                                </div>
+                                <ActionButton label="Edital PIBIC" icon={<Download className="w-4 h-4" />} href="https://prpi.usp.br/wp-content/uploads/sites/1239/2025/05/Edital-PIBIC-2025_2026.pdf" variant="secondary" />
+                            </div>
+                            <div className="glass-card p-6 rounded-3xl border-white/5 flex flex-col justify-between hover:border-brand-red/20 transition-colors">
+                                <div>
+                                    <h4 className="text-white font-black uppercase italic mb-2 text-xs text-brand-red">PIBITI - Inovação</h4>
+                                    <p className="text-[10px] text-gray-500 leading-relaxed mb-4">Focado em Desenvolvimento Tecnológico e Inovação, o PIBITI estimula a criação de aplicações práticas e protótipos.</p>
+                                </div>
+                                <ActionButton label="Edital PIBITI" icon={<Download className="w-4 h-4" />} href="https://prpi.usp.br/wp-content/uploads/sites/1239/2025/05/Edital-PIBITI-2025_2026_PIBITI.pdf" variant="secondary" />
+                            </div>
+                        </div>
+                    </div>
+                )
+            },
+            {
+                title: 'Bolsas das Unidades (Pro-Aluno)',
+                fullWidth: true,
+                content: (
+                    <div className="p-6 glass-card border-white/5 rounded-[32px] bg-white/5">
+                        <div className="flex items-center gap-4">
+                            <div className="p-3 rounded-2xl bg-brand-blue/10 border border-brand-blue/20">
+                                <Info className="w-6 h-6 text-brand-blue" />
+                            </div>
+                            <div>
+                                <h5 className="text-white font-black uppercase italic text-sm">Apoios Específicos do Instituto</h5>
+                                <p className="text-[11px] text-gray-400 leading-relaxed">
+                                    Cada instituto possui também suas próprias bolsas **Pro-Aluno** e apoios geridos diretamente pela **Seção de Alunos**. Consulte o site oficial ou a secretaria da sua unidade para conhecer as vagas internas de monitoria técnica e administrativa.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                )
+            },
+            {
+                title: 'Outras Oportunidades (Portal PRIP)',
+                fullWidth: true,
+                content: (
+                    <div className="p-8 glass-card border-brand-blue/20 rounded-[40px] bg-brand-blue/5 overflow-hidden relative group">
+                        <div className="flex flex-col md:flex-row md:items-center gap-8">
+                            <div className="flex-1">
+                                <h5 className="text-white text-xl font-black uppercase italic mb-3">Descubra Novas Bolsas e Projetos</h5>
+                                <p className="text-xs text-gray-400 leading-relaxed mb-6">
+                                    Além das bolsas tradicionais, a USP publica regularmente editais de projetos específicos, eventos e novos auxílios que muitas vezes são pouco divulgados. O portal da **PRIP (Pró-Reitoria de Inclusão e Pertencimento)** centraliza todas essas chamadas abertas. Vale a pena conferir mensalmente!
+                                </p>
+                                <ActionButton label="Ver todos os Editais PRIP" icon={<ExternalLink className="w-4 h-4" />} href="https://prip.usp.br/sobre/legislacao-e-portarias/editais/" variant="primary" />
+                            </div>
+                        </div>
+                    </div>
+                )
             }
         ],
-        dates: [
-            { label: 'PUB Inscrição', value: 'Agosto/ANUAL' },
-            { label: 'PAPFE Início', value: 'Janeiro/ANUAL' }
-        ],
+        dates: [],
         actions: [
-            { label: 'Editais Ativos', icon: <Calendar className="w-4 h-4" />, href: '#' },
-            { label: 'Portal PRIP', icon: <ExternalLink className="w-4 h-4" />, href: '#' }
+            { label: 'Editais Ativos', icon: <Calendar className="w-4 h-4" />, href: 'https://prip.usp.br/sobre/legislacao-e-portarias/editais/' }
         ]
     },
     'divulgacao': {
@@ -204,7 +338,15 @@ const pageContent: Record<string, any> = {
             },
             {
                 title: 'Recursos Lab-Div',
-                content: 'Utilize o KitDiv para assets visuais e tipografia oficial. Caso precise de suporte personalizado, agende uma Mentoria com nossa equipe técnica de comunicação.'
+                content: (
+                    <div className="space-y-6">
+                        <p>Utilize o KitDiv para assets visuais e tipografia oficial. Caso precise de suporte personalizado, agende uma Mentoria com nossa equipe técnica de comunicação.</p>
+                        <div className="flex flex-wrap gap-4">
+                            <ActionButton label="Acessar KitDiv" icon={<Download className="w-4 h-4" />} href="/arquivo-labdiv#kitdiv" variant="primary" />
+                            <ActionButton label="Agendar Mentoria" icon={<Brain className="w-4 h-4" />} href="/arquivo-labdiv#mentorias" variant="secondary" />
+                        </div>
+                    </div>
+                )
             }
         ],
         dates: [],
@@ -220,26 +362,57 @@ const pageContent: Record<string, any> = {
         color: 'brand-yellow',
         sections: [
             {
-                title: 'Física Acolhe e Programa ECOS',
-                content: 'A iniciativa Física Acolhe oferece suporte direto aos alunos do instituto. O Programa ECOS foca na escuta e acolhimento em casos de conflitos ou necessidade de orientação institucional.'
+                title: 'Acolhimento IFUSP',
+                content: (
+                    <div className="space-y-4">
+                        <p>O Portal de Acolhimento do IFUSP é o ponto de partida para estudantes que buscam orientação, apoio em situações de conflito ou simplesmente um espaço de escuta dentro do nosso instituto.</p>
+                        <ActionButton label="Solicitar Apoio IF" icon={<Users className="w-4 h-4" />} href="https://portal.if.usp.br/ad/pt-br/node/328" variant="secondary" />
+                    </div>
+                )
+            },
+            {
+                title: 'Física Acolhe',
+                content: (
+                    <div className="space-y-4">
+                        <p>Iniciativa dedicada ao suporte direto e acolhimento dos alunos do Instituto de Física, promovendo um ambiente acadêmico mais saudável e integrado.</p>
+                        <ActionButton label="Conhecer Física Acolhe" icon={<HeartHandshake className="w-4 h-4" />} href="https://portal.if.usp.br/ad/pt-br/node/380" variant="secondary" />
+                    </div>
+                )
+            },
+            {
+                title: 'Direitos e Inclusão (Autismo/TEA)',
+                content: (
+                    <div className="space-y-4">
+                        <p>A USP garante direitos específicos para estudantes autistas (TEA) através de portarias da PRIP. Entre as assegurações estão o direito a realizar avaliações em salas separadas e o uso de fones de ouvido ou abafadores de ruído para conforto sensorial.</p>
+                        <ActionButton label="Ler Portaria PRIP 059 (TEA)" icon={<FileText className="w-4 h-4" />} href="https://prip.usp.br/wp-content/uploads/sites/1128/2024/11/Portaria_PRIP_059-TEA-Errata.pdf" variant="secondary" />
+                    </div>
+                )
+            },
+            {
+                title: 'Programa ECOS',
+                content: 'Localizado ao lado do Bandejão Central, o Programa ECOS foca na escuta e acolhimento em casos de conflitos ou necessidade de orientação institucional, oferecendo inclusive escutas pontuais para a comunidade.'
+            },
+            {
+                title: 'Sistema USP de Acolhimento (SUA)',
+                content: (
+                    <div className="space-y-4">
+                        <p>Canal central da PRIP (Pró-Reitoria de Inclusão e Pertencimento) para denúncias de assédio, discriminação e violações de direitos humanos em toda a universidade.</p>
+                        <ActionButton label="Acessar Portal SUA" icon={<ExternalLink className="w-4 h-4" />} href="https://prip.usp.br/institucional/sistema-usp-de-acolhimento-sua/" variant="secondary" />
+                    </div>
+                )
             },
             {
                 title: 'Hospital Universitário (HU)',
-                content: 'O HU oferece tratamento psicoterapêutico e psiquiátrico de qualidade para a comunidade USP. Procure o serviço de triagem para encaminhamento especializado dentro do campus.'
-            },
-            {
-                title: 'Ouvidoria de Inclusão',
-                content: 'Canais seguros para denúncias de assédio, preconceito ou falha em protocolos de acessibilidade. Sigilo Garantido.'
+                content: (
+                    <div className="space-y-4">
+                        <p>O HU oferece acompanhamento psiquiátrico especializado para a comunidade USP através de seu serviço de triagem e encaminhamento.</p>
+                        <ActionButton label="Agendar Consulta HU" icon={<ExternalLink className="w-4 h-4" />} href="https://www.hu.usp.br/solicitacao_consultaseagendamentos" variant="secondary" />
+                    </div>
+                )
             }
         ],
-        dates: [
-            { label: 'Suporte', value: 'Física Acolhe' },
-            { label: 'Saúde Mental', value: 'HU/ECOS' }
-        ],
-        actions: [
-            { label: 'Solicitar Apoio', icon: <Users className="w-4 h-4" />, href: '#' },
-            { label: 'Ler Portaria', icon: <FileText className="w-4 h-4" />, href: '#' }
-        ]
+        dates: [],
+        actions: []
     },
     'extensao': {
         title: 'Interações de Fronteira',
@@ -249,20 +422,69 @@ const pageContent: Record<string, any> = {
         sections: [
             {
                 title: 'Mapeamento de Grupos',
-                content: 'O IFUSP pulsa com coletivos: o Amélia Império destaca mulheres na física; a Vaca Esférica é nossa rádio/divulgação; o Show de Física encanta escolas e o HS (Humanidades no Síncrotron) debate ética e sociedade.'
+                content: (
+                    <div className="space-y-6">
+                        <p>O IFUSP pulsa com coletivos que transformam a vivência acadêmica. Conheça e participe das iniciativas que moldam nossa comunidade:</p>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <Link href="/colisor#iniciativas-espacos" className="p-4 glass-card rounded-2xl hover:bg-brand-blue/5 transition-all group border border-white/5">
+                                <h4 className="font-black text-brand-blue uppercase text-xs mb-1">Vaca Esférica</h4>
+                                <p className="text-[10px] text-gray-500 group-hover:text-gray-400 transition-colors">Rádio e divulgação científica feita por alunos.</p>
+                            </Link>
+                            <Link href="/colisor#iniciativas-espacos" className="p-4 glass-card rounded-2xl hover:bg-brand-red/5 transition-all group border border-white/5">
+                                <h4 className="font-black text-brand-red uppercase text-xs mb-1">LabDiv</h4>
+                                <p className="text-[10px] text-gray-500 group-hover:text-gray-400 transition-colors">Laboratório de Design e Comunicação.</p>
+                            </Link>
+                            <Link href="/colisor#iniciativas-espacos" className="p-4 glass-card rounded-2xl hover:bg-brand-yellow/5 transition-all group border border-white/5">
+                                <h4 className="font-black text-brand-yellow uppercase text-xs mb-1">Show de Física</h4>
+                                <p className="text-[10px] text-gray-500 group-hover:text-gray-400 transition-colors">Encantos e experimentos para o público escolar.</p>
+                            </Link>
+                        </div>
+                    </div>
+                )
             },
             {
                 title: 'Guia de Integração',
-                content: 'Para se enturmar, frequente o Aquário (vivência dos alunos) ou participe das reuniões abertas dos grupos. Procure os editais de cultura e extensão para validar suas horas e gerar impacto real fora dos laboratórios.'
+                fullWidth: true,
+                content: (
+                    <div className="space-y-6">
+                        <p>Para se enturmar, frequente o Aquário (vivência dos alunos) ou participe das reuniões abertas dos grupos. No IFUSP, a colaboração é a força fundamental.</p>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <Link href="/colisor#iniciativas-espacos" className="p-4 glass-card border-brand-blue/20 rounded-2xl hover:bg-brand-blue/5 transition-all group">
+                                <h4 className="font-black text-brand-blue uppercase text-xs mb-1">Amélia Império</h4>
+                                <p className="text-[10px] text-gray-500 group-hover:text-gray-400 font-bold">Conheça o espaço no Colisor</p>
+                            </Link>
+                            <Link href="/colisor#iniciativas-espacos" className="p-4 glass-card border-brand-red/20 rounded-2xl hover:bg-brand-red/5 transition-all group">
+                                <h4 className="font-black text-brand-red uppercase text-xs mb-1">HS (Humanidades)</h4>
+                                <p className="text-[10px] text-gray-500 group-hover:text-gray-400 font-bold">Debates éticos no Síncrotron</p>
+                            </Link>
+                        </div>
+                    </div>
+                )
+            },
+            {
+                title: 'Pontes com Docentes (IC)',
+                fullWidth: true,
+                content: (
+                    <div className="p-6 bg-brand-yellow/5 border border-brand-yellow/20 rounded-[32px] group hover:bg-brand-yellow/10 transition-all">
+                        <h4 className="flex items-center gap-2 font-black text-brand-yellow uppercase text-xs mb-3">
+                            <Users className="w-4 h-4" /> Comunicação e Pesquisa
+                        </h4>
+                        <p className="text-xs text-gray-400 leading-relaxed mb-4">
+                            Professores são pesquisadores. A melhor forma de conseguir uma Iniciação Científica é a proatividade: mande um email formal, apresente seu interesse e pergunte quando pode ir à sua sala para conversar brevemente.
+                        </p>
+                        <div className="flex gap-2">
+                            <span className="px-2 py-0.5 bg-white/5 rounded text-[9px] font-bold text-gray-500">#Proatividade</span>
+                            <span className="px-2 py-0.5 bg-white/5 rounded text-[9px] font-bold text-gray-500">#EtiquetaAcademica</span>
+                        </div>
+                    </div>
+                )
             }
         ],
-        dates: [
-            { label: 'Grupos Ativos', value: '15+ Unidades' },
-            { label: 'Validação', value: 'ATPA/Ext' }
-        ],
+        dates: [],
         actions: [
-            { label: 'Ver Catálogo', icon: <Download className="w-4 h-4" />, href: '#' },
-            { label: 'Próximos Eventos', icon: <Calendar className="w-4 h-4" />, href: '#' }
+            { label: 'Ver mais grupos e espaços', icon: <Download className="w-4 h-4" />, href: '/colisor#iniciativas-espacos' },
+            { label: 'Próximos Eventos', icon: <Calendar className="w-4 h-4" />, href: '/colisor#oportunidades' }
         ]
     },
     'quiz': {
@@ -284,10 +506,7 @@ const pageContent: Record<string, any> = {
                 content: 'Problemas conceituais rápidos para aquecer os neurônios entre uma aula e outra. Colisões mentais de alta energia.'
             }
         ],
-        dates: [
-            { label: 'Perguntas', value: '50+' },
-            { label: 'Dificuldade', value: 'Síncrotron' }
-        ],
+        dates: [],
         actions: [
             { label: 'Iniciar Quiz', icon: <Zap className="w-4 h-4" />, href: '/wiki/quiz' },
             { label: 'Ver Ranking', icon: <Telescope className="w-4 h-4" />, href: '#' }
@@ -300,26 +519,13 @@ const pageContent: Record<string, any> = {
         color: 'brand-red',
         sections: [
             {
-                title: 'Iniciação Científica',
-                content: 'O guia completo para ingressar na pesquisa. Desde a escolha do orientador até o relatório final e a apresentação no SIICUSP.'
-            },
-            {
-                title: 'Laboratórios do IF',
-                content: 'Navegação técnica pelos departamentos: Física Experimental, Nuclear, Materiais e Teórica. Conheça as linhas de pesquisa de ponta.'
-            },
-            {
-                title: 'Sistema Ateneu',
-                content: 'Tutorial de uso do sistema Ateneu para cadastro de projetos, acompanhamento de bolsas e submissão de frequências mensais.'
+                title: 'Em Desenvolvimento',
+                fullWidth: true,
+                content: 'Estamos trabalhando nesta seção! Em breve, você encontrará aqui um guia completo sobre como iniciar sua trajetória na pesquisa científica, como utilizar os softwares técnicos essenciais e o passo a passo para conquistar sua primeira Iniciação Científica (IC).'
             }
         ],
-        dates: [
-            { label: 'Editais', value: 'Fluxo Contínuo' },
-            { label: 'Ateneu V', value: 'Integração USP' }
-        ],
-        actions: [
-            { label: 'Acessar Ateneu', icon: <ExternalLink className="w-4 h-4" />, href: 'https://ateneu.usp.br' },
-            { label: 'Lista de Labs', icon: <Download className="w-4 h-4" />, href: '#' }
-        ]
+        dates: [],
+        actions: []
     },
     'carreira': {
         title: 'Vetores de Carreira',
@@ -328,26 +534,28 @@ const pageContent: Record<string, any> = {
         color: 'brand-yellow',
         sections: [
             {
-                title: 'Carreira Acadêmica',
-                content: 'O caminho do Mestrado ao Pós-Doutorado. Dicas para exames de ingresso (EUF) e busca por fomento nacional e internacional.'
-            },
-            {
-                title: 'Física na Indústria',
-                content: 'Setores de inovação: Ciência de Dados, Física Médica, Óptica de precisão e instituições financeiras. Onde os físicos colidem com o mercado.'
-            },
-            {
-                title: 'Educação e Ensino',
-                content: 'Oportunidades na Licenciatura, cursinhos populares, colégios de elite e divulgação científica profissional.'
+                title: 'Em Desenvolvimento',
+                fullWidth: true,
+                content: 'Esta aba está em construção. No futuro, teremos aqui um guia detalhado sobre os possíveis caminhos ao final da graduação e após a formação, explorando carreiras acadêmicas, mercado de trabalho e novas fronteiras para físicos.'
             }
         ],
-        dates: [
-            { label: 'Egresso', value: 'Mapeamento 2026' },
-            { label: 'Mercado', value: 'Alta Demanda' }
+        dates: [],
+        actions: []
+    },
+    'instituto': {
+        title: 'O Instituto de Física',
+        subtitle: 'Estrutura, História e Espaços IFUSP',
+        icon: <Landmark className="w-12 h-12" />,
+        color: '#17739A',
+        sections: [
+            {
+                title: 'Em Desenvolvimento',
+                fullWidth: true,
+                content: 'Esta aba está em construção. No futuro, teremos aqui um guia completo focado na organização atual do Instituto de Física (Diretoria, Conselhos e Comissões), sua história de pioneirismo e excelência, e a estrutura de seus departamentos e centros de pesquisa. Outras informações práticas do cotidiano já podem ser encontradas nas demais seções da Wiki.'
+            }
         ],
-        actions: [
-            { label: 'Guia do Egresso', icon: <FileText className="w-4 h-4" />, href: '#' },
-            { label: 'Fórum Carreira', icon: <Users className="w-4 h-4" />, href: '#' }
-        ]
+        dates: [],
+        actions: []
     }
 };
 
@@ -360,7 +568,7 @@ export default function WikiSubPage() {
     if (!content) {
         return (
             <MainLayoutWrapper>
-                <div className="min-h-screen bg-[#121212] pt-24 px-4 flex items-center justify-center">
+                <div className="min-h-screen bg-transparent pt-24 px-4 flex items-center justify-center">
                     <div className="text-center">
                         <AlertCircle className="w-20 h-20 text-brand-red mx-auto mb-6 opacity-20" />
                         <h1 className="text-3xl font-black text-white italic uppercase tracking-tighter">Partícula não encontrada</h1>
@@ -375,7 +583,7 @@ export default function WikiSubPage() {
 
     return (
         <MainLayoutWrapper>
-            <div className="min-h-screen bg-[#121212] pt-16 pb-24 px-4 overflow-x-hidden">
+            <div className="min-h-screen bg-transparent pb-24 px-4 overflow-x-hidden">
                 <div className="max-w-6xl mx-auto">
 
                     <Breadcrumbs slug={slug} title={content.title} />
@@ -413,19 +621,28 @@ export default function WikiSubPage() {
                                             initial={{ opacity: 0, y: 20 }}
                                             animate={{ opacity: 1, y: 0 }}
                                             transition={{ duration: 0.5, delay: idx * 0.1 }}
-                                            className={`${idx % 3 === 0 ? 'md:col-span-2' : 'md:col-span-1'}`}
+                                            className={`${section.fullWidth || idx % 3 === 0 ? 'md:col-span-2' : 'md:col-span-1'}`}
                                         >
-                                            <ContentSection title={section.title}>
+                                            <ContentSection title={section.title} color={content.color}>
                                                 <div className="relative group">
                                                     {/* Premium Glow effect */}
                                                     <div className="absolute -inset-0.5 bg-gradient-to-r from-brand-blue to-brand-red rounded-[40px] opacity-0 group-hover:opacity-10 transition-opacity duration-500 blur-xl" />
 
-                                                    <div className="relative text-gray-400 font-medium leading-relaxed bg-[#1E1E1E] p-8 rounded-[40px] border border-white/5 hover:border-white/10 transition-all hover:-translate-y-1 shadow-2xl">
-                                                        <div className="absolute top-4 right-8 text-[10px] font-black uppercase tracking-[0.2em] text-white/5 group-hover:text-brand-blue/20 transition-colors">
-                                                            SEÇÃO {String(idx + 1).padStart(2, '0')}
+                                                    {typeof section.content === 'string' ? (
+                                                        <div className="relative text-gray-400 font-medium leading-relaxed glass-card p-8 rounded-[40px] transition-all hover:-translate-y-1 shadow-2xl">
+                                                            <div className={`absolute top-4 right-8 text-[10px] font-black uppercase tracking-[0.2em] text-white/5 group-hover:${content.color.startsWith('#') ? `text-[${content.color}]` : `text-${content.color}`}/20 transition-colors`}>
+                                                                SEÇÃO {String(idx + 1).padStart(2, '0')}
+                                                            </div>
+                                                            {section.content}
                                                         </div>
-                                                        {section.content}
-                                                    </div>
+                                                    ) : (
+                                                        <div className="relative transition-all hover:-translate-y-1">
+                                                            <div className="absolute top-0 right-0 text-[10px] font-black uppercase tracking-[0.2em] text-white/5 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                                SEÇÃO {String(idx + 1).padStart(2, '0')}
+                                                            </div>
+                                                            {section.content}
+                                                        </div>
+                                                    )}
                                                 </div>
                                             </ContentSection>
                                         </motion.div>
@@ -456,12 +673,12 @@ export default function WikiSubPage() {
                                 <div className="space-y-4 pt-8 border-t border-white/5">
                                     <h4 className="text-[10px] font-black uppercase tracking-[0.4em] text-gray-600 mb-6">Ações Rápidas</h4>
                                     {content.actions?.map((action: any, idx: number) => (
-                                        <ActionButton key={idx} label={action.label} icon={action.icon} href={action.href} variant={idx === 0 ? 'primary' : 'secondary'} />
+                                        <ActionButton key={idx} label={action.label} icon={action.icon} href={action.href} variant={idx === 0 ? 'primary' : 'secondary'} color={content.color} />
                                     ))}
                                 </div>
 
                                 {/* Support Card (Report System) */}
-                                <div className="p-8 bg-gradient-to-br from-brand-red/10 to-transparent border border-white/5 rounded-[40px] mt-12 group">
+                                <div className="p-8 glass-card border-brand-red/20 rounded-[40px] mt-12 group">
                                     <AlertCircle className="w-8 h-8 text-brand-red mb-4 group-hover:scale-110 transition-transform" />
                                     <h5 className="text-sm font-black text-white uppercase italic mb-2">Dúvida Técnica?</h5>
                                     <p className="text-[11px] text-gray-500 font-bold leading-relaxed mb-6">Utilize o canal de Report para informar flutuações de dados ou problemas técnicos.</p>

@@ -68,7 +68,7 @@ export default function AdminReportsPage() {
     });
 
     return (
-        <div className="min-h-screen bg-transparent text-white p-8">
+        <div className="min-h-screen bg-transparent text-gray-900 dark:text-white p-8">
             <div className="max-w-7xl mx-auto">
                 {/* Header */}
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
@@ -82,14 +82,14 @@ export default function AdminReportsPage() {
                         <p className="text-gray-500 font-bold uppercase text-[10px] tracking-[0.2em]">Gestão de Feedback e Bugs Hub Lab-Div</p>
                     </div>
 
-                    <div className="flex gap-2 bg-white/5 p-1.5 rounded-2xl border border-white/5 backdrop-blur-md">
+                    <div className="flex gap-2 bg-gray-100/50 dark:bg-white/5 p-1.5 rounded-2xl border border-gray-200 dark:border-white/5 backdrop-blur-md">
                         {['all', 'open', 'in_progress', 'closed'].map((f) => (
                             <button
                                 key={f}
                                 onClick={() => setFilter(f)}
                                 className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${filter === f
-                                    ? 'bg-white text-black'
-                                    : 'text-gray-500 hover:text-white'
+                                    ? 'bg-brand-red text-white'
+                                    : 'text-gray-500 hover:text-gray-900 dark:hover:text-white'
                                     }`}
                             >
                                 {f === 'all' ? 'Todos' : f === 'open' ? 'Abertos' : f === 'in_progress' ? 'Em Foco' : 'Concluídos'}
@@ -107,7 +107,7 @@ export default function AdminReportsPage() {
                             ))
                         ) : filteredReports.length === 0 ? (
                             <div className="text-center py-20 bg-white/5 rounded-[40px] border border-dashed border-white/10 backdrop-blur-sm">
-                                <CheckCircle2 className="size-12 text-gray-700 mx-auto mb-4 opacity-20" />
+                                <CheckCircle2 className="size-12 text-gray-400 dark:text-gray-700 mx-auto mb-4 opacity-20" />
                                 <p className="text-gray-500 font-black uppercase tracking-widest text-xs">Sem anomalias detectadas</p>
                             </div>
                         ) : (
@@ -118,7 +118,7 @@ export default function AdminReportsPage() {
                                     onClick={() => setSelectedReport(report)}
                                     className={`p-6 rounded-[32px] border transition-all cursor-pointer group ${selectedReport?.id === report.id
                                         ? 'bg-brand-red/10 border-brand-red/30'
-                                        : 'bg-white/5 border-white/5 hover:border-white/20 hover:bg-white/10'
+                                        : 'bg-white/40 dark:bg-white/5 border-gray-200 dark:border-white/5 hover:border-brand-red/20 hover:bg-white/60 dark:hover:bg-white/10'
                                         }`}
                                 >
                                     <div className="flex justify-between items-start mb-4">
@@ -130,7 +130,7 @@ export default function AdminReportsPage() {
                                             {new Date(report.created_at).toLocaleString('pt-BR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}
                                         </span>
                                     </div>
-                                    <p className="text-sm font-bold text-gray-300 line-clamp-2 mb-4 group-hover:text-white transition-colors">
+                                    <p className="text-sm font-bold text-gray-600 dark:text-gray-300 line-clamp-2 mb-4 group-hover:text-gray-900 dark:group-hover:text-white transition-colors">
                                         {report.description}
                                     </p>
                                     <div className="flex items-center justify-between text-[10px] font-black uppercase tracking-widest text-gray-600">
@@ -156,7 +156,7 @@ export default function AdminReportsPage() {
                                     initial={{ opacity: 0, scale: 0.95 }}
                                     animate={{ opacity: 1, scale: 1 }}
                                     exit={{ opacity: 0, scale: 0.95 }}
-                                    className="bg-white/5 border border-white/10 backdrop-blur-md rounded-[40px] p-10 h-full overflow-y-auto no-scrollbar"
+                                    className="bg-white/60 dark:bg-white/5 border border-gray-200 dark:border-white/10 backdrop-blur-md rounded-[40px] p-10 h-full overflow-y-auto no-scrollbar"
                                 >
                                     <div className="flex items-center justify-between mb-10">
                                         <div>
@@ -169,8 +169,8 @@ export default function AdminReportsPage() {
                                                     key={s}
                                                     onClick={() => updateStatus(selectedReport.id, s)}
                                                     className={`size-10 rounded-xl flex items-center justify-center transition-all ${selectedReport.status === s
-                                                        ? 'bg-white text-black'
-                                                        : 'bg-white/5 text-gray-500 hover:bg-white/10'
+                                                        ? 'bg-brand-red text-white'
+                                                        : 'bg-gray-100 dark:bg-white/5 text-gray-500 hover:bg-gray-200 dark:hover:bg-white/10'
                                                         }`}
                                                     title={s}
                                                 >
@@ -181,9 +181,9 @@ export default function AdminReportsPage() {
                                     </div>
 
                                     <div className="space-y-10">
-                                        <div className="p-8 bg-white/5 rounded-3xl border border-white/5">
-                                            <h3 className="text-[10px] font-black text-gray-600 uppercase tracking-[0.3em] mb-4">Relato do Usuário</h3>
-                                            <p className="text-lg font-medium text-gray-200 leading-relaxed">
+                                        <div className="p-8 bg-gray-50/50 dark:bg-white/5 rounded-3xl border border-gray-200 dark:border-white/5">
+                                            <h3 className="text-[10px] font-black text-gray-500 dark:text-gray-600 uppercase tracking-[0.3em] mb-4">Relato do Usuário</h3>
+                                            <p className="text-lg font-medium text-gray-700 dark:text-gray-200 leading-relaxed">
                                                 {selectedReport.description}
                                             </p>
                                         </div>
@@ -201,8 +201,8 @@ export default function AdminReportsPage() {
                                         )}
 
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                            <div className="p-6 bg-white/5 rounded-3xl border border-white/5">
-                                                <h3 className="text-[10px] font-black text-gray-600 uppercase tracking-[0.3em] mb-4">Metadados de Origem</h3>
+                                            <div className="p-6 bg-gray-50/50 dark:bg-white/5 rounded-3xl border border-gray-200 dark:border-white/5">
+                                                <h3 className="text-[10px] font-black text-gray-500 dark:text-gray-600 uppercase tracking-[0.3em] mb-4">Metadados de Origem</h3>
                                                 <div className="space-y-3">
                                                     <div className="flex items-center gap-2 text-xs font-bold text-gray-400">
                                                         <User size={14} className="text-brand-blue" />
@@ -219,15 +219,15 @@ export default function AdminReportsPage() {
                                                 </div>
                                             </div>
 
-                                            <div className="p-6 bg-white/5 rounded-3xl border border-white/5">
-                                                <h3 className="text-[10px] font-black text-gray-600 uppercase tracking-[0.3em] mb-4">Status de Operação</h3>
+                                            <div className="p-6 bg-gray-50/50 dark:bg-white/5 rounded-3xl border border-gray-200 dark:border-white/5">
+                                                <h3 className="text-[10px] font-black text-gray-500 dark:text-gray-600 uppercase tracking-[0.3em] mb-4">Status de Operação</h3>
                                                 <div className="flex items-center gap-4">
                                                     <div className={`size-12 rounded-2xl flex items-center justify-center ${selectedReport.status === 'closed' ? 'bg-brand-green/20' : 'bg-brand-yellow/20'
                                                         }`}>
                                                         {selectedReport.status === 'closed' ? <CheckCircle2 className="text-brand-green" /> : <Clock className="text-brand-yellow" />}
                                                     </div>
                                                     <div>
-                                                        <p className="text-xs font-black uppercase text-white">{selectedReport.status}</p>
+                                                        <p className="text-xs font-black uppercase text-gray-900 dark:text-white">{selectedReport.status}</p>
                                                         <p className="text-[10px] font-bold text-gray-500 uppercase">Detectado no Hub</p>
                                                     </div>
                                                 </div>
