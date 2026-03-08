@@ -5,7 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { MainLayoutWrapper } from "@/components/layout/MainLayoutWrapper";
 import { MediaCard, MediaCardProps } from "@/components/MediaCard";
-import { Megaphone, ArrowRight, UserPlus, Award, Star, ExternalLink } from 'lucide-react';
+import { Megaphone, ArrowRight, UserPlus, Award, Star, ExternalLink, BookOpen, Route } from 'lucide-react';
 
 interface SobreClientProps {
     initialTestimonials: MediaCardProps[];
@@ -218,6 +218,32 @@ export function SobreClient({ initialTestimonials }: SobreClientProps) {
                     </p>
                     <Link href="/perguntas" className="text-[10px] font-black uppercase tracking-widest text-brand-yellow flex items-center gap-2 group/link">
                         Fazer uma Pergunta <ArrowRight className="size-3 group-hover/link:translate-x-1 transition-transform" />
+                    </Link>
+                </div>
+
+                <div className="glass-card rounded-3xl p-10 hover:border-brand-blue/20 transition-all group h-full flex flex-col hover:shadow-lg">
+                    <div className="size-12 rounded-2xl bg-brand-blue/10 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                        <BookOpen className="text-brand-blue w-6 h-6" />
+                    </div>
+                    <h4 className="text-xl font-black uppercase italic tracking-tight mb-4">Wiki do IFUSP</h4>
+                    <p className="text-gray-500 text-sm leading-relaxed mb-6 flex-1">
+                        A enciclopédia colaborativa do Instituto de Física. Uma base de conhecimento construída pela comunidade com anotações, guias de sobrevivência, explicações sobre o funcionamento do instituto, seus departamentos, laboratórios e a vida acadêmica no dia a dia.
+                    </p>
+                    <Link href="/wiki" className="text-[10px] font-black uppercase tracking-widest text-brand-blue flex items-center gap-2 group/link">
+                        Explorar Wiki <ArrowRight className="size-3 group-hover/link:translate-x-1 transition-transform" />
+                    </Link>
+                </div>
+
+                <div className="glass-card rounded-3xl p-10 hover:border-brand-red/20 transition-all group h-full flex flex-col hover:shadow-lg">
+                    <div className="size-12 rounded-2xl bg-brand-red/10 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                        <Route className="text-brand-red w-6 h-6" />
+                    </div>
+                    <h4 className="text-xl font-black uppercase italic tracking-tight mb-4">Trilhas de Aprendizagem</h4>
+                    <p className="text-gray-500 text-sm leading-relaxed mb-6 flex-1">
+                        Roteiros organizados por disciplina que reúnem materiais, artigos e anotações da comunidade em sequências lógicas de estudo. Acompanhe seu progresso e domine os conteúdos do currículo do IFUSP com apoio colaborativo.
+                    </p>
+                    <Link href="/trilhas" className="text-[10px] font-black uppercase tracking-widest text-brand-red flex items-center gap-2 group/link">
+                        Ver Trilhas <ArrowRight className="size-3 group-hover/link:translate-x-1 transition-transform" />
                     </Link>
                 </div>
             </div>
