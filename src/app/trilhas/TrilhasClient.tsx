@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { MainLayoutWrapper } from '@/components/layout/MainLayoutWrapper';
 import { Zap, Atom, Microscope, Binary, LayoutGrid, Timer, Layers, ShieldCheck, Milestone, Sparkles, Link2, AlertTriangle, Play, CheckCircle2, Circle, Trophy, GraduationCap, ArrowRight, User, Loader2, Globe } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Trail } from '@/types';
 import { supabase } from '@/lib/supabase';
 import { toast } from 'react-hot-toast';
 
@@ -22,24 +23,6 @@ const CATEGORY_CONFIG: Record<string, { label: string; icon: any }> = {
     livre: { label: 'Livre', icon: Sparkles },
 };
 
-interface Trail {
-    id: string;
-    title: string;
-    description: string | null;
-    axis: string;
-    category: 'obrigatoria' | 'eletiva' | 'livre';
-    category_map?: Record<string, 'obrigatoria' | 'eletiva' | 'nao_se_aplica'>;
-    course_code: string | null;
-    effectiveCategory?: 'obrigatoria' | 'eletiva' | 'livre';
-    excitation_level: number | null;
-    status: 'em_orbita' | 'estavel';
-    credits_aula: number;
-    credits_trabalho: number;
-    submissionCount: number;
-    created_at: string;
-    equivalence_group: string | null;
-    prerequisites: string[] | null;
-}
 
 export default function TrilhasClient({
     initialTrails,
@@ -63,7 +46,48 @@ export default function TrilhasClient({
     const [isSyncing, setIsSyncing] = useState(false);
     const [dashboardTab, setDashboardTab] = useState<'faltam' | 'concluidas' | 'cursando'>('faltam');
     const [isDashboardCollapsed, setIsDashboardCollapsed] = useState(false);
+    const [sortOrder, setSortOrder] = useState<'trending' | 'sem-asc' | 'sem-desc'>('trending');
     const router = useRouter();
+
+    // 🧠 Motor de Equivalências (v4.20)
+    const effectiveCompletedIds = useMemo(() => {
+        const directIds = new Set(completedIds);
+        const completedCodes = new Set(
+            initialTrails.filter(t => directIds.has(t.id)).map(t => t.course_code)
+        );
+
+        const indirectIds = new Set<string>();
+
+        initialTrails.forEach(trail => {
+            if (directIds.has(trail.id)) return;
+
+            // Caso 1: N-para-1 (Ex: Lic -> Bach) via equivalency_map
+            if (trail.equivalency_map) {
+                Object.entries(trail.equivalency_map).forEach(([_, config]) => {
+                    const { codes, logic } = config;
+                    const isSatisfied = logic === 'AND'
+                        ? codes.every(c => completedCodes.has(c))
+                        : codes.some(c => completedCodes.has(c));
+
+                    if (isSatisfied) indirectIds.add(trail.id);
+                });
+            }
+
+            // Caso 2: Bach -> Lic (Automático Descendente)
+            // Se esta disciplina faz parte de um conjunto de origem de uma alvo que já foi concluída
+            initialTrails.forEach(targetTrail => {
+                if (completedCodes.has(targetTrail.course_code) && targetTrail.equivalency_map) {
+                    Object.values(targetTrail.equivalency_map).forEach(config => {
+                        if (config.codes.includes(trail.course_code || '')) {
+                            indirectIds.add(trail.id);
+                        }
+                    });
+                }
+            });
+        });
+
+        return Array.from(new Set([...Array.from(directIds), ...Array.from(indirectIds)]));
+    }, [completedIds, initialTrails]);
 
     const isUspUser = userProfile?.email ? userProfile.email.endsWith('@usp.br') : false;
 
@@ -83,35 +107,67 @@ export default function TrilhasClient({
 
     // Filter Logic
     const filteredTrails = useMemo(() => {
+        // Map of filter keys to database keys
+        const contextAxisMap: Record<string, string> = {
+            'bach': 'bacharelado',
+            'lic': 'licenciatura',
+            'med': 'fisica_medica'
+        };
+
         return initialTrails.map(t => {
             let effectiveCategory = t.category;
 
-            // Relatividade de Categoria
-            if (t.category_map) {
-                const contextAxisMap: Record<string, string> = {
-                    'bach': 'bacharelado',
-                    'lic': 'licenciatura',
-                    'med': 'fisica_medica'
-                };
-                let contextAxis = axisFilter ? contextAxisMap[axisFilter] : null;
+            // Relatividade de Categoria (v4.20: Prioridade absoluta para o filtro ativo)
+            if (t.course_map) {
+                let contextAxis = axisFilter && axisFilter !== 'comum' ? contextAxisMap[axisFilter] : null;
+
+                // Se não houver filtro ativo, usamos o curso do usuário
                 if (!contextAxis && userProfile?.course) {
                     const courseStr = userProfile.course.toLowerCase();
                     contextAxis = courseStr.includes('licenciatura') ? 'licenciatura' :
                         courseStr.includes('médica') || courseStr.includes('medica') ? 'fisica_medica' :
                             courseStr.includes('bacharelado') ? 'bacharelado' : null;
                 }
-                if (contextAxis && t.category_map[contextAxis] && t.category_map[contextAxis] !== 'nao_se_aplica') {
-                    effectiveCategory = t.category_map[contextAxis] as any;
+
+                if (contextAxis && t.course_map[contextAxis] && t.course_map[contextAxis] !== 'nao_se_aplica') {
+                    effectiveCategory = t.course_map[contextAxis] as any;
                 }
             }
-            return { ...t, effectiveCategory };
+
+            // O isEquivalencyOnly verifica se foi completado de forma efetiva mas não diretamente pelo usuário
+            const isEquivalencyOnly = effectiveCompletedIds.includes(t.id) && !completedIds.includes(t.id);
+
+            return { ...t, effectiveCategory, isEquivalencyOnly };
         }).filter(t => {
-            const axisMatch = !axisFilter || t.axis === axisFilter;
+            // DIRETRIZ 1: Filtro de Curso baseado no course_map
+            let axisMatch = true;
+            if (axisFilter && axisFilter !== 'comum') {
+                const dbKey = contextAxisMap[axisFilter];
+                axisMatch = !!(t.course_map && t.course_map[dbKey] && t.course_map[dbKey] !== 'nao_se_aplica');
+            }
+
+            // DIRETRIZ 2: "Ciclo Básico" como filtro transversal (semester <= 4 + Obrigatória)
+            if (axisFilter === 'comum') {
+                const isBasicCycle = (t.excitation_level || 0) <= 4;
+                const isMandatoryInContext = t.effectiveCategory === 'obrigatoria';
+                axisMatch = isBasicCycle && isMandatoryInContext;
+            }
+
+            // Filtro de Categoria DEVE usar a effectiveCategory calculada
             const categoryMatch = !categoryFilter || t.effectiveCategory === categoryFilter;
             const semesterMatch = !semesterFilter || t.excitation_level === semesterFilter;
             return axisMatch && categoryMatch && semesterMatch;
-        }).sort((a, b) => (b.submissionCount || 0) - (a.submissionCount || 0));
-    }, [initialTrails, axisFilter, categoryFilter, semesterFilter, userProfile]);
+        }).sort((a, b) => {
+            if (sortOrder === 'sem-asc') {
+                return (a.excitation_level || 99) - (b.excitation_level || 99);
+            }
+            if (sortOrder === 'sem-desc') {
+                return (b.excitation_level || 0) - (a.excitation_level || 0);
+            }
+            // Default: trending (submissionCount)
+            return (b.submissionCount || 0) - (a.submissionCount || 0);
+        });
+    }, [initialTrails, axisFilter, categoryFilter, semesterFilter, sortOrder, userProfile]);
 
     // Dashboard Stats Logic
     const stats = useMemo(() => {
@@ -142,43 +198,50 @@ export default function TrilhasClient({
         const mandatoryTrails = initialTrails.filter(t => {
             if (!userAxisKey || !userAxisFallback) return false;
 
-            // Requisito: Apenas matérias do eixo específico (ignorar CIC)
-            if (t.axis !== userAxisFallback) return false;
+            // Requisito: Apenas matérias do eixo específico ou comum (CIC)
+            if (t.axis !== userAxisFallback && t.axis !== 'comum') return false;
 
-            // Prioriza category_map
-            if (t.category_map && t.category_map[userAxisKey]) {
-                if (t.category_map[userAxisKey] === 'obrigatoria') return true;
-                if (t.category_map[userAxisKey] !== 'nao_se_aplica') return false;
+            // Prioriza course_map
+            if (t.course_map && t.course_map[userAxisKey]) {
+                if (t.course_map[userAxisKey] === 'obrigatoria') return true;
+                if (t.course_map[userAxisKey] !== 'nao_se_aplica') return false;
             }
 
             // Fallback (apenas se nao tiver mapa)
             return t.category === 'obrigatoria';
         });
 
-        const completedMandatory = mandatoryTrails.filter(t => completedIds.includes(t.id));
-        const missingMandatory = mandatoryTrails.filter(t => !completedIds.includes(t.id))
-            .sort((a, b) => (a.excitation_level || 99) - (b.excitation_level || 99));
+        // Cálculo de Progresso usando IDs Efetivos (v4.20)
+        const completedTotal = initialTrails.filter(t => effectiveCompletedIds.includes(t.id));
+        const cursandoTotal = initialTrails.filter(t => cursandoIds.includes(t.id));
 
-        const completedTotal = initialTrails.filter(t => completedIds.includes(t.id))
-            .sort((a, b) => (a.excitation_level || 99) - (b.excitation_level || 99));
+        const mandatoryAll = initialTrails.filter(t => {
+            if (!t.course_map || !userAxisKey) return false;
+            return t.course_map[userAxisKey] === 'obrigatoria';
+        });
 
-        const cursandoMandatory = initialTrails.filter(t => cursandoIds.includes(t.id))
-            .sort((a, b) => (a.excitation_level || 99) - (b.excitation_level || 99));
+        const completedMandatory = mandatoryAll.filter(t => effectiveCompletedIds.includes(t.id));
 
-        const percentage = mandatoryTrails.length > 0
-            ? Math.round((completedMandatory.length / mandatoryTrails.length) * 100)
+        const percentage = mandatoryAll.length > 0
+            ? Math.round((completedMandatory.length / mandatoryAll.length) * 100)
             : 0;
+
+        // "A Fazer" should ideally be ALL mandatories the user hasn't done + any eletiva they have explicitly marked as 'cursando'??? 
+        // No, "A Fazer" is usually just the required track. But let's show all valid courses for the axis if requested, 
+        // wait, showing all (165+) is too much. Keep "missing" as mandatory, but "cursando" as ALL courses user marked.
+        const missingMandatory = mandatoryAll.filter(t => !effectiveCompletedIds.includes(t.id) && !cursandoIds.includes(t.id))
+            .sort((a, b) => (a.excitation_level || 99) - (b.excitation_level || 99));
 
         return {
             percentage,
-            totalMandatory: mandatoryTrails.length,
+            totalMandatory: mandatoryAll.length,
             completedMandatoryCount: completedMandatory.length,
             missingMandatory,
             completedTotal,
-            cursandoMandatory,
+            cursandoMandatory: cursandoTotal, // Renaming key for compatibility, but holds ALL cursando
             isInvalid: false
         };
-    }, [initialTrails, completedIds, cursandoIds, userProfile]);
+    }, [initialTrails, completedIds, cursandoIds, userProfile, effectiveCompletedIds]);
 
     const toggleCompletion = async (e: React.MouseEvent, trailId: string) => {
         e.preventDefault();
@@ -614,6 +677,43 @@ export default function TrilhasClient({
                                     })}
                                 </div>
                             </div>
+
+                            {/* Row 4: Sort Order */}
+                            <div className="space-y-3 relative z-10">
+                                <label className="font-mono text-[10px] dark:text-gray-500 text-gray-400 uppercase tracking-[0.3em] block ml-1">Ordenação_Vetor</label>
+                                <div className="flex flex-wrap gap-2">
+                                    <button
+                                        onClick={() => setSortOrder('trending')}
+                                        className={`px-4 py-2 rounded-lg font-mono text-[10px] font-bold transition-all border flex items-center gap-2 ${sortOrder === 'trending'
+                                            ? 'bg-[#00A3FF] text-white border-transparent shadow-lg shadow-[#00A3FF]/20'
+                                            : 'dark:bg-[#121212] bg-gray-100 dark:text-gray-500 text-gray-500 dark:border-gray-800 border-gray-300 hover:border-gray-400'
+                                            }`}
+                                    >
+                                        <Zap size={12} />
+                                        TENDÊNCIAS
+                                    </button>
+                                    <button
+                                        onClick={() => setSortOrder('sem-asc')}
+                                        className={`px-4 py-2 rounded-lg font-mono text-[10px] font-bold transition-all border flex items-center gap-2 ${sortOrder === 'sem-asc'
+                                            ? 'bg-[#0070FF] text-white border-transparent shadow-lg shadow-[#0070FF]/20'
+                                            : 'dark:bg-[#121212] bg-gray-100 dark:text-gray-500 text-gray-500 dark:border-gray-800 border-gray-300 hover:border-gray-400'
+                                            }`}
+                                    >
+                                        <Timer size={12} />
+                                        PRIMEIROS_SEMESTRES
+                                    </button>
+                                    <button
+                                        onClick={() => setSortOrder('sem-desc')}
+                                        className={`px-4 py-2 rounded-lg font-mono text-[10px] font-bold transition-all border flex items-center gap-2 ${sortOrder === 'sem-desc'
+                                            ? 'bg-purple-600 text-white border-transparent shadow-lg shadow-purple-600/20'
+                                            : 'dark:bg-[#121212] bg-gray-100 dark:text-gray-500 text-gray-500 dark:border-gray-800 border-gray-300 hover:border-gray-400'
+                                            }`}
+                                    >
+                                        <GraduationCap size={12} />
+                                        ÚLTIMOS_SEMESTRES
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -624,8 +724,10 @@ export default function TrilhasClient({
                     >
                         <AnimatePresence mode='popLayout'>
                             {slicedTrails.map((trail) => {
-                                const axisCfg = AXIS_CONFIG[trail.axis] || { label: 'Outro', color: '#888888', icon: LayoutGrid };
+                                const activeAxisKey = axisFilter && axisFilter !== 'comum' ? axisFilter : trail.axis;
+                                const axisCfg = AXIS_CONFIG[activeAxisKey] || AXIS_CONFIG.comum;
                                 const catCfg = CATEGORY_CONFIG[trail.effectiveCategory || trail.category] || CATEGORY_CONFIG.eletiva;
+                                const isBasicCycleFlag = (trail.excitation_level || 0) <= 4;
                                 const Icon = axisCfg.icon;
                                 const hasEquiv = !!trail.equivalence_group;
                                 const hasPrereqs = trail.prerequisites && trail.prerequisites.length > 0;
@@ -669,6 +771,15 @@ export default function TrilhasClient({
                                                         {catCfg.label}
                                                     </div>
 
+                                                    {isBasicCycleFlag && (
+                                                        <div
+                                                            className="px-2 py-0.5 rounded text-[9px] font-mono font-bold flex items-center gap-1 uppercase border bg-white/5 dark:text-gray-400 text-gray-500 dark:border-white/10 border-gray-200"
+                                                        >
+                                                            <Zap size={8} fill="currentColor" />
+                                                            CICLO_BÁSICO
+                                                        </div>
+                                                    )}
+
                                                     {/* Quick Info Icons (Prereq/Equiv) with tooltips */}
                                                     <div className="flex items-center gap-2">
                                                         {hasPrereqs && (
@@ -692,7 +803,16 @@ export default function TrilhasClient({
 
                                                 {/* STATUS BUTTONS ROW (NEW) */}
                                                 <div className="flex items-center gap-2 mb-6">
-                                                    {completedIds.includes(trail.id) ? (
+                                                    {(trail as any).isEquivalencyOnly ? (
+                                                        <div
+                                                            className="px-2 py-1.5 rounded-lg border bg-blue-500/20 border-blue-500/50 text-blue-400 shadow-[0_0_10px_rgba(59,130,246,0.2)] transition-all flex items-center gap-1.5"
+                                                        >
+                                                            <Link2 size={10} />
+                                                            <span className="font-mono text-[8px] font-black uppercase tracking-widest">
+                                                                EQUIVALENTE ✔
+                                                            </span>
+                                                        </div>
+                                                    ) : completedIds.includes(trail.id) ? (
                                                         <button
                                                             onClick={(e) => toggleCompletion(e, trail.id)}
                                                             className="px-2 py-1.5 rounded-lg border bg-green-500/20 border-green-500/50 text-green-500 shadow-[0_0_10px_rgba(34,197,94,0.2)] transition-all flex items-center gap-1.5 group/check"
@@ -770,6 +890,15 @@ export default function TrilhasClient({
                                                             {trail.title}
                                                         </span>
                                                     </h2>
+                                                    {hasPrereqs && (
+                                                        <div className="flex flex-wrap gap-1 mt-1">
+                                                            {trail.prerequisites?.map(prereq => (
+                                                                <span key={prereq} className="text-[9px] font-mono font-bold text-red-500 bg-red-500/10 px-1 rounded uppercase tracking-tighter">
+                                                                    Exige: {prereq}
+                                                                </span>
+                                                            ))}
+                                                        </div>
+                                                    )}
                                                     {trail.description && (
                                                         <p className="text-[11px] dark:text-gray-500 text-gray-400 font-mono leading-relaxed line-clamp-2">
                                                             {trail.description}
@@ -906,7 +1035,43 @@ export default function TrilhasClient({
                         </motion.div>
                     )
                 }
-            </AnimatePresence >
-        </MainLayoutWrapper >
+            </AnimatePresence>
+
+            {isSyncing && (
+                <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-black/80 backdrop-blur-md"
+                >
+                    <div className="relative">
+                        <motion.div
+                            animate={{ scale: [1, 1.2, 1] }}
+                            transition={{ duration: 1, repeat: Infinity }}
+                            className="w-4 h-4 bg-[#00A3FF] rounded-full shadow-[0_0_20px_#00A3FF]"
+                        />
+                        <Atom className="absolute -top-6 -left-6 w-16 h-16 text-white/20 animate-pulse" />
+                    </div>
+
+                    <div className="mt-8 text-center space-y-2">
+                        <h2 className="text-lg font-black font-mono text-white uppercase tracking-[0.3em] animate-pulse">
+                            Sincronizando_Partículas
+                        </h2>
+                        <p className="text-[10px] font-mono text-gray-400 uppercase tracking-widest">
+                            Protocolo Síncrotron v3 {'>'} Salvando na grade curricular...
+                        </p>
+                    </div>
+
+                    <div className="mt-6 w-48 h-1 bg-white/10 rounded-full overflow-hidden">
+                        <motion.div
+                            initial={{ width: 0 }}
+                            animate={{ width: "100%" }}
+                            transition={{ duration: 2.0, ease: "linear" }}
+                            className="h-full bg-[#00A3FF] shadow-[0_0_10px_#00A3FF]"
+                        />
+                    </div>
+                </motion.div>
+            )}
+        </MainLayoutWrapper>
     );
 }

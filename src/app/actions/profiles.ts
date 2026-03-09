@@ -32,7 +32,7 @@ export async function updateProfile(updates: Partial<Profile>) {
     // Get current profile status
     const { data: currentProfile } = await supabase
         .from('profiles')
-        .select('review_status, pending_edits')
+        .select('review_status, pending_edits, full_name')
         .eq('id', user.id)
         .single();
 
@@ -68,9 +68,11 @@ export async function updateProfile(updates: Partial<Profile>) {
     revalidatePath('/admin/profiles');
 
     // Notify Admins
+    const isFirstTime = !currentProfile?.full_name;
     await sendAdminNotification({
-        type: 'profile_update',
-        userName: data.full_name || user.email?.split('@')[0] || 'Novo Usuário'
+        type: isFirstTime ? 'profile_creation' : 'profile_update',
+        userName: data.full_name || user.email?.split('@')[0] || 'Novo Usuário',
+        details: isFirstTime ? user.email : undefined
     });
 
     return { success: true, data };

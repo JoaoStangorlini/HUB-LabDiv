@@ -16,7 +16,7 @@ import { Profile } from '@/types';
 const profileSchema = z.object({
     email: z.string().optional(),
     full_name: z.string().min(3, "Nome deve ter pelo menos 3 caracteres").max(100),
-    bio: z.string().max(160, "Bio muito longa (máx 160)").default(''),
+    bio: z.string().max(200, "Bio muito longa (máx 200)").default(''),
     username: z.string().max(30, "Apelido muito longo").default(''),
     use_nickname: z.boolean().default(false),
     institute: z.string().optional(),

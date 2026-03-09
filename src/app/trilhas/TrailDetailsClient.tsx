@@ -46,6 +46,7 @@ interface TrailDetailsProps {
     totalMaterials: number;
     userProgress: any;
     isCompleted?: boolean;
+    isCompletedEquivalent?: boolean;
     prerequisiteTrails: PrereqInfo[];
     equivalentTrails?: EquivInfo[];
     xorExclusions?: XorExclusion[];
@@ -57,6 +58,7 @@ export default function TrailDetailsClient({
     totalMaterials,
     userProgress,
     isCompleted,
+    isCompletedEquivalent,
     prerequisiteTrails,
     equivalentTrails = [],
     xorExclusions = []
@@ -245,7 +247,14 @@ export default function TrailDetailsClient({
 
                             {/* STATUS BUTTONS ROW (NEW) */}
                             <div className="flex items-center gap-3 pt-2">
-                                {isFinished ? (
+                                {isCompletedEquivalent ? (
+                                    <div
+                                        className="px-4 py-2 bg-blue-500/20 border border-blue-500/50 text-blue-400 rounded-lg font-black font-mono text-[10px] uppercase transition-all flex items-center gap-2 shadow-[0_0_20px_rgba(59,130,246,0.2)]"
+                                    >
+                                        <Link2 size={14} />
+                                        [EQUIVALENTE ✔]
+                                    </div>
+                                ) : isFinished ? (
                                     <button
                                         disabled={isUpdatingStatus}
                                         onClick={() => toggleStatus('concluida')}
@@ -351,33 +360,70 @@ export default function TrailDetailsClient({
                                                     <h4 className="text-cyan-400 font-bold font-mono text-[10px] uppercase tracking-wider">
                                                         [EMARANHAMENTO_CURRICULAR]
                                                     </h4>
-                                                    <p className="text-gray-500 text-[10px] font-mono">
-                                                        Grupo {trail.equivalence_group} — Disciplinas com conteúdo equivalente em outros cursos.
+                                                    <p className="text-gray-500 text-[10px] font-mono mt-0.5">
+                                                        {trail.equivalency_map && Object.keys(trail.equivalency_map).length > 0
+                                                            ? "Múltiplas vias detectadas. Cumpra qualquer das regras abaixo para obter os créditos."
+                                                            : `Grupo ${trail.equivalence_group} — Disciplinas com conteúdo equivalente em outros institutos.`}
                                                     </p>
                                                 </div>
                                             </div>
-                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pl-11">
-                                                {equivalentTrails.map((eq) => {
-                                                    const eqCfg = AXIS_CONFIG[eq.axis] || AXIS_CONFIG.comum;
-                                                    return (
-                                                        <Link
-                                                            key={eq.id}
-                                                            href={`/trilhas/${eq.id}`}
-                                                            className="group flex items-center gap-3 p-3 bg-[#121212]/60 border border-cyan-500/10 rounded-lg hover:border-cyan-500/30 transition-all"
-                                                        >
-                                                            <eqCfg.icon size={12} style={{ color: eqCfg.color }} className="shrink-0" />
-                                                            <div className="min-w-0">
-                                                                <span className="block font-mono text-[8px] uppercase" style={{ color: eqCfg.color }}>
-                                                                    {eq.course_code} • {eqCfg.label}
-                                                                </span>
-                                                                <span className="block text-[11px] text-gray-300 truncate group-hover:text-white transition-colors">
-                                                                    {eq.title}
-                                                                </span>
+
+                                            {trail.equivalency_map && Object.keys(trail.equivalency_map).length > 0 && (
+                                                <div className="pl-11 pt-2 space-y-3">
+                                                    {Object.entries(trail.equivalency_map).map(([ruleName, rule]: [string, any]) => (
+                                                        <div key={ruleName} className="p-3 bg-[#121212]/60 rounded-lg border border-cyan-500/20">
+                                                            <div className="text-[9px] font-mono text-cyan-500/80 mb-2 uppercase tracking-widest font-black leading-tight border-b border-cyan-500/10 pb-1">
+                                                                VIA: {ruleName}
                                                             </div>
-                                                        </Link>
-                                                    );
-                                                })}
-                                            </div>
+                                                            <div className="flex flex-wrap items-center gap-2">
+                                                                {rule.codes.map((code: string, idx: number) => {
+                                                                    const eqData = equivalentTrails.find((t: any) => t.course_code === code);
+                                                                    return (
+                                                                        <div key={code} className="flex items-center gap-2">
+                                                                            {eqData ? (
+                                                                                <Link href={`/trilhas/${eqData.id}`} className="px-2 py-1 bg-[#1E1E1E] border border-cyan-500/10 rounded flex items-center gap-2 group/eqlink hover:border-cyan-500/40 transition-colors">
+                                                                                    <span className="font-mono text-[10px] font-bold text-gray-300 group-hover/eqlink:text-cyan-400">{code}</span>
+                                                                                    <span className="text-[10px] text-gray-500 max-w-[120px] truncate">{eqData.title}</span>
+                                                                                </Link>
+                                                                            ) : (
+                                                                                <span className="px-2 py-1 bg-[#1E1E1E] border border-gray-800 rounded font-mono text-[10px] text-gray-500">{code}</span>
+                                                                            )}
+                                                                            {idx < rule.codes.length - 1 && (
+                                                                                <span className="text-[9px] font-mono font-black text-cyan-600/50 px-1 border border-cyan-600/20 rounded bg-cyan-600/10">{rule.logic}</span>
+                                                                            )}
+                                                                        </div>
+                                                                    );
+                                                                })}
+                                                            </div>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            )}
+
+                                            {(!trail.equivalency_map || Object.keys(trail.equivalency_map).length === 0) && (
+                                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pl-11">
+                                                    {equivalentTrails.map((eq) => {
+                                                        const eqCfg = AXIS_CONFIG[eq.axis] || AXIS_CONFIG.comum;
+                                                        return (
+                                                            <Link
+                                                                key={eq.id}
+                                                                href={`/trilhas/${eq.id}`}
+                                                                className="group flex items-center gap-3 p-3 bg-[#121212]/60 border border-cyan-500/10 rounded-lg hover:border-cyan-500/30 transition-all"
+                                                            >
+                                                                <eqCfg.icon size={12} style={{ color: eqCfg.color }} className="shrink-0" />
+                                                                <div className="min-w-0">
+                                                                    <span className="block font-mono text-[8px] uppercase" style={{ color: eqCfg.color }}>
+                                                                        {eq.course_code} • {eqCfg.label}
+                                                                    </span>
+                                                                    <span className="block text-[11px] text-gray-300 truncate group-hover:text-white transition-colors">
+                                                                        {eq.title}
+                                                                    </span>
+                                                                </div>
+                                                            </Link>
+                                                        );
+                                                    })}
+                                                </div>
+                                            )}
                                         </div>
                                     </motion.div>
                                 )}

@@ -13,7 +13,18 @@ async function getTrails() {
     const { data: trails } = await supabase
         .from('learning_trails')
         .select('*')
-        .order('excitation_level', { ascending: true });
+        .order('id', { ascending: true });
+
+    if (trails && trails.length > 0) {
+        const testTrail = trails.find(t => t.title.includes('Mec'));
+        if (testTrail) {
+            console.log('--- ENCODING DEBUG (SERVER) ---');
+            console.log('Title:', testTrail.title);
+            const codes = testTrail.title.split('').map((c: string) => `U+${c.charCodeAt(0).toString(16).toUpperCase().padStart(4, '0')}`);
+            console.log('Codes:', codes.join(' '));
+            console.log('-------------------------------');
+        }
+    }
 
     if (!trails) return [];
 

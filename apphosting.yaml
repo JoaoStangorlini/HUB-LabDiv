@@ -19,3 +19,5 @@ env:
     secret: CLOUDINARY_API_SECRET
   - variable: ADMIN_SECRET_KEY
     secret: ADMIN_SECRET_KEY
+  - variable: SUPABASE_SERVICE_ROLE_KEY
+    secret: SUPABASE_SERVICE_ROLE_KEY

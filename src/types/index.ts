@@ -176,5 +176,26 @@ export interface EntanglementMessage {
     created_at: string;
 }
 
+// 🚀 TRILHAS (Learning Trails)
+export interface Trail {
+    id: string;
+    title: string;
+    description: string | null;
+    axis: string;
+    category: 'obrigatoria' | 'eletiva' | 'livre';
+    course_map?: Record<string, 'obrigatoria' | 'eletiva' | 'livre' | 'nao_se_aplica'>;
+    course_code: string | null;
+    effectiveCategory?: 'obrigatoria' | 'eletiva' | 'livre';
+    excitation_level: number | null;
+    status: 'em_orbita' | 'estavel';
+    credits_aula: number;
+    credits_trabalho: number;
+    submissionCount: number;
+    created_at: string;
+    equivalence_group: string | null;
+    prerequisites: string[] | null;
+    equivalency_map?: Record<string, { codes: string[]; logic: 'AND' | 'OR' }>;
+}
+
 // ALIASES PARA V3.2.0
 export type Particle = Submission;

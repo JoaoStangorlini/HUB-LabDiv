@@ -83,6 +83,7 @@ async function getTrailData(id: string) {
     const { data: { user } } = await supabase.auth.getUser();
     let userProgress = null;
     let isCompleted = false;
+    let isCompletedEquivalent = false;
 
     if (user) {
         // Fetch status/progresso (user_trail_progress)
@@ -102,6 +103,24 @@ async function getTrailData(id: string) {
             .eq('user_id', user.id)
             .single();
         isCompleted = !!completed;
+
+        if (!isCompleted && trail.equivalency_map) {
+            const { data: allUserCompleted } = await supabase
+                .from('user_completed_trails')
+                .select('learning_trails!inner(course_code)')
+                .eq('user_id', user.id);
+
+            if (allUserCompleted) {
+                const completedCodes = new Set(allUserCompleted.map((m: any) => m.learning_trails?.course_code));
+                Object.values(trail.equivalency_map).forEach((config: any) => {
+                    const { codes, logic } = config;
+                    const isSatisfied = logic === 'AND'
+                        ? codes.every((c: string) => completedCodes.has(c))
+                        : codes.some((c: string) => completedCodes.has(c));
+                    if (isSatisfied) isCompletedEquivalent = true;
+                });
+            }
+        }
     }
 
     return {
@@ -114,6 +133,7 @@ async function getTrailData(id: string) {
         totalMaterials: totalMaterials || 0,
         userProgress: userProgress || null,
         isCompleted,
+        isCompletedEquivalent,
         prerequisiteTrails,
         equivalentTrails,
         xorExclusions,
@@ -134,6 +154,7 @@ export default async function TrailDetailsPage({ params }: { params: Promise<{ i
                 totalMaterials={data.totalMaterials}
                 userProgress={data.userProgress}
                 isCompleted={data.isCompleted}
+                isCompletedEquivalent={data.isCompletedEquivalent}
                 prerequisiteTrails={data.prerequisiteTrails}
                 equivalentTrails={data.equivalentTrails}
                 xorExclusions={data.xorExclusions}

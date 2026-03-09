@@ -4,7 +4,7 @@ const resendApiKey = process.env.RESEND_API_KEY;
 const resend = resendApiKey ? new Resend(resendApiKey) : null;
 const adminEmail = process.env.ADMIN_EMAIL || 'joaopaulostangorlini@usp.br';
 
-export type NotificationType = 'submission' | 'question' | 'comment' | 'profile_update' | 'bug_report';
+export type NotificationType = 'submission' | 'question' | 'comment' | 'profile_update' | 'profile_creation' | 'bug_report';
 
 interface NotificationData {
     type: NotificationType;
@@ -62,6 +62,18 @@ export async function sendAdminNotification(data: NotificationData) {
                 <p style="color: #4a5568; line-height: 1.6; font-size: 15px;">O usuário <strong>${data.userName}</strong> comentou no material <strong>${data.submissionTitle}</strong>.</p>
                 <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; padding: 20px; margin: 24px 0; border-radius: 8px; font-style: italic; color: #2d3748;">
                     "${data.content}"
+                </div>`;
+            break;
+
+        case 'profile_creation':
+            subject = `🆕 Hub: Novo Cadastro - ${data.userName}`;
+            dashboardLink = 'https://hub.labdiv.if.usp.br/admin/papeis';
+            emailTemplate = `
+                <h2 style="color: #1a1a1a; margin-top: 0; font-size: 20px;">Novo Usuário Cadastrado</h2>
+                <p style="color: #4a5568; line-height: 1.6; font-size: 15px;">Um novo usuário completou seu cadastro no Hub e aguarda aprovação.</p>
+                <div style="background-color: #f0f9ff; border-left: 4px solid #3B82F6; padding: 16px; margin: 24px 0; border-radius: 4px;">
+                    <p style="margin: 0 0 8px 0; font-size: 14px;"><strong style="color: #1a1a1a;">Usuário:</strong> <span style="color: #4a5568;">${data.userName}</span></p>
+                    ${data.details ? `<p style="margin: 0; font-size: 14px;"><strong style="color: #1a1a1a;">Email:</strong> <span style="color: #4a5568;">${data.details}</span></p>` : ''}
                 </div>`;
             break;
 
