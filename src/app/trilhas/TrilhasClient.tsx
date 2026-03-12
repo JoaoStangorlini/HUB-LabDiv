@@ -46,8 +46,16 @@ export default function TrilhasClient({
     const [isSyncing, setIsSyncing] = useState(false);
     const [dashboardTab, setDashboardTab] = useState<'faltam' | 'concluidas' | 'cursando'>('faltam');
     const [isDashboardCollapsed, setIsDashboardCollapsed] = useState(false);
-    const [sortOrder, setSortOrder] = useState<'trending' | 'sem-asc' | 'sem-desc'>('trending');
+    const [sortOrder, setSortOrder] = useState<'trending' | 'sem-asc' | 'sem-desc'>('sem-asc');
     const router = useRouter();
+
+    const resolvePrereqName = (prereqCode: string) => {
+        const isLic = userProfile?.course?.toLowerCase().includes('licenciatura');
+        if (isLic && prereqCode === 'MAT0112') {
+            return 'MAT0105'; // Geometria Analítica em vez de Vetores e Geometria
+        }
+        return prereqCode;
+    };
 
     // 🧠 Motor de Equivalências (v4.20)
     const effectiveCompletedIds = useMemo(() => {
@@ -683,19 +691,9 @@ export default function TrilhasClient({
                                 <label className="font-mono text-[10px] dark:text-gray-500 text-gray-400 uppercase tracking-[0.3em] block ml-1">Ordenação_Vetor</label>
                                 <div className="flex flex-wrap gap-2">
                                     <button
-                                        onClick={() => setSortOrder('trending')}
-                                        className={`px-4 py-2 rounded-lg font-mono text-[10px] font-bold transition-all border flex items-center gap-2 ${sortOrder === 'trending'
-                                            ? 'bg-[#00A3FF] text-white border-transparent shadow-lg shadow-[#00A3FF]/20'
-                                            : 'dark:bg-[#121212] bg-gray-100 dark:text-gray-500 text-gray-500 dark:border-gray-800 border-gray-300 hover:border-gray-400'
-                                            }`}
-                                    >
-                                        <Zap size={12} />
-                                        TENDÊNCIAS
-                                    </button>
-                                    <button
                                         onClick={() => setSortOrder('sem-asc')}
                                         className={`px-4 py-2 rounded-lg font-mono text-[10px] font-bold transition-all border flex items-center gap-2 ${sortOrder === 'sem-asc'
-                                            ? 'bg-[#0070FF] text-white border-transparent shadow-lg shadow-[#0070FF]/20'
+                                            ? 'bg-[#00A3FF] text-white border-transparent shadow-lg shadow-[#00A3FF]/20'
                                             : 'dark:bg-[#121212] bg-gray-100 dark:text-gray-500 text-gray-500 dark:border-gray-800 border-gray-300 hover:border-gray-400'
                                             }`}
                                     >
@@ -705,12 +703,22 @@ export default function TrilhasClient({
                                     <button
                                         onClick={() => setSortOrder('sem-desc')}
                                         className={`px-4 py-2 rounded-lg font-mono text-[10px] font-bold transition-all border flex items-center gap-2 ${sortOrder === 'sem-desc'
-                                            ? 'bg-purple-600 text-white border-transparent shadow-lg shadow-purple-600/20'
+                                            ? 'bg-[#0070FF] text-white border-transparent shadow-lg shadow-[#0070FF]/20'
                                             : 'dark:bg-[#121212] bg-gray-100 dark:text-gray-500 text-gray-500 dark:border-gray-800 border-gray-300 hover:border-gray-400'
                                             }`}
                                     >
                                         <GraduationCap size={12} />
                                         ÚLTIMOS_SEMESTRES
+                                    </button>
+                                    <button
+                                        onClick={() => setSortOrder('trending')}
+                                        className={`px-4 py-2 rounded-lg font-mono text-[10px] font-bold transition-all border flex items-center gap-2 ${sortOrder === 'trending'
+                                            ? 'bg-purple-600 text-white border-transparent shadow-lg shadow-purple-600/20'
+                                            : 'dark:bg-[#121212] bg-gray-100 dark:text-gray-500 text-gray-500 dark:border-gray-800 border-gray-300 hover:border-gray-400'
+                                            }`}
+                                    >
+                                        <Zap size={12} />
+                                        TENDÊNCIAS
                                     </button>
                                 </div>
                             </div>
@@ -780,25 +788,7 @@ export default function TrilhasClient({
                                                         </div>
                                                     )}
 
-                                                    {/* Quick Info Icons (Prereq/Equiv) with tooltips */}
-                                                    <div className="flex items-center gap-2">
-                                                        {hasPrereqs && (
-                                                            <div className="group/prereq relative flex items-center">
-                                                                <AlertTriangle size={13} style={{ color: `${axisCfg.color}90` }} />
-                                                                <span className="absolute bottom-full right-0 mb-2 w-48 p-2 dark:bg-[#1A1A1A] bg-white dark:border-gray-700 border-gray-200 border rounded-lg text-[9px] font-mono dark:text-gray-300 text-gray-600 opacity-0 group-hover/prereq:opacity-100 transition-opacity pointer-events-none z-[70] shadow-xl">
-                                                                    ⚠ Esta disciplina possui <strong className="dark:text-white text-gray-900">pré-requisitos</strong>.
-                                                                </span>
-                                                            </div>
-                                                        )}
-                                                        {hasEquiv && (
-                                                            <div className="group/equiv relative flex items-center">
-                                                                <Link2 size={13} style={{ color: `${axisCfg.color}90` }} />
-                                                                <span className="absolute bottom-full right-0 mb-2 w-48 p-2 dark:bg-[#1A1A1A] bg-white dark:border-gray-700 border-gray-200 border rounded-lg text-[9px] font-mono dark:text-gray-300 text-gray-600 opacity-0 group-hover/equiv:opacity-100 transition-opacity pointer-events-none z-[70] shadow-xl">
-                                                                    🔗 Esta disciplina possui <strong className="dark:text-white text-gray-900">equivalentes</strong>.
-                                                                </span>
-                                                            </div>
-                                                        )}
-                                                    </div>
+                                                    {/* Quick Info Icons moved to Course Info Row */}
                                                 </div>
 
                                                 {/* STATUS BUTTONS ROW (NEW) */}
@@ -871,8 +861,24 @@ export default function TrilhasClient({
                                                         <Icon size={20} style={{ color: axisCfg.color }} />
                                                     </div>
                                                     <div className="space-y-0.5">
-                                                        <div className="font-mono text-[10px] tracking-widest uppercase dark:text-white/40 text-gray-400">
+                                                        <div className="font-mono text-[10px] tracking-widest uppercase dark:text-white/40 text-gray-400 flex items-center gap-2">
                                                             {trail.course_code || 'LABDIV-CORE'}
+                                                            {hasPrereqs && (
+                                                                <div className="group/prereq relative flex items-center">
+                                                                    <AlertTriangle size={12} style={{ color: `${axisCfg.color}90` }} />
+                                                                    <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 p-2 dark:bg-[#1A1A1A] bg-white dark:border-gray-700 border-gray-200 border rounded-lg text-[9px] font-mono dark:text-gray-300 text-gray-600 opacity-0 group-hover/prereq:opacity-100 transition-opacity pointer-events-none z-[70] shadow-xl">
+                                                                        ⚠ Esta disciplina possui <strong className="dark:text-white text-gray-900">pré-requisitos</strong>.
+                                                                    </span>
+                                                                </div>
+                                                            )}
+                                                            {hasEquiv && (
+                                                                <div className="group/equiv relative flex items-center">
+                                                                    <Link2 size={12} style={{ color: `${axisCfg.color}90` }} />
+                                                                    <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 p-2 dark:bg-[#1A1A1A] bg-white dark:border-gray-700 border-gray-200 border rounded-lg text-[9px] font-mono dark:text-gray-300 text-gray-600 opacity-0 group-hover/equiv:opacity-100 transition-opacity pointer-events-none z-[70] shadow-xl">
+                                                                        🔗 Esta disciplina possui <strong className="dark:text-white text-gray-900">equivalentes</strong>.
+                                                                    </span>
+                                                                </div>
+                                                            )}
                                                         </div>
                                                         <div className="font-mono text-[9px] uppercase font-bold" style={{ color: axisCfg.color }}>
                                                             {axisCfg.label}
@@ -894,7 +900,7 @@ export default function TrilhasClient({
                                                         <div className="flex flex-wrap gap-1 mt-1">
                                                             {trail.prerequisites?.map(prereq => (
                                                                 <span key={prereq} className="text-[9px] font-mono font-bold text-red-500 bg-red-500/10 px-1 rounded uppercase tracking-tighter">
-                                                                    Exige: {prereq}
+                                                                    Exige: {resolvePrereqName(prereq)}
                                                                 </span>
                                                             ))}
                                                         </div>
