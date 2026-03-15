@@ -15,7 +15,12 @@ import {
     ShieldAlert,
     MessageSquare,
     MessageCircle,
-    Mail
+    Mail,
+    Calendar,
+    Trophy,
+    Gamepad,
+    Sparkles,
+    LayoutDashboard
 } from 'lucide-react';
 import { AppRoutes } from '@/types/navigation';
 import { fetchRecentEntanglements } from '@/app/actions/submissions';
@@ -24,12 +29,22 @@ import { supabase } from '@/lib/supabase';
 
 const mainLinks = [
     { name: 'Fluxo', href: '/', icon: <span className="material-symbols-outlined text-2xl">grain</span>, color: 'brand-blue' },
+    { name: 'Logs do IFUSP', href: '/drops', icon: <MessageSquare className="w-6 h-6" />, color: 'brand-red' },
     { name: 'Lab-Div', href: '/arquivo-labdiv', icon: <Megaphone className="w-6 h-6" />, color: 'brand-yellow' },
     { name: 'Grande Colisor', href: '/colisor', icon: <Network className="w-6 h-6" />, color: 'brand-red' },
     { name: 'Wiki', href: AppRoutes.WIKI, icon: <BookOpen className="w-6 h-6" />, color: 'brand-blue' },
     { name: 'Trilhas', href: '/trilhas', icon: <Route className="w-6 h-6" />, color: 'brand-red' },
-    { name: 'Pergunte', href: '/perguntas', icon: <HelpCircle className="w-6 h-6" />, color: 'brand-yellow' },
     { name: 'Mapa', href: '/mapa', icon: <Map className="w-6 h-6" />, color: 'brand-blue' },
+];
+
+const categoryLinks = [
+    { name: 'Ferramentas Acadêmicas', href: '/ferramentas', icon: <Calendar className="w-6 h-6" />, color: 'brand-blue', role: 'aluno_usp' },
+    { name: 'Ingresso USP', href: '/ingresso', icon: <Sparkles className="w-6 h-6" />, color: 'brand-yellow', role: 'curioso' },
+    { name: 'Arena do Pesquisador', href: '/arena', icon: <Trophy className="w-6 h-6" />, color: 'brand-red', role: 'pesquisador' },
+];
+
+const bottomLinks = [
+    { name: 'Pergunte', href: '/perguntas', icon: <HelpCircle className="w-6 h-6" />, color: 'brand-yellow' },
     { name: 'Lab Pessoal', href: '/lab', icon: <span className="material-symbols-outlined text-2xl">science</span>, color: 'brand-yellow' },
     { name: 'Sobre', href: '/sobre', icon: <span className="material-symbols-outlined text-2xl">info</span>, color: 'brand-red' },
 ];
@@ -42,15 +57,51 @@ export const SidebarLeft = ({ userId }: { userId?: string }) => {
     const pathname = usePathname();
     const [recentEntanglements, setRecentEntanglements] = React.useState<any[]>([]);
     const [isLoading, setIsLoading] = React.useState(true);
+    const [userCategory, setUserCategory] = React.useState<string | null>(null);
 
-    const loadEntanglements = async () => {
-        const data = await fetchRecentEntanglements();
-        setRecentEntanglements(data);
-        setIsLoading(false);
+    const loadSidebarData = async () => {
+        setIsLoading(true);
+        try {
+            // Fetch entanglements independently
+            const entanglements = await fetchRecentEntanglements();
+            setRecentEntanglements(entanglements);
+
+            // Robust Profile Fetching
+            const { data: { session } } = await supabase.auth.getSession();
+            const currentUserId = userId || session?.user.id;
+            const userEmail = session?.user.email;
+
+            if (currentUserId) {
+                const { data: profileData } = await supabase.from('profiles')
+                    .select('user_category, is_usp_member')
+                    .eq('id', currentUserId)
+                    .single();
+                
+                const category = profileData?.user_category;
+                const isUspMember = profileData?.is_usp_member || userEmail?.endsWith('@usp.br');
+                
+                if (category === 'pesquisador') {
+                    setUserCategory('pesquisador');
+                } else if (isUspMember) {
+                    setUserCategory('aluno_usp');
+                } else if (category === 'aluno_usp') {
+                    setUserCategory('aluno_usp');
+                } else {
+                    setUserCategory('curioso');
+                }
+            } else {
+                // Visitante deslogado -> Pode ver ingresso ou curioso
+                setUserCategory('curioso');
+            }
+        } catch (error) {
+            console.error('[Sidebar] Failed to load data:', error);
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     React.useEffect(() => {
-        loadEntanglements();
+        loadSidebarData();
 
         // Listen for new messages to update the recent list
         const channel = supabase
@@ -60,7 +111,7 @@ export const SidebarLeft = ({ userId }: { userId?: string }) => {
                 schema: 'public',
                 table: 'messages'
             }, () => {
-                loadEntanglements();
+                loadSidebarData();
             })
             .subscribe();
 
@@ -73,7 +124,66 @@ export const SidebarLeft = ({ userId }: { userId?: string }) => {
         <aside className="sticky top-24 h-[calc(100vh-6rem)] w-full flex flex-col gap-8 py-6 pr-4 overflow-y-auto hidden-scrollbar">
             {/* Primary Navigation */}
             <nav className="flex flex-col gap-1">
+                {/* Main Links */}
                 {mainLinks.map((link) => {
+                    const isActive = pathname === link.href;
+                    const colorMap: Record<string, { bg: string; text: string; border: string; hoverBorder: string }> = {
+                        'brand-blue': { bg: 'bg-brand-blue/10', text: 'text-brand-blue', border: 'border-l-brand-blue', hoverBorder: 'hover:border-l-brand-blue' },
+                        'brand-red': { bg: 'bg-brand-red/10', text: 'text-brand-red', border: 'border-l-brand-red', hoverBorder: 'hover:border-l-brand-red' },
+                        'brand-yellow': { bg: 'bg-brand-yellow/10', text: 'text-brand-yellow', border: 'border-l-brand-yellow', hoverBorder: 'hover:border-l-brand-yellow' },
+                    };
+                    const c = colorMap[link.color] || colorMap['brand-blue'];
+                    return (
+                        <Link
+                            key={link.href}
+                            href={link.href}
+                            className={`flex items-center gap-4 px-4 py-3 rounded-2xl transition-all group border-l-[3px] ${isActive
+                                ? `${c.bg} ${c.text} ${c.border}`
+                                : `border-l-transparent ${c.hoverBorder} text-gray-500 hover:bg-gray-100 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-white`
+                                }`}
+                        >
+                            <span className={`transition-transform group-hover:scale-110 ${isActive ? c.text : ''}`}>
+                                {link.icon}
+                            </span>
+                            <span className={`font-bold text-base ${isActive ? 'text-gray-900 dark:text-white' : ''}`}>
+                                {link.name}
+                            </span>
+                        </Link>
+                    );
+                })}
+
+                {/* Category-Specific Links */}
+                {categoryLinks.filter(l => l.role === userCategory).map((link) => {
+                    const isActive = pathname === link.href;
+                    const colorMap: Record<string, { bg: string; text: string; border: string; hoverBorder: string }> = {
+                        'brand-blue': { bg: 'bg-brand-blue/10', text: 'text-brand-blue', border: 'border-l-brand-blue', hoverBorder: 'hover:border-l-brand-blue' },
+                        'brand-red': { bg: 'bg-brand-red/10', text: 'text-brand-red', border: 'border-l-brand-red', hoverBorder: 'hover:border-l-brand-red' },
+                        'brand-yellow': { bg: 'bg-brand-yellow/10', text: 'text-brand-yellow', border: 'border-l-brand-yellow', hoverBorder: 'hover:border-l-brand-yellow' },
+                    };
+                    const c = colorMap[link.color] || colorMap['brand-blue'];
+                    return (
+                        <Link
+                            key={link.href}
+                            href={link.href}
+                            className={`flex items-center gap-4 px-4 py-3 rounded-2xl transition-all group border-l-[3px] ${isActive
+                                ? `${c.bg} ${c.text} ${c.border}`
+                                : `border-l-transparent ${c.hoverBorder} text-gray-500 hover:bg-gray-100 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-white`
+                                }`}
+                        >
+                            <span className={`transition-transform group-hover:scale-110 ${isActive ? c.text : ''}`}>
+                                {link.icon}
+                            </span>
+                            <span className={`font-bold text-base ${isActive ? 'text-gray-900 dark:text-white' : ''}`}>
+                                {link.name}
+                            </span>
+                        </Link>
+                    );
+                })}
+
+                <div className="h-px bg-gray-100 dark:bg-white/5 my-2 mx-4" />
+
+                {/* Bottom Links */}
+                {bottomLinks.map((link) => {
                     const isActive = pathname === link.href;
                     const colorMap: Record<string, { bg: string; text: string; border: string; hoverBorder: string }> = {
                         'brand-blue': { bg: 'bg-brand-blue/10', text: 'text-brand-blue', border: 'border-l-brand-blue', hoverBorder: 'hover:border-l-brand-blue' },

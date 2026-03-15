@@ -4,12 +4,13 @@ import { useState, useEffect, Suspense } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { fetchUserSubmissions } from '@/app/actions/submissions';
+import { fetchUserAcademicdata } from '@/app/actions/disciplines'; 
 import { PostDTO } from '@/dtos/media';
 import { getAvatarUrl } from '@/lib/utils';
 import { parseMediaUrl, getYoutubeThumbnail, getOptimizedUrl } from '@/lib/media-utils';
 import { MainLayoutWrapper } from '@/components/layout/MainLayoutWrapper';
 
-import { User, Grid, Medal, Star, Image as ImageIcon, PlayCircle, FileText, Heart, MessageSquare, Info, Camera, ExternalLink, ShieldCheck, Play, UserPlus } from 'lucide-react';
+import { User, Grid, Medal, Star, Image as ImageIcon, PlayCircle, FileText, Heart, MessageSquare, Info, Camera, ExternalLink, ShieldCheck, Play, UserPlus, GraduationCap } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { RadiationBadge } from '@/components/gamification/RadiationBadge';
 import { EditProfileModal } from '@/components/profile/EditProfileModal';
@@ -36,6 +37,7 @@ function LabContent() {
     const [isLoading, setIsLoading] = useState(true);
     const [activeTab, setActiveTab] = useState(initialTab);
     const [adoptionStatus, setAdoptionStatus] = useState<'pending' | 'approved' | null>(null);
+    const [academicData, setAcademicData] = useState<any>(null);
 
 
     useEffect(() => {
@@ -129,6 +131,15 @@ function LabContent() {
                     }
                 } else {
                     setAdoptionStatus(null);
+                }
+
+                // Fetch academic data if it's an Aluno
+                if (profileData?.user_category === 'aluno_usp') {
+                    const { fetchUserAcademicdata } = await import('@/app/actions/disciplines');
+                    const academicRes = await fetchUserAcademicdata(targetUserId);
+                    if (academicRes.success) {
+                        setAcademicData(academicRes.data);
+                    }
                 }
             } catch (error) {
                 console.error("Error loading lab data:", error);
@@ -261,6 +272,17 @@ function LabContent() {
                                             {viewedProfile.role === 'admin' ? 'Admin' : viewedProfile.role}
                                         </span>
                                     )}
+                                    {viewedProfile?.user_category && (
+                                        <span className={`px-2 py-0.5 text-[10px] font-bold rounded uppercase ${
+                                            viewedProfile.user_category === 'pesquisador' ? 'bg-brand-yellow/20 text-brand-yellow border border-brand-yellow/30' : 
+                                            viewedProfile.user_category === 'aluno_usp' ? 'bg-brand-blue/20 text-brand-blue border border-brand-blue/30' : 
+                                            'bg-brand-red/20 text-brand-red border border-brand-red/30'
+                                        }`}>
+                                            {viewedProfile.user_category === 'pesquisador' ? 'Pesquisador' : 
+                                             viewedProfile.user_category === 'aluno_usp' ? 'Aluno USP' : 
+                                             'Curioso'}
+                                        </span>
+                                    )}
                                     {viewedProfile?.is_usp_member && viewedProfile?.entrance_year && (
                                         <span className="px-2 py-0.5 bg-brand-blue/10 text-brand-blue text-[10px] font-bold rounded uppercase">
                                             Ingresso: {viewedProfile.entrance_year}
@@ -330,6 +352,58 @@ function LabContent() {
                         </div>
                     </div>
                 </div>
+
+                {/* Academic Context (Only for Alunos) */}
+                {viewedProfile?.user_category === 'aluno_usp' && academicData && (
+                    <div className="bg-white dark:bg-[#121212] rounded-3xl p-8 shadow-sm border border-gray-100 dark:border-gray-800 mb-8 animate-in fade-in slide-in-from-top-2 duration-700">
+                        <div className="flex flex-col md:flex-row gap-8 items-start">
+                            <div className="flex-1 space-y-4">
+                                <h4 className="text-[10px] font-black uppercase text-brand-blue tracking-[0.2em] flex items-center gap-2">
+                                    <GraduationCap className="w-4 h-4" />
+                                    Ecossistema Acadêmico
+                                </h4>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div className="p-4 bg-brand-blue/5 rounded-2xl border border-brand-blue/10">
+                                        <div className="text-[8px] font-black text-brand-blue uppercase mb-2">Em Curso</div>
+                                        <div className="flex flex-wrap gap-1.5">
+                                            {academicData.inProgress?.length > 0 ? (
+                                                academicData.inProgress.map((p: any) => (
+                                                    <span key={p.id} className="px-2 py-0.5 bg-brand-blue/10 text-brand-blue text-[9px] font-bold rounded uppercase">
+                                                        {p.learning_trails?.course_code}
+                                                    </span>
+                                                ))
+                                            ) : (
+                                                <span className="text-[9px] text-gray-500 font-bold uppercase italic">Nenhuma disciplina</span>
+                                            )}
+                                        </div>
+                                    </div>
+                                    <div className="p-4 bg-brand-yellow/5 rounded-2xl border border-brand-yellow/10">
+                                        <div className="text-[8px] font-black text-brand-yellow uppercase mb-2">Concluídas</div>
+                                        <div className="text-[9px] text-white/60 font-black uppercase">
+                                            {academicData.completed?.length || 0} Disciplinas Concluídas
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {viewedProfile?.areas_of_interest && viewedProfile.areas_of_interest.length > 0 && (
+                                <div className="w-full md:w-64 space-y-4">
+                                    <h4 className="text-[10px] font-black uppercase text-gray-500 tracking-[0.2em] flex items-center gap-2">
+                                        <Star className="w-4 h-4" />
+                                        Foco de Pesquisa
+                                    </h4>
+                                    <div className="flex flex-wrap gap-2">
+                                        {viewedProfile.areas_of_interest.map((area: string) => (
+                                            <span key={area} className="px-2 py-1 bg-white/5 text-white/60 text-[9px] font-black border border-white/10 rounded-lg uppercase transition-all hover:border-brand-yellow/30 hover:text-brand-yellow">
+                                                {area}
+                                            </span>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                )}
 
                 <div className="flex justify-center border-t border-gray-200 dark:border-gray-800 mb-8 max-w-3xl mx-auto">
                     {[
@@ -438,8 +512,8 @@ function LabContent() {
                         <RadiationTab profile={{ id: viewedProfile.id, xp: viewedProfile.xp || 0, level: viewedProfile.level || 1 }} />
                     )}
 
-                    {activeTab === 'match' && viewedProfile?.id === currentUser.id && (
-                        <MatchAcademicoTab isMentor={currentUserProfile?.available_to_mentor || false} />
+                    {activeTab === 'match' && viewedProfile?.id === currentUser.id && viewedProfile && (
+                        <MatchAcademicoTab profile={viewedProfile} />
                     )}
 
                     {activeTab === 'estrelados' && (

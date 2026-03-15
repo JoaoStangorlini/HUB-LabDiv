@@ -43,6 +43,13 @@ export interface Profile {
     has_scholarship: boolean;
     seeking_scholarship: boolean;
     interest_in_team: boolean;
+    user_category: 'curioso' | 'aluno_usp' | 'pesquisador';
+    seeking_ic: boolean;
+    seeking_assistant: boolean;
+    ic_research_area?: string;
+    ic_preferred_department?: string;
+    ic_preferred_lab?: string;
+    areas_of_interest?: string[];
     pending_edits?: any;
     created_at: string;
 }
@@ -174,6 +181,15 @@ export interface EntanglementMessage {
     attachment_type?: 'particle' | 'article';
     is_read: boolean;
     created_at: string;
+}
+
+export interface MicroArticle {
+    id: string;
+    author_id: string;
+    content: string;
+    likes_count: number;
+    created_at: string;
+    author?: Profile;
 }
 
 // 🚀 TRILHAS (Learning Trails)

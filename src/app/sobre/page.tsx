@@ -1,17 +1,26 @@
 import { fetchSubmissions } from "@/app/actions/submissions";
 import { SobreClient } from "./SobreClient";
+import { createServerSupabase } from "@/lib/supabase/server";
 
 export default async function SobrePage() {
-    // Fetch up to 4 items for the 'Impacto e Conquistas' category
-    const { items: testimonials } = await fetchSubmissions({
-        page: 1,
-        limit: 4,
-        query: '',
-        categories: ['Impacto e Conquistas'],
-        sort: 'recentes'
-    });
+    const supabase = await createServerSupabase();
+    const { data: { user } } = await supabase.auth.getUser();
+
+    const [submissionsRes, profileRes] = await Promise.all([
+        fetchSubmissions({
+            page: 1,
+            limit: 4,
+            query: '',
+            categories: ['Impacto e Conquistas'],
+            sort: 'recentes'
+        }),
+        user ? supabase.from('profiles').select('*').eq('id', user.id).single() : Promise.resolve({ data: null })
+    ]);
 
     return (
-        <SobreClient initialTestimonials={testimonials} />
+        <SobreClient 
+            initialTestimonials={submissionsRes.items} 
+            profile={profileRes.data ? { ...profileRes.data, email: user?.email } as any : null}
+        />
     );
 }

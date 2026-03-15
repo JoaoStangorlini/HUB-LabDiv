@@ -36,6 +36,7 @@ export async function GET(request: NextRequest) {
 
         if (!error && session) {
             const track = searchParams.get('track');
+            const categoryHint = searchParams.get('category');
             const email = session.user.email || '';
             const isUspDomain = email.endsWith('@usp.br') || email.endsWith('@alumni.usp.br');
 
@@ -48,9 +49,14 @@ export async function GET(request: NextRequest) {
                 return NextResponse.redirect(conflictUrl.toString());
             }
 
+            const profileUpdate: any = { is_usp_member: isUspDomain };
+            if (categoryHint) {
+                profileUpdate.user_category = categoryHint;
+            }
+
             await supabase
                 .from('profiles')
-                .update({ is_usp_member: isUspDomain })
+                .update(profileUpdate)
                 .eq('id', session.user.id);
 
             console.log(`Auth Success: Redirecting to ${next} via ${publicOrigin}`);

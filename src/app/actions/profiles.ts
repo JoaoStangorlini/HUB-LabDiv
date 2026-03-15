@@ -266,7 +266,10 @@ export async function updateProfileAsAdmin(profileId: string, updates: Partial<P
             seeking_mentor: updates.seeking_mentor,
             review_status: updates.review_status,
             education_level: updates.education_level,
-            external_institution: updates.external_institution
+            external_institution: updates.external_institution,
+            user_category: updates.user_category,
+            seeking_ic: updates.seeking_ic,
+            seeking_assistant: updates.seeking_assistant
         })
         .eq('id', profileId);
 
@@ -466,4 +469,83 @@ export async function updateAdoptionStatus(adoptionId: string, status: 'approved
 
     revalidatePath('/admin/adocoes');
     return { success: true };
+}
+export async function fetchStudentsSeekingIC() {
+    const supabase = await createServerSupabase();
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (!user) return { error: 'Não autorizado' };
+
+    const { data, error } = await supabase
+        .from('profiles')
+        .select('id, full_name, username, use_nickname, avatar_url, course, institute, entrance_year, bio, whatsapp, email, xp, level, is_labdiv')
+        .eq('seeking_ic', true)
+        .eq('review_status', 'approved')
+        .order('created_at', { ascending: false });
+
+    if (error) {
+        console.error('Error fetching students for IC:', error);
+        return { error: 'Erro ao buscar alunos interessados em IC' };
+    }
+
+    return { success: true, data };
+}
+
+export async function fetchResearchersSeekingAssistants() {
+    const supabase = await createServerSupabase();
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (!user) return { error: 'Não autorizado' };
+
+    const { data, error } = await supabase
+        .from('profiles')
+        .select('id, full_name, username, use_nickname, avatar_url, course, institute, bio, whatsapp, email, xp, level, is_labdiv')
+        .eq('seeking_assistant', true)
+        .eq('review_status', 'approved')
+        .order('created_at', { ascending: false });
+
+    if (error) {
+        console.error('Error fetching researchers:', error);
+        return { error: 'Erro ao buscar pesquisadores buscando ajudantes' };
+    }
+
+    return { success: true, data };
+}
+
+export async function getStudentMiniPortfolio(studentId: string) {
+    const supabase = await createServerSupabase();
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (!user) return { error: 'Não autorizado' };
+
+    // Fetch profile details
+    const { data: profile, error: pError } = await supabase
+        .from('profiles')
+        .select('areas_of_interest, artistic_interests, bio, full_name, username, use_nickname, avatar_url, course, institute, entrance_year')
+        .eq('id', studentId)
+        .single();
+
+    if (pError) return { error: 'Perfil não encontrado' };
+
+    // Fetch completed disciplines
+    const { data: completed, error: cError } = await supabase
+        .from('user_completed_trails')
+        .select('trail:learning_trails(id, title, course_code, axis)')
+        .eq('user_id', studentId);
+
+    // Fetch current disciplines
+    const { data: current, error: curError } = await supabase
+        .from('user_trail_progress')
+        .select('trail:learning_trails(id, title, course_code, axis)')
+        .eq('user_id', studentId)
+        .eq('status', 'cursando');
+
+    return {
+        success: true,
+        data: {
+            profile,
+            completed: (completed || []).map((c: any) => c.trail),
+            current: (current || []).map((c: any) => c.trail)
+        }
+    };
 }

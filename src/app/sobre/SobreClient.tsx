@@ -5,13 +5,15 @@ import Link from "next/link";
 import Image from "next/image";
 import { MainLayoutWrapper } from "@/components/layout/MainLayoutWrapper";
 import { MediaCard, MediaCardProps } from "@/components/MediaCard";
-import { Megaphone, ArrowRight, UserPlus, Award, Star, ExternalLink, BookOpen, Route, Rocket, Smartphone, Gamepad2, Database, Users, Mic, Shield, Map, Layout, MessageSquare, Book, Calculator, Settings, Link2, Globe, Video, Briefcase, Accessibility, Building, ScrollText, FileText, Network, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Megaphone, ArrowRight, UserPlus, Award, Star, ExternalLink, BookOpen, Route, Rocket, Smartphone, Gamepad2, Database, Users, Mic, Shield, Map, Layout, MessageSquare, Book, Calculator, Settings, Link2, Globe, Video, Briefcase, Accessibility, Building, ScrollText, FileText, Network, ChevronLeft, ChevronRight, GraduationCap, Microscope, HelpCircle, Sparkles, Trophy, Calendar } from 'lucide-react';
+import { Profile } from '@/types';
 
 interface SobreClientProps {
     initialTestimonials: MediaCardProps[];
+    profile?: Profile | null;
 }
 
-export function SobreClient({ initialTestimonials }: SobreClientProps) {
+export function SobreClient({ initialTestimonials, profile }: SobreClientProps) {
     const scrollContainerRef = React.useRef<HTMLDivElement>(null);
 
     const scrollLocal = (direction: 'left' | 'right') => {
@@ -31,8 +33,105 @@ export function SobreClient({ initialTestimonials }: SobreClientProps) {
                     O que é o <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-blue via-brand-red to-brand-yellow">Hub de Comunicação</span>?
                 </h1>
                 <p className="text-xl md:text-2xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto leading-relaxed">
-                    Um ecossistema digital criado pelo Lab-Div que reúne a divulgação científica do Instituto de Física da USP em um <strong>Fluxo</strong> interativo — indo além da simples vitrine para promover engajamento real com a comunidade. Também conecta o IFUSP como fonte colaborativa de anotações e conhecimento sobre o instituto, seus cursos e sua história, através das abas <strong>Wiki</strong>, <strong>Trilhas</strong>, <strong>Lab-Div</strong>, <strong>Colisor</strong>, <strong>Perguntas</strong> e <strong>Mapa</strong>.
                 </p>
+            </div>
+
+            {/* Dynamic Role-Based Section (Sprint V3.2.0) */}
+            <div className="mb-20 animate-in fade-in slide-in-from-bottom-5 duration-700">
+                <div className="glass-card rounded-[40px] p-8 md:p-12 relative overflow-hidden border-brand-blue/10 bg-gradient-to-br from-brand-blue/5 via-transparent to-brand-red/5">
+                    <div className="absolute top-0 right-0 p-8 opacity-5">
+                        <Sparkles size={120} />
+                    </div>
+                    
+                    <div className="relative z-10 flex flex-col md:flex-row items-center gap-8">
+                        <div className="flex-1 space-y-4">
+                            {(!profile) ? (
+                                <>
+                                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gray-500/10 text-gray-500 text-[10px] font-black uppercase tracking-widest">
+                                        Visitante
+                                    </div>
+                                    <h2 className="text-3xl font-black uppercase italic tracking-tighter">O IFUSP ao seu alcance</h2>
+                                    <p className="text-gray-600 dark:text-gray-400">Entre na plataforma para desbloquear ferramentas exclusivas, acompanhar trilhas e contribuir com a divulgação científica oficial.</p>
+                                    <Link href="/login" className="inline-flex items-center gap-2 text-brand-blue font-bold hover:underline">
+                                        Fazer Login / Criar Conta <ArrowRight className="w-4 h-4" />
+                                    </Link>
+                                </>
+                            ) : (profile.user_category === 'pesquisador' || profile.email?.includes('pesquisador')) ? (
+                                <>
+                                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-yellow/10 text-brand-yellow text-[10px] font-black uppercase tracking-widest">
+                                        Persona: Pesquisador
+                                    </div>
+                                    <h2 className="text-3xl font-black uppercase italic tracking-tighter">Amplie o Impacto da sua Ciência</h2>
+                                    <p className="text-gray-600 dark:text-gray-400">Use o Hub para recrutar novos talentos via <Link href="/lab?tab=match" className="text-brand-yellow font-bold underline decoration-brand-yellow/30 hover:decoration-brand-yellow decoration-2 underline-offset-4">Match Acadêmico</Link>, divulgar resultados em tempo real no Fluxo e participar de competições na <Link href="/arena" className="text-brand-red font-bold underline decoration-brand-red/30 hover:decoration-brand-red decoration-2 underline-offset-4">Researcher Arena</Link>.</p>
+                                    <div className="flex flex-wrap gap-4 pt-4">
+                                        <div className="flex items-center gap-3 bg-white/5 p-4 rounded-2xl border border-white/5">
+                                            <Microscope className="w-8 h-8 text-brand-yellow" />
+                                            <div>
+                                                <div className="text-xs font-black uppercase opacity-60">Recrutamento</div>
+                                                <div className="text-sm font-bold">Ache ajudantes para seu lab</div>
+                                            </div>
+                                        </div>
+                                        <div className="flex items-center gap-3 bg-white/5 p-4 rounded-2xl border border-white/5">
+                                            <Trophy className="w-8 h-8 text-brand-red" />
+                                            <div>
+                                                <div className="text-xs font-black uppercase opacity-60">Arena</div>
+                                                <div className="text-sm font-bold">Participe de competições</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </>
+                            ) : (profile.email?.endsWith('@usp.br') || profile.user_category === 'aluno_usp') ? (
+                                <>
+                                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-blue/10 text-brand-blue text-[10px] font-black uppercase tracking-widest">
+                                        Persona: Aluno USP
+                                    </div>
+                                    <h2 className="text-3xl font-black uppercase italic tracking-tighter">Suas Ferramentas de Estudo</h2>
+                                    <p className="text-gray-600 dark:text-gray-400">Acesse exclusivamente as <Link href="/ferramentas" className="text-brand-blue font-bold underline decoration-brand-blue/30 hover:decoration-brand-blue decoration-2 underline-offset-4">Ferramentas Acadêmicas</Link> (Calendário e Árvore). Sinalize interesse em ICs no <Link href="/lab" className="text-brand-red font-bold underline decoration-brand-red/30 hover:decoration-brand-red decoration-2 underline-offset-4">Match Acadêmico</Link> para ser encontrado por pesquisadores.</p>
+                                    <div className="flex flex-wrap gap-4 pt-4">
+                                        <div className="flex items-center gap-3 bg-white/5 p-4 rounded-2xl border border-white/5">
+                                            <Calendar className="w-8 h-8 text-brand-blue" />
+                                            <div>
+                                                <div className="text-xs font-black uppercase opacity-60">Organização</div>
+                                                <div className="text-sm font-bold">Calendário Semanal</div>
+                                            </div>
+                                        </div>
+                                        <div className="flex items-center gap-3 bg-white/5 p-4 rounded-2xl border border-white/5">
+                                            <GraduationCap className="w-8 h-8 text-brand-red" />
+                                            <div>
+                                                <div className="text-xs font-black uppercase opacity-60">Match</div>
+                                                <div className="text-sm font-bold">Quero uma IC!</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </>
+                            ) : (
+                                <>
+                                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-red/10 text-brand-red text-[10px] font-black uppercase tracking-widest">
+                                        Persona: Curioso
+                                    </div>
+                                    <h2 className="text-3xl font-black uppercase italic tracking-tighter">Quer entrar no IFUSP?</h2>
+                                    <p className="text-gray-600 dark:text-gray-400">Explore nossa aba <Link href="/ingresso" className="text-brand-red font-bold underline decoration-brand-red/30 hover:decoration-brand-red decoration-2 underline-offset-4">Como ingressar</Link> e tire suas dúvidas diretamente com quem já estuda aqui através do sistema de perguntas.</p>
+                                    <div className="flex flex-wrap gap-4 pt-4">
+                                        <div className="flex items-center gap-3 bg-white/5 p-4 rounded-2xl border border-white/5">
+                                            <HelpCircle className="w-8 h-8 text-brand-yellow" />
+                                            <div>
+                                                <div className="text-xs font-black uppercase opacity-60">Diálogo</div>
+                                                <div className="text-sm font-bold">Tire suas dúvidas</div>
+                                            </div>
+                                        </div>
+                                        <div className="flex items-center gap-3 bg-white/5 p-4 rounded-2xl border border-white/5">
+                                            <Sparkles className="w-8 h-8 text-brand-blue" />
+                                            <div>
+                                                <div className="text-xs font-black uppercase opacity-60">Guia</div>
+                                                <div className="text-sm font-bold">Roteiro de Ingresso</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </>
+                            )}
+                        </div>
+                    </div>
+                </div>
             </div>
 
             {/* Ramificações Grid */}
@@ -199,7 +298,7 @@ export function SobreClient({ initialTestimonials }: SobreClientProps) {
                     </div>
                     <h4 className="text-xl font-black uppercase italic tracking-tight mb-4">Grande Colisor</h4>
                     <p className="text-gray-500 text-sm leading-relaxed mb-6 flex-1">
-                        Muito mais que um site, uma rede. O Colisor integra iniciativas como o Parque CienTec, o Boletim Supernova e o DigitalLab, conectando espaços físicos e projetos de extensão do IFUSP e da USP em um só mapa de visibilidade.
+                        Muito mais que um site, uma rede. O Colisor integra iniciativas como o **BiFUSP**, o **Laboratório de Demonstrações Ernst Wolfgang Hamburger**, o Parque CienTec, o Boletim Supernova e o DigitalLab, conectando espaços físicos e projetos de extensão do IFUSP e da USP em um só mapa de visibilidade.
                     </p>
                     <Link href="/colisor" className="text-[10px] font-black uppercase tracking-widest text-brand-red flex items-center gap-2 group/link">
                         Explorar Colisor <ArrowRight className="size-3 group-hover/link:translate-x-1 transition-transform" />
@@ -335,7 +434,7 @@ export function SobreClient({ initialTestimonials }: SobreClientProps) {
                                 <div className="absolute top-0 right-0 w-24 h-24 bg-brand-blue/10 blur-2xl rounded-full translate-x-1/2 -translate-y-1/2"></div>
                                 <span className="text-[10px] uppercase font-black tracking-widest text-brand-blue mb-2 relative z-10 flex items-center gap-2"><Rocket className="w-3 h-3" /> Roadmap Futuro</span>
                                 <h4 className="font-bold text-brand-blue mb-2 relative z-10">Expansão de Domínio</h4>
-                                <p className="text-xs text-slate-400 flex-1 relative z-10">Migração para o subdomínio oficial <code>hublabdiv.if.usp.br</code> para centralização da presença digital.</p>
+                                <p className="text-xs text-slate-400 flex-1 relative z-10">Migração para o subdomínio oficial <code>hublabdiv.if.usp.br</code> para centralização da presença digital pública.</p>
                             </div>
                         </div>
                     </div>
@@ -402,9 +501,8 @@ export function SobreClient({ initialTestimonials }: SobreClientProps) {
                         </div>
                     </div>
 
-                    {/* ÁREA 4 */}
+                    {/* ÁREA 4: UX & Acessibilidade */}
                     <div className="glass-card shrink-0 w-full md:w-[75vw] lg:w-[850px] snap-center rounded-[32px] p-6 lg:p-8 flex flex-col lg:flex-row gap-8 items-stretch border border-white/5 hover:border-brand-blue/30 transition-all group">
-                        {/* Header da Área */}
                         <div className="lg:w-1/3 flex flex-col justify-center">
                             <span className="text-[10px] font-bold tracking-wider uppercase text-brand-blue mb-3 inline-block px-3 py-1 bg-brand-blue/10 rounded-full w-fit">[ÁREA 4] Experiência Transversal</span>
                             <div className="flex items-center gap-4 mb-4">
@@ -417,7 +515,6 @@ export function SobreClient({ initialTestimonials }: SobreClientProps) {
                                 A ponte entre o volume bruto de material gerado e a exibição otimizada, inclusiva e artística na interface.
                             </p>
                         </div>
-                        {/* Cards Atual/Futuro */}
                         <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div className="bg-[#11141a] rounded-2xl p-6 border border-white/5 flex flex-col h-full">
                                 <span className="text-[10px] uppercase font-black tracking-widest text-green-400 mb-2 flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></div> Status Atual</span>
@@ -433,9 +530,8 @@ export function SobreClient({ initialTestimonials }: SobreClientProps) {
                         </div>
                     </div>
 
-                    {/* ÁREA 5 */}
+                    {/* ÁREA 5: Engajamento */}
                     <div className="glass-card shrink-0 w-full md:w-[75vw] lg:w-[850px] snap-center rounded-[32px] p-6 lg:p-8 flex flex-col lg:flex-row gap-8 items-stretch border border-white/5 hover:border-brand-red/30 transition-all group">
-                        {/* Header da Área */}
                         <div className="lg:w-1/3 flex flex-col justify-center">
                             <span className="text-[10px] font-bold tracking-wider uppercase text-brand-red mb-3 inline-block px-3 py-1 bg-brand-red/10 rounded-full w-fit">[ÁREA 5] Engajamento</span>
                             <div className="flex items-center gap-4 mb-4">
@@ -448,7 +544,6 @@ export function SobreClient({ initialTestimonials }: SobreClientProps) {
                                 Estruturas para que as vozes do Instituto se sobreponham, se organizem e gerem conhecimento vivo.
                             </p>
                         </div>
-                        {/* Cards Atual/Futuro */}
                         <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div className="bg-[#11141a] rounded-2xl p-6 border border-white/5 flex flex-col h-full">
                                 <span className="text-[10px] uppercase font-black tracking-widest text-green-400 mb-2 flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></div> Status Atual</span>
@@ -464,9 +559,8 @@ export function SobreClient({ initialTestimonials }: SobreClientProps) {
                         </div>
                     </div>
 
-                    {/* ÁREA 6 */}
+                    {/* ÁREA 6: Colaboração Institucional */}
                     <div className="glass-card shrink-0 w-full md:w-[75vw] lg:w-[850px] snap-center rounded-[32px] p-6 lg:p-8 flex flex-col lg:flex-row gap-8 items-stretch border border-white/5 hover:border-brand-yellow/30 transition-all group">
-                        {/* Header da Área */}
                         <div className="lg:w-1/3 flex flex-col justify-center">
                             <span className="text-[10px] font-bold tracking-wider uppercase text-brand-yellow mb-3 inline-block px-3 py-1 bg-brand-yellow/10 rounded-full w-fit">[ÁREA 6] Colaboração Institucional</span>
                             <div className="flex items-center gap-4 mb-4">
@@ -479,7 +573,6 @@ export function SobreClient({ initialTestimonials }: SobreClientProps) {
                                 Manutenção de guias coletivos, tutoriais de como viver e entender o ecossistema fechado do campus.
                             </p>
                         </div>
-                        {/* Cards Atual/Futuro */}
                         <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div className="bg-[#11141a] rounded-2xl p-6 border border-white/5 flex flex-col h-full">
                                 <span className="text-[10px] uppercase font-black tracking-widest text-green-400 mb-2 flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></div> Status Atual</span>
@@ -495,9 +588,8 @@ export function SobreClient({ initialTestimonials }: SobreClientProps) {
                         </div>
                     </div>
 
-                    {/* ÁREA 7 */}
+                    {/* ÁREA 7: Gamificação Pessoal */}
                     <div className="glass-card shrink-0 w-full md:w-[75vw] lg:w-[850px] snap-center rounded-[32px] p-6 lg:p-8 flex flex-col lg:flex-row gap-8 items-stretch border border-white/5 hover:border-brand-blue/30 transition-all group">
-                        {/* Header da Área */}
                         <div className="lg:w-1/3 flex flex-col justify-center">
                             <span className="text-[10px] font-bold tracking-wider uppercase text-brand-blue mb-3 inline-block px-3 py-1 bg-brand-blue/10 rounded-full w-fit">[ÁREA 7] Gamificação Pessoal</span>
                             <div className="flex items-center gap-4 mb-4">
@@ -510,7 +602,6 @@ export function SobreClient({ initialTestimonials }: SobreClientProps) {
                                 Convertendo navegação diária em engajamento duradouro recompensando a absorção de conhecimento.
                             </p>
                         </div>
-                        {/* Cards Atual/Futuro */}
                         <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div className="bg-[#11141a] rounded-2xl p-6 border border-white/5 flex flex-col h-full">
                                 <span className="text-[10px] uppercase font-black tracking-widest text-green-400 mb-2 flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></div> Status Atual</span>
@@ -526,22 +617,20 @@ export function SobreClient({ initialTestimonials }: SobreClientProps) {
                         </div>
                     </div>
 
-                    {/* ÁREA 8 */}
+                    {/* ÁREA 8: Utilitários de Graduação */}
                     <div className="glass-card shrink-0 w-full md:w-[75vw] lg:w-[850px] snap-center rounded-[32px] p-6 lg:p-8 flex flex-col lg:flex-row gap-8 items-stretch border border-white/5 hover:border-brand-red/30 transition-all group">
-                        {/* Header da Área */}
                         <div className="lg:w-1/3 flex flex-col justify-center">
                             <span className="text-[10px] font-bold tracking-wider uppercase text-brand-red mb-3 inline-block px-3 py-1 bg-brand-red/10 rounded-full w-fit">[ÁREA 8] Utilitários de Graduação</span>
                             <div className="flex items-center gap-4 mb-4">
                                 <div className="w-12 h-12 bg-white/5 rounded-2xl flex items-center justify-center text-brand-red shrink-0 group-hover:scale-110 group-hover:bg-brand-red/10 transition-all">
                                     <FileText className="w-6 h-6" />
                                 </div>
-                                <h3 className="text-2xl font-bold leading-tight">Ferramentas Práticas</h3>
+                                <h3 className="text-2xl font-bold leading-tight">IA Curatorial IFUSP</h3>
                             </div>
                             <p className="text-slate-400 text-sm leading-relaxed">
                                 Apps web internos focados em facilitar o planejamento das aulas e simplificar requerimentos dos estudantes.
                             </p>
                         </div>
-                        {/* Cards Atual/Futuro */}
                         <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div className="bg-[#11141a] rounded-2xl p-6 border border-white/5 flex flex-col h-full">
                                 <span className="text-[10px] uppercase font-black tracking-widest text-green-400 mb-2 flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></div> Status Atual</span>
@@ -677,7 +766,6 @@ export function SobreClient({ initialTestimonials }: SobreClientProps) {
                     </div>
                 </div>
             </div>
-
         </MainLayoutWrapper>
     );
 }

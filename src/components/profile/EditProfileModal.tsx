@@ -6,7 +6,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { toast } from 'react-hot-toast';
-import { Loader2, X, User, FileText, Globe, Link, Building2, ShieldCheck, Star, Mail, Phone, FileUp, Info } from 'lucide-react';
+import { Loader2, X, User, FileText, Globe, Link, Building2, ShieldCheck, Star, Mail, Phone, FileUp, Info, Users, Microscope } from 'lucide-react';
 import { updateProfile, getProfileWithPseudonyms, uploadEnrollmentProof, updateProfileAsAdmin } from '@/app/actions/profiles';
 import { getUserPseudonyms, createPseudonym } from '@/app/actions/submissions';
 import { createServerSupabase } from '@/lib/supabase/server';
@@ -28,11 +28,17 @@ const profileSchema = z.object({
     entrance_year: z.string().optional(),
     artistic_interests_str: z.string().default(''),
     lattes_url: z.string().url("Link do Lattes inválido").or(z.literal("")).default(''),
+    ic_research_area: z.string().max(100).default(''),
+    ic_preferred_department: z.string().max(100).default(''),
+    ic_preferred_lab: z.string().max(100).default(''),
     new_nickname: z.string().max(30).default(''),
     available_to_mentor: z.boolean().default(false),
     seeking_mentor: z.boolean().default(false),
     is_labdiv: z.boolean().optional(),
     is_visible: z.boolean().optional(),
+    user_category: z.enum(['curioso', 'aluno_usp', 'pesquisador']).default('curioso'),
+    seeking_ic: z.boolean().default(false),
+    seeking_assistant: z.boolean().default(false),
 }).superRefine((data, ctx) => {
     const isUsp = data.email?.endsWith('@usp.br');
     if (isUsp) {
@@ -94,6 +100,12 @@ export function EditProfileModal({ isOpen, onClose, onSuccess, adminMode = false
             seeking_mentor: false,
             is_labdiv: false,
             is_visible: true,
+            user_category: 'curioso',
+            seeking_ic: false,
+            seeking_assistant: false,
+            ic_research_area: '',
+            ic_preferred_department: '',
+            ic_preferred_lab: '',
         }
     });
 
@@ -181,6 +193,12 @@ export function EditProfileModal({ isOpen, onClose, onSuccess, adminMode = false
             setValue('seeking_mentor', profile.seeking_mentor || false);
             setValue('is_labdiv', profile.is_labdiv || false);
             setValue('is_visible', profile.is_visible ?? true);
+            setValue('user_category', profile.user_category || 'curioso');
+            setValue('seeking_ic', profile.seeking_ic || false);
+            setValue('seeking_assistant', profile.seeking_assistant || false);
+            setValue('ic_research_area', profile.ic_research_area || '');
+            setValue('ic_preferred_department', profile.ic_preferred_department || '');
+            setValue('ic_preferred_lab', profile.ic_preferred_lab || '');
             setProfileData(profile);
             setPseudonyms(pNames);
         }
@@ -371,6 +389,27 @@ export function EditProfileModal({ isOpen, onClose, onSuccess, adminMode = false
                             {errors.bio && <p className="text-[10px] text-brand-red font-bold uppercase ml-1">{errors.bio.message}</p>}
                         </div>
 
+                        {/* Categoria de Usuário */}
+                        <div className="space-y-2">
+                            <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1 flex items-center gap-2">
+                                <Users className="w-3 h-3" /> Categoria de Usuário
+                            </label>
+                            <div className="grid grid-cols-3 gap-2">
+                                {(['curioso', 'aluno_usp', 'pesquisador'] as const).map((cat) => (
+                                    <button
+                                        key={cat}
+                                        type="button"
+                                        onClick={() => setValue('user_category', cat)}
+                                        className={`px-3 py-2 rounded-xl text-[9px] font-black uppercase transition-all border ${watch('user_category') === cat
+                                            ? 'bg-brand-blue text-white border-brand-blue shadow-lg shadow-brand-blue/20'
+                                            : 'bg-gray-50 dark:bg-white/5 text-gray-400 border-gray-100 dark:border-white/5 hover:border-brand-blue/30'}`}
+                                    >
+                                        {cat.replace('_', ' ')}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
                         {/* Nickname Support */}
                         <div className="p-4 bg-brand-blue/5 border border-brand-blue/10 rounded-2xl space-y-4">
                             <div className="flex items-center justify-between">
@@ -525,6 +564,70 @@ export function EditProfileModal({ isOpen, onClose, onSuccess, adminMode = false
                                             </label>
                                         </div>
                                     )}
+
+                                    {/* Match Features: Quero IC / Quero Ajudante */}
+                                    {watch('user_category') === 'aluno_usp' && (
+                                        <>
+                                            <div className="p-4 bg-brand-red/5 border border-brand-red/10 rounded-2xl flex items-center justify-between group transition-all">
+                                                <div className="flex flex-col gap-0.5">
+                                                    <div className="flex items-center gap-2">
+                                                        <span className="text-xs font-black uppercase tracking-tight text-brand-red">Quero uma IC</span>
+                                                        <span className="text-[8px] font-black bg-brand-red/10 text-brand-red px-2 py-0.5 rounded uppercase">Match</span>
+                                                    </div>
+                                                    <span className="text-[9px] text-gray-500 font-medium">Sinaliza interesse em Iniciação Científica para pesquisadores</span>
+                                                </div>
+                                                <label className="relative inline-flex items-center cursor-pointer">
+                                                    <input type="checkbox" {...register('seeking_ic')} className="sr-only peer" />
+                                                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none dark:bg-gray-700 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-brand-red"></div>
+                                                </label>
+                                            </div>
+
+                                            {watch('seeking_ic') && (
+                                                <div className="p-4 bg-brand-red/5 border-x border-b border-brand-red/10 rounded-b-2xl -mt-2 space-y-4 animate-in slide-in-from-top-2 duration-300">
+                                                    <div className="space-y-2">
+                                                        <label className="text-[9px] font-black uppercase tracking-widest text-gray-400 ml-1">Área de Pesquisa</label>
+                                                        <input 
+                                                            {...register('ic_research_area')}
+                                                            className="w-full bg-white dark:bg-black/40 border border-gray-100 dark:border-white/10 rounded-xl px-3 py-2 text-xs outline-none focus:border-brand-red/30 transition-all"
+                                                            placeholder="Ex: Física de Partículas..."
+                                                        />
+                                                    </div>
+                                                    <div className="space-y-2">
+                                                        <label className="text-[9px] font-black uppercase tracking-widest text-gray-400 ml-1">Departamento</label>
+                                                        <input 
+                                                            {...register('ic_preferred_department')}
+                                                            className="w-full bg-white dark:bg-black/40 border border-gray-100 dark:border-white/10 rounded-xl px-3 py-2 text-xs outline-none focus:border-brand-red/30 transition-all"
+                                                            placeholder="Ex: DFMA, FNC..."
+                                                        />
+                                                    </div>
+                                                    <div className="space-y-2">
+                                                        <label className="text-[9px] font-black uppercase tracking-widest text-gray-400 ml-1">Laboratório</label>
+                                                        <input 
+                                                            {...register('ic_preferred_lab')}
+                                                            className="w-full bg-white dark:bg-black/40 border border-gray-100 dark:border-white/10 rounded-xl px-3 py-2 text-xs outline-none focus:border-brand-red/30 transition-all"
+                                                            placeholder="Ex: Lab de Cristalografia..."
+                                                        />
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </>
+                                    )}
+
+                                    {watch('user_category') === 'pesquisador' && (
+                                        <div className="p-4 bg-brand-yellow/5 border border-brand-yellow/10 rounded-2xl flex items-center justify-between group transition-all">
+                                            <div className="flex flex-col gap-0.5">
+                                                <div className="flex items-center gap-2">
+                                                    <span className="text-xs font-black uppercase tracking-tight text-brand-yellow">Quero um ajudante</span>
+                                                    <span className="text-[8px] font-black bg-brand-yellow/10 text-brand-yellow px-2 py-0.5 rounded uppercase">Recrutamento</span>
+                                                </div>
+                                                <span className="text-[9px] text-gray-500 font-medium">Sinaliza que você busca alunos para auxiliar em sua pesquisa</span>
+                                            </div>
+                                            <label className="relative inline-flex items-center cursor-pointer">
+                                                <input type="checkbox" {...register('seeking_assistant')} className="sr-only peer" />
+                                                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none dark:bg-gray-700 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-brand-yellow"></div>
+                                            </label>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         )}
@@ -634,6 +737,38 @@ export function EditProfileModal({ isOpen, onClose, onSuccess, adminMode = false
                                     placeholder="(11) 98765-4321"
                                 />
                             </div>
+
+                            {watch('user_category') === 'aluno_usp' && (
+                                <>
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-black uppercase tracking-widest text-brand-red ml-1 flex items-center gap-2">
+                                            <Microscope className="w-3 h-3" /> Área de Pesquisa (IC)
+                                        </label>
+                                        <input
+                                            {...register('ic_research_area')}
+                                            className="w-full bg-gray-50 dark:bg-black/20 border border-gray-100 dark:border-white/5 rounded-2xl px-4 py-3 text-sm focus:border-brand-red/50 outline-none transition-all font-bold"
+                                            placeholder="Ex: Física Teórica, Nanotecnologia..."
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-black uppercase tracking-widest text-brand-red ml-1 flex items-center gap-2">
+                                            <Building2 className="w-3 h-3" /> Departamento / Lab
+                                        </label>
+                                        <div className="grid grid-cols-2 gap-2">
+                                            <input
+                                                {...register('ic_preferred_department')}
+                                                className="w-full bg-gray-50 dark:bg-black/20 border border-gray-100 dark:border-white/5 rounded-2xl px-4 py-3 text-sm focus:border-brand-red/50 outline-none transition-all font-bold"
+                                                placeholder="Ex: FNC"
+                                            />
+                                            <input
+                                                {...register('ic_preferred_lab')}
+                                                className="w-full bg-gray-50 dark:bg-black/20 border border-gray-100 dark:border-white/5 rounded-2xl px-4 py-3 text-sm focus:border-brand-red/50 outline-none transition-all font-bold"
+                                                placeholder="Ex: Lab Cristal"
+                                            />
+                                        </div>
+                                    </div>
+                                </>
+                            )}
                             <div className="space-y-2 relative">
                                 <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1 flex items-center justify-between">
                                     <div className="flex items-center gap-2">
