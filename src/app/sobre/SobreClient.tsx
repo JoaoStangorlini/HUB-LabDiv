@@ -13,8 +13,11 @@ interface SobreClientProps {
     profile?: Profile | null;
 }
 
+type PersonaType = 'visitante' | 'curioso' | 'aluno_usp' | 'pesquisador';
+
 export function SobreClient({ initialTestimonials, profile }: SobreClientProps) {
     const scrollContainerRef = React.useRef<HTMLDivElement>(null);
+    const [activePersonaOverride, setActivePersonaOverride] = React.useState<PersonaType | null>(null);
 
     const scrollLocal = (direction: 'left' | 'right') => {
         if (scrollContainerRef.current) {
@@ -23,6 +26,17 @@ export function SobreClient({ initialTestimonials, profile }: SobreClientProps) 
             container.scrollBy({ left: direction === 'left' ? -scrollAmount : scrollAmount, behavior: 'smooth' });
         }
     };
+
+    // Determine the effective persona for rendering the card
+    const calculateEffectivePersona = (): PersonaType => {
+        if (activePersonaOverride) return activePersonaOverride;
+        if (!profile) return 'visitante';
+        if (profile.user_category === 'pesquisador' || profile.email?.includes('pesquisador')) return 'pesquisador';
+        if (profile.email?.endsWith('@usp.br') || profile.user_category === 'aluno_usp') return 'aluno_usp';
+        return 'curioso';
+    };
+
+    const effectivePersona = calculateEffectivePersona();
 
     return (
         <MainLayoutWrapper>
@@ -43,9 +57,9 @@ export function SobreClient({ initialTestimonials, profile }: SobreClientProps) 
                         <Sparkles size={120} />
                     </div>
                     
-                    <div className="relative z-10 flex flex-col md:flex-row items-center gap-8">
+                    <div className="relative z-10 flex flex-col md:flex-row items-center gap-8 mb-16">
                         <div className="flex-1 space-y-4">
-                            {(!profile) ? (
+                            {effectivePersona === 'visitante' ? (
                                 <>
                                     <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gray-500/10 text-gray-500 text-[10px] font-black uppercase tracking-widest">
                                         Visitante
@@ -56,7 +70,7 @@ export function SobreClient({ initialTestimonials, profile }: SobreClientProps) 
                                         Fazer Login / Criar Conta <ArrowRight className="w-4 h-4" />
                                     </Link>
                                 </>
-                            ) : (profile.user_category === 'pesquisador' || profile.email?.includes('pesquisador')) ? (
+                            ) : effectivePersona === 'pesquisador' ? (
                                 <>
                                     <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-yellow/10 text-brand-yellow text-[10px] font-black uppercase tracking-widest">
                                         Persona: Pesquisador
@@ -80,7 +94,7 @@ export function SobreClient({ initialTestimonials, profile }: SobreClientProps) 
                                         </div>
                                     </div>
                                 </>
-                            ) : (profile.email?.endsWith('@usp.br') || profile.user_category === 'aluno_usp') ? (
+                            ) : effectivePersona === 'aluno_usp' ? (
                                 <>
                                     <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-blue/10 text-brand-blue text-[10px] font-black uppercase tracking-widest">
                                         Persona: Aluno USP
@@ -130,6 +144,24 @@ export function SobreClient({ initialTestimonials, profile }: SobreClientProps) 
                                 </>
                             )}
                         </div>
+                    </div>
+
+                    {/* Persona Toggle Overlay */}
+                    <div className="absolute bottom-4 right-4 md:right-8 bg-black/40 backdrop-blur-md border border-white/10 p-1.5 rounded-full flex items-center gap-1 z-20">
+                        {(['visitante', 'curioso', 'aluno_usp', 'pesquisador'] as PersonaType[]).map((p) => (
+                            <button
+                                key={p}
+                                onClick={() => setActivePersonaOverride(activePersonaOverride === p ? null : p)}
+                                className={`px-3 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest transition-all ${
+                                    (activePersonaOverride === p || (!activePersonaOverride && effectivePersona === p))
+                                        ? 'bg-white text-black shadow-lg shadow-white/20'
+                                        : 'text-gray-400 hover:text-white hover:bg-white/10'
+                                }`}
+                                title={`Visualizar como ${p}`}
+                            >
+                                {p.replace('_usp', '')}
+                            </button>
+                        ))}
                     </div>
                 </div>
             </div>
