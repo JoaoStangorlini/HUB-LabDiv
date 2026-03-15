@@ -77,15 +77,15 @@ body::before {
   pointer-events: none;
 }
 
-/* Light mode: Increase visibility with filters and full opacity */
+/* Light mode: Let the SVG's natural colors show with high opacity */
 :root:not(.dark) body::before {
   opacity: 0.8;
-  filter: contrast(1.2) brightness(0.6);
+  filter: contrast(1.2);
 }
 
-/* Dark mode: Keep it subtle */
+/* Dark mode: Make it clearly visible but not overpowering */
 .dark body::before {
-  opacity: 0.3;
+  opacity: 0.5;
 }
 
 /* Admin Mode: Restore brand colors and vibrant opacity */

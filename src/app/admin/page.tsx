@@ -20,6 +20,7 @@ interface DashboardCounts {
     oportunidadesTotal: number;
     pendentesPerfis: number;
     reportsPendentes: number;
+    logsPendentes: number;
 }
 
 export default function AdminDashboardOverview() {
@@ -32,6 +33,7 @@ export default function AdminDashboardOverview() {
         oportunidadesTotal: 0,
         pendentesPerfis: 0,
         reportsPendentes: 0,
+        logsPendentes: 0,
     });
     const [isLoading, setIsLoading] = useState(true);
 
@@ -47,6 +49,7 @@ export default function AdminDashboardOverview() {
                 oportunidadesRes, subsWithAuthorsRes,
                 profilesPendentesRes,
                 reportsPendentesRes,
+                logsPendentesRes,
             ] = await Promise.all([
                 supabase.from('submissions').select('*', { count: 'exact', head: true }).eq('status', 'pendente'),
                 supabase.from('submissions').select('*', { count: 'exact', head: true }).eq('status', 'aprovado'),
@@ -61,6 +64,7 @@ export default function AdminDashboardOverview() {
                 supabase.from('submissions').select('user_id').eq('status', 'aprovado'),
                 supabase.from('profiles').select('*', { count: 'exact', head: true }).eq('review_status', 'pending'),
                 supabase.from('feedback_reports').select('*', { count: 'exact', head: true }).neq('status', 'closed'),
+                supabase.from('micro_articles').select('*', { count: 'exact', head: true }).eq('status', 'pending'),
             ]);
 
             // Calculate unique tags from all approved submissions
@@ -102,6 +106,7 @@ export default function AdminDashboardOverview() {
                 oportunidadesTotal: oportunidadesRes.count || 0,
                 pendentesPerfis: profilesPendentesRes.count || 0,
                 reportsPendentes: reportsPendentesRes.count || 0,
+                logsPendentes: logsPendentesRes.count || 0,
             });
 
             setIsLoading(false);
@@ -164,6 +169,15 @@ export default function AdminDashboardOverview() {
             color: 'red' as const,
             href: '/admin/acervo',
             urgent: false,
+        },
+        {
+            title: 'Logs do IFUSP',
+            subtitle: 'Aguardando Aprovação',
+            count: counts.logsPendentes,
+            icon: 'message',
+            color: 'red' as const,
+            href: '/admin/drops',
+            urgent: counts.logsPendentes > 0,
         },
     ];
 

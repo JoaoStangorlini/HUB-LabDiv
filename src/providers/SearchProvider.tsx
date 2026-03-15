@@ -51,6 +51,14 @@ export const SearchProvider = ({ children }: { children: React.ReactNode }) => {
 
 export const useSearch = () => {
     const context = useContext(SearchContext);
-    if (!context) throw new Error('useSearch deve ser usado dentro de um SearchProvider');
+    if (!context) {
+        // Fallback for SSR or accidental outside usage to prevent crash
+        return {
+            query: '',
+            setQuery: () => {},
+            scope: 'GLOBAL' as SearchScope,
+            placeholder: 'Pesquisar no Hub Lab-Div...'
+        };
+    }
     return context;
 };

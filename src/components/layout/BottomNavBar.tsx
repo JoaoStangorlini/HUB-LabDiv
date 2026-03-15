@@ -17,6 +17,7 @@ const navItems: (NavItem & { color?: string })[] = [
 
 const drawerLinks: (NavItem & { color?: string })[] = [
     { name: 'Laboratório Pessoal', href: AppRoutes.LAB, icon: 'science', isPrimary: true, color: 'brand-blue' },
+    { name: 'Ferramentas Acadêmicas', href: '/ferramentas', icon: 'calendar_month', color: 'brand-blue' },
     { name: 'Pergunte', href: AppRoutes.PERGUNTAS, icon: 'help_outline', color: 'brand-blue' },
     { name: 'Colisor', href: AppRoutes.COLISOR, icon: 'auto_awesome', color: 'brand-yellow' },
     { name: 'Trilhas', href: '/trilhas', icon: 'route', color: 'brand-red' },

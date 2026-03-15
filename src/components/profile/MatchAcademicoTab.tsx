@@ -108,7 +108,7 @@ export function MatchAcademicoTab({ profile }: MatchAcademicoTabProps) {
                 <div className="p-4 bg-brand-yellow/10 border border-brand-yellow/20 rounded-2xl max-w-md mx-auto flex items-start gap-3">
                     <Info className="w-5 h-5 text-brand-yellow shrink-0 mt-0.5" />
                     <p className="text-[11px] text-left font-bold text-brand-yellow uppercase tracking-tight leading-normal">
-                        Dica: Se você é Aluno USP, pode marcar "Quero uma IC". Se é Pesquisador, pode marcar "Quero um ajudante".
+                        Dica: Se você é Aluno USP, use o botão "Sinalizar Interesse" para entrar no radar de IC. Se é Pesquisador, ative "Buscando Ajudantes" no seu perfil.
                     </p>
                 </div>
             </div>
@@ -250,6 +250,23 @@ export function MatchAcademicoTab({ profile }: MatchAcademicoTabProps) {
                                 </p>
                             )}
 
+                            {person.user_category === 'pesquisador' && (
+                                <div className="mb-6 p-4 rounded-2xl bg-brand-yellow/5 border border-brand-yellow/10 space-y-2">
+                                    {person.research_line && (
+                                        <div className="flex flex-col">
+                                            <span className="text-[8px] font-black text-brand-yellow/60 uppercase tracking-widest">Linha de Pesquisa</span>
+                                            <span className="text-[10px] font-bold text-gray-900 dark:text-white uppercase truncate">{person.research_line}</span>
+                                        </div>
+                                    )}
+                                    {person.laboratory_name && (
+                                        <div className="flex flex-col">
+                                            <span className="text-[8px] font-black text-brand-yellow/60 uppercase tracking-widest">Laboratório</span>
+                                            <span className="text-[10px] font-bold text-gray-900 dark:text-white uppercase truncate">{person.laboratory_name}</span>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+
                             <div className="flex items-center gap-2 pt-4 border-t border-gray-50 dark:border-white/5">
                                 {person.whatsapp && (
                                     <a
@@ -349,8 +366,8 @@ export function MatchAcademicoTab({ profile }: MatchAcademicoTabProps) {
                                     </section>
                                 )}
 
-                                {/* Detailed IC Interest (New Sprint V3.2.1) */}
-                                {(selectedPerson.profile.ic_research_area || selectedPerson.profile.ic_preferred_department || selectedPerson.profile.ic_preferred_lab) && (
+                                {/* Detailed IC Interest (Students) */}
+                                {selectedPerson.profile.user_category === 'aluno_usp' && (selectedPerson.profile.ic_research_area || selectedPerson.profile.ic_preferred_department || selectedPerson.profile.ic_preferred_lab) && (
                                     <section className="p-6 rounded-3xl bg-brand-red/5 border border-brand-red/10 space-y-4">
                                         <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-brand-red flex items-center gap-2">
                                             <Microscope className="w-3 h-3" /> Alvo de Iniciação Científica
@@ -372,6 +389,48 @@ export function MatchAcademicoTab({ profile }: MatchAcademicoTabProps) {
                                                 <div className="space-y-1">
                                                     <span className="text-[8px] font-bold text-gray-400 uppercase">Laboratório</span>
                                                     <p className="text-xs font-black text-gray-900 dark:text-white uppercase">{selectedPerson.profile.ic_preferred_lab}</p>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </section>
+                                )}
+
+                                {/* Researcher Details */}
+                                {selectedPerson.profile.user_category === 'pesquisador' && (
+                                    <section className="p-6 rounded-3xl bg-brand-yellow/5 border border-brand-yellow/10 space-y-6">
+                                        <div className="flex items-center justify-between">
+                                            <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-brand-yellow flex items-center gap-2">
+                                                <Briefcase className="w-3 h-3" /> Núcleo de Pesquisa
+                                            </h3>
+                                            {selectedPerson.profile.seeking_assistant && (
+                                                <span className="px-2 py-1 bg-brand-yellow text-[#121212] rounded-lg text-[8px] font-black uppercase flex items-center gap-1 animate-pulse">
+                                                    <Zap className="w-2 h-2" /> Recrutando ICs
+                                                </span>
+                                            )}
+                                        </div>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                            {selectedPerson.profile.research_line && (
+                                                <div className="space-y-1">
+                                                    <span className="text-[8px] font-bold text-gray-400 uppercase tracking-widest">Linha de Pesquisa</span>
+                                                    <p className="text-sm font-black text-gray-900 dark:text-white uppercase">{selectedPerson.profile.research_line}</p>
+                                                </div>
+                                            )}
+                                            {selectedPerson.profile.department && (
+                                                <div className="space-y-1">
+                                                    <span className="text-[8px] font-bold text-gray-400 uppercase tracking-widest">Departamento</span>
+                                                    <p className="text-sm font-black text-gray-900 dark:text-white uppercase">{selectedPerson.profile.department}</p>
+                                                </div>
+                                            )}
+                                            {selectedPerson.profile.laboratory_name && (
+                                                <div className="space-y-1">
+                                                    <span className="text-[8px] font-bold text-gray-400 uppercase tracking-widest">Laboratório</span>
+                                                    <p className="text-sm font-black text-gray-900 dark:text-white uppercase">{selectedPerson.profile.laboratory_name}</p>
+                                                </div>
+                                            )}
+                                            {selectedPerson.profile.office_room && (
+                                                <div className="space-y-1">
+                                                    <span className="text-[8px] font-bold text-gray-400 uppercase tracking-widest">Sala / Escritório</span>
+                                                    <p className="text-sm font-black text-gray-900 dark:text-white uppercase">{selectedPerson.profile.office_room}</p>
                                                 </div>
                                             )}
                                         </div>

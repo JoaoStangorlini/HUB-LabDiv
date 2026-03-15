@@ -1,292 +1,478 @@
 'use client';
 
-import React, { useCallback, useMemo, useState, useEffect } from 'react';
-import {
-    ReactFlow,
-    Background,
-    Controls,
-    useNodesState,
-    useEdgesState,
-    addEdge,
-    Connection,
-    Edge,
-    Node,
-    Position,
-    ReactFlowProvider,
-    Handle,
-} from '@xyflow/react';
-import '@xyflow/react/dist/style.css';
-import dagre from 'dagre';
-import { fetchAllDisciplines, fetchUserAcademicdata } from '@/app/actions/disciplines';
-import { Loader2, Zap, GraduationCap, Calendar, Info, Plus } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { fetchUserAcademicdata } from '@/app/actions/disciplines';
+import { Loader2, Calendar, Plus, GraduationCap, Info, MessageSquareCode, Trash2, Share2, FileText, CalendarDays, Table } from 'lucide-react';
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
 
-const nodeWidth = 180;
-const nodeHeight = 60;
+import { Draggable } from '@fullcalendar/interaction';
 
-const getLayoutedElements = (nodes: Node[], edges: Edge[], direction = 'LR') => {
-    const dagreGraph = new dagre.graphlib.Graph();
-    dagreGraph.setDefaultEdgeLabel(() => ({}));
+interface CalendarEvent {
+    id: string;
+    title: string;
+    start: any;
+    end: any;
+    color?: string;
+    extendedProps?: any;
+}
 
-    const isHorizontal = direction === 'LR';
-    dagreGraph.setGraph({ rankdir: direction });
+const DISCIPLINE_COLORS = [
+    { bg: '#3B82F6', border: '#2563EB', name: 'blue' },
+    { bg: '#EF4444', border: '#DC2626', name: 'red' },
+    { bg: '#EAB308', border: '#CA8A04', name: 'yellow' },
+];
 
-    nodes.forEach((node) => {
-        dagreGraph.setNode(node.id, { width: nodeWidth, height: nodeHeight });
-    });
-
-    edges.forEach((edge) => {
-        dagreGraph.setEdge(edge.source, edge.target);
-    });
-
-    dagre.layout(dagreGraph);
-
-    nodes.forEach((node) => {
-        const nodeWithPosition = dagreGraph.node(node.id);
-        node.targetPosition = isHorizontal ? Position.Left : Position.Top;
-        node.sourcePosition = isHorizontal ? Position.Right : Position.Bottom;
-
-        // We are shifting the dagre node position (which is center) to top left
-        node.position = {
-            x: nodeWithPosition.x - nodeWidth / 2,
-            y: nodeWithPosition.y - nodeHeight / 2,
-        };
-    });
-
-    return { nodes, edges };
+const getDisciplineColor = (code: string, fallbackSeed?: string) => {
+    const seed = code || fallbackSeed || 'default';
+    let hash = 0;
+    for (let i = 0; i < seed.length; i++) {
+        hash = ((hash << 5) - hash) + seed.charCodeAt(i);
+        hash |= 0; // Convert to 32bit integer
+    }
+    return DISCIPLINE_COLORS[Math.abs(hash) % DISCIPLINE_COLORS.length];
 };
 
-const CustomNode = ({ data }: any) => {
-    return (
-        <div className={`px-4 py-2 shadow-lg rounded-xl border text-[10px] font-bold uppercase tracking-tight transition-all duration-300 flex flex-col items-center justify-center min-w-[150px]
-            ${data.status === 'completed' 
-                ? 'bg-brand-blue/10 border-brand-blue text-brand-blue' 
-                : data.status === 'current'
-                ? 'bg-brand-yellow/10 border-brand-yellow text-brand-yellow'
-                : 'bg-white/5 border-white/10 text-white/40'}`}>
-            <Handle type="target" position={Position.Left} className="!bg-brand-blue !border-none !w-1 !h-4 !rounded-none" />
-            <div className="text-center truncate w-full">{data.label}</div>
-            <div className="opacity-50 text-[8px] mt-0.5">{data.code}</div>
-            <Handle type="source" position={Position.Right} className="!bg-brand-blue !border-none !w-1 !h-4 !rounded-none" />
-        </div>
-    );
-};
-
-const nodeTypes = {
-    course: CustomNode,
+const fixEncoding = (text: string) => {
+    if (!text) return '';
+    try {
+        // If the text looks like Mojibake (contains specific corrupted patterns)
+        // we convert it back to bytes and decode as UTF-8
+        if (text.includes('Ã')) {
+            const bytes = new Uint8Array(text.split('').map(c => c.charCodeAt(0)));
+            return new TextDecoder('utf-8').decode(bytes);
+        }
+        return text;
+    } catch (e) {
+        return text;
+    }
 };
 
 export default function FerramentasClient({ profile }: { profile: any }) {
-    const [nodes, setNodes, onNodesChange] = useNodesState<Node>([]);
-    const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
     const [academicData, setAcademicData] = useState<any>(null);
     const [isLoading, setIsLoading] = useState(true);
-    const [activeTab, setActiveTab] = useState('tree');
+    const [events, setEvents] = useState<CalendarEvent[]>([]);
+    const [customBlocks, setCustomBlocks] = useState<{id: string, title: string, duration: number}[]>([]);
+    const [isExportModalOpen, setIsExportModalOpen] = useState(false);
+    const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+    const [newBlockName, setNewBlockName] = useState('');
+    const [newBlockDuration, setNewBlockDuration] = useState(2);
+    const draggableRef = React.useRef<any>(null);
 
     useEffect(() => {
         const init = async () => {
             setIsLoading(true);
-            const [disciplinesRes, academicRes] = await Promise.all([
-                fetchAllDisciplines(),
-                fetchUserAcademicdata()
-            ]);
+            const academicRes = await fetchUserAcademicdata();
 
-            if (disciplinesRes.success && disciplinesRes.data) {
-                const disciplines = disciplinesRes.data;
-                const progressData = academicRes.success ? academicRes.data : { inProgress: [], completed: [] };
-                setAcademicData(progressData);
-
-                const completedIds = new Set(progressData.completed.map((c: any) => c.trail_id));
-                const inProgressIds = new Set(progressData.inProgress.map((p: any) => p.trail_id));
-
-                const initialNodes: Node[] = disciplines.map((d: any) => ({
-                    id: d.course_code,
-                    type: 'course',
-                    data: { 
-                        label: d.title, 
-                        code: d.course_code,
-                        status: completedIds.has(d.id) ? 'completed' : inProgressIds.has(d.id) ? 'current' : 'locked'
-                    },
-                    position: { x: 0, y: 0 },
-                }));
-                // ... (rest of the logic remains same for edges)
-                const initialEdges: Edge[] = [];
-                disciplines.forEach((d: any) => {
-                    if (d.prerequisites && Array.isArray(d.prerequisites)) {
-                        d.prerequisites.forEach((pre: string) => {
-                            if (disciplines.find((x: any) => x.course_code === pre)) {
-                                initialEdges.push({
-                                    id: `e-${pre}-${d.course_code}`,
-                                    source: pre,
-                                    target: d.course_code,
-                                    animated: true,
-                                    style: { 
-                                        stroke: completedIds.has(d.id) ? '#4F46E5' : '#333', 
-                                        strokeWidth: 1, 
-                                        opacity: completedIds.has(d.id) ? 0.8 : 0.3 
-                                    },
-                                });
-                            }
-                        });
-                    }
-                });
-
-                const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements(
-                    initialNodes,
-                    initialEdges
-                );
-
-                setNodes(layoutedNodes);
-                setEdges(layoutedEdges);
+            if (academicRes.success) {
+                setAcademicData(academicRes.data);
             }
             setIsLoading(false);
         };
 
-        if (activeTab === 'tree') init();
-    }, [activeTab, setNodes, setEdges]);
+        init();
+    }, []);
+
+    // Setup Draggable for enrollment items
+    useEffect(() => {
+        const draggableEl = document.getElementById('enrollment-list');
+        if (draggableEl && !draggableRef.current) {
+            draggableRef.current = new Draggable(draggableEl, {
+                itemSelector: '.draggable-item',
+                eventData: function(eventEl: any) {
+                    const title = eventEl.getAttribute('data-title');
+                    const code = eventEl.getAttribute('data-code');
+                    const type = eventEl.getAttribute('data-type') || 'aula';
+                    const durationVal = eventEl.getAttribute('data-duration') || '02:00';
+                    const colorData = getDisciplineColor(code || '', title || 'disciplina');
+                    
+                    return {
+                        title: type === 'custom' ? title : `${type === 'estudo' ? '📚 Estudo' : '🎓 Aula'}: ${title}`,
+                        duration: durationVal,
+                        color: type === 'estudo' ? '#EAB308' : colorData.bg,
+                        extendedProps: { code, type }
+                    };
+                }
+            });
+        }
+    }, [isLoading, academicData, customBlocks]);
+
+    if (isLoading) {
+        return (
+            <div className="flex items-center justify-center min-h-[600px]">
+                <Loader2 className="w-8 h-8 text-brand-blue animate-spin" />
+            </div>
+        );
+    }
 
     return (
-        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-1000">
-            <header className="flex flex-col md:flex-row items-center justify-between gap-6">
+        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-1000 print:space-y-0 print:animate-none">
+            <style jsx global>{`
+                .fc { --fc-border-color: rgba(255, 255, 255, 0.03); }
+                .fc-theme-standard td, .fc-theme-standard th { border: 1px solid rgba(255, 255, 255, 0.03); }
+                .fc .fc-timegrid-slot { height: 3.5em !important; border-bottom: 0 !important; }
+                .fc-v-event { 
+                    border: 0 !important; 
+                    border-radius: 12px !important; 
+                    padding: 4px !important; 
+                    box-shadow: 0 8px 24px rgba(0,0,0,0.3) !important;
+                    background-image: linear-gradient(135deg, rgba(255,255,255,0.1), transparent) !important;
+                }
+                .fc-v-event .fc-event-main { 
+                    color: white !important; 
+                    font-weight: 800 !important; 
+                    font-size: 10px !important;
+                    text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+                }
+                .fc-timegrid-axis-cushion, .fc-timegrid-slot-label-cushion { 
+                    color: rgba(255, 255, 255, 0.2) !important; 
+                    font-weight: 900 !important; 
+                    font-size: 9px !important; 
+                    text-transform: uppercase !important;
+                    letter-spacing: 0.1em;
+                }
+                .fc-col-header-cell-cushion { 
+                    font-weight: 900 !important; 
+                    font-size: 11px !important; 
+                    text-transform: uppercase !important; 
+                    letter-spacing: 0.1em !important; 
+                    padding: 16px 0 !important; 
+                }
+
+                .fc-day-sun .fc-col-header-cell-cushion, .fc-day-mon .fc-col-header-cell-cushion, .fc-day-thu .fc-col-header-cell-cushion { color: #3b82f6 !important; }
+                .fc-day-tue .fc-col-header-cell-cushion, .fc-day-fri .fc-col-header-cell-cushion { color: #ef4444 !important; }
+                .fc-day-wed .fc-col-header-cell-cushion, .fc-day-sat .fc-col-header-cell-cushion { color: #eab308 !important; }
+
+                .fc-timegrid-col.fc-day-sun, .fc-timegrid-col.fc-day-mon, .fc-timegrid-col.fc-day-thu { background-color: rgba(59, 130, 246, 0.1) !important; }
+                .fc-timegrid-col.fc-day-tue, .fc-timegrid-col.fc-day-fri { background-color: rgba(239, 68, 68, 0.1) !important; }
+                .fc-timegrid-col.fc-day-wed, .fc-timegrid-col.fc-day-sat { background-color: rgba(234, 179, 8, 0.1) !important; }
+
+                .fc-timegrid-now-indicator-line { border-color: #3b82f6 !important; border-width: 2px !important; opacity: 0.5; }
+                .fc-timegrid-now-indicator-arrow { border-left-color: #3b82f6 !important; border-right-color: #3b82f6 !important; }
+                .fc-scrollgrid { border: 0 !important; }
+                .fc-timegrid-col.fc-day-today { background: rgba(59, 130, 246, 0.05) !important; }
+
+                @media print {
+                    nav, aside, footer, header, .print\:hidden, .fc-header-toolbar, 
+                    .bg-gradient-to-br, .enrollment-section, #enrollment-list-container,
+                    .glass-card > div > div:first-child {
+                        display: none !important;
+                    }
+                    body { background: white !important; color: black !important; }
+                    .glass-card { background: white !important; border: 0 !important; padding: 0 !important; margin: 0 !important; box-shadow: none !important; }
+                    .fc { background: white !important; }
+                    .fc-v-event { background-color: #f3f4f6 !important; color: black !important; box-shadow: none !important; border: 1px solid #ddd !important; }
+                    .fc-event-main { color: black !important; text-shadow: none !important; }
+                    .fc-col-header-cell-cushion, .fc-timegrid-axis-cushion, .fc-timegrid-slot-label-cushion { color: #333 !important; }
+                    .main-content-layout { padding: 0 !important; margin: 0 !important; }
+                    .calendar-container { width: 100vw !important; height: 100vh !important; }
+                }
+            `}</style>
+
+            <header className="flex flex-col md:flex-row items-center justify-between gap-6 print:hidden">
                 <div className="space-y-2">
-                    <h1 className="text-4xl font-display font-black text-white uppercase tracking-tighter">
-                        Ferramentas <span className="text-brand-blue">Acadêmicas</span>
+                    <h1 className="text-4xl font-display font-black text-gray-900 dark:text-white uppercase tracking-tighter">
+                        Grade <span className="text-brand-blue">Horária</span>
                     </h1>
                     <p className="text-gray-400 font-medium italic">Seu cockpit de navegação pelo IFUSP.</p>
                 </div>
 
-                <div className="flex bg-white/5 p-1 rounded-2xl border border-white/10">
-                    <button 
-                        onClick={() => setActiveTab('tree')}
-                        className={`px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 ${activeTab === 'tree' ? 'bg-brand-blue text-white shadow-lg' : 'text-gray-400 hover:text-white'}`}
-                    >
-                        <Zap className="w-3 h-3" />
-                        Árvore do Curso
-                    </button>
-                    <button 
-                        onClick={() => setActiveTab('calendar')}
-                        className={`px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 ${activeTab === 'calendar' ? 'bg-brand-blue text-white shadow-lg' : 'text-gray-400 hover:text-white'}`}
-                    >
-                        <Calendar className="w-3 h-3" />
-                        Grade Horária
-                    </button>
+                <div className="flex items-center gap-2 px-4 py-2 bg-brand-blue/10 border border-brand-blue/20 rounded-2xl">
+                    <Calendar className="w-4 h-4 text-brand-blue" />
+                    <span className="text-[10px] font-black uppercase tracking-widest text-brand-blue">Sincronizador Ativo</span>
                 </div>
             </header>
 
-            <div className="glass-card min-h-[600px] rounded-[40px] border border-white/5 overflow-hidden relative">
-                {activeTab === 'tree' ? (
-                    <div className="w-full h-[700px] relative">
-                         {isLoading ? (
-                            <div className="absolute inset-0 flex items-center justify-center bg-[#121212]/50 backdrop-blur-sm z-10">
-                                <Loader2 className="w-8 h-8 text-brand-blue animate-spin" />
-                            </div>
-                        ) : (
-                            <ReactFlow
-                                nodes={nodes}
-                                edges={edges}
-                                onNodesChange={onNodesChange}
-                                onEdgesChange={onEdgesChange}
-                                nodeTypes={nodeTypes}
-                                fitView
-                                className="bg-[#121212]"
-                            >
-                                <Background color="#333" gap={20} />
-                                <Controls className="fill-white" />
-                            </ReactFlow>
-                        )}
-                        <div className="absolute bottom-6 left-6 p-4 bg-black/60 backdrop-blur-md rounded-2xl border border-white/10 z-10 space-y-2">
-                            <h4 className="text-[10px] font-black uppercase text-white tracking-widest flex items-center gap-2">
-                                <Info className="w-3 h-3 text-brand-blue" />
-                                Legenda de Fluxo
+            <div className="relative group overflow-hidden rounded-[32px] bg-brand-blue/5 dark:bg-gradient-to-br dark:from-brand-blue/20 dark:via-brand-blue/5 dark:to-transparent border border-brand-blue/10 dark:border-brand-blue/20 p-8 print:hidden">
+                <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:opacity-20 transition-opacity">
+                    <Info className="w-32 h-32 text-brand-blue" />
+                </div>
+                
+                <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-8">
+                    <div className="max-w-2xl space-y-4">
+                        <div className="flex items-center gap-2 text-brand-blue">
+                            <div className="px-3 py-1 bg-brand-blue text-[10px] font-black uppercase tracking-widest rounded-full text-white">Versão Beta</div>
+                            <span className="text-xs font-bold uppercase tracking-widest opacity-60">Instruções de Uso</span>
+                        </div>
+                        <h2 className="text-2xl font-display font-black text-gray-900 dark:text-white uppercase tracking-tight">Sincronize seu Semestre</h2>
+                        <p className="text-gray-700 dark:text-gray-400 text-sm font-medium leading-relaxed">
+                            Organize sua rotina acadêmica arrastando as disciplinas da seção <span className="text-brand-blue font-bold">"Suas Matrículas"</span> diretamente para o calendário. Você pode alocar tanto os horários de <span className="text-brand-blue font-bold">Aula</span> quanto blocos personalizados de <span className="text-brand-yellow font-bold">Estudo</span>.
+                        </p>
+                    </div>
+
+                    <a 
+                        href="https://wa.me/5511968401823" 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-3 px-6 py-4 bg-white text-black rounded-2xl font-black text-xs uppercase tracking-widest hover:scale-105 transition-transform shadow-xl shadow-white/10 shrink-0"
+                    >
+                        <MessageSquareCode className="w-4 h-4" />
+                        Mande seu Feedback
+                    </a>
+                </div>
+            </div>
+
+            <div className="bg-transparent min-h-[600px] rounded-[40px] overflow-hidden">
+                <div className="p-8 h-full flex flex-col gap-12">
+                    <div className="space-y-6 enrollment-section print:hidden">
+                        <div className="flex items-center justify-between">
+                            <h4 className="text-sm font-black uppercase text-brand-blue tracking-widest flex items-center gap-2">
+                                <GraduationCap className="w-4 h-4" />
+                                Suas Matrículas
                             </h4>
-                            <div className="flex flex-col gap-2">
-                                <div className="flex items-center gap-2">
-                                    <div className="w-3 h-3 rounded-full bg-brand-blue" />
-                                    <span className="text-[8px] font-bold text-gray-400 uppercase">Concluída</span>
+                            <div className="flex items-center gap-4">
+                                <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest hidden sm:block">
+                                    Arraste os blocos abaixo para o cronograma
+                                </p>
+                                <button
+                                    onClick={() => setIsCreateModalOpen(true)}
+                                    className="flex items-center gap-2 px-4 py-2 bg-brand-blue text-white rounded-xl font-black text-[10px] uppercase tracking-widest hover:scale-105 transition-transform"
+                                >
+                                    <Plus className="w-3 h-3" />
+                                    Criar Bloco
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div id="enrollment-list" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                            {customBlocks.map(block => (
+                                <div key={block.id} className="space-y-2">
+                                    <div 
+                                        data-title={block.title}
+                                        data-type="custom"
+                                        data-duration={block.duration < 10 ? `0${block.duration}:00` : `${block.duration}:00`}
+                                        className="draggable-item p-4 bg-brand-blue/10 rounded-2xl border border-brand-blue/20 group hover:border-brand-blue/40 transition-all cursor-grab active:cursor-grabbing shadow-lg print:hidden"
+                                        style={{ borderLeft: `6px solid #3B82F6` }}
+                                    >
+                                        <div className="text-[10px] font-black uppercase mb-1 text-brand-blue">Customizado</div>
+                                        <div className="text-xs font-bold text-gray-800 dark:text-white line-clamp-1">{fixEncoding(block.title)}</div>
+                                        <div className="mt-2 text-[9px] font-bold text-gray-500 uppercase tracking-widest">
+                                            Duração: {block.duration}h
+                                        </div>
+                                    </div>
                                 </div>
-                                <div className="flex items-center gap-2">
-                                    <div className="w-3 h-3 rounded-full bg-brand-yellow" />
-                                    <span className="text-[8px] font-bold text-gray-400 uppercase">Em Curso</span>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                    <div className="w-3 h-3 rounded-full bg-white/20 border border-white/10" />
-                                    <span className="text-[8px] font-bold text-gray-400 uppercase">Não Cursada</span>
+                            ))}
+                            {academicData?.inProgress?.length > 0 ? (
+                                academicData.inProgress.map((p: any) => {
+                                    const colorData = getDisciplineColor(p.course_code, p.learning_trails?.title || p.id);
+                                    return (
+                                        <div key={p.id} className="space-y-2">
+                                            <div 
+                                                data-title={p.learning_trails?.title}
+                                                data-code={p.course_code}
+                                                data-type="aula"
+                                                data-duration="02:00"
+                                                className="draggable-item p-4 bg-gray-100 dark:bg-white/5 rounded-2xl border border-gray-200 dark:border-white/10 group hover:border-gray-300 dark:hover:border-white/30 transition-all cursor-grab active:cursor-grabbing shadow-sm relative overflow-hidden print:hidden"
+                                                style={{ 
+                                                    borderLeft: `6px solid ${colorData.bg}`,
+                                                    backgroundColor: `${colorData.bg}15`
+                                                }}
+                                            >
+                                                <div className="text-[10px] font-black uppercase mb-1" style={{ color: colorData.bg }}>{p.course_code || 'IFUSP'}</div>
+                                                <div className="text-xs font-bold text-gray-800 dark:text-white line-clamp-1 group-hover:text-brand-blue transition-colors">
+                                                    {fixEncoding(p.learning_trails?.title) || 'Disciplina'}
+                                                </div>
+                                                <div className="mt-2 text-[9px] font-bold text-gray-500 uppercase tracking-widest">
+                                                    Bloco: Aula
+                                                </div>
+                                            </div>
+                                            <div 
+                                                data-title={p.learning_trails?.title}
+                                                data-code={p.course_code}
+                                                data-type="estudo"
+                                                data-duration="02:00"
+                                                className="draggable-item p-3 bg-gray-200 dark:bg-white/5 rounded-2xl border border-gray-300 dark:border-white/10 group hover:border-gray-400 dark:hover:border-white/30 transition-all cursor-grab active:cursor-grabbing shadow-sm print:hidden"
+                                            >
+                                                <div className="text-[9px] font-bold text-gray-700 dark:text-gray-400 uppercase">
+                                                    Bloco: Estudo
+                                                </div>
+                                            </div>
+                                        </div>
+                                    );
+                                })
+                            ) : null}
+                        </div>
+                    </div>
+
+                    <div className="space-y-6">
+                        <div className="flex items-center justify-between">
+                            <h3 className="text-xl font-display font-bold text-gray-900 dark:text-white uppercase tracking-tighter">Cronograma Semanal</h3>
+                            <div className="flex items-center gap-3">
+                                <button
+                                    onClick={() => setIsExportModalOpen(true)}
+                                    className="flex items-center gap-2 px-4 py-2 bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 text-gray-800 dark:text-white rounded-2xl transition-all hover:bg-gray-200 dark:hover:bg-white/10"
+                                    title="Exportar Calendário"
+                                >
+                                    <Share2 className="w-4 h-4" />
+                                    <span className="text-[10px] font-black uppercase tracking-widest hidden sm:inline">Exportar</span>
+                                </button>
+                                <div 
+                                    id="calendar-trash"
+                                    className="flex items-center gap-2 px-4 py-2 bg-red-500/10 border border-red-500/20 text-red-500 rounded-2xl transition-all group hover:bg-red-500/20 hover:border-red-500/40"
+                                    title="Arraste aqui para excluir"
+                                >
+                                    <Trash2 className="w-4 h-4 transition-transform group-hover:scale-110" />
+                                    <span className="text-[10px] font-black uppercase tracking-widest hidden sm:inline">Excluir</span>
                                 </div>
                             </div>
                         </div>
+                        
+                        <div className="dark bg-[#1e1e1e] p-6 rounded-3xl border border-white/5 overflow-hidden">
+                            <FullCalendar
+                                plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
+                                initialView="timeGridWeek"
+                                headerToolbar={false}
+                                dayHeaderFormat={{ weekday: 'long' }}
+                                slotMinTime="06:00:00"
+                                slotMaxTime="24:00:00"
+                                allDaySlot={false}
+                                height="750px"
+                                events={events}
+                                themeSystem="standard"
+                                locale="pt-br"
+                                editable={true}
+                                droppable={true}
+                                selectable={true}
+                                selectMirror={true}
+                                dayMaxEvents={true}
+                                nowIndicator={true}
+                                eventReceive={(info: any) => {
+                                    const newEvent: CalendarEvent = {
+                                        id: Math.random().toString(),
+                                        title: info.event.title,
+                                        start: info.event.start,
+                                        end: info.event.end,
+                                        color: info.event.backgroundColor,
+                                        extendedProps: info.event.extendedProps
+                                    };
+                                    info.event.remove();
+                                    setEvents((prev) => [...prev, newEvent]);
+                                }}
+                                eventDrop={(info: any) => {
+                                    setEvents((prev) => prev.map((e) => e.id === info.event.id ? { ...e, start: info.event.start, end: info.event.end } : e));
+                                }}
+                                eventResize={(info: any) => {
+                                    setEvents((prev) => prev.map((e) => e.id === info.event.id ? { ...e, start: info.event.start, end: info.event.end } : e));
+                                }}
+                                eventDragStop={(info: any) => {
+                                    const trashEl = document.getElementById('calendar-trash');
+                                    if (trashEl) {
+                                        const rect = trashEl.getBoundingClientRect();
+                                        const x = info.jsEvent.clientX;
+                                        const y = info.jsEvent.clientY;
+                                        if (x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom) {
+                                            info.event.remove();
+                                            setEvents(prev => prev.filter(e => e.id !== info.event.id));
+                                        }
+                                    }
+                                }}
+                            />
+                        </div>
                     </div>
-                ) : (
-                    <div className="p-8 h-full flex flex-col md:flex-row gap-8">
-                        <div className="flex-1">
-                            <div className="flex items-center justify-between mb-8">
-                                <div>
-                                    <h3 className="text-xl font-display font-bold text-white uppercase tracking-tighter">Sincronizador Horário</h3>
-                                    <p className="text-xs text-gray-500 font-bold uppercase tracking-widest mt-1">Alocar disciplinas semanais</p>
-                                </div>
-                            </div>
-                            
-                            <div className="dark bg-white/5 p-6 rounded-3xl border border-white/5 overflow-hidden">
-                                <FullCalendar
-                                    plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
-                                    initialView="timeGridWeek"
-                                    headerToolbar={false}
-                                    dayHeaderFormat={{ weekday: 'short' }}
-                                    slotMinTime="07:00:00"
-                                    slotMaxTime="23:00:00"
-                                    allDaySlot={false}
-                                    height="600px"
-                                    events={[]} 
-                                    themeSystem="standard"
-                                    locale="pt-br"
-                                    editable={true}
-                                    selectable={true}
-                                    selectMirror={true}
-                                    dayMaxEvents={true}
+                </div>
+            </div>
+
+            {isCreateModalOpen && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+                    <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={() => setIsCreateModalOpen(false)} />
+                    <div className="relative bg-[#1e1e1e] border border-white/10 rounded-[32px] p-8 max-w-md w-full shadow-2xl animate-in zoom-in-95 duration-200">
+                        <h3 className="text-2xl font-display font-black text-white uppercase tracking-tight mb-6">Novo Bloco</h3>
+                        <div className="space-y-4">
+                            <div>
+                                <label className="text-[10px] font-black uppercase text-gray-500 tracking-widest block mb-1">Nome do Bloco</label>
+                                <input 
+                                    type="text" 
+                                    value={newBlockName}
+                                    onChange={(e) => setNewBlockName(e.target.value)}
+                                    placeholder="Ex: Almoço, Estudo Individual..."
+                                    className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-white outline-none focus:ring-2 focus:ring-brand-blue"
                                 />
                             </div>
-                        </div>
-
-                        <div className="w-full md:w-80 space-y-6">
-                            <div className="p-6 bg-brand-blue/10 rounded-3xl border border-brand-blue/20">
-                                <h4 className="text-sm font-black uppercase text-brand-blue tracking-widest flex items-center gap-2 mb-4">
-                                    <GraduationCap className="w-4 h-4" />
-                                    Suas Matrículas
-                                </h4>
-                                <div className="space-y-3 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
-                                    {academicData?.inProgress?.length > 0 ? (
-                                        academicData.inProgress.map((p: any) => (
-                                            <div key={p.id} className="p-4 bg-white/5 rounded-2xl border border-white/10 group hover:border-brand-blue/50 transition-all cursor-pointer">
-                                                <div className="text-[10px] font-black text-brand-blue uppercase mb-1">{p.course_code || 'MAT0111'}</div>
-                                                <div className="text-xs font-bold text-white line-clamp-1 group-hover:text-brand-blue transition-colors">
-                                                    {p.learning_trails?.title || 'Cálculo I'}
-                                                </div>
-                                                <button className="mt-3 flex items-center gap-1.5 text-[9px] font-black text-gray-500 hover:text-white uppercase tracking-widest transition-colors">
-                                                    <Plus className="w-3 h-3" />
-                                                    Alocar Horário
-                                                </button>
-                                            </div>
-                                        ))
-                                    ) : (
-                                        <div className="text-center py-8">
-                                            <p className="text-[10px] text-gray-500 font-bold uppercase italic">Nenhuma matrícula ativa</p>
-                                        </div>
-                                    )}
-                                </div>
+                            <div>
+                                <label className="text-[10px] font-black uppercase text-gray-500 tracking-widest block mb-1">Duração (Horas)</label>
+                                <input 
+                                    type="number" 
+                                    value={newBlockDuration}
+                                    onChange={(e) => setNewBlockDuration(Number(e.target.value))}
+                                    min="0.5"
+                                    max="8"
+                                    step="0.5"
+                                    className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-white outline-none focus:ring-2 focus:ring-brand-blue"
+                                />
                             </div>
-
-                            <div className="p-6 bg-white/5 rounded-3xl border border-white/10">
-                                <h4 className="text-xs font-black uppercase text-white tracking-widest mb-2">Dica de Produtividade</h4>
-                                <p className="text-[10px] text-gray-400 leading-relaxed italic">
-                                    "O planejamento é o síncrotron da mente: acelera suas conquistas e foca suas energias no que realmente importa."
-                                </p>
+                            <div className="pt-4 flex gap-3">
+                                <button onClick={() => setIsCreateModalOpen(false)} className="flex-1 py-3 bg-white/5 rounded-2xl font-bold text-xs uppercase text-gray-400">Cancelar</button>
+                                <button 
+                                    onClick={() => {
+                                        if (newBlockName) {
+                                            setCustomBlocks(prev => [...prev, { id: Math.random().toString(), title: newBlockName, duration: newBlockDuration }]);
+                                            setNewBlockName('');
+                                            setIsCreateModalOpen(false);
+                                        }
+                                    }}
+                                    className="flex-1 py-3 bg-brand-blue rounded-2xl font-bold text-xs uppercase text-white shadow-lg shadow-brand-blue/20"
+                                >
+                                    Criar
+                                </button>
                             </div>
                         </div>
                     </div>
-                )}
-            </div>
+                </div>
+            )}
+
+            {isExportModalOpen && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+                    <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={() => setIsExportModalOpen(false)} />
+                    <div className="relative bg-[#1e1e1e] border border-white/10 rounded-[32px] p-8 max-w-md w-full shadow-2xl animate-in zoom-in-95 duration-200">
+                        <h3 className="text-2xl font-display font-black text-white uppercase tracking-tight mb-2">Exportar</h3>
+                        <p className="text-gray-400 text-xs mb-8">Escolha o formato para salvar seu cronograma.</p>
+                        <div className="grid grid-cols-1 gap-3">
+                            <button onClick={() => window.print()} className="flex items-center gap-4 p-4 bg-white/5 border border-white/10 rounded-2xl hover:bg-white/10 transition-colors group text-left">
+                                <div className="size-10 bg-brand-red/10 rounded-xl flex items-center justify-center text-brand-red"><FileText className="w-5 h-5" /></div>
+                                <div><div className="text-sm font-bold text-white uppercase tracking-tight">Salvar como PDF</div><div className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Ideal para imprimir</div></div>
+                            </button>
+                            <button 
+                                onClick={() => {
+                                    const icsContent = ['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//IFUSP//Hub LabDiv//PT',...events.map(e => ['BEGIN:VEVENT',`SUMMARY:${e.title}`,`DTSTART:${new Date(e.start).toISOString().replace(/[-:]/g, '').split('.')[0]}Z`,`DTEND:${new Date(e.end || new Date(e.start).getTime() + 7200000).toISOString().replace(/[-:]/g, '').split('.')[0]}Z`,'END:VEVENT'].join('\n')),'END:VCALENDAR'].join('\n');
+                                    const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
+                                    const url = window.URL.createObjectURL(blob);
+                                    const link = document.createElement('a');
+                                    link.href = url;
+                                    link.setAttribute('download', 'cronograma.ics');
+                                    document.body.appendChild(link);
+                                    link.click();
+                                    document.body.removeChild(link);
+                                }}
+                                className="flex items-center gap-4 p-4 bg-white/5 border border-white/10 rounded-2xl hover:bg-white/10 transition-colors group text-left"
+                            >
+                                <div className="size-10 bg-brand-blue/10 rounded-xl flex items-center justify-center text-brand-blue"><CalendarDays className="w-5 h-5" /></div>
+                                <div><div className="text-sm font-bold text-white uppercase tracking-tight">Calendário (.ics)</div><div className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Google Agenda / Outlook</div></div>
+                            </button>
+                            <button 
+                                onClick={() => {
+                                    const csvHeader = 'Titulo,Inicio,Fim\n';
+                                    const csvRows = events.map(e => `"${e.title}","${e.start}","${e.end || ''}"`).join('\n');
+                                    const blob = new Blob([csvHeader + csvRows], { type: 'text/csv;charset=utf-8' });
+                                    const url = window.URL.createObjectURL(blob);
+                                    const link = document.createElement('a');
+                                    link.href = url;
+                                    link.setAttribute('download', 'cronograma.csv');
+                                    document.body.appendChild(link);
+                                    link.click();
+                                    document.body.removeChild(link);
+                                }}
+                                className="flex items-center gap-4 p-4 bg-white/5 border border-white/10 rounded-2xl hover:bg-white/10 transition-colors group text-left"
+                            >
+                                <div className="size-10 bg-brand-yellow/10 rounded-xl flex items-center justify-center text-brand-yellow"><Table className="w-5 h-5" /></div>
+                                <div><div className="text-sm font-bold text-white uppercase tracking-tight">Arquivo CSV (.csv)</div><div className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Exportar para Excel</div></div>
+                            </button>
+                        </div>
+                        <button onClick={() => setIsExportModalOpen(false)} className="mt-6 w-full py-4 bg-white/5 rounded-2xl font-bold text-xs uppercase text-gray-500 hover:text-white transition-colors">Fechar</button>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

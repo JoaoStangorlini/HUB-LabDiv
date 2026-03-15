@@ -46,40 +46,12 @@ export async function middleware(request: NextRequest) {
         await supabase.auth.getUser();
     }
 
-    // --- Admin Auth Check (Hardened) ---
-    if (pathname.startsWith('/admin') && !pathname.startsWith('/admin/login')) {
-        // Check for password-based session cookie first (bypass)
-        const adminSession = request.cookies.get('admin_session');
-        if (adminSession?.value === 'authenticated') {
-            return response;
-        }
-
-        const { data: { user } } = await supabase.auth.getUser();
-
-        if (!user) {
-            const loginUrl = new URL('/admin/login', request.url);
-            return NextResponse.redirect(loginUrl);
-        }
-
-        // Verify admin role in profiles table
-        const { data: profile } = await supabase
-            .from('profiles')
-            .select('role')
-            .eq('id', user.id)
-            .single();
-
-        if (!profile || profile.role !== 'admin') {
-            const homeUrl = new URL('/', request.url);
-            return NextResponse.redirect(homeUrl);
-        }
-    }
-
     const isProd = process.env.NODE_ENV === 'production';
     const cspHeader = `
         default-src 'self';
         script-src 'self' 'unsafe-eval' 'unsafe-inline' blob: https://*.supabase.co https://*.cloudinary.com https://*.youtube.com;
         style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
-        img-src 'self' blob: data: https://*.supabase.co https://*.cloudinary.com https://i.ytimg.com https://*.ytimg.com https://*.googleusercontent.com https://*.google.com https://*.google-analytics.com https://*.googletagmanager.com;
+        img-src 'self' blob: data: https://api.dicebear.com https://*.supabase.co https://*.cloudinary.com https://i.ytimg.com https://*.ytimg.com https://*.googleusercontent.com https://*.google.com https://*.google-analytics.com https://*.googletagmanager.com;
         font-src 'self' data: https://fonts.gstatic.com;
         connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.cloudinary.com https://*.resend.com https://fonts.googleapis.com https://*.google-analytics.com https://*.googletagmanager.com;
         media-src 'self' https://*.supabase.co https://*.cloudinary.com https://*.youtube.com;
@@ -92,17 +64,47 @@ export async function middleware(request: NextRequest) {
         ${isProd ? 'upgrade-insecure-requests;' : ''}
     `.replace(/\s{2,}/g, ' ').trim();
 
-    response.headers.set('Content-Security-Policy', cspHeader);
-    response.headers.set('X-Frame-Options', 'DENY');
-    response.headers.set('X-Content-Type-Options', 'nosniff');
-    response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
-    response.headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+    const applyHeaders = (res: NextResponse) => {
+        res.headers.set('Content-Security-Policy', cspHeader);
+        res.headers.set('X-Frame-Options', 'DENY');
+        res.headers.set('X-Content-Type-Options', 'nosniff');
+        res.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
+        res.headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+        if (isProd) {
+            res.headers.set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
+        }
+        return res;
+    };
 
-    if (isProd) {
-        response.headers.set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
+    // --- Admin Auth Check (Hardened) ---
+    if (pathname.startsWith('/admin') && !pathname.startsWith('/admin/login')) {
+        // Check for password-based session cookie first (bypass)
+        const adminSession = request.cookies.get('admin_session');
+        if (adminSession?.value === 'authenticated') {
+            return applyHeaders(response);
+        }
+
+        const { data: { user } } = await supabase.auth.getUser();
+
+        if (!user) {
+            const loginUrl = new URL('/admin/login', request.url);
+            return applyHeaders(NextResponse.redirect(loginUrl));
+        }
+
+        // Verify admin role in profiles table
+        const { data: profile } = await supabase
+            .from('profiles')
+            .select('role')
+            .eq('id', user.id)
+            .single();
+
+        if (!profile || profile.role !== 'admin') {
+            const homeUrl = new URL('/', request.url);
+            return applyHeaders(NextResponse.redirect(homeUrl));
+        }
     }
 
-    return response;
+    return applyHeaders(response);
 }
 
 export const config = {

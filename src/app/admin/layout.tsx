@@ -34,6 +34,7 @@ export default function AdminLayout({
         { name: 'Peer Review', href: '/admin/correcoes', icon: 'spellcheck' },
         { name: 'Ranking', href: '/admin/ranking', icon: 'trending_up' },
         { name: 'Oportunidades', href: '/admin/oportunidades', icon: 'event' },
+        { name: 'Logs do IFUSP', href: '/admin/drops', icon: 'forum' },
     ];
 
 
@@ -41,9 +42,18 @@ export default function AdminLayout({
         <div className="bg-transparent text-gray-900 dark:text-gray-100 font-sans antialiased min-h-screen flex flex-col md:flex-row overflow-hidden">
             {/* Mobile Header */}
             <div className="md:hidden bg-neutral-900 text-white p-4 flex items-center justify-between border-b border-gray-800 z-[60]">
-                <div className="font-bold text-lg flex items-center gap-2">
-                    <span className="material-symbols-outlined text-[#0055ff]">security</span>
-                    Admin<span className="text-brand-yellow">Panel</span>
+                <div className="flex items-center gap-2">
+                    <Link 
+                        href="/"
+                        className="p-2 bg-gray-800 rounded-lg flex items-center justify-center hover:bg-gray-700 transition-colors"
+                        aria-label="Sair do Admin"
+                    >
+                        <span className="material-symbols-outlined text-sm">logout</span>
+                    </Link>
+                    <div className="font-bold text-lg flex items-center gap-2">
+                        <span className="material-symbols-outlined text-[#0055ff]">security</span>
+                        Admin<span className="text-brand-yellow">Panel</span>
+                    </div>
                 </div>
                 <button
                     onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -97,7 +107,7 @@ export default function AdminLayout({
                     </nav>
                 </div>
 
-                <div className="p-6 border-t border-gray-800 transition-colors relative z-10">
+                <div className="p-6 pb-24 border-t border-gray-800 transition-colors relative z-10 bg-neutral-900">
                     <button
                         onClick={async () => {
                             await signOut('/login');

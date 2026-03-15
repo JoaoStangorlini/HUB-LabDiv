@@ -6,7 +6,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { toast } from 'react-hot-toast';
-import { Loader2, X, User, FileText, Globe, Link, Building2, ShieldCheck, Star, Mail, Phone, FileUp, Info, Users, Microscope } from 'lucide-react';
+import { Loader2, X, User, FileText, Globe, Link, Building2, ShieldCheck, Star, Mail, Phone, FileUp, Info, Users, Microscope, Briefcase, Zap } from 'lucide-react';
 import { updateProfile, getProfileWithPseudonyms, uploadEnrollmentProof, updateProfileAsAdmin } from '@/app/actions/profiles';
 import { getUserPseudonyms, createPseudonym } from '@/app/actions/submissions';
 import { createServerSupabase } from '@/lib/supabase/server';
@@ -28,16 +28,16 @@ const profileSchema = z.object({
     entrance_year: z.string().optional(),
     artistic_interests_str: z.string().default(''),
     lattes_url: z.string().url("Link do Lattes inválido").or(z.literal("")).default(''),
-    ic_research_area: z.string().max(100).default(''),
-    ic_preferred_department: z.string().max(100).default(''),
-    ic_preferred_lab: z.string().max(100).default(''),
     new_nickname: z.string().max(30).default(''),
     available_to_mentor: z.boolean().default(false),
     seeking_mentor: z.boolean().default(false),
+    research_line: z.string().max(100).optional(),
+    office_room: z.string().max(100).optional(),
+    laboratory_name: z.string().max(100).optional(),
+    department: z.string().max(100).optional(),
     is_labdiv: z.boolean().optional(),
     is_visible: z.boolean().optional(),
     user_category: z.enum(['curioso', 'aluno_usp', 'pesquisador']).default('curioso'),
-    seeking_ic: z.boolean().default(false),
     seeking_assistant: z.boolean().default(false),
 }).superRefine((data, ctx) => {
     const isUsp = data.email?.endsWith('@usp.br');
@@ -98,14 +98,14 @@ export function EditProfileModal({ isOpen, onClose, onSuccess, adminMode = false
             new_nickname: '',
             available_to_mentor: false,
             seeking_mentor: false,
+            research_line: '',
+            office_room: '',
+            laboratory_name: '',
+            department: '',
             is_labdiv: false,
             is_visible: true,
             user_category: 'curioso',
-            seeking_ic: false,
             seeking_assistant: false,
-            ic_research_area: '',
-            ic_preferred_department: '',
-            ic_preferred_lab: '',
         }
     });
 
@@ -194,11 +194,11 @@ export function EditProfileModal({ isOpen, onClose, onSuccess, adminMode = false
             setValue('is_labdiv', profile.is_labdiv || false);
             setValue('is_visible', profile.is_visible ?? true);
             setValue('user_category', profile.user_category || 'curioso');
-            setValue('seeking_ic', profile.seeking_ic || false);
             setValue('seeking_assistant', profile.seeking_assistant || false);
-            setValue('ic_research_area', profile.ic_research_area || '');
-            setValue('ic_preferred_department', profile.ic_preferred_department || '');
-            setValue('ic_preferred_lab', profile.ic_preferred_lab || '');
+            setValue('research_line', profile.research_line || '');
+            setValue('office_room', profile.office_room || '');
+            setValue('laboratory_name', profile.laboratory_name || '');
+            setValue('department', profile.department || '');
             setProfileData(profile);
             setPseudonyms(pNames);
         }
@@ -249,10 +249,14 @@ export function EditProfileModal({ isOpen, onClose, onSuccess, adminMode = false
         }
 
         // Remove new_nickname and email (read-only) and map fields to profileData
-        const { new_nickname, email, artistic_interests_str, entrance_year, other_institute, education_level, external_institution, ...restData } = data;
+        const { new_nickname, email, artistic_interests_str, entrance_year, other_institute, education_level, external_institution, research_line, office_room, laboratory_name, department, ...restData } = data;
 
         const updatedProfileData: any = {
             ...restData,
+            research_line,
+            office_room,
+            laboratory_name,
+            department,
             institute: data.institute === 'Outros' ? other_institute : data.institute,
             usp_proof_url: proofUrl,
             entrance_year: entrance_year ? parseInt(entrance_year, 10) : null,
@@ -343,389 +347,132 @@ export function EditProfileModal({ isOpen, onClose, onSuccess, adminMode = false
                             </div>
                         )}
 
-                        {/* Email */}
-                        <div className={`space-y-2 ${!adminMode && 'opacity-70'}`}>
-                            <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1 flex items-center gap-2">
-                                <Mail className="w-3 h-3" /> E-mail {!adminMode && '(Bloqueado)'}
-                            </label>
-                            <div className="relative">
+                        {/* 1. INFORMAÇÕES BÁSICAS (Locked for non-admin) */}
+                        <div className="space-y-4">
+                            <div className={`space-y-2 ${!adminMode && 'opacity-70'}`}>
+                                <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1 flex items-center gap-2">
+                                    <Mail className="w-3 h-3" /> E-mail {!adminMode && '(Bloqueado)'}
+                                </label>
                                 <input
                                     {...register('email')}
                                     readOnly={!adminMode}
                                     className={`w-full bg-gray-100 dark:bg-white/5 border border-gray-100 dark:border-white/5 rounded-2xl px-4 py-3 text-sm outline-none ${!adminMode ? 'cursor-not-allowed text-gray-400' : 'focus:border-brand-blue/50 text-gray-900 dark:text-white font-bold'}`}
-                                    placeholder="seu.email@usp.br"
                                 />
-                                {!adminMode && <X className="w-4 h-4 absolute right-4 top-1/2 -translate-y-1/2 text-gray-500" />}
                             </div>
-                        </div>
 
-                        {/* Full Name */}
-                        <div className={`space-y-2 ${!adminMode && 'opacity-70'}`}>
-                            <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1 flex items-center gap-2">
-                                <User className="w-3 h-3" /> Nome Completo {!adminMode && '(Bloqueado)'}
-                            </label>
-                            <div className="relative">
+                            <div className={`space-y-2 ${!adminMode && 'opacity-70'}`}>
+                                <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1 flex items-center gap-2">
+                                    <User className="w-3 h-3" /> Nome Completo {!adminMode && '(Bloqueado)'}
+                                </label>
                                 <input
                                     {...register('full_name')}
                                     readOnly={!adminMode}
                                     className={`w-full bg-gray-100 dark:bg-white/5 border border-gray-100 dark:border-white/5 rounded-2xl px-4 py-3 text-sm outline-none ${!adminMode ? 'cursor-not-allowed text-gray-400' : 'focus:border-brand-blue/50 text-gray-900 dark:text-white font-bold'}`}
-                                    placeholder="Seu nome"
                                 />
-                                {!adminMode && <X className="w-4 h-4 absolute right-4 top-1/2 -translate-y-1/2 text-gray-500" />}
                             </div>
-                        </div>
 
-                        {/* Bio */}
-                        <div className="space-y-2">
-                            <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1 flex items-center gap-2">
-                                <FileText className="w-3 h-3" /> Bio
-                            </label>
-                            <textarea
-                                {...register('bio')}
-                                rows={3}
-                                className="w-full bg-gray-50 dark:bg-black/20 border border-gray-100 dark:border-white/5 rounded-2xl px-4 py-3 text-sm focus:border-brand-blue/50 outline-none transition-all placeholder:text-gray-400 resize-none"
-                                placeholder="Conte um pouco sobre você..."
-                            />
-                            {errors.bio && <p className="text-[10px] text-brand-red font-bold uppercase ml-1">{errors.bio.message}</p>}
-                        </div>
-
-                        {/* Categoria de Usuário */}
-                        <div className="space-y-2">
-                            <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1 flex items-center gap-2">
-                                <Users className="w-3 h-3" /> Categoria de Usuário
-                            </label>
-                            <div className="grid grid-cols-3 gap-2">
-                                {(['curioso', 'aluno_usp', 'pesquisador'] as const).map((cat) => (
-                                    <button
-                                        key={cat}
-                                        type="button"
-                                        onClick={() => setValue('user_category', cat)}
-                                        className={`px-3 py-2 rounded-xl text-[9px] font-black uppercase transition-all border ${watch('user_category') === cat
-                                            ? 'bg-brand-blue text-white border-brand-blue shadow-lg shadow-brand-blue/20'
-                                            : 'bg-gray-50 dark:bg-white/5 text-gray-400 border-gray-100 dark:border-white/5 hover:border-brand-blue/30'}`}
-                                    >
-                                        {cat.replace('_', ' ')}
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
-
-                        {/* Nickname Support */}
-                        <div className="p-4 bg-brand-blue/5 border border-brand-blue/10 rounded-2xl space-y-4">
-                            <div className="flex items-center justify-between">
-                                <div className="flex items-center gap-3">
-                                    <div className="w-8 h-8 bg-brand-blue/10 rounded-lg flex items-center justify-center">
-                                        <ShieldCheck className="w-4 h-4 text-brand-blue" />
-                                    </div>
-                                    <div>
-                                        <span className="block text-xs font-black text-gray-900 dark:text-white uppercase tracking-tight">Usar apelido publicamente</span>
-                                        <span className="text-[9px] text-gray-500 font-medium">Oculta seu nome real no seu perfil e posts</span>
-                                    </div>
-                                </div>
-                                <label className="relative inline-flex items-center cursor-pointer">
-                                    <input type="checkbox" {...register('use_nickname')} className="sr-only peer" />
-                                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none dark:bg-gray-700 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-brand-blue"></div>
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1 flex items-center gap-2">
+                                    <FileText className="w-3 h-3" /> Bio
                                 </label>
+                                <textarea
+                                    {...register('bio')}
+                                    rows={3}
+                                    className="w-full bg-gray-50 dark:bg-black/20 border border-gray-100 dark:border-white/5 rounded-2xl px-4 py-3 text-sm focus:border-brand-blue/50 outline-none transition-all placeholder:text-gray-400 resize-none"
+                                    placeholder="Conte um pouco sobre você..."
+                                />
+                                {errors.bio && <p className="text-[10px] text-brand-red font-bold uppercase ml-1">{errors.bio.message}</p>}
                             </div>
-
-                            {useNickname && (
-                                <div className="space-y-4 pt-2">
-                                    <label className="text-[9px] font-black uppercase tracking-widest text-gray-400 ml-1">Seus Apelidos (Máx 2)</label>
-
-                                    {pseudonyms.length > 0 && (
-                                        <div className="grid grid-cols-2 gap-2">
-                                            {pseudonyms.map(pseudo => (
-                                                <button
-                                                    key={pseudo.id}
-                                                    type="button"
-                                                    onClick={() => setValue('username', pseudo.name)}
-                                                    className={`px-3 py-2 rounded-xl text-[10px] font-black uppercase transition-all border ${watch('username') === pseudo.name
-                                                        ? 'bg-brand-blue text-white border-brand-blue shadow-lg shadow-brand-blue/20'
-                                                        : 'bg-white dark:bg-white/5 text-gray-500 border-gray-100 dark:border-white/5 hover:border-brand-blue/30'}`}
-                                                >
-                                                    {pseudo.name}
-                                                </button>
-                                            ))}
-                                        </div>
-                                    )}
-
-                                    {pseudonyms.length < 2 && (
-                                        <div className="flex gap-2">
-                                            <input
-                                                {...register('new_nickname')}
-                                                placeholder="Novo apelido..."
-                                                className="flex-1 bg-white dark:bg-black/40 border border-gray-100 dark:border-white/10 rounded-xl px-3 py-2 text-xs outline-none focus:border-brand-blue/50 transition-all"
-                                            />
-                                            <button
-                                                type="button"
-                                                onClick={handleCreateNickname}
-                                                disabled={isCreatingNickname || !watch('new_nickname')}
-                                                className="px-4 py-2 bg-brand-blue text-white rounded-xl text-[10px] font-black uppercase hover:bg-brand-blue/80 disabled:opacity-50 transition-all flex items-center gap-2"
-                                            >
-                                                {isCreatingNickname ? <Loader2 className="w-3 h-3 animate-spin" /> : 'Criar'}
-                                            </button>
-                                        </div>
-                                    )}
-
-                                    {pseudonyms.length >= 2 && (
-                                        <p className="text-[9px] text-brand-yellow font-bold uppercase text-center mt-2 italic">
-                                            Limite de apelidos atingido
-                                        </p>
-                                    )}
-
-                                    <input type="hidden" {...register('username')} />
-                                </div>
-                            )}
                         </div>
 
-                        {/* Bixo Adoption Section (Only for USP) */}
-                        {isUspUser && (
-                            <div className="space-y-4">
-                                <div className="flex items-center justify-between border-b border-gray-100 dark:border-white/5 pb-2">
-                                    <p className="text-[10px] font-black uppercase tracking-widest text-brand-blue flex items-center gap-2">
-                                        <User className="w-3 h-3" /> Adoção e Mentoria
-                                    </p>
-                                </div>
-
-                                <div className="grid grid-cols-1 gap-3">
-                                    {/* Seeking Mentor (Bixo) */}
-                                    <div className={`p-4 bg-gray-50 dark:bg-white/[0.02] border rounded-2xl flex items-center justify-between group transition-all ${seekingMentor ? 'border-brand-blue' : 'border-gray-100 dark:border-white/5 hover:border-brand-blue/30'}`}>
-                                        <div className="flex flex-col gap-0.5">
-                                            <span className={`text-xs font-black uppercase tracking-tight ${seekingMentor ? 'text-brand-blue' : 'text-gray-900 dark:text-white'}`}>Sou Bixo e quero ser adotado</span>
-                                            <span className="text-[9px] text-gray-500 font-medium">Sinaliza para veteranos que você busca um mentor</span>
-                                        </div>
-                                        <label className="relative inline-flex items-center cursor-pointer">
-                                            <input
-                                                type="checkbox"
-                                                className="sr-only peer"
-                                                {...register('seeking_mentor')}
-                                                checked={seekingMentor}
-                                                onChange={(e) => {
-                                                    const isChecked = e.target.checked;
-                                                    setValue('seeking_mentor', isChecked, { shouldValidate: true, shouldDirty: true });
-                                                    if (isChecked) {
-                                                        setValue('available_to_mentor', false, { shouldValidate: true, shouldDirty: true });
-                                                    }
-                                                }}
-                                            />
-                                            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none dark:bg-gray-700 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-brand-blue"></div>
-                                        </label>
-                                    </div>
-
-                                    {/* Available to Mentor (Veterano) */}
-                                    {(() => {
-                                        const currentYear = new Date().getFullYear();
-                                        const formEntranceYear = watch('entrance_year');
-                                        const parsedYear = formEntranceYear ? parseInt(formEntranceYear, 10) : null;
-                                        const isEligible = parsedYear !== null && (currentYear - parsedYear >= 2);
-
-                                        return (
-                                            <div className={`p-4 bg-gray-50 dark:bg-white/[0.02] border rounded-2xl flex items-center justify-between group transition-all ${!isEligible ? 'opacity-50 grayscale cursor-not-allowed border-gray-100 dark:border-white/5' : availableToMentor ? 'border-brand-blue' : 'border-gray-100 dark:border-white/5 hover:border-brand-blue/30'}`}>
-                                                <div className="flex flex-col gap-0.5">
-                                                    <div className="flex items-center gap-2">
-                                                        <span className={`text-xs font-black uppercase tracking-tight ${availableToMentor ? 'text-brand-blue' : 'text-gray-900 dark:text-white'}`}>Quero adotar um bixo</span>
-                                                        {!isEligible && (
-                                                            <span className="text-[8px] font-black bg-brand-yellow/10 text-brand-yellow px-2 py-0.5 rounded uppercase">2+ Anos USP</span>
-                                                        )}
-                                                    </div>
-                                                    <span className="text-[9px] text-gray-500 font-medium">Habilita seu perfil como mentor/veterano</span>
-                                                </div>
-                                                <label className={`relative inline-flex items-center ${isEligible ? 'cursor-pointer' : 'cursor-not-allowed'}`}>
-                                                    <input
-                                                        type="checkbox"
-                                                        disabled={!isEligible}
-                                                        className="sr-only peer"
-                                                        {...register('available_to_mentor')}
-                                                        checked={availableToMentor}
-                                                        onChange={(e) => {
-                                                            const isChecked = e.target.checked;
-                                                            setValue('available_to_mentor', isChecked, { shouldValidate: true, shouldDirty: true });
-                                                            if (isChecked) {
-                                                                setValue('seeking_mentor', false, { shouldValidate: true, shouldDirty: true });
-                                                            }
-                                                        }}
-                                                    />
-                                                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none dark:bg-gray-700 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-brand-blue"></div>
-                                                </label>
-                                            </div>
-                                        );
-                                    })()}
-
-                                    {/* Admin Only: Lab-Div Member Toggle */}
-                                    {adminMode && (
-                                        <div className="p-4 bg-brand-yellow/5 border border-brand-yellow/10 rounded-2xl flex items-center justify-between group transition-all">
-                                            <div className="flex flex-col gap-0.5">
-                                                <span className="text-xs font-black uppercase tracking-tight text-brand-yellow">Membro do Lab-Div</span>
-                                                <span className="text-[9px] text-gray-500 font-medium italic">Privilégio Administrativo: Exibe selo dourado no perfil</span>
-                                            </div>
-                                            <label className="relative inline-flex items-center cursor-pointer">
-                                                <input type="checkbox" {...register('is_labdiv')} className="sr-only peer" />
-                                                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none dark:bg-gray-700 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-brand-yellow"></div>
-                                            </label>
-                                        </div>
-                                    )}
-
-                                    {/* Match Features: Quero IC / Quero Ajudante */}
-                                    {watch('user_category') === 'aluno_usp' && (
-                                        <>
-                                            <div className="p-4 bg-brand-red/5 border border-brand-red/10 rounded-2xl flex items-center justify-between group transition-all">
-                                                <div className="flex flex-col gap-0.5">
-                                                    <div className="flex items-center gap-2">
-                                                        <span className="text-xs font-black uppercase tracking-tight text-brand-red">Quero uma IC</span>
-                                                        <span className="text-[8px] font-black bg-brand-red/10 text-brand-red px-2 py-0.5 rounded uppercase">Match</span>
-                                                    </div>
-                                                    <span className="text-[9px] text-gray-500 font-medium">Sinaliza interesse em Iniciação Científica para pesquisadores</span>
-                                                </div>
-                                                <label className="relative inline-flex items-center cursor-pointer">
-                                                    <input type="checkbox" {...register('seeking_ic')} className="sr-only peer" />
-                                                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none dark:bg-gray-700 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-brand-red"></div>
-                                                </label>
-                                            </div>
-
-                                            {watch('seeking_ic') && (
-                                                <div className="p-4 bg-brand-red/5 border-x border-b border-brand-red/10 rounded-b-2xl -mt-2 space-y-4 animate-in slide-in-from-top-2 duration-300">
-                                                    <div className="space-y-2">
-                                                        <label className="text-[9px] font-black uppercase tracking-widest text-gray-400 ml-1">Área de Pesquisa</label>
-                                                        <input 
-                                                            {...register('ic_research_area')}
-                                                            className="w-full bg-white dark:bg-black/40 border border-gray-100 dark:border-white/10 rounded-xl px-3 py-2 text-xs outline-none focus:border-brand-red/30 transition-all"
-                                                            placeholder="Ex: Física de Partículas..."
-                                                        />
-                                                    </div>
-                                                    <div className="space-y-2">
-                                                        <label className="text-[9px] font-black uppercase tracking-widest text-gray-400 ml-1">Departamento</label>
-                                                        <input 
-                                                            {...register('ic_preferred_department')}
-                                                            className="w-full bg-white dark:bg-black/40 border border-gray-100 dark:border-white/10 rounded-xl px-3 py-2 text-xs outline-none focus:border-brand-red/30 transition-all"
-                                                            placeholder="Ex: DFMA, FNC..."
-                                                        />
-                                                    </div>
-                                                    <div className="space-y-2">
-                                                        <label className="text-[9px] font-black uppercase tracking-widest text-gray-400 ml-1">Laboratório</label>
-                                                        <input 
-                                                            {...register('ic_preferred_lab')}
-                                                            className="w-full bg-white dark:bg-black/40 border border-gray-100 dark:border-white/10 rounded-xl px-3 py-2 text-xs outline-none focus:border-brand-red/30 transition-all"
-                                                            placeholder="Ex: Lab de Cristalografia..."
-                                                        />
-                                                    </div>
-                                                </div>
-                                            )}
-                                        </>
-                                    )}
-
-                                    {watch('user_category') === 'pesquisador' && (
-                                        <div className="p-4 bg-brand-yellow/5 border border-brand-yellow/10 rounded-2xl flex items-center justify-between group transition-all">
-                                            <div className="flex flex-col gap-0.5">
-                                                <div className="flex items-center gap-2">
-                                                    <span className="text-xs font-black uppercase tracking-tight text-brand-yellow">Quero um ajudante</span>
-                                                    <span className="text-[8px] font-black bg-brand-yellow/10 text-brand-yellow px-2 py-0.5 rounded uppercase">Recrutamento</span>
-                                                </div>
-                                                <span className="text-[9px] text-gray-500 font-medium">Sinaliza que você busca alunos para auxiliar em sua pesquisa</span>
-                                            </div>
-                                            <label className="relative inline-flex items-center cursor-pointer">
-                                                <input type="checkbox" {...register('seeking_assistant')} className="sr-only peer" />
-                                                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none dark:bg-gray-700 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-brand-yellow"></div>
-                                            </label>
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
-                        )}
-
-                        {/* Other Fields */}
-                        {/* Education / Institution conditional fields */}
-                        {isUspUser ? (
-                            <>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                    <div className="space-y-2">
-                                        <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1 flex items-center gap-2">
-                                            <Building2 className="w-3 h-3" /> Instituto
-                                        </label>
+                        {/* 2. IDENTIDADE PROTEGIDA */}
+                        <div className="space-y-4">
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1 flex items-center gap-2">
+                                    <Users className="w-3 h-3" /> Sua Categoria
+                                </label>
+                                {adminMode ? (
+                                    <div className="flex items-center gap-2">
                                         <select
-                                            {...register('institute')}
-                                            className="w-full bg-gray-50 dark:bg-black/20 border border-gray-100 dark:border-white/5 rounded-2xl px-4 py-3 text-sm focus:border-brand-blue/50 outline-none transition-all appearance-none cursor-pointer"
+                                            {...register('user_category')}
+                                            className="w-full bg-gray-50 dark:bg-black/20 border border-brand-red/30 rounded-2xl px-4 py-3 text-sm focus:border-brand-red outline-none transition-all cursor-pointer font-black text-gray-900 dark:text-white uppercase tracking-tight"
                                         >
-                                            <option value="" disabled>Selecione seu instituto</option>
-                                            {institutes.map(inst => (
-                                                <option key={inst} value={inst}>{inst}</option>
-                                            ))}
+                                            <option value="curioso">Curioso</option>
+                                            <option value="aluno_usp">Aluno USP</option>
+                                            <option value="pesquisador">Pesquisador</option>
                                         </select>
-                                        {errors.institute && <p className="text-[10px] text-brand-red font-bold uppercase ml-1">{errors.institute.message}</p>}
+                                        <span className="text-[8px] font-black bg-brand-red/10 text-brand-red px-2 py-0.5 rounded uppercase font-mono h-fit shrink-0">Admin Edit</span>
                                     </div>
-
-                                    <div className="space-y-2">
-                                        <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1 flex items-center gap-2">
-                                            <Globe className="w-3 h-3" /> {selectedInstitute === 'IF-USP' ? 'Curso na Física' : 'Nome do Curso'}
-                                        </label>
-                                        {selectedInstitute === 'IF-USP' ? (
-                                            <select
-                                                {...register('course')}
-                                                className="w-full bg-gray-50 dark:bg-black/20 border border-gray-100 dark:border-white/5 rounded-2xl px-4 py-3 text-sm focus:border-brand-blue/50 outline-none transition-all appearance-none cursor-pointer"
-                                            >
-                                                <option value="" disabled>Selecione seu curso</option>
-                                                {ifCourses.map(course => (
-                                                    <option key={course} value={course}>{course}</option>
-                                                ))}
-                                            </select>
-                                        ) : (
-                                            <input
-                                                {...register('course')}
-                                                className="w-full bg-gray-50 dark:bg-black/20 border border-gray-100 dark:border-white/5 rounded-2xl px-4 py-3 text-sm focus:border-brand-blue/50 outline-none transition-all"
-                                                placeholder="Ex: Bacharelado em Física"
-                                            />
-                                        )}
-                                        {errors.course && <p className="text-[10px] text-brand-red font-bold uppercase ml-1">{errors.course.message}</p>}
-                                    </div>
-                                </div>
-
-                                {selectedInstitute === 'Outros' && (
-                                    <div className="space-y-2 animate-in slide-in-from-top-2 duration-300">
-                                        <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1 flex items-center gap-2">
-                                            <Building2 className="w-3 h-3" /> Qual o nome do seu Instituto/Escola?
-                                        </label>
-                                        <input
-                                            {...register('other_institute')}
-                                            className="w-full bg-gray-50 dark:bg-black/20 border border-gray-100 dark:border-white/5 rounded-2xl px-4 py-3 text-sm focus:border-brand-blue/50 outline-none transition-all border-brand-yellow/30"
-                                            placeholder="Ex: Poli, EACH, Escola Secundária, etc."
-                                        />
-                                        {errors.other_institute && <p className="text-[10px] text-brand-red font-bold uppercase ml-1">{errors.other_institute.message}</p>}
+                                ) : (
+                                    <div className="px-4 py-3 bg-gray-50 dark:bg-black/20 border border-gray-100 dark:border-white/5 rounded-2xl flex items-center justify-between">
+                                        <span className="text-xs font-black text-gray-900 dark:text-white uppercase tracking-tight">
+                                            {watch('user_category').replace('_', ' ')}
+                                        </span>
+                                        <span className="text-[8px] font-black bg-brand-blue/10 text-brand-blue px-2 py-0.5 rounded uppercase font-mono">ID LabDiv</span>
                                     </div>
                                 )}
-                            </>
-                        ) : (
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 animate-in slide-in-from-top-2 duration-300">
-                                <div className="space-y-2">
-                                    <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1 flex items-center gap-2">
-                                        <Globe className="w-3 h-3" /> Escolaridade
-                                    </label>
-                                    <select
-                                        {...register('education_level')}
-                                        className="w-full bg-gray-50 dark:bg-black/20 border border-gray-100 dark:border-white/5 rounded-2xl px-4 py-3 text-sm focus:border-brand-blue/50 outline-none transition-all appearance-none cursor-pointer"
-                                    >
-                                        <option value="" disabled>Selecione sua escolaridade</option>
-                                        <option value="Ensino Médio">Ensino Médio</option>
-                                        <option value="Graduação (Em andamento)">Graduação (Em andamento)</option>
-                                        <option value="Graduação (Concluída)">Graduação (Concluída)</option>
-                                        <option value="Pós-graduação / Pesquisa">Pós-graduação / Pesquisa</option>
-                                        <option value="Entusiasta / Autodidata">Entusiasta / Autodidata</option>
-                                    </select>
-                                    {errors.education_level && <p className="text-[10px] text-brand-red font-bold uppercase ml-1">{errors.education_level.message}</p>}
-                                </div>
-
-                                <div className="space-y-2">
-                                    <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1 flex items-center gap-2">
-                                        <Building2 className="w-3 h-3" /> Instituição de Origem
-                                    </label>
-                                    <input
-                                        {...register('external_institution')}
-                                        className="w-full bg-gray-50 dark:bg-black/20 border border-gray-100 dark:border-white/5 rounded-2xl px-4 py-3 text-sm focus:border-brand-blue/50 outline-none transition-all"
-                                        placeholder="Ex: Unicamp, UFABC, Escola Estadual..."
-                                    />
-                                    {errors.external_institution && <p className="text-[10px] text-brand-red font-bold uppercase ml-1">{errors.external_institution.message}</p>}
-                                </div>
                             </div>
-                        )}
 
+                            <div className="p-4 bg-brand-blue/5 border border-brand-blue/10 rounded-2xl space-y-4">
+                                <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-8 h-8 bg-brand-blue/10 rounded-lg flex items-center justify-center">
+                                            <ShieldCheck className="w-4 h-4 text-brand-blue" />
+                                        </div>
+                                        <div>
+                                            <span className="block text-xs font-black text-gray-900 dark:text-white uppercase tracking-tight">Usar apelido publicamente</span>
+                                            <span className="text-[9px] text-gray-500 font-medium whitespace-nowrap overflow-hidden">Oculta seu nome real no seu perfil</span>
+                                        </div>
+                                    </div>
+                                    <label className="relative inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" {...register('use_nickname')} className="sr-only peer" />
+                                        <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none dark:bg-gray-700 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-brand-blue"></div>
+                                    </label>
+                                </div>
+
+                                {useNickname && (
+                                    <div className="space-y-4 pt-2 animate-in slide-in-from-top-2 duration-300">
+                                        <label className="text-[9px] font-black uppercase tracking-widest text-gray-400 ml-1">Seus Apelidos (Máx 2)</label>
+                                        {pseudonyms.length > 0 && (
+                                            <div className="grid grid-cols-2 gap-2">
+                                                {pseudonyms.map(pseudo => (
+                                                    <button
+                                                        key={pseudo.id}
+                                                        type="button"
+                                                        onClick={() => setValue('username', pseudo.name)}
+                                                        className={`px-3 py-2 rounded-xl text-[10px] font-black uppercase transition-all border ${watch('username') === pseudo.name
+                                                            ? 'bg-brand-blue text-white border-brand-blue shadow-lg shadow-brand-blue/20'
+                                                            : 'bg-white dark:bg-white/5 text-gray-500 border-gray-100 dark:border-white/5 hover:border-brand-blue/30'}`}
+                                                    >
+                                                        {pseudo.name}
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        )}
+                                        {pseudonyms.length < 2 && (
+                                            <div className="flex gap-2">
+                                                <input
+                                                    {...register('new_nickname')}
+                                                    placeholder="Novo apelido..."
+                                                    className="flex-1 bg-white dark:bg-black/40 border border-gray-100 dark:border-white/10 rounded-xl px-3 py-2 text-xs outline-none focus:border-brand-blue/50 transition-all font-bold"
+                                                />
+                                                <button
+                                                    type="button"
+                                                    onClick={handleCreateNickname}
+                                                    disabled={isCreatingNickname || !watch('new_nickname')}
+                                                    className="px-4 py-2 bg-brand-blue text-white rounded-xl text-[10px] font-black uppercase hover:bg-brand-blue/80 disabled:opacity-50 transition-all"
+                                                >
+                                                    {isCreatingNickname ? <Loader2 className="w-3 h-3 animate-spin" /> : 'Criar'}
+                                                </button>
+                                            </div>
+                                        )}
+                                        <input type="hidden" {...register('username')} />
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+
+                        {/* 3. CONECTIVIDADE E INTERESSES */}
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div className="space-y-2">
                                 <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1 flex items-center gap-2">
@@ -737,106 +484,6 @@ export function EditProfileModal({ isOpen, onClose, onSuccess, adminMode = false
                                     placeholder="(11) 98765-4321"
                                 />
                             </div>
-
-                            {watch('user_category') === 'aluno_usp' && (
-                                <>
-                                    <div className="space-y-2">
-                                        <label className="text-[10px] font-black uppercase tracking-widest text-brand-red ml-1 flex items-center gap-2">
-                                            <Microscope className="w-3 h-3" /> Área de Pesquisa (IC)
-                                        </label>
-                                        <input
-                                            {...register('ic_research_area')}
-                                            className="w-full bg-gray-50 dark:bg-black/20 border border-gray-100 dark:border-white/5 rounded-2xl px-4 py-3 text-sm focus:border-brand-red/50 outline-none transition-all font-bold"
-                                            placeholder="Ex: Física Teórica, Nanotecnologia..."
-                                        />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <label className="text-[10px] font-black uppercase tracking-widest text-brand-red ml-1 flex items-center gap-2">
-                                            <Building2 className="w-3 h-3" /> Departamento / Lab
-                                        </label>
-                                        <div className="grid grid-cols-2 gap-2">
-                                            <input
-                                                {...register('ic_preferred_department')}
-                                                className="w-full bg-gray-50 dark:bg-black/20 border border-gray-100 dark:border-white/5 rounded-2xl px-4 py-3 text-sm focus:border-brand-red/50 outline-none transition-all font-bold"
-                                                placeholder="Ex: FNC"
-                                            />
-                                            <input
-                                                {...register('ic_preferred_lab')}
-                                                className="w-full bg-gray-50 dark:bg-black/20 border border-gray-100 dark:border-white/5 rounded-2xl px-4 py-3 text-sm focus:border-brand-red/50 outline-none transition-all font-bold"
-                                                placeholder="Ex: Lab Cristal"
-                                            />
-                                        </div>
-                                    </div>
-                                </>
-                            )}
-                            <div className="space-y-2 relative">
-                                <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1 flex items-center justify-between">
-                                    <div className="flex items-center gap-2">
-                                        <Star className="w-3 h-3" /> Hobbies e Artes
-                                    </div>
-                                    <button
-                                        type="button"
-                                        onMouseEnter={() => setShowHobbiesHelp(true)}
-                                        onMouseLeave={() => setShowHobbiesHelp(false)}
-                                        onClick={() => setShowHobbiesHelp(!showHobbiesHelp)}
-                                        className="p-1 hover:bg-brand-blue/10 rounded-full transition-colors text-brand-blue group"
-                                    >
-                                        <Info className="w-3.5 h-3.5 group-hover:scale-110 transition-transform" />
-                                    </button>
-                                </label>
-                                <input
-                                    {...register('artistic_interests_str')}
-                                    className="w-full bg-gray-50 dark:bg-black/20 border border-gray-100 dark:border-white/5 rounded-2xl px-4 py-3 text-sm focus:border-brand-blue/50 outline-none transition-all placeholder:text-gray-400"
-                                    placeholder="Ex: Fotografia analógica, RPG de mesa, Design de interfaces, Tocar violão..."
-                                />
-
-                                <AnimatePresence>
-                                    {showHobbiesHelp && (
-                                        <motion.div
-                                            initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                                            animate={{ opacity: 1, y: 0, scale: 1 }}
-                                            exit={{ opacity: 0, y: 5, scale: 0.95 }}
-                                            className="absolute left-0 right-0 z-50 mt-2 p-5 bg-white dark:bg-[#252525] border border-gray-200 dark:border-white/10 rounded-3xl shadow-2xl backdrop-blur-xl"
-                                        >
-                                            <div className="space-y-3">
-                                                <p className="text-[10px] text-gray-900 dark:text-white leading-relaxed font-bold uppercase tracking-tight">
-                                                    Não sabe o que colocar? Pense no que você faz para descansar a mente:
-                                                </p>
-                                                <ul className="space-y-2 text-[10px] text-gray-500 font-mono list-none">
-                                                    <li>• <span className="text-brand-blue font-black">Artes:</span> Fotografia, Desenho, Pintura, Música, Escrita, Cinema.</li>
-                                                    <li>• <span className="text-brand-blue font-black">Jogos:</span> RPG, Boardgames, Videogames, Xadrez, Card games.</li>
-                                                    <li>• <span className="text-brand-blue font-black">Tech & Maker:</span> Arduino, Impressão 3D, Robótica, Game Dev, Design.</li>
-                                                    <li>• <span className="text-brand-blue font-black">Outros:</span> Trilhas, Ciclismo, Escalada, Leitura, Astronomia, Culinária.</li>
-                                                </ul>
-                                                <div className="pt-2 border-t border-gray-100 dark:border-white/5">
-                                                    <p className="text-[9px] text-brand-blue font-black uppercase tracking-tighter italic text-center">
-                                                        O Hub é sobre quem você é, não apenas o Lattes!
-                                                    </p>
-                                                </div>
-                                            </div>
-
-                                            {/* Tooltip Arrow */}
-                                            <div className="absolute -top-1 right-6 w-2 h-2 bg-white dark:bg-[#252525] rotate-45 border-l border-t border-gray-200 dark:border-white/10" />
-                                        </motion.div>
-                                    )}
-                                </AnimatePresence>
-                            </div>
-                        </div>
-
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            {isUspUser && (
-                                <div className="space-y-2">
-                                    <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1 flex items-center gap-2">
-                                        <Globe className="w-3 h-3" /> Ano de Ingresso
-                                    </label>
-                                    <input
-                                        type="number"
-                                        {...register('entrance_year')}
-                                        className="w-full bg-gray-50 dark:bg-black/20 border border-gray-100 dark:border-white/5 rounded-2xl px-4 py-3 text-sm focus:border-brand-blue/50 outline-none transition-all"
-                                        placeholder="Ex: 2022"
-                                    />
-                                </div>
-                            )}
 
                             <div className="space-y-2">
                                 <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1 flex items-center gap-2">
@@ -851,32 +498,224 @@ export function EditProfileModal({ isOpen, onClose, onSuccess, adminMode = false
                             </div>
                         </div>
 
-                        {isUspUser && (
-                            <div className="space-y-3 p-4 bg-brand-blue/5 border border-brand-blue/10 rounded-2xl">
+                        <div className="space-y-2 relative">
+                            <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1 flex items-center justify-between">
                                 <div className="flex items-center gap-2">
-                                    <FileUp className="w-4 h-4 text-brand-blue" />
-                                    <label className="text-[10px] font-black uppercase tracking-widest text-gray-900 dark:text-gray-100">
-                                        Comprovante USP (Carteirinha ou Atestado)
-                                    </label>
+                                    <Star className="w-3 h-3" /> Hobbies e Artes
                                 </div>
-                                <p className="text-[10px] text-gray-500 font-medium">
-                                    Você pode baixar atestado de matrícula ou de aluno na aba "Emissão de Documentos" do Jupiter Web para provar a veracidade dos dados informados acima.
-                                </p>
-                                <input
-                                    type="file"
-                                    accept="image/*,.pdf"
-                                    onChange={(e) => setProofFile(e.target.files?.[0] || null)}
-                                    className="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-black file:uppercase file:bg-brand-blue file:text-white hover:file:bg-brand-blue/90"
-                                />
-                                {profileData?.usp_proof_url && !proofFile && (
-                                    <p className="text-[10px] text-brand-green font-bold uppercase mt-1">✓ Comprovante já enviado anteriormente</p>
-                                )}
-                            </div>
-                        )}
+                                <button
+                                    type="button"
+                                    onMouseEnter={() => setShowHobbiesHelp(true)}
+                                    onMouseLeave={() => setShowHobbiesHelp(false)}
+                                    className="p-1 hover:bg-brand-blue/10 rounded-full transition-colors text-brand-blue"
+                                >
+                                    <Info className="w-3.5 h-3.5 transition-transform" />
+                                </button>
+                            </label>
+                            <input
+                                {...register('artistic_interests_str')}
+                                className="w-full bg-gray-50 dark:bg-black/20 border border-gray-100 dark:border-white/5 rounded-2xl px-4 py-3 text-sm focus:border-brand-blue/50 outline-none transition-all placeholder:text-gray-400"
+                                placeholder="O que você faz nas horas vagas?"
+                            />
 
+                            <AnimatePresence>
+                                {showHobbiesHelp && (
+                                    <motion.div
+                                        initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                                        exit={{ opacity: 0, y: 5, scale: 0.95 }}
+                                        className="absolute left-0 right-0 z-50 mt-2 p-5 bg-white dark:bg-[#252525] border border-gray-200 dark:border-white/10 rounded-3xl shadow-2xl backdrop-blur-xl"
+                                    >
+                                        <div className="space-y-3">
+                                            <p className="text-[10px] text-gray-900 dark:text-white leading-relaxed font-bold uppercase tracking-tight">
+                                                Inspiração para o Perfil:
+                                            </p>
+                                            <ul className="space-y-2 text-[9px] text-gray-500 font-mono">
+                                                <li>• <span className="text-brand-blue font-black">Artes:</span> Fotografia, Desenho, Música, Cinema.</li>
+                                                <li>• <span className="text-brand-blue font-black">Jogos:</span> RPG, Boardgames, Videogames, Xadrez.</li>
+                                                <li>• <span className="text-brand-blue font-black">Maker:</span> Arduino, Impressão 3D, Game Dev.</li>
+                                                <li>• <span className="text-brand-blue font-black">Outros:</span> Trilhas, Astronomia, Culinária.</li>
+                                            </ul>
+                                        </div>
+                                        <div className="absolute -top-1 right-6 w-2 h-2 bg-white dark:bg-[#252525] rotate-45 border-l border-t border-gray-200 dark:border-white/10" />
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
+                        </div>
+
+                        {/* 4. SEÇÕES CONDICIONAIS POR CATEGORIA */}
+                        <div className="space-y-6 pt-6 border-t border-gray-100 dark:border-white/5">
+                            {watch('user_category') === 'curioso' && (
+                                <div className="space-y-4 animate-in fade-in slide-in-from-top-4 duration-500">
+                                    <h3 className="text-[10px] font-black text-brand-blue uppercase tracking-[0.2em] flex items-center gap-2">
+                                        <Briefcase className="w-3 h-3" /> Formação Acadêmica
+                                    </h3>
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                        <div className="space-y-2">
+                                            <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Escolaridade</label>
+                                            <select
+                                                {...register('education_level')}
+                                                className="w-full bg-gray-50 dark:bg-black/20 border border-gray-100 dark:border-white/5 rounded-2xl px-4 py-3 text-sm focus:border-brand-blue/50 outline-none transition-all appearance-none cursor-pointer font-bold"
+                                            >
+                                                <option value="" disabled>Selecione</option>
+                                                <option value="Ensino Médio">Ensino Médio</option>
+                                                <option value="Graduação (Em andamento)">Graduação (Em andamento)</option>
+                                                <option value="Graduação (Concluída)">Graduação (Concluída)</option>
+                                                <option value="Pós-graduação / Pesquisa">Pós-graduação / Pesquisa</option>
+                                                <option value="Entusiasta / Autodidata">Entusiasta / Autodidata</option>
+                                            </select>
+                                        </div>
+                                        <div className="space-y-2">
+                                            <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Instituição</label>
+                                            <input
+                                                {...register('external_institution')}
+                                                className="w-full bg-gray-50 dark:bg-black/20 border border-gray-100 dark:border-white/5 rounded-2xl px-4 py-3 text-sm focus:border-brand-blue/50 outline-none transition-all"
+                                                placeholder="Sua escola ou faculdade"
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
+                            {watch('user_category') === 'aluno_usp' && (
+                                <div className="space-y-4 animate-in fade-in slide-in-from-top-4 duration-500">
+                                    <h3 className="text-[10px] font-black text-brand-blue uppercase tracking-[0.2em] flex items-center gap-2">
+                                        <Zap className="w-3 h-3" /> Protocolos USP
+                                    </h3>
+                                    
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                        <div className="space-y-2">
+                                            <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Instituto</label>
+                                            <select
+                                                {...register('institute')}
+                                                className="w-full bg-gray-50 dark:bg-black/20 border border-gray-100 dark:border-white/5 rounded-2xl px-4 py-3 text-sm focus:border-brand-blue/50 outline-none transition-all appearance-none cursor-pointer font-bold"
+                                            >
+                                                <option value="" disabled>Selecione</option>
+                                                {institutes.map(inst => <option key={inst} value={inst}>{inst}</option>)}
+                                            </select>
+                                        </div>
+                                        <div className="space-y-2">
+                                            <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Curso</label>
+                                            <input
+                                                {...register('course')}
+                                                className="w-full bg-gray-50 dark:bg-black/20 border border-gray-100 dark:border-white/5 rounded-2xl px-4 py-3 text-sm focus:border-brand-blue/50 outline-none transition-all"
+                                                placeholder="Ex: Bacharelado em Física"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1 flex items-center gap-2">
+                                            <Globe className="w-3 h-3" /> Ano de Ingresso
+                                        </label>
+                                        <input
+                                            type="number"
+                                            {...register('entrance_year')}
+                                            className="w-full bg-gray-50 dark:bg-black/20 border border-gray-100 dark:border-white/5 rounded-2xl px-4 py-3 text-sm focus:border-brand-blue/50 outline-none transition-all"
+                                            placeholder="Ex: 2022"
+                                        />
+                                    </div>
+
+                                    <div className="p-4 bg-gray-50 dark:bg-white/[0.02] border border-gray-100 dark:border-white/5 rounded-2xl space-y-3">
+                                        <div className="flex items-center justify-between">
+                                            <span className="text-xs font-black uppercase tracking-tight text-gray-900 dark:text-white">Mentor do Hub (Adoção)</span>
+                                            <label className="relative inline-flex items-center cursor-pointer">
+                                                <input type="checkbox" {...register('available_to_mentor')} className="sr-only peer" />
+                                                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none dark:bg-gray-700 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-brand-blue"></div>
+                                            </label>
+                                        </div>
+                                        <div className="flex items-center justify-between">
+                                            <span className="text-xs font-black uppercase tracking-tight text-gray-900 dark:text-white">Sou Bixo (Quero ser adotado)</span>
+                                            <label className="relative inline-flex items-center cursor-pointer">
+                                                <input type="checkbox" {...register('seeking_mentor')} className="sr-only peer" />
+                                                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none dark:bg-gray-700 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-brand-blue"></div>
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-3 p-4 bg-brand-red/5 border border-brand-red/10 rounded-2xl">
+                                        <div className="flex items-center gap-2">
+                                            <FileUp className="w-4 h-4 text-brand-red" />
+                                            <label className="text-[10px] font-black uppercase tracking-widest text-brand-red">
+                                                Comprovante USP
+                                            </label>
+                                        </div>
+                                        <input
+                                            type="file"
+                                            accept="image/*,.pdf"
+                                            onChange={(e) => setProofFile(e.target.files?.[0] || null)}
+                                            className="w-full text-[10px] text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-[10px] file:font-black file:uppercase file:bg-brand-red file:text-white hover:file:bg-brand-red/90 transition-all cursor-pointer"
+                                        />
+                                        {profileData?.usp_proof_url && !proofFile && (
+                                            <p className="text-[9px] text-brand-red font-bold uppercase mt-1 flex items-center gap-1">
+                                                <ShieldCheck className="w-3 h-3" /> Validado no LabDiv
+                                            </p>
+                                        )}
+                                    </div>
+                                </div>
+                            )}
+
+                            {watch('user_category') === 'pesquisador' && (
+                                <div className="space-y-4 animate-in fade-in slide-in-from-top-4 duration-500">
+                                    <h3 className="text-[10px] font-black text-brand-yellow uppercase tracking-[0.2em] flex items-center gap-2">
+                                        <Microscope className="w-3 h-3" /> Configuração de Laboratório
+                                    </h3>
+                                    
+                                    <div className="p-4 bg-brand-yellow/5 border border-brand-yellow/10 rounded-2xl flex items-center justify-between">
+                                        <div className="flex flex-col gap-0.5">
+                                            <span className="text-xs font-black uppercase tracking-tight text-gray-900 dark:text-white">Buscando Ajudantes / ICs</span>
+                                            <span className="text-[9px] text-gray-500 font-medium italic">Sinaliza recrutamento no Match Acadêmico</span>
+                                        </div>
+                                        <label className="relative inline-flex items-center cursor-pointer">
+                                            <input type="checkbox" {...register('seeking_assistant')} className="sr-only peer" />
+                                            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none dark:bg-gray-700 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-brand-yellow"></div>
+                                        </label>
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Linha de Pesquisa</label>
+                                        <input
+                                            {...register('research_line')}
+                                            className="w-full bg-gray-50 dark:bg-black/20 border border-gray-100 dark:border-white/5 rounded-2xl px-4 py-3 text-sm focus:border-brand-yellow/50 outline-none transition-all font-bold"
+                                            placeholder="Ex: Física de Partículas..."
+                                        />
+                                    </div>
+
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div className="space-y-2">
+                                            <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Departamento</label>
+                                            <input
+                                                {...register('department')}
+                                                className="w-full bg-gray-50 dark:bg-black/20 border border-gray-100 dark:border-white/5 rounded-2xl px-4 py-3 text-sm focus:border-brand-yellow/50 outline-none transition-all font-bold"
+                                                placeholder="Ex: DFMA"
+                                            />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Sala / Lab</label>
+                                            <input
+                                                {...register('office_room')}
+                                                className="w-full bg-gray-50 dark:bg-black/20 border border-gray-100 dark:border-white/5 rounded-2xl px-4 py-3 text-sm focus:border-brand-yellow/50 outline-none transition-all font-bold"
+                                                placeholder="Ex: 201"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Instituição / Laboratório</label>
+                                        <input
+                                            {...register('laboratory_name')}
+                                            className="w-full bg-gray-50 dark:bg-black/20 border border-gray-100 dark:border-white/5 rounded-2xl px-4 py-3 text-sm focus:border-brand-yellow/50 outline-none transition-all"
+                                            placeholder="Ex: Lab de Cristalografia"
+                                        />
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* FINAL STATUS */}
                         <div className="p-4 bg-gray-50 dark:bg-white/[0.02] rounded-2xl border border-gray-100 dark:border-white/5">
-                            <p className="text-[9px] text-gray-400 font-bold uppercase text-center italic">
-                                Perfil Público por padrão para todos os membros
+                            <p className="text-[9px] text-gray-400 font-bold uppercase text-center italic tracking-widest">
+                                Perfil Verificado • Hub Lab-Div Generation IV
                             </p>
                         </div>
 

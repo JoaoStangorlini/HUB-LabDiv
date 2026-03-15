@@ -4,7 +4,7 @@ import { useState, useMemo, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { MainLayoutWrapper } from '@/components/layout/MainLayoutWrapper';
-import { Zap, Atom, Microscope, Binary, LayoutGrid, Timer, Layers, ShieldCheck, Milestone, Sparkles, Link2, AlertTriangle, Play, CheckCircle2, Circle, Trophy, GraduationCap, ArrowRight, User, Loader2, Globe, Network, Clock } from 'lucide-react';
+import { Zap, Atom, Microscope, Binary, LayoutGrid, Timer, Layers, ShieldCheck, Milestone, Sparkles, Link2, AlertTriangle, Play, CheckCircle2, Circle, GraduationCap, ArrowRight, User, Loader2, Globe, Network, Clock } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Trail } from '@/types';
 import { supabase } from '@/lib/supabase';
@@ -13,9 +13,9 @@ import { updateProfile } from '@/app/actions/profiles';
 import { Download, FileText, ChevronDown } from 'lucide-react';
 
 const COURSE_MAPS = [
-    { id: 'bach', name: 'Bacharelado em Física', image: '/physics_curriculum.png', pdf: '/Manual-Bacharelado-Fisica-IFUSP-2025_0.pdf' },
-    { id: 'lic', name: 'Licenciatura em Física', image: '/physics_curriculum.png', pdf: '/Manual_Licenciatura_2022_0.pdf' },
-    { id: 'med', name: 'Física Médica', image: '/physics_curriculum.png', pdf: '/Jupiterweb-med.pdf' },
+    { id: 'bach', name: 'Bacharelado em Física', image: '/unnamed.jpg', pdf: '/Manual-Bacharelado-Fisica-IFUSP-2025_0.pdf' },
+    { id: 'lic', name: 'Licenciatura em Física', image: '/unnamed.jpg', pdf: '/Manual_Licenciatura_2022_0.pdf' },
+    { id: 'med', name: 'Física Médica', image: '/unnamed.jpg', pdf: '/Jupiterweb-med.pdf' },
 ];
 
 const AXIS_CONFIG: Record<string, { label: string; color: string; icon: any }> = {
@@ -56,8 +56,6 @@ export default function TrilhasClient({
     const [isDashboardCollapsed, setIsDashboardCollapsed] = useState(false);
     const [sortOrder, setSortOrder] = useState<'trending' | 'sem-asc' | 'sem-desc'>('sem-asc');
     const [viewMode, setViewMode] = useState<'grid' | 'tree'>('grid');
-    const [isSeekingIC, setIsSeekingIC] = useState(userProfile?.seeking_ic || false);
-    const [isUpdatingIC, setIsUpdatingIC] = useState(false);
     const [selectedCourseMap, setSelectedCourseMap] = useState(COURSE_MAPS[0]);
     const [isVisualMapOpen, setIsVisualMapOpen] = useState(false);
     const router = useRouter();
@@ -125,6 +123,22 @@ export default function TrilhasClient({
     useEffect(() => {
         setVisibleCount(9);
     }, [axisFilter, categoryFilter, semesterFilter]);
+
+    // Sync modal course with user profile
+    useEffect(() => {
+        if (userProfile?.course) {
+            const courseStr = userProfile.course.toLowerCase();
+            let courseId = 'bach'; // default
+            if (courseStr.includes('licenciatura')) {
+                courseId = 'lic';
+            } else if (courseStr.includes('médica') || courseStr.includes('medica')) {
+                courseId = 'med';
+            }
+            
+            const map = COURSE_MAPS.find(m => m.id === courseId);
+            if (map) setSelectedCourseMap(map);
+        }
+    }, [userProfile, isVisualMapOpen]);
 
     // Filter Logic
     const filteredTrails = useMemo(() => {
@@ -339,22 +353,7 @@ export default function TrilhasClient({
         }
     };
 
-    const handleToggleIC = async () => {
-        setIsUpdatingIC(true);
-        try {
-            const { success, error } = await updateProfile({ seeking_ic: !isSeekingIC });
-            if (success) {
-                setIsSeekingIC(!isSeekingIC);
-                toast.success(!isSeekingIC ? 'Radar de IC Ativado!' : 'Busca por IC pausada');
-            } else {
-                toast.error('Erro ao atualizar status de IC');
-            }
-        } catch (err) {
-            toast.error('Ocorreu um erro inesperado');
-        } finally {
-            setIsUpdatingIC(false);
-        }
-    };
+
 
     const slicedTrails = useMemo(() => {
         return filteredTrails.slice(0, visibleCount);
@@ -370,10 +369,10 @@ export default function TrilhasClient({
                         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
                             <div className="space-y-2">
                                 <h1 className="text-5xl font-black tracking-tighter uppercase font-mono italic text-[#00A3FF]">
-                                    Síncrotron<span className="dark:text-white text-gray-900">_Matrix</span>
+                                    Trilhas de Aprendizado
                                 </h1>
                                 <p className="dark:text-gray-400 text-gray-600 font-mono text-sm max-w-xl border-l-2 border-[#00A3FF] pl-4">
-                                    [SISTEMA_DE_FILTRAGEM_TRIPLA] {'>'} Ajuste frequência (Curso), amplitude (Tipo) e fase (Semestre) para isolar as partículas curriculares.
+                                    [ACOMPANHAMENTO_CURRICULAR] &gt; Explore as disciplinas, requisitos e o progresso do seu curso no IFUSP.
                                 </p>
                             </div>
 
@@ -403,27 +402,33 @@ export default function TrilhasClient({
 
                         {/* Dashboard "Acompanhar Andamento" */}
                         {stats && (
-                            <div className={`dark:bg-[#121212]/50 bg-white/50 backdrop-blur-xl border dark:border-white/5 border-gray-200 rounded-[2.5rem] overflow-hidden transition-all duration-500 ${isDashboardCollapsed ? 'max-h-24' : 'max-h-[800px]'}`}>
+                            <motion.div 
+                                layout
+                                initial={false}
+                                animate={{ height: isDashboardCollapsed ? 160 : 'auto' }}
+                                transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                                className="dark:bg-[#121212]/50 bg-white/50 backdrop-blur-xl border dark:border-white/5 border-gray-200 rounded-[2.5rem] overflow-hidden"
+                            >
                                 <div className="p-8 pb-4 flex items-center justify-between">
                                     <div className="flex items-center gap-6">
-                                        <div className="relative w-20 h-20 flex items-center justify-center">
-                                            <svg className="w-full h-full -rotate-90">
-                                                <circle cx="40" cy="40" r="36" fill="transparent" stroke="currentColor" strokeWidth="4" className="text-gray-800" />
+                                        <div className="relative w-24 h-24 flex items-center justify-center">
+                                            <svg className="w-full h-full -rotate-90" viewBox="0 0 96 96">
+                                                <circle cx="48" cy="48" r="40" fill="transparent" stroke="currentColor" strokeWidth="4" className="text-gray-800" />
                                                 <motion.circle
-                                                    cx="40" cy="40" r="36" fill="transparent" stroke="#00A3FF" strokeWidth="4"
-                                                    strokeDasharray={226}
-                                                    initial={{ strokeDashoffset: 226 }}
-                                                    animate={{ strokeDashoffset: 226 - (226 * stats.percentage / 100) }}
+                                                    cx="48" cy="48" r="40" fill="transparent" stroke="#00A3FF" strokeWidth="4"
+                                                    strokeDasharray={251}
+                                                    initial={{ strokeDashoffset: 251 }}
+                                                    animate={{ strokeDashoffset: 251 - (251 * stats.percentage / 100) }}
                                                     transition={{ duration: 1.5, ease: "easeOut" }}
                                                     strokeLinecap="round"
-                                                    className="drop-shadow-[0_0_8px_rgba(0,163,255,0.5)]"
+                                                    className="drop-shadow-[0_0_10px_rgba(0,163,255,0.6)]"
                                                 />
                                             </svg>
-                                            <span className="absolute text-lg font-black font-mono text-white tracking-widest">{stats.percentage}%</span>
+                                            <span className="absolute text-xl font-black font-mono text-white tracking-widest">{stats.percentage}%</span>
                                         </div>
                                         <div>
                                             <h2 className="text-2xl font-black text-white uppercase tracking-tighter flex items-center gap-3">
-                                                Acompanhar Andamento <Trophy className="text-brand-yellow w-5 h-5" />
+                                                Acompanhar Andamento
                                             </h2>
                                             <p className="text-[10px] font-mono text-gray-500 uppercase tracking-widest mt-1">
                                                 {stats.completedMandatoryCount} de {stats.totalMandatory} disciplinas obrigatórias concluídas
@@ -439,16 +444,18 @@ export default function TrilhasClient({
                                     <div className="flex items-center gap-3">
                                         <button
                                             onClick={() => setIsVisualMapOpen(true)}
-                                            className="flex items-center gap-2 px-3 py-1.5 bg-brand-blue/10 text-brand-blue rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-brand-blue/20 transition-all border border-brand-blue/20"
+                                            className="flex items-center gap-2 px-3 py-1.5 bg-brand-blue/10 text-brand-blue rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-brand-blue/20 transition-all border border-brand-blue/20 cursor-pointer"
                                         >
                                             <Network size={14} />
-                                            Ver Mapa Visual
+                                            Ver Árvore do Curso
                                         </button>
                                         <button
                                             onClick={() => setIsDashboardCollapsed(!isDashboardCollapsed)}
-                                            className="p-2 hover:bg-white/5 rounded-full transition-colors text-gray-500"
+                                            className="flex items-center gap-2 px-3 py-1.5 bg-white/5 hover:bg-white/10 rounded-xl transition-all text-gray-400 border border-white/10 cursor-pointer text-[10px] font-black uppercase tracking-widest"
+                                            title={isDashboardCollapsed ? 'Expandir' : 'Encolher'}
                                         >
-                                            <Layers size={20} className={isDashboardCollapsed ? 'rotate-180' : ''} />
+                                            <Layers size={14} className={`transition-transform duration-300 ${isDashboardCollapsed ? 'rotate-180' : ''}`} />
+                                            <span>{isDashboardCollapsed ? 'Expandir' : 'Encolher'}</span>
                                         </button>
                                     </div>
                                 </div>
@@ -489,21 +496,7 @@ export default function TrilhasClient({
                                                 {dashboardTab === 'concluidas' && <motion.div layoutId="dashTab" className="absolute bottom-0 left-0 right-0 h-0.5 bg-green-500" />}
                                             </button>
 
-                                            {/* IC Toggle Button */}
-                                            {isUspUser && (
-                                                <button
-                                                    onClick={handleToggleIC}
-                                                    disabled={isUpdatingIC}
-                                                    className={`ml-auto mb-2 px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-wider transition-all flex items-center gap-2 border ${
-                                                        isSeekingIC 
-                                                        ? 'bg-brand-red text-white border-brand-red shadow-[0_0_15px_rgba(255,75,75,0.3)]' 
-                                                        : 'bg-white/5 text-gray-500 border-white/10 hover:border-brand-red/50'
-                                                    }`}
-                                                >
-                                                    <span className={`w-2 h-2 rounded-full ${isSeekingIC ? 'bg-white animate-pulse' : 'bg-gray-700'}`} />
-                                                    {isSeekingIC ? 'Quero uma IC (Ativo)' : 'Quero uma IC'}
-                                                </button>
-                                            )}
+
                                         </div>
 
                                         {/* Scrollable List Container (Strictly Mandatory) */}
@@ -652,7 +645,7 @@ export default function TrilhasClient({
                                         </div>
                                     </div>
                                 )}
-                            </div>
+                            </motion.div>
                         )}
 
                         {/* Control Panel */}
@@ -906,7 +899,7 @@ export default function TrilhasClient({
                                                                             className={cursandoIds.includes(trail.id) ? "animate-pulse" : ""}
                                                                         />
                                                                         <span className="font-mono text-[8px] font-black uppercase tracking-widest">
-                                                                            {cursandoIds.includes(trail.id) ? 'CURSANDO' : 'RADAR'}
+                                                                            CURSANDO
                                                                         </span>
                                                                     </button>
                                                                 </>
@@ -1110,27 +1103,26 @@ export default function TrilhasClient({
                             initial={{ opacity: 0, scale: 0.95, y: 20 }}
                             animate={{ opacity: 1, scale: 1, y: 0 }}
                             exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                            className="bg-[#121212]/95 dark:bg-[#121212] w-full max-w-6xl rounded-[48px] shadow-2xl overflow-hidden border border-white/10 flex flex-col max-h-[92vh]"
+                            className="bg-[#121212]/95 dark:bg-[#121212] w-full max-w-2xl rounded-[48px] shadow-2xl overflow-hidden border border-white/10 flex flex-col max-h-[95vh]"
                         >
                             {/* Header Modal */}
-                            <div className="p-8 border-b border-white/5 flex items-center justify-between bg-white/[0.02]">
-                                <div className="flex items-center gap-6">
-                                    <div className="w-14 h-14 rounded-[20px] bg-brand-blue/20 flex items-center justify-center border border-brand-blue/30 shadow-lg shadow-brand-blue/10">
-                                        <Network className="text-brand-blue w-7 h-7" />
+                            <div className="p-6 sm:p-8 border-b border-white/5 flex flex-col lg:flex-row lg:items-center justify-between gap-6 bg-white/[0.02]">
+                                <div className="flex items-center gap-4 sm:gap-6">
+                                    <div className="w-12 h-12 sm:w-14 sm:h-14 shrink-0 rounded-[20px] bg-brand-blue/20 flex items-center justify-center border border-brand-blue/30 shadow-lg shadow-brand-blue/10">
+                                        <Network className="text-brand-blue w-6 h-6 sm:w-7 sm:h-7" />
                                     </div>
                                     <div>
-                                        <h3 className="text-xl font-black text-white uppercase tracking-tight flex items-center gap-3">
-                                            Mapeamento Visual de Trilhas
-                                            <span className="px-2 py-0.5 bg-brand-blue/10 border border-brand-blue/30 text-brand-blue text-[8px] font-black rounded uppercase">Hi-Fi Arena</span>
+                                        <h3 className="text-lg sm:text-xl font-black text-white uppercase tracking-tight flex flex-wrap items-center gap-2 sm:gap-3">
+                                            Árvore do Curso
                                         </h3>
-                                        <p className="text-[10px] text-gray-500 font-mono uppercase tracking-[0.2em]">Visualizando matriz para: <span className="text-brand-blue font-bold">{selectedCourseMap.name}</span></p>
+                                        <p className="text-[9px] sm:text-[10px] text-gray-500 font-mono uppercase tracking-[0.2em]">Exibindo: <span className="text-brand-blue font-bold">{selectedCourseMap.name}</span></p>
                                     </div>
                                 </div>
                                 
-                                <div className="flex items-center gap-4">
+                                <div className="flex flex-row items-center gap-3 sm:gap-4 ml-auto lg:ml-0">
                                     <div className="relative group">
                                         <select 
-                                            className="appearance-none bg-white/5 border border-white/10 rounded-2xl px-5 py-3 text-[10px] font-black uppercase tracking-widest text-gray-200 pr-12 outline-none focus:border-brand-blue/50 transition-all cursor-pointer hover:bg-white/10"
+                                            className="appearance-none bg-white/5 border border-white/10 rounded-2xl px-4 sm:px-5 py-2.5 sm:py-3 text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-gray-200 pr-10 sm:pr-12 outline-none focus:border-brand-blue/50 transition-all cursor-pointer hover:bg-white/10"
                                             value={selectedCourseMap.id}
                                             onChange={(e) => {
                                                 const map = COURSE_MAPS.find(m => m.id === e.target.value);
@@ -1138,30 +1130,22 @@ export default function TrilhasClient({
                                             }}
                                         >
                                             {COURSE_MAPS.map(map => (
-                                                <option key={map.id} value={map.id} className="bg-[#1e1e1e]">{map.name}</option>
+                                                <option key={map.id} value={map.id} className="bg-[#1e1e1e]">{map.name.split(' ')[0]}</option>
                                             ))}
                                         </select>
-                                        <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+                                        <ChevronDown className="absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 w-3.5 sm:w-4 sm:h-4 text-gray-400 pointer-events-none" />
                                     </div>
 
                                     <a 
                                         href={selectedCourseMap.pdf} 
                                         target="_blank" 
                                         rel="noopener noreferrer"
-                                        className="flex items-center gap-3 px-6 py-3 bg-brand-blue text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-lg shadow-brand-blue/20"
+                                        className="flex items-center gap-2 sm:gap-3 px-4 sm:px-6 py-2.5 sm:py-3 bg-brand-blue text-white rounded-2xl text-[9px] sm:text-[10px] font-black uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-lg shadow-brand-blue/20 cursor-pointer"
+                                        title="Baixar Manual PDF"
                                     >
-                                        <Download className="w-4 h-4" />
-                                        Manual PDF
+                                        <Download className="w-3.5 sm:w-4 sm:h-4" />
+                                        <span>Manual</span>
                                     </a>
-
-                                    <div className="h-8 w-px bg-white/10 mx-2" />
-
-                                    <button 
-                                        onClick={() => setIsVisualMapOpen(false)}
-                                        className="p-3 hover:bg-white/10 rounded-2xl transition-colors border border-transparent hover:border-white/10"
-                                    >
-                                        <LayoutGrid className="w-6 h-6 text-gray-400" />
-                                    </button>
                                 </div>
                             </div>
 
@@ -1192,10 +1176,6 @@ export default function TrilhasClient({
                                                     <h4 className="text-2xl font-black text-white uppercase tracking-tighter">{selectedCourseMap.name}</h4>
                                                     <p className="text-[11px] text-gray-400 font-bold uppercase tracking-widest opacity-80">Representação fractal das dependências curriculares v4.0</p>
                                                 </div>
-                                                <div className="flex gap-2">
-                                                    <div className="px-3 py-1.5 bg-white/5 border border-white/10 rounded-xl text-[9px] font-bold text-gray-400 uppercase">Vector_Mode: ACTIVE</div>
-                                                    <div className="px-3 py-1.5 bg-white/5 border border-white/10 rounded-xl text-[9px] font-bold text-gray-400 uppercase">Resolution: HI-FI</div>
-                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -1206,7 +1186,7 @@ export default function TrilhasClient({
                             <div className="p-6 border-t border-white/5 bg-white/[0.01] flex justify-center">
                                 <button 
                                     onClick={() => setIsVisualMapOpen(false)}
-                                    className="px-10 py-4 bg-white/5 hover:bg-white/10 border border-white/10 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all"
+                                    className="px-10 py-4 bg-white/5 hover:bg-white/10 border border-white/10 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all cursor-pointer"
                                 >
                                     Fechar Visualização
                                 </button>

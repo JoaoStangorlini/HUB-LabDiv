@@ -1,13 +1,14 @@
 import { createServerSupabase } from '@/lib/supabase/server';
 import FerramentasClient from './FerramentasClient';
 import { redirect } from 'next/navigation';
+import { MainLayoutWrapper } from '@/components/layout/MainLayoutWrapper';
 
 export default async function FerramentasPage() {
     const supabase = await createServerSupabase();
     const { data: { user } } = await supabase.auth.getUser();
 
     if (!user) {
-        redirect('/entrar');
+        redirect('/login');
     }
 
     const { data: profile } = await supabase
@@ -22,10 +23,8 @@ export default async function FerramentasPage() {
     }
 
     return (
-        <main className="min-h-screen pt-24 pb-12 px-4 md:px-8">
-            <div className="max-w-7xl mx-auto">
-                <FerramentasClient profile={profile} />
-            </div>
-        </main>
+        <MainLayoutWrapper userId={user.id}>
+            <FerramentasClient profile={profile} />
+        </MainLayoutWrapper>
     );
 }

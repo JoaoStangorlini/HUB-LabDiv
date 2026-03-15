@@ -219,6 +219,16 @@ export default function PapeisManagementPage() {
 
                                             <div className="flex items-center gap-1">
                                                 <button
+                                                    onClick={() => handleToggleVisibility(profile.id, profile.is_visible)}
+                                                    title={profile.is_visible ? "Ocultar Perfil" : "Tornar Perfil Visível"}
+                                                    className={`p-1.5 rounded-lg border transition-all ${profile.is_visible ? 'border-brand-blue/30 text-brand-blue hover:bg-brand-blue hover:text-white' : 'border-white/10 text-gray-500 hover:text-white hover:border-white/30'}`}
+                                                >
+                                                    <span className="material-symbols-outlined text-xs">
+                                                        {profile.is_visible ? 'visibility' : 'visibility_off'}
+                                                    </span>
+                                                </button>
+
+                                                <button
                                                     onClick={() => handleImpersonate(profile.id, profile.full_name)}
                                                     className="flex-1 py-1 px-2 rounded-lg bg-brand-yellow/10 text-brand-yellow hover:bg-brand-yellow hover:text-black text-[9px] font-black uppercase tracking-tighter transition-all flex items-center justify-center gap-1"
                                                 >

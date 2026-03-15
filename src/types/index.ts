@@ -49,6 +49,13 @@ export interface Profile {
     ic_research_area?: string;
     ic_preferred_department?: string;
     ic_preferred_lab?: string;
+    
+    // Researcher fields (New Sprint V3.2.2)
+    research_line?: string;
+    office_room?: string;
+    laboratory_name?: string;
+    department?: string;
+
     areas_of_interest?: string[];
     pending_edits?: any;
     created_at: string;

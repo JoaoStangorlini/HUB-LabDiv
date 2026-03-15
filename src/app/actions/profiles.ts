@@ -269,7 +269,11 @@ export async function updateProfileAsAdmin(profileId: string, updates: Partial<P
             external_institution: updates.external_institution,
             user_category: updates.user_category,
             seeking_ic: updates.seeking_ic,
-            seeking_assistant: updates.seeking_assistant
+            seeking_assistant: updates.seeking_assistant,
+            research_line: updates.research_line,
+            office_room: updates.office_room,
+            laboratory_name: updates.laboratory_name,
+            department: updates.department
         })
         .eq('id', profileId);
 
@@ -499,7 +503,7 @@ export async function fetchResearchersSeekingAssistants() {
 
     const { data, error } = await supabase
         .from('profiles')
-        .select('id, full_name, username, use_nickname, avatar_url, course, institute, bio, whatsapp, email, xp, level, is_labdiv')
+        .select('id, full_name, username, use_nickname, avatar_url, course, institute, bio, whatsapp, email, xp, level, is_labdiv, research_line, office_room, laboratory_name, department, seeking_assistant')
         .eq('seeking_assistant', true)
         .eq('review_status', 'approved')
         .order('created_at', { ascending: false });
@@ -521,7 +525,7 @@ export async function getStudentMiniPortfolio(studentId: string) {
     // Fetch profile details
     const { data: profile, error: pError } = await supabase
         .from('profiles')
-        .select('areas_of_interest, artistic_interests, bio, full_name, username, use_nickname, avatar_url, course, institute, entrance_year')
+        .select('areas_of_interest, artistic_interests, bio, full_name, username, use_nickname, avatar_url, course, institute, entrance_year, user_category, research_line, office_room, laboratory_name, department, seeking_assistant, seeking_ic, ic_research_area, ic_preferred_department, ic_preferred_lab')
         .eq('id', studentId)
         .single();
 

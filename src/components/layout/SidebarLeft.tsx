@@ -28,7 +28,7 @@ import { Avatar } from '../ui/Avatar';
 import { supabase } from '@/lib/supabase';
 
 const mainLinks = [
-    { name: 'Fluxo', href: '/', icon: <span className="material-symbols-outlined text-2xl">grain</span>, color: 'brand-blue' },
+    { name: 'Fluxo', href: '/', icon: <LayoutDashboard className="w-6 h-6" />, color: 'brand-blue' },
     { name: 'Logs do IFUSP', href: '/drops', icon: <MessageSquare className="w-6 h-6" />, color: 'brand-red' },
     { name: 'Lab-Div', href: '/arquivo-labdiv', icon: <Megaphone className="w-6 h-6" />, color: 'brand-yellow' },
     { name: 'Grande Colisor', href: '/colisor', icon: <Network className="w-6 h-6" />, color: 'brand-red' },
