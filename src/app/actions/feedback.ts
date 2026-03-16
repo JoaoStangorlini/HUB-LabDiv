@@ -70,3 +70,41 @@ export async function submitFeedback(formData: FormData) {
 
     return { success: true };
 }
+
+export async function submitHubSuggestion(description: string) {
+    const supabase = await createServerSupabase();
+    const { data: { user } } = await supabase.auth.getUser();
+
+    const { error } = await supabase
+        .from('feedback_reports')
+        .insert([
+            {
+                user_id: user?.id || null,
+                type: 'suggestion',
+                description,
+                metadata: {
+                    platform: 'web',
+                    source: 'arena_researcher'
+                }
+            }
+        ]);
+
+    if (error) {
+        console.error('Error submitting suggestion:', error);
+        return { success: false, error: error.message };
+    }
+
+    revalidatePath('/admin/reports');
+
+    // Notify Admins
+    const { sendAdminNotification } = await import('@/lib/notifications');
+    const { data: profile } = await supabase.from('profiles').select('full_name, username').eq('id', user?.id).single();
+
+    await sendAdminNotification({
+        type: 'hub_improvement',
+        userName: profile?.full_name || (profile?.username ? `@${profile.username}` : user?.email) || 'Pesquisador Anônimo',
+        content: description
+    });
+
+    return { success: true };
+}

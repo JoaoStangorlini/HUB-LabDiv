@@ -1,6 +1,7 @@
 import { createServerSupabase } from '@/lib/supabase/server';
 import ArenaClient from './ArenaClient';
 import { redirect } from 'next/navigation';
+import { MainLayoutWrapper } from '@/components/layout/MainLayoutWrapper';
 
 export default async function ArenaPage() {
     const supabase = await createServerSupabase();
@@ -22,10 +23,10 @@ export default async function ArenaPage() {
     }
 
     return (
-        <main className="min-h-screen pt-24 pb-12 px-4 md:px-8">
-            <div className="max-w-7xl mx-auto">
+        <MainLayoutWrapper userId={user.id}>
+            <div className="w-full">
                 <ArenaClient profile={profile} />
             </div>
-        </main>
+        </MainLayoutWrapper>
     );
 }

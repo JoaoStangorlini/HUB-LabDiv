@@ -12,10 +12,11 @@ interface NavigationState {
     isProfileMenuOpen: boolean;
     isSuggestionsVisible: boolean;
     isReportModalOpen: boolean;
+    reportType: string;
     setDrawerOpen: (open: boolean) => void;
     setProfileMenuOpen: (open: boolean) => void;
     setSuggestionsVisible: (visible: boolean) => void;
-    setReportModalOpen: (open: boolean) => void;
+    setReportModalOpen: (open: boolean, type?: string) => void;
     closeAll: () => void;
 }
 
@@ -24,14 +25,16 @@ export const useNavigationStore = create<NavigationState>((set) => ({
     isProfileMenuOpen: false,
     isSuggestionsVisible: false,
     isReportModalOpen: false,
+    reportType: 'bug',
     setDrawerOpen: (open) => set({ isDrawerOpen: open }),
     setProfileMenuOpen: (open) => set({ isProfileMenuOpen: open }),
     setSuggestionsVisible: (visible) => set({ isSuggestionsVisible: visible }),
-    setReportModalOpen: (open) => set({ isReportModalOpen: open }),
+    setReportModalOpen: (open, type = 'bug') => set({ isReportModalOpen: open, reportType: type }),
     closeAll: () => set({
         isDrawerOpen: false,
         isProfileMenuOpen: false,
         isSuggestionsVisible: false,
-        isReportModalOpen: false
+        isReportModalOpen: false,
+        reportType: 'bug'
     }),
 }));

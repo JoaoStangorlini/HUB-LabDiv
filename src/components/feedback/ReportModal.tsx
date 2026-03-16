@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import { submitFeedback } from '@/app/actions/feedback';
 import { toast } from 'react-hot-toast';
+import { useNavigationStore } from '@/store/useNavigationStore';
 
 interface ReportModalProps {
     isOpen: boolean;
@@ -21,6 +22,7 @@ interface ReportModalProps {
 }
 
 export function ReportModal({ isOpen, onClose }: ReportModalProps) {
+    const { reportType } = useNavigationStore();
     const [step, setStep] = useState<'form' | 'success'>('form');
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [description, setDescription] = useState('');
@@ -28,6 +30,17 @@ export function ReportModal({ isOpen, onClose }: ReportModalProps) {
     const [screenshot, setScreenshot] = useState<File | null>(null);
     const [previewUrl, setPreviewUrl] = useState<string | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
+
+    // Sync initial type when opening
+    React.useEffect(() => {
+        if (isOpen) {
+            setStep('form');
+            setDescription('');
+            setType(reportType);
+            setScreenshot(null);
+            setPreviewUrl(null);
+        }
+    }, [isOpen, reportType]);
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];

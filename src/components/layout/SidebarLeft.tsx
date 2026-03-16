@@ -28,7 +28,7 @@ import { Avatar } from '../ui/Avatar';
 import { supabase } from '@/lib/supabase';
 
 const mainLinks = [
-    { name: 'Fluxo', href: '/', icon: <LayoutDashboard className="w-6 h-6" />, color: 'brand-blue' },
+    { name: 'Fluxo', href: AppRoutes.HOME, icon: <LayoutDashboard className="w-6 h-6" />, color: 'brand-blue' },
     { name: 'Logs do IFUSP', href: '/drops', icon: <MessageSquare className="w-6 h-6" />, color: 'brand-red' },
     { name: 'Lab-Div', href: '/arquivo-labdiv', icon: <Megaphone className="w-6 h-6" />, color: 'brand-yellow' },
     { name: 'Grande Colisor', href: '/colisor', icon: <Network className="w-6 h-6" />, color: 'brand-red' },
@@ -121,7 +121,7 @@ export const SidebarLeft = ({ userId }: { userId?: string }) => {
     }, []);
 
     return (
-        <aside className="sticky top-24 h-[calc(100vh-6rem)] w-full flex flex-col gap-8 py-6 pr-4 overflow-y-auto hidden-scrollbar">
+        <aside className="sticky top-0 h-screen w-full flex flex-col gap-8 py-6 pr-4 overflow-y-auto hidden-scrollbar pt-16">
             {/* Primary Navigation */}
             <nav className="flex flex-col gap-1">
                 {/* Main Links */}

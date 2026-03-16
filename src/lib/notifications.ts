@@ -4,7 +4,7 @@ const resendApiKey = process.env.RESEND_API_KEY;
 const resend = resendApiKey ? new Resend(resendApiKey) : null;
 const adminEmail = process.env.ADMIN_EMAIL || 'joaopaulostangorlini@usp.br';
 
-export type NotificationType = 'submission' | 'question' | 'comment' | 'profile_update' | 'profile_creation' | 'bug_report';
+export type NotificationType = 'submission' | 'question' | 'comment' | 'profile_update' | 'profile_creation' | 'bug_report' | 'arena_suggestion' | 'hub_improvement';
 
 interface NotificationData {
     type: NotificationType;
@@ -99,6 +99,31 @@ export async function sendAdminNotification(data: NotificationData) {
                     "${data.content}"
                 </div>
                 <p style="font-size: 12px; color: #718096;">URL: ${data.url || 'N/A'}</p>`;
+            break;
+            
+        case 'arena_suggestion':
+            subject = `🏆 Arena: Nova Proposta de Desafio - ${data.title}`;
+            dashboardLink = 'https://hub.labdiv.if.usp.br/admin/desafios';
+            emailTemplate = `
+                <h2 style="color: #1a1a1a; margin-top: 0; font-size: 20px;">Nova Proposta de Desafio</h2>
+                <p style="color: #4a5568; line-height: 1.6; font-size: 15px;">O pesquisador <strong>${data.userName}</strong> enviou uma nova proposta para a Arena.</p>
+                <div style="background-color: #f8fafc; border-left: 4px solid #FFD600; padding: 16px; margin: 24px 0; border-radius: 4px;">
+                    <p style="margin: 0 0 8px 0; font-size: 14px;"><strong style="color: #1a1a1a;">Título:</strong> <span style="color: #4a5568;">${data.title}</span></p>
+                    <p style="margin: 0; font-size: 14px;"><strong style="color: #1a1a1a;">Descrição:</strong> <span style="color: #4a5568;">${data.content}</span></p>
+                </div>`;
+            break;
+
+        case 'hub_improvement':
+            subject = `💡 Hub: Sugestão de Melhoria - ${data.userName}`;
+            dashboardLink = 'https://hub.labdiv.if.usp.br/admin/desafios';
+            emailTemplate = `
+                <h2 style="color: #1a1a1a; margin-top: 0; font-size: 20px;">Sugestão de Melhoria do HUB</h2>
+                <p style="color: #4a5568; line-height: 1.6; font-size: 15px;">Um pesquisador enviou uma ideia para melhorar a plataforma.</p>
+                <div style="background-color: #f0f9ff; border: 1px solid #bae6fd; padding: 20px; margin: 24px 0; border-radius: 8px; color: #0369a1;">
+                    <strong style="display: block; margin-bottom: 8px; text-transform: uppercase; font-size: 12px;">Sugestão:</strong>
+                    "${data.content}"
+                </div>
+                <p style="font-size: 12px; color: #718096;">Enviado por: ${data.userName}</p>`;
             break;
     }
 

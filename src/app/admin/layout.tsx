@@ -23,6 +23,7 @@ export default function AdminLayout({
         { name: 'Torre de Controle', href: '/admin', icon: 'security' },
         { name: 'Gerenciador de Acervo', href: '/admin/acervo', icon: 'collections_bookmark' },
         { name: 'Submissões Pendentes', href: '/admin/pendentes', icon: 'assignment' },
+        { name: 'Arena de Desafios', href: '/admin/desafios', icon: 'emoji_events' },
         { name: 'Aprovação de Perfis', href: '/admin/profiles', icon: 'manage_accounts' },
         { name: 'Validação de Adoções', href: '/admin/adocoes', icon: 'favorite' },
         { name: 'Gerenciamento de Papéis', href: '/admin/papeis', icon: 'admin_panel_settings' },

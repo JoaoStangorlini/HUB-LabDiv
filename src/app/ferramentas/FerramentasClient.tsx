@@ -178,33 +178,60 @@ export default function FerramentasClient({ profile }: { profile: any }) {
     return (
         <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-1000 print:space-y-0 print:animate-none">
             <style jsx global>{`
-                .fc { --fc-border-color: rgba(255, 255, 255, 0.03); }
-                .fc-theme-standard td, .fc-theme-standard th { border: 1px solid rgba(255, 255, 255, 0.03); }
+                .fc { --fc-border-color: rgba(var(--brand-blue-rgb), 0.1); }
+                .dark .fc { --fc-border-color: rgba(255, 255, 255, 0.03); }
+                
+                .fc-theme-standard td, .fc-theme-standard th { 
+                    border: 1px solid rgba(0, 0, 0, 0.05) !important; 
+                }
+                .dark .fc-theme-standard td, .dark .fc-theme-standard th { 
+                    border: 1px solid rgba(255, 255, 255, 0.02) !important; 
+                }
+                .fc-scrollgrid { border: 0 !important; }
+                .fc-scrollgrid-section > td { border: 0 !important; }
+                .fc-col-header-cell { border: 0 !important; }
+
                 .fc .fc-timegrid-slot { height: 3.5em !important; border-bottom: 0 !important; }
+                
                 .fc-v-event { 
                     border: 0 !important; 
                     border-radius: 12px !important; 
                     padding: 4px !important; 
+                    box-shadow: 0 4px 12px rgba(0,0,0,0.1) !important;
+                    background-image: linear-gradient(135deg, rgba(255,255,255,0.2), transparent) !important;
+                }
+                .dark .fc-v-event {
                     box-shadow: 0 8px 24px rgba(0,0,0,0.3) !important;
                     background-image: linear-gradient(135deg, rgba(255,255,255,0.1), transparent) !important;
                 }
+
                 .fc-v-event .fc-event-main { 
                     color: white !important; 
                     font-weight: 800 !important; 
                     font-size: 10px !important;
-                    text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+                    text-shadow: 0 1px 2px rgba(0,0,0,0.3);
                 }
+                
                 .fc-timegrid-axis-cushion, .fc-timegrid-slot-label-cushion { 
-                    color: rgba(255, 255, 255, 0.2) !important; 
+                    color: rgba(0, 0, 0, 0.4) !important; 
                     font-weight: 900 !important; 
                     font-size: 9px !important; 
                     text-transform: uppercase !important;
                     letter-spacing: 0.1em;
                 }
-                .fc-col-header-cell {
-                    background-color: #1a1a1a !important;
-                    border: 1px solid rgba(255, 255, 255, 0.05) !important;
+                .dark .fc-timegrid-axis-cushion, .dark .fc-timegrid-slot-label-cushion {
+                    color: rgba(255, 255, 255, 0.2) !important;
                 }
+
+                .fc-col-header-cell {
+                    background-color: #f9fafb !important;
+                    border: 0 !important;
+                }
+                .dark .fc-col-header-cell {
+                    background-color: #1a1a1a !important;
+                    border: 0 !important;
+                }
+
                 .fc-col-header-cell-cushion { 
                     font-weight: 900 !important; 
                     font-size: 11px !important; 
@@ -213,15 +240,19 @@ export default function FerramentasClient({ profile }: { profile: any }) {
                     padding: 16px 0 !important; 
                     text-decoration: none !important;
                 }
-
+                
                 .fc-day-sun .fc-col-header-cell-cushion { color: #888 !important; }
                 .fc-day-mon .fc-col-header-cell-cushion, .fc-day-thu .fc-col-header-cell-cushion { color: #3b82f6 !important; }
                 .fc-day-tue .fc-col-header-cell-cushion, .fc-day-fri .fc-col-header-cell-cushion { color: #ef4444 !important; }
                 .fc-day-wed .fc-col-header-cell-cushion, .fc-day-sat .fc-col-header-cell-cushion { color: #eab308 !important; }
 
-                .fc-timegrid-col.fc-day-sun, .fc-timegrid-col.fc-day-mon, .fc-timegrid-col.fc-day-thu { background-color: rgba(59, 130, 246, 0.1) !important; }
-                .fc-timegrid-col.fc-day-tue, .fc-timegrid-col.fc-day-fri { background-color: rgba(239, 68, 68, 0.1) !important; }
-                .fc-timegrid-col.fc-day-wed, .fc-timegrid-col.fc-day-sat { background-color: rgba(234, 179, 8, 0.1) !important; }
+                .fc-timegrid-col.fc-day-sun, .fc-timegrid-col.fc-day-mon, .fc-timegrid-col.fc-day-thu { background-color: rgba(59, 130, 246, 0.25) !important; }
+                .fc-timegrid-col.fc-day-tue, .fc-timegrid-col.fc-day-fri { background-color: rgba(239, 68, 68, 0.25) !important; }
+                .fc-timegrid-col.fc-day-wed, .fc-timegrid-col.fc-day-sat { background-color: rgba(234, 179, 8, 0.25) !important; }
+
+                .dark .fc-timegrid-col.fc-day-sun, .dark .fc-timegrid-col.fc-day-mon, .dark .fc-timegrid-col.fc-day-thu { background-color: rgba(59, 130, 246, 0.1) !important; }
+                .dark .fc-timegrid-col.fc-day-tue, .dark .fc-timegrid-col.fc-day-fri { background-color: rgba(239, 68, 68, 0.1) !important; }
+                .dark .fc-timegrid-col.fc-day-wed, .dark .fc-timegrid-col.fc-day-sat { background-color: rgba(234, 179, 8, 0.1) !important; }
 
                 .fc-timegrid-now-indicator-line { border-color: #3b82f6 !important; border-width: 2px !important; opacity: 0.5; }
                 .fc-timegrid-now-indicator-arrow { border-left-color: #3b82f6 !important; border-right-color: #3b82f6 !important; }
@@ -276,15 +307,16 @@ export default function FerramentasClient({ profile }: { profile: any }) {
                         </p>
                     </div>
 
-                    <a 
-                        href="https://wa.me/5511968401823" 
-                        target="_blank" 
-                        rel="noopener noreferrer"
+                    <button 
+                        onClick={() => {
+                            const { useNavigationStore } = require('@/store/useNavigationStore');
+                            useNavigationStore.getState().setReportModalOpen(true, 'sugestao');
+                        }}
                         className="flex items-center gap-3 px-6 py-4 bg-white text-black rounded-2xl font-black text-xs uppercase tracking-widest hover:scale-105 transition-transform shadow-xl shadow-white/10 shrink-0"
                     >
                         <MessageSquareCode className="w-4 h-4" />
                         Mande seu Feedback
-                    </a>
+                    </button>
                 </div>
             </div>
 
@@ -324,7 +356,7 @@ export default function FerramentasClient({ profile }: { profile: any }) {
                                             className="group draggable-item p-4 rounded-2xl border transition-all cursor-grab active:cursor-grabbing shadow-lg relative print:hidden"
                                             style={{ 
                                                 borderLeft: `6px solid ${colorData.bg}`,
-                                                backgroundColor: `${colorData.bg}15`,
+                                                backgroundColor: `${colorData.bg}40`,
                                                 borderColor: `${colorData.bg}30`
                                             }}
                                         >
@@ -371,7 +403,7 @@ export default function FerramentasClient({ profile }: { profile: any }) {
                                                     className="group draggable-item p-4 rounded-2xl border transition-all cursor-grab active:cursor-grabbing shadow-sm relative overflow-hidden print:hidden"
                                                     style={{ 
                                                         borderLeft: `6px solid ${colorData.bg}`,
-                                                        backgroundColor: `${colorData.bg}15`,
+                                                        backgroundColor: `${colorData.bg}40`,
                                                         borderColor: `${colorData.bg}30`
                                                     }}
                                                 >
@@ -447,7 +479,7 @@ export default function FerramentasClient({ profile }: { profile: any }) {
                             </div>
                         </div>
                         
-                        <div className={`dark bg-[#1e1e1e] p-6 rounded-3xl border border-white/5 overflow-hidden transition-all ${viewMode === 'view' ? 'bg-[#121212] border-brand-blue/10' : ''}`}>
+                        <div className={`bg-white dark:bg-[#1e1e1e] p-6 rounded-3xl border border-gray-100 dark:border-white/5 overflow-hidden transition-all ${viewMode === 'view' ? 'bg-gray-50/50 dark:bg-[#121212] border-brand-blue/10' : ''}`}>
                             {viewMode === 'view' ? (
                                 <div className="flex flex-row gap-4 overflow-x-auto pb-8 scrollbar-hide snap-x">
                                     {['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'].map((dayName, dayIdx) => {
@@ -455,12 +487,12 @@ export default function FerramentasClient({ profile }: { profile: any }) {
                                         const dayColor = dayIdx === 0 ? '#888' : (dayIdx % 3 === 1 ? '#3b82f6' : (dayIdx % 3 === 2 ? '#ef4444' : '#eab308'));
                                         
                                         return (
-                                            <div key={dayName} className="flex flex-col gap-4 min-w-[280px] bg-white/[0.03] rounded-[32px] p-5 border border-white/[0.05] snap-start">
+                                            <div key={dayName} className="flex flex-col gap-4 min-w-[280px] bg-gray-50/80 dark:bg-white/[0.03] rounded-[32px] p-5 border border-transparent dark:border-white/[0.05] snap-start">
                                                 <div className="flex items-center justify-between px-2">
                                                     <span className="text-xs font-black uppercase tracking-widest" style={{ color: dayColor }}>
                                                         {dayName}
                                                     </span>
-                                                    <span className="text-[10px] font-bold text-white/20">
+                                                    <span className="text-[10px] font-bold text-gray-400 dark:text-white/20">
                                                         {dayEvents.length} {dayEvents.length === 1 ? 'evento' : 'eventos'}
                                                     </span>
                                                 </div>
@@ -468,24 +500,24 @@ export default function FerramentasClient({ profile }: { profile: any }) {
                                                     {dayEvents.length > 0 ? dayEvents.map(e => (
                                                         <div 
                                                             key={e.id} 
-                                                            className="p-4 rounded-[22px] border border-white/10 shadow-xl flex flex-col gap-2 transition-all hover:bg-white/[0.05] relative overflow-hidden"
+                                                            className="p-4 rounded-[22px] border border-black/5 dark:border-white/10 shadow-lg flex flex-col gap-2 transition-all hover:bg-black/[0.02] dark:hover:bg-white/[0.05] relative overflow-hidden"
                                                             style={{ 
                                                                 borderLeft: `4px solid ${e.color}`,
-                                                                backgroundColor: `${e.color}15`,
+                                                                backgroundColor: `${e.color}40`,
                                                             }}
                                                         >
                                                             <div className="flex items-center justify-between">
-                                                                <span className="text-[10px] font-black bg-white/10 px-2.5 py-1 rounded-full text-white/70">
+                                                                <span className="text-[10px] font-black bg-black/5 dark:bg-white/10 px-2.5 py-1 rounded-full text-gray-700 dark:text-white/70">
                                                                     {new Date(e.start).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
                                                                 </span>
                                                             </div>
-                                                            <div className="text-xs font-bold leading-tight text-white mb-1">
+                                                            <div className="text-xs font-bold leading-tight text-gray-900 dark:text-white mb-1">
                                                                 {e.title}
                                                             </div>
                                                         </div>
                                                     )) : (
-                                                        <div className="h-32 flex items-center justify-center border-2 border-dashed border-white/[0.02] rounded-[28px]">
-                                                            <span className="text-[10px] font-bold uppercase text-white/5 tracking-widest">Livre</span>
+                                                        <div className="h-32 flex items-center justify-center border-2 border-dashed border-black/[0.1] dark:border-white/[0.02] rounded-[28px]">
+                                                            <span className="text-[10px] font-bold uppercase text-gray-400 dark:text-white/5 tracking-widest">Livre</span>
                                                         </div>
                                                     )}
                                                 </div>
