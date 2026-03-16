@@ -459,22 +459,7 @@ export default function EmaranhamentoPage() {
                         )}
                     </div>
 
-                    {/* Right Column: Guidelines */}
-                    <div className="hidden xl:flex w-[280px] flex-col gap-6">
-                        <div className="bg-brand-blue/5 border border-brand-blue/20 rounded-[32px] p-6">
-                            <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-brand-blue mb-4">Protocolo de Emaranhamento</h3>
-                            <ul className="space-y-4">
-                                <li className="flex gap-3">
-                                    <span className="material-symbols-outlined text-sm text-brand-blue">science</span>
-                                    <p className="text-[10px] text-gray-400 font-medium italic">Troque referências técnicas para aumentar sua Excitação Atômica.</p>
-                                </li>
-                                <li className="flex gap-3">
-                                    <span className="material-symbols-outlined text-sm text-brand-blue">link</span>
-                                    <p className="text-[10px] text-gray-400 font-medium italic">Anexe partículas do Colisor para facilitar a análise.</p>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
+
                 </div>
 
                 {/* CREATE GROUP MODAL */}

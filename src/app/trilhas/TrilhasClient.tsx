@@ -4,7 +4,7 @@ import { useState, useMemo, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { MainLayoutWrapper } from '@/components/layout/MainLayoutWrapper';
-import { Zap, Atom, Microscope, Binary, LayoutGrid, Timer, Layers, ShieldCheck, Milestone, Sparkles, Link2, AlertTriangle, Play, CheckCircle2, Circle, GraduationCap, ArrowRight, User, Loader2, Globe, Network, Clock, Search } from 'lucide-react';
+import { Zap, Atom, Microscope, Binary, LayoutGrid, Timer, Layers, ShieldCheck, Milestone, Sparkles, Link2, AlertTriangle, Play, CheckCircle2, Circle, GraduationCap, ArrowRight, User, Loader2, Globe, Network, Clock, Search, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Trail } from '@/types';
 import { supabase } from '@/lib/supabase';
@@ -206,7 +206,7 @@ export default function TrilhasClient({
             // Default: trending (submissionCount)
             return (b.submissionCount || 0) - (a.submissionCount || 0);
         });
-    }, [initialTrails, axisFilter, categoryFilter, semesterFilter, sortOrder, userProfile]);
+    }, [initialTrails, axisFilter, categoryFilter, semesterFilter, sortOrder, searchQuery, userProfile]);
 
     // Dashboard Stats Logic
     const stats = useMemo(() => {
@@ -581,6 +581,14 @@ export default function TrilhasClient({
                                                                     </div>
                                                                     <div className="text-xs font-bold text-gray-200 truncate group-hover:text-white transition-colors">{trail.title}</div>
                                                                 </div>
+                                                                <button
+                                                                    onClick={(e) => toggleCursando(e, trail.id)}
+                                                                    disabled={isUpdating === trail.id}
+                                                                    className="p-2 rounded-lg bg-red-500/10 text-red-400 hover:bg-red-500 hover:text-white transition-all disabled:opacity-50"
+                                                                    title="Remover do radar"
+                                                                >
+                                                                    <X size={14} />
+                                                                </button>
                                                                 <button
                                                                     onClick={(e) => toggleCompletion(e, trail.id)}
                                                                     disabled={isUpdating === trail.id}

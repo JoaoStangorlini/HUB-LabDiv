@@ -32,7 +32,8 @@ export async function fetchUserAcademicdata(userId?: string) {
     const { data: progress } = await supabase
         .from('user_trail_progress')
         .select('*, learning_trails(title, course_code)')
-        .eq('user_id', targetUserId);
+        .eq('user_id', targetUserId)
+        .eq('status', 'cursando');
 
     const { data: completed } = await supabase
         .from('user_completed_trails')
