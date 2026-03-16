@@ -618,9 +618,22 @@ export function EditProfileModal({ isOpen, onClose, onSuccess, adminMode = false
 
                                     <div className="p-4 bg-gray-50 dark:bg-white/[0.02] border border-gray-100 dark:border-white/5 rounded-2xl space-y-3">
                                         <div className="flex items-center justify-between">
-                                            <span className="text-xs font-black uppercase tracking-tight text-gray-900 dark:text-white">Mentor do Hub (Adoção)</span>
-                                            <label className="relative inline-flex items-center cursor-pointer">
-                                                <input type="checkbox" {...register('available_to_mentor')} className="sr-only peer" />
+                                            <div className="flex flex-col gap-0.5">
+                                                <span className={`text-xs font-black uppercase tracking-tight ${watch('entrance_year') === new Date().getFullYear().toString() ? 'text-gray-400 dark:text-gray-600' : 'text-gray-900 dark:text-white'}`}>
+                                                    Mentor do Hub (Adoção)
+                                                </span>
+                                                {watch('entrance_year') === new Date().getFullYear().toString() && (
+                                                    <span className="text-[9px] text-gray-400 font-medium italic">Bixos não podem ser mentores no 1º ano</span>
+                                                )}
+                                            </div>
+                                            <label className={`relative inline-flex items-center ${watch('entrance_year') === new Date().getFullYear().toString() ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}`}>
+                                                <input 
+                                                    type="checkbox" 
+                                                    {...register('available_to_mentor')} 
+                                                    className="sr-only peer" 
+                                                    disabled={watch('entrance_year') === new Date().getFullYear().toString()}
+                                                    checked={watch('entrance_year') === new Date().getFullYear().toString() ? false : watch('available_to_mentor')}
+                                                />
                                                 <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none dark:bg-gray-700 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-brand-blue"></div>
                                             </label>
                                         </div>
@@ -710,13 +723,6 @@ export function EditProfileModal({ isOpen, onClose, onSuccess, adminMode = false
                                     </div>
                                 </div>
                             )}
-                        </div>
-
-                        {/* FINAL STATUS */}
-                        <div className="p-4 bg-gray-50 dark:bg-white/[0.02] rounded-2xl border border-gray-100 dark:border-white/5">
-                            <p className="text-[9px] text-gray-400 font-bold uppercase text-center italic tracking-widest">
-                                Perfil Verificado • Hub Lab-Div Generation IV
-                            </p>
                         </div>
 
                         {/* Submit Button */}
