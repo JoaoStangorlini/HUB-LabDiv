@@ -485,6 +485,7 @@ export async function fetchStudentsSeekingIC() {
         .select('id, full_name, username, use_nickname, avatar_url, course, institute, entrance_year, bio, whatsapp, email, xp, level, is_labdiv')
         .eq('seeking_ic', true)
         .eq('review_status', 'approved')
+        .eq('is_visible', true)
         .order('created_at', { ascending: false });
 
     if (error) {
@@ -506,6 +507,7 @@ export async function fetchResearchersSeekingAssistants() {
         .select('id, full_name, username, use_nickname, avatar_url, course, institute, bio, whatsapp, email, xp, level, is_labdiv, research_line, office_room, laboratory_name, department, seeking_assistant')
         .eq('seeking_assistant', true)
         .eq('review_status', 'approved')
+        .eq('is_visible', true)
         .order('created_at', { ascending: false });
 
     if (error) {

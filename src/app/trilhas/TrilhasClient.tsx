@@ -4,7 +4,7 @@ import { useState, useMemo, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { MainLayoutWrapper } from '@/components/layout/MainLayoutWrapper';
-import { Zap, Atom, Microscope, Binary, LayoutGrid, Timer, Layers, ShieldCheck, Milestone, Sparkles, Link2, AlertTriangle, Play, CheckCircle2, Circle, GraduationCap, ArrowRight, User, Loader2, Globe, Network, Clock } from 'lucide-react';
+import { Zap, Atom, Microscope, Binary, LayoutGrid, Timer, Layers, ShieldCheck, Milestone, Sparkles, Link2, AlertTriangle, Play, CheckCircle2, Circle, GraduationCap, ArrowRight, User, Loader2, Globe, Network, Clock, Search } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Trail } from '@/types';
 import { supabase } from '@/lib/supabase';
@@ -55,6 +55,7 @@ export default function TrilhasClient({
     const [dashboardTab, setDashboardTab] = useState<'faltam' | 'concluidas' | 'cursando'>('faltam');
     const [isDashboardCollapsed, setIsDashboardCollapsed] = useState(false);
     const [sortOrder, setSortOrder] = useState<'trending' | 'sem-asc' | 'sem-desc'>('sem-asc');
+    const [searchQuery, setSearchQuery] = useState('');
     const [viewMode, setViewMode] = useState<'grid' | 'tree'>('grid');
     const [selectedCourseMap, setSelectedCourseMap] = useState(COURSE_MAPS[0]);
     const [isVisualMapOpen, setIsVisualMapOpen] = useState(false);
@@ -122,7 +123,7 @@ export default function TrilhasClient({
     // Reset visible count when filters change
     useEffect(() => {
         setVisibleCount(9);
-    }, [axisFilter, categoryFilter, semesterFilter]);
+    }, [axisFilter, categoryFilter, semesterFilter, searchQuery]);
 
     // Sync modal course with user profile
     useEffect(() => {
@@ -191,7 +192,10 @@ export default function TrilhasClient({
             // Filtro de Categoria DEVE usar a effectiveCategory calculada
             const categoryMatch = !categoryFilter || t.effectiveCategory === categoryFilter;
             const semesterMatch = !semesterFilter || t.excitation_level === semesterFilter;
-            return axisMatch && categoryMatch && semesterMatch;
+            const searchMatch = !searchQuery.trim() || 
+                t.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                (t.course_code || '').toLowerCase().includes(searchQuery.toLowerCase());
+            return axisMatch && categoryMatch && semesterMatch && searchMatch;
         }).sort((a, b) => {
             if (sortOrder === 'sem-asc') {
                 return (a.excitation_level || 99) - (b.excitation_level || 99);
@@ -783,6 +787,29 @@ export default function TrilhasClient({
                                         <Zap size={12} />
                                         TENDÊNCIAS
                                     </button>
+                                </div>
+                            </div>
+
+                            {/* Row 5: Search */}
+                            <div className="relative z-10">
+                                <label className="font-mono text-[10px] dark:text-gray-500 text-gray-400 uppercase tracking-[0.3em] block ml-1 mb-3">Buscar_Disciplina</label>
+                                <div className="relative">
+                                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+                                    <input
+                                        type="text"
+                                        value={searchQuery}
+                                        onChange={(e) => setSearchQuery(e.target.value)}
+                                        placeholder="Nome da disciplina ou código (ex: MAT0112)..."
+                                        className="w-full pl-11 pr-4 py-3 rounded-xl font-mono text-sm dark:bg-[#121212] bg-gray-100 dark:text-white text-gray-900 dark:border-gray-800 border-gray-300 border outline-none focus:border-[#00A3FF]/50 focus:shadow-[0_0_15px_rgba(0,163,255,0.15)] transition-all placeholder:text-gray-500"
+                                    />
+                                    {searchQuery && (
+                                        <button
+                                            onClick={() => setSearchQuery('')}
+                                            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white transition-colors text-xs font-mono"
+                                        >
+                                            ✕
+                                        </button>
+                                    )}
                                 </div>
                             </div>
                         </div>

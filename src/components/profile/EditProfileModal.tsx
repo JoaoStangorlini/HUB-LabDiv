@@ -616,35 +616,61 @@ export function EditProfileModal({ isOpen, onClose, onSuccess, adminMode = false
                                         />
                                     </div>
 
-                                    <div className="p-4 bg-gray-50 dark:bg-white/[0.02] border border-gray-100 dark:border-white/5 rounded-2xl space-y-3">
-                                        <div className="flex items-center justify-between">
-                                            <div className="flex flex-col gap-0.5">
-                                                <span className={`text-xs font-black uppercase tracking-tight ${watch('entrance_year') === new Date().getFullYear().toString() ? 'text-gray-400 dark:text-gray-600' : 'text-gray-900 dark:text-white'}`}>
-                                                    Mentor do Hub (Adoção)
-                                                </span>
-                                                {watch('entrance_year') === new Date().getFullYear().toString() && (
-                                                    <span className="text-[9px] text-gray-400 font-medium italic">Bixos não podem ser mentores no 1º ano</span>
-                                                )}
+                                    {(() => {
+                                        const entranceYear = parseInt(watch('entrance_year') || '0');
+                                        const currentYear = new Date().getFullYear();
+                                        const canMentor = currentYear - entranceYear >= 2;
+                                        const isMentor = watch('available_to_mentor');
+                                        const isBixo = watch('seeking_mentor');
+                                        return (
+                                            <div className="grid grid-cols-2 gap-3">
+                                                {/* Bloco Mentor */}
+                                                <button
+                                                    type="button"
+                                                    disabled={!canMentor}
+                                                    onClick={() => { if (canMentor) { setValue('available_to_mentor', !isMentor); if (!isMentor) setValue('seeking_mentor', false); } }}
+                                                    className={`relative overflow-hidden p-4 rounded-2xl border-2 transition-all text-left ${
+                                                        !canMentor
+                                                            ? 'opacity-40 cursor-not-allowed border-gray-700 bg-gray-900/30'
+                                                            : isMentor
+                                                                ? 'border-brand-blue bg-brand-blue/10 shadow-lg shadow-brand-blue/20 scale-[1.02]'
+                                                                : 'border-gray-700 hover:border-brand-blue/50 bg-white/[0.02] hover:bg-brand-blue/5 cursor-pointer'
+                                                    }`}
+                                                >
+                                                    {isMentor && <div className="absolute inset-0 bg-gradient-to-br from-brand-blue/20 to-transparent pointer-events-none" />}
+                                                    <div className="relative z-10 space-y-2">
+                                                        <div className="text-2xl">🎓</div>
+                                                        <div className="text-xs font-black uppercase tracking-tight text-brand-blue">Mentor</div>
+                                                        <p className="text-[9px] text-gray-400 leading-relaxed">
+                                                            {canMentor ? 'Adote um bixo e guie-o pelo IFUSP' : 'Requer 2+ anos de curso'}
+                                                        </p>
+                                                        <div className={`mt-2 w-full h-1 rounded-full ${isMentor ? 'bg-brand-blue' : 'bg-gray-700'} transition-all`} />
+                                                    </div>
+                                                    <input type="checkbox" {...register('available_to_mentor')} className="sr-only" disabled={!canMentor} />
+                                                </button>
+
+                                                {/* Bloco Bixo */}
+                                                <button
+                                                    type="button"
+                                                    onClick={() => { setValue('seeking_mentor', !isBixo); if (!isBixo) setValue('available_to_mentor', false); }}
+                                                    className={`relative overflow-hidden p-4 rounded-2xl border-2 transition-all text-left ${
+                                                        isBixo
+                                                            ? 'border-brand-red bg-brand-red/10 shadow-lg shadow-brand-red/20 scale-[1.02]'
+                                                            : 'border-gray-700 hover:border-brand-red/50 bg-white/[0.02] hover:bg-brand-red/5 cursor-pointer'
+                                                    }`}
+                                                >
+                                                    {isBixo && <div className="absolute inset-0 bg-gradient-to-br from-brand-red/20 to-transparent pointer-events-none" />}
+                                                    <div className="relative z-10 space-y-2">
+                                                        <div className="text-2xl">💛</div>
+                                                        <div className="text-xs font-black uppercase tracking-tight text-brand-red">Sou Bixo</div>
+                                                        <p className="text-[9px] text-gray-400 leading-relaxed">Quero ser adotado por um veterano</p>
+                                                        <div className={`mt-2 w-full h-1 rounded-full ${isBixo ? 'bg-brand-red' : 'bg-gray-700'} transition-all`} />
+                                                    </div>
+                                                    <input type="checkbox" {...register('seeking_mentor')} className="sr-only" />
+                                                </button>
                                             </div>
-                                            <label className={`relative inline-flex items-center ${watch('entrance_year') === new Date().getFullYear().toString() ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}`}>
-                                                <input 
-                                                    type="checkbox" 
-                                                    {...register('available_to_mentor')} 
-                                                    className="sr-only peer" 
-                                                    disabled={watch('entrance_year') === new Date().getFullYear().toString()}
-                                                    checked={watch('entrance_year') === new Date().getFullYear().toString() ? false : watch('available_to_mentor')}
-                                                />
-                                                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none dark:bg-gray-700 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-brand-blue"></div>
-                                            </label>
-                                        </div>
-                                        <div className="flex items-center justify-between">
-                                            <span className="text-xs font-black uppercase tracking-tight text-gray-900 dark:text-white">Sou Bixo (Quero ser adotado)</span>
-                                            <label className="relative inline-flex items-center cursor-pointer">
-                                                <input type="checkbox" {...register('seeking_mentor')} className="sr-only peer" />
-                                                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none dark:bg-gray-700 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-brand-blue"></div>
-                                            </label>
-                                        </div>
-                                    </div>
+                                        );
+                                    })()}
 
                                     <div className="space-y-3 p-4 bg-brand-red/5 border border-brand-red/10 rounded-2xl">
                                         <div className="flex items-center gap-2">
