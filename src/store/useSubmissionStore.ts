@@ -6,7 +6,7 @@ export type SubmissionStep = 'category' | 'format' | 'basic' | 'optional';
 interface SubmissionState {
     currentStep: SubmissionStep;
     category: string;
-    mediaType: 'image' | 'video' | 'pdf' | 'zip' | 'sdocx' | 'text' | '';
+    mediaType: 'image' | 'video' | 'pdf' | 'zip' | 'sdocx' | 'text' | 'audio' | '';
 
     // Form fields
     title: string;
@@ -25,7 +25,7 @@ interface SubmissionState {
     setWatchedValues: (values: any) => void;
     setStep: (step: SubmissionStep) => void;
     setCategory: (category: string) => void;
-    setMediaType: (type: 'image' | 'video' | 'pdf' | 'zip' | 'sdocx' | 'text' | '') => void;
+    setMediaType: (type: 'image' | 'video' | 'pdf' | 'zip' | 'sdocx' | 'text' | 'audio' | '') => void;
 
     setTitle: (title: string) => void;
     setAuthors: (authors: string) => void;

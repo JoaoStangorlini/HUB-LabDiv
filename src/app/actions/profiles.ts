@@ -555,3 +555,27 @@ export async function getStudentMiniPortfolio(studentId: string) {
         }
     };
 }
+
+export async function searchUsersByName(query: string) {
+    const supabase = await createServerSupabase();
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (!user) return { error: 'Não autorizado' };
+    if (!query || query.trim().length < 2) return { success: true, data: [] };
+
+    const { data, error } = await supabase
+        .from('profiles')
+        .select('id, full_name, username, use_nickname, avatar_url, course, institute, user_category')
+        .eq('is_visible', true)
+        .eq('review_status', 'approved')
+        .neq('id', user.id)
+        .ilike('full_name', `%${query.trim()}%`)
+        .limit(10);
+
+    if (error) {
+        console.error('Error searching users:', error);
+        return { error: 'Erro ao buscar usuários' };
+    }
+
+    return { success: true, data };
+}

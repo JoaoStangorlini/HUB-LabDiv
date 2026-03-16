@@ -27,6 +27,7 @@ export function OptionalDetailsStep({ onSubmit, isLoading }: { onSubmit: (data: 
 
     const watchedValues = watch();
     const [tagInput, setTagInput] = useState('');
+    const [isotopeInput, setIsotopeInput] = useState('');
     const [searchTerm, setSearchTerm] = useState('');
     const [searchResults, setSearchResults] = useState<any[]>([]);
     const [isSearching, setIsSearching] = useState(false);
@@ -105,12 +106,12 @@ export function OptionalDetailsStep({ onSubmit, isLoading }: { onSubmit: (data: 
                     <input type="tel" {...register('whatsapp')} className="w-full bg-white dark:bg-form-dark border-2 border-gray-100 dark:border-gray-800 rounded-2xl px-6 py-4" placeholder="(11) 99999-9999" />
                 </div>
 
-                {/* Tags */}
+                {/* Tags / Disciplinas */}
                 <div className="space-y-3 lg:col-span-2">
                     <label className="text-sm font-black uppercase tracking-widest text-brand-yellow flex items-center gap-2">
                         <span className="material-symbols-outlined text-xl">sell</span>
-                        Tags / Palavras-chave
-                        <HelpTooltip text="Tags aumentam a visibilidade do seu trabalho e ajudam na filtragem técnica do catálogo." />
+                        Tags / Disciplinas
+                        <HelpTooltip text="Associe disciplinas ao seu conteúdo para melhorar a descoberta e a filtragem no catálogo." />
                     </label>
                     <div className="flex flex-wrap gap-2 p-3 bg-white dark:bg-form-dark border-2 border-gray-100 dark:border-gray-800 rounded-2xl">
                         {watchedValues.tags?.map((tag: string) => (
@@ -119,8 +120,44 @@ export function OptionalDetailsStep({ onSubmit, isLoading }: { onSubmit: (data: 
                                 <button type="button" onClick={() => removeTag(tag)}><span className="material-symbols-outlined text-[14px]">close</span></button>
                             </span>
                         ))}
-                        <input value={tagInput} onChange={e => setTagInput(e.target.value)} onKeyDown={handleTagKeyDown} className="flex-grow bg-transparent outline-none text-sm" placeholder="Adicionar tag..." />
+                        <input value={tagInput} onChange={e => setTagInput(e.target.value)} onKeyDown={handleTagKeyDown} className="flex-grow bg-transparent outline-none text-sm" placeholder="Adicionar disciplina ou tag..." />
                     </div>
+                </div>
+
+                {/* Hashtag / Isótopos */}
+                <div className="space-y-3 lg:col-span-2">
+                    <label className="text-sm font-black uppercase tracking-widest text-brand-blue flex items-center gap-2">
+                        <span className="material-symbols-outlined text-xl">tag</span>
+                        # Isótopos
+                        <HelpTooltip text="Hashtags que vão para a seção 'Isótopos em Órbita' no Fluxo de Partículas. Use para agrupar conteúdos por tema." />
+                    </label>
+                    <div className="flex flex-wrap gap-2 p-3 bg-white dark:bg-form-dark border-2 border-brand-blue/20 dark:border-brand-blue/10 rounded-2xl">
+                        {watchedValues.isotopes?.map((iso: string) => (
+                            <span key={iso} className="flex items-center gap-1.5 px-3 py-1 bg-brand-blue/10 text-brand-blue rounded-xl text-xs font-bold">
+                                #{iso}
+                                <button type="button" onClick={() => {
+                                    setValue('isotopes', (watchedValues.isotopes || []).filter((i: string) => i !== iso));
+                                }}><span className="material-symbols-outlined text-[14px]">close</span></button>
+                            </span>
+                        ))}
+                        <input
+                            value={isotopeInput}
+                            onChange={e => setIsotopeInput(e.target.value)}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter' || e.key === ' ') {
+                                    e.preventDefault();
+                                    const iso = isotopeInput.trim().replace(/^#/, '');
+                                    if (iso && !(watchedValues.isotopes || []).includes(iso)) {
+                                        setValue('isotopes', [...(watchedValues.isotopes || []), iso]);
+                                    }
+                                    setIsotopeInput('');
+                                }
+                            }}
+                            className="flex-grow bg-transparent outline-none text-sm"
+                            placeholder="Adicionar isótopo (ex: óptica, termodinâmica)..."
+                        />
+                    </div>
+                    <p className="text-[10px] text-gray-500 italic ml-1">Esses isótopos aparecem na seção &quot;Isótopos em Órbita&quot; do Fluxo.</p>
                 </div>
 
                 {/* Co-Authors */}

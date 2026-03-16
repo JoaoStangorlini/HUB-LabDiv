@@ -13,6 +13,7 @@ export const submissionSchema = z.object({
     read_guide: z.boolean().refine(v => v === true, 'Você deve ler o guia').default(false),
     accepted_cc: z.boolean().refine(v => v === true, 'Você deve aceitar a licença').default(false),
     tags: z.array(z.string()).default([]),
+    isotopes: z.array(z.string()).default([]),
     reading_time: z.number().default(0),
     use_pseudonym: z.boolean().default(false),
     event_year: z.string().min(4, 'Selecione o ano').default(new Date().getFullYear().toString()),

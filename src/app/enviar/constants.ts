@@ -139,5 +139,12 @@ export const FORMATS = [
         description: 'Postagem direta em Markdown. Máx 10MB.',
         icon: 'article',
         color: 'brand-blue'
+    },
+    {
+        id: 'audio',
+        title: 'Áudio',
+        description: 'Gravações e sons (MP3, WAV, OGG). Máx 10MB.',
+        icon: 'mic',
+        color: 'brand-yellow'
     }
 ];
