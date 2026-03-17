@@ -4,7 +4,7 @@ const resendApiKey = process.env.RESEND_API_KEY;
 const resend = resendApiKey ? new Resend(resendApiKey) : null;
 const adminEmail = process.env.ADMIN_EMAIL || 'joaopaulostangorlini@usp.br';
 
-export type NotificationType = 'submission' | 'question' | 'comment' | 'profile_update' | 'profile_creation' | 'bug_report' | 'arena_suggestion' | 'hub_improvement';
+export type NotificationType = 'submission' | 'question' | 'comment' | 'profile_update' | 'profile_creation' | 'bug_report' | 'arena_suggestion' | 'hub_improvement' | 'drop_submission';
 
 interface NotificationData {
     type: NotificationType;
@@ -124,6 +124,17 @@ export async function sendAdminNotification(data: NotificationData) {
                     "${data.content}"
                 </div>
                 <p style="font-size: 12px; color: #718096;">Enviado por: ${data.userName}</p>`;
+            break;
+            
+        case 'drop_submission':
+            subject = `📝 Hub: Novo Log (Drop) - @${data.userName}`;
+            dashboardLink = 'https://hub.labdiv.if.usp.br/admin/drops';
+            emailTemplate = `
+                <h2 style="color: #1a1a1a; margin-top: 0; font-size: 20px;">Novo Log Enviado (Drop)</h2>
+                <p style="color: #4a5568; line-height: 1.6; font-size: 15px;">O pesquisador <strong>@${data.userName}</strong> postou uma nova atualização rápida que aguarda moderação.</p>
+                <div style="background-color: #f8fafc; border-left: 4px solid #EF4444; padding: 20px; margin: 24px 0; border-radius: 8px; font-style: italic; color: #2d3748;">
+                    "${data.content}"
+                </div>`;
             break;
     }
 

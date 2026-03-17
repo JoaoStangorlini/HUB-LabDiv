@@ -42,8 +42,9 @@ export function FormatStep() {
                         <p className="text-gray-500 dark:text-gray-400 leading-relaxed max-w-2xl">
                             Cada tipo de mídia exige cuidados específicos para garantir a preservação do acervo.
                             Imagens devem estar em alta resolução, vídeos preferencialmente no YouTube e documentos em PDF para acessibilidade.
+                            Há suporte nativo para Markdown e LaTeX ($\LaTeX$).
                             Materiais compactados (.zip) são ideais para coleções de documentos ou códigos.
-                            O limite por arquivo é de <span className="font-bold text-gray-900 dark:text-white">10MB</span>.
+                            O limite por arquivo (upload) é de <span className="font-bold text-gray-900 dark:text-white">10MB</span>.
                         </p>
 
                         <div className="flex flex-wrap justify-center lg:justify-start gap-4 pt-2">

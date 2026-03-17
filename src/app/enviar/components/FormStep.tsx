@@ -58,7 +58,8 @@ export function FormStep() {
         formData.append('folder', 'submissions');
 
         const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
-        const resourceType = (mediaType === 'image' || mediaType === 'pdf') ? 'image' : 'video';
+        const resourceType = (mediaType === 'image' || mediaType === 'pdf') ? 'image' : 
+                          (mediaType === 'audio') ? 'video' : 'video'; // Cloudinary handles audio as 'video' or 'auto'
 
         const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/${resourceType}/upload`, {
             method: 'POST',

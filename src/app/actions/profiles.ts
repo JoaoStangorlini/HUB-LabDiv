@@ -271,6 +271,7 @@ export async function updateProfileAsAdmin(profileId: string, updates: Partial<P
             seeking_ic: updates.seeking_ic,
             seeking_assistant: updates.seeking_assistant,
             research_line: updates.research_line,
+            interest_area: updates.interest_area,
             office_room: updates.office_room,
             laboratory_name: updates.laboratory_name,
             department: updates.department

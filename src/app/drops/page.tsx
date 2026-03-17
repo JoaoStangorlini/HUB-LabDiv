@@ -19,6 +19,10 @@ interface Drop {
         name: string;
         avatar: string;
         handle: string;
+        user_category?: string;
+        research_line?: string;
+        course?: string;
+        interest_area?: string;
     };
 }
 
@@ -45,26 +49,56 @@ export default function DropsPage() {
     const fetchDrops = async () => {
         const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
         
-        const { data, error } = await supabase
+        // Featured logs: sem limite de tempo — nunca expiram
+        const featuredPromise = supabase
             .from('micro_articles')
             .select(`
                 *,
                 profiles:author_id (
                     name:full_name,
                     handle:username,
-                    avatar:avatar_url
+                    avatar:avatar_url,
+                    user_category,
+                    research_line,
+                    course,
+                    interest_area
+                )
+            `)
+            .eq('is_featured', true)
+            .eq('status', 'approved')
+            .order('created_at', { ascending: false });
+
+        // Recent logs: só as últimas 24h, excluindo featured para não duplicar
+        const recentPromise = supabase
+            .from('micro_articles')
+            .select(`
+                *,
+                profiles:author_id (
+                    name:full_name,
+                    handle:username,
+                    avatar:avatar_url,
+                    user_category,
+                    research_line,
+                    course,
+                    interest_area
                 )
             `)
             .gte('created_at', twentyFourHoursAgo)
-            .or('status.eq.approved,is_featured.eq.true')
-            .order('is_featured', { ascending: false })
+            .eq('status', 'approved')
+            .eq('is_featured', false)
             .order('created_at', { ascending: false });
-        
-        if (error) {
-            console.error('[PublicDrops] Fetch error:', error);
-        }
 
-        if (data) setDrops(data as Drop[]);
+        const [featuredRes, recentRes] = await Promise.all([featuredPromise, recentPromise]);
+        
+        if (featuredRes.error) console.error('[Drops] Featured error:', featuredRes.error);
+        if (recentRes.error) console.error('[Drops] Recent error:', recentRes.error);
+
+        const allDrops = [
+            ...(featuredRes.data || []),
+            ...(recentRes.data || []),
+        ] as Drop[];
+
+        setDrops(allDrops);
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -74,14 +108,11 @@ export default function DropsPage() {
         if (content.length > 260) return toast.error('O limite é de 260 caracteres!');
 
         setIsSubmitting(true);
-        const { error } = await supabase.from('micro_articles').insert({
-            author_id: user.id,
-            content: content.trim(),
-            status: 'pending' // Posts wait for approval
-        });
+        const { createDrop } = await import('@/app/actions/drops');
+        const result = await createDrop(content.trim());
 
-        if (error) {
-            toast.error('Erro ao enviar log');
+        if (result.error) {
+            toast.error(result.error);
         } else {
             setContent('');
             toast.success('Log enviado para aprovação!');
@@ -146,23 +177,29 @@ export default function DropsPage() {
                 </form>
 
                 {/* Featured Section */}
-                {featuredDrops.length > 0 && (
-                    <div className="space-y-6">
-                        <div className="flex items-center gap-4 px-2">
-                             <div className="h-px bg-gradient-to-r from-transparent via-yellow-500/50 to-transparent flex-1"></div>
-                             <div className="flex items-center gap-2 text-yellow-500 font-black uppercase italic tracking-tighter text-sm">
-                                <Star className="w-4 h-4 fill-yellow-500" />
-                                Logs Destacados
-                             </div>
-                             <div className="h-px bg-gradient-to-r from-transparent via-yellow-500/50 to-transparent flex-1"></div>
-                        </div>
-                        <div className="space-y-4">
-                            {featuredDrops.map((drop) => (
-                                <DropCard key={drop.id} drop={drop} isFeatured />
-                            ))}
-                        </div>
+                <div className="space-y-6">
+                    <div className="flex items-center gap-4 px-2">
+                         <div className="h-px bg-gradient-to-r from-transparent via-yellow-500/50 to-transparent flex-1"></div>
+                         <div className="flex items-center gap-2 text-yellow-500 font-black uppercase italic tracking-tighter text-sm">
+                            <Star className="w-4 h-4 fill-yellow-500" />
+                            Logs Destacados
+                         </div>
+                         <div className="h-px bg-gradient-to-r from-transparent via-yellow-500/50 to-transparent flex-1"></div>
                     </div>
-                )}
+                    <div className="space-y-4">
+                        {featuredDrops.length > 0 ? (
+                            featuredDrops.map((drop) => (
+                                <DropCard key={drop.id} drop={drop} isFeatured />
+                            ))
+                        ) : (
+                            <div className="py-10 text-center opacity-40">
+                                <Star className="w-6 h-6 mx-auto mb-3 text-yellow-500/30" />
+                                <p className="font-mono text-xs uppercase tracking-widest">Nenhum log em destaque no momento.</p>
+                            </div>
+                        )}
+                    </div>
+                </div>
+
 
                 {/* Recent Section */}
                 <div className="space-y-6">
@@ -321,10 +358,18 @@ function DropCard({ drop, isFeatured }: { drop: Drop, isFeatured?: boolean }) {
                 <div className="flex items-center justify-between">
                     <div className="flex flex-col">
                         <span className="font-black text-gray-900 dark:text-white leading-tight flex items-center gap-2">
-                            {drop.profiles?.name || 'Membro do IF'}
+                            {drop.profiles?.handle || drop.profiles?.name || 'Membro do IF'}
                             {isFeatured && <span className="bg-yellow-500/10 text-yellow-500 text-[8px] px-1.5 py-0.5 rounded font-black uppercase tracking-tighter">DESTAQUE</span>}
                         </span>
-                        <span className="text-[10px] text-gray-500 uppercase tracking-[0.2em] font-black italic">@{drop.profiles?.handle || 'ifusp'}</span>
+                        <div className="flex flex-col">
+                            <span className="text-[10px] text-gray-500 uppercase tracking-[0.2em] font-black italic">
+                                {drop.profiles?.user_category === 'pesquisador' 
+                                    ? (drop.profiles?.research_line || 'Pesquisador IFUSP')
+                                    : drop.profiles?.user_category === 'aluno_usp'
+                                        ? (drop.profiles?.course || 'Graduação IFUSP')
+                                        : (drop.profiles?.interest_area || 'Curioso / Entusiasta')}
+                            </span>
+                        </div>
                     </div>
                     <div className="flex items-center gap-2 text-gray-500 text-[10px] font-black font-mono bg-black/20 px-3 py-1.5 rounded-xl border border-white/5">
                         <Clock className="w-3 h-3 text-brand-red" />

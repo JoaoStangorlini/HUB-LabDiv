@@ -56,6 +56,7 @@ export interface Profile {
     laboratory_name?: string;
     department?: string;
 
+    interest_area?: string;
     areas_of_interest?: string[];
     pending_edits?: any;
     created_at: string;

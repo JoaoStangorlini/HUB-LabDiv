@@ -14,6 +14,7 @@ export enum AppRoutes {
     ARQUIVO_LABDIV = '/arquivo-labdiv',
     WIKI = '/wiki',
     EMARANHAMENTO = '/emaranhamento',
+    DROPS = '/drops',
 }
 
 export interface UserMinimalDTO {

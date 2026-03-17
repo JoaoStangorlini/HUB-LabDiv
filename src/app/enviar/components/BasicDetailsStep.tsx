@@ -9,12 +9,13 @@ import { toast } from 'react-hot-toast';
 import { SubmissionFormData } from '../schema';
 import { getUserPseudonyms, createPseudonym } from '@/app/actions/submissions';
 import { HelpTooltip } from './HelpTooltip';
+import { SelectedIndicators } from './SelectedIndicators';
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
 export function BasicDetailsStep() {
     const {
-        mediaType, setStep, selectedFiles, setSelectedFiles
+        mediaType, setStep, selectedFiles, setSelectedFiles, category
     } = useSubmissionStore();
 
     const {
@@ -31,6 +32,7 @@ export function BasicDetailsStep() {
 
     const watchedValues = watch();
     const usePseudonym = watchedValues.use_pseudonym;
+    const [tagInput, setTagInput] = useState('');
     const isInitialized = useRef(false);
 
     useEffect(() => {
@@ -86,6 +88,21 @@ export function BasicDetailsStep() {
         setValue('authors', p.name);
     };
 
+    const handleTagKeyDown = (e: React.KeyboardEvent) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            const tag = tagInput.trim().replace(/^#/, '');
+            if (tag && !(watchedValues.tags || []).includes(tag)) {
+                setValue('tags', [...(watchedValues.tags || []), tag]);
+            }
+            setTagInput('');
+        }
+    };
+
+    const removeTag = (tagToRemove: string) => {
+        setValue('tags', (watchedValues.tags || []).filter(t => t !== tagToRemove));
+    };
+
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files) {
             const files = Array.from(e.target.files);
@@ -97,8 +114,14 @@ export function BasicDetailsStep() {
     const handleContinue = async () => {
         const isValid = await trigger(['title', 'authors', 'event_year', 'description', 'read_guide', 'accepted_cc']);
         if (isValid) {
+            // Central de Anotações mandatory tag check
+            if (category === 'Central de Anotações' && (!watchedValues.tags || watchedValues.tags.length === 0)) {
+                toast.error("Para a Central de Anotações, é obrigatório selecionar ao menos uma disciplina (Tag).");
+                return;
+            }
+
             // Validation Traps for Media
-            const showFileUpload = ['image', 'pdf', 'zip', 'sdocx'].includes(mediaType);
+            const showFileUpload = ['image', 'pdf', 'zip', 'sdocx', 'audio'].includes(mediaType);
             const showVideoUrl = mediaType === 'video';
 
             if (showFileUpload && selectedFiles.length === 0) {
@@ -123,13 +146,15 @@ export function BasicDetailsStep() {
         exit: { opacity: 0, y: -20 }
     };
 
-    const showFileUpload = ['image', 'pdf', 'zip', 'sdocx'].includes(mediaType);
+    const showFileUpload = ['image', 'pdf', 'zip', 'sdocx', 'audio'].includes(mediaType);
     const showVideoUrl = mediaType === 'video';
     const isTextMode = mediaType === 'text';
+    const isAnontacoes = category === 'Central de Anotações';
 
     return (
         <div className="space-y-10 pb-20">
-            <motion.div variants={itemVariants} className="flex items-center justify-between gap-4">
+            <motion.div variants={itemVariants} className="flex flex-col gap-6">
+                <SelectedIndicators />
                 <div className="flex items-center gap-4">
                     <button onClick={() => setStep('format')} className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
                         <span className="material-symbols-outlined">arrow_back</span>
@@ -249,21 +274,89 @@ export function BasicDetailsStep() {
                 </div>
             </div>
 
+            {/* Tags / Disciplinas (Mandatory for Central de Anotações) */}
+            {isAnontacoes && (
+                <div className="space-y-3">
+                    <label className="text-sm font-black uppercase tracking-widest text-brand-yellow flex items-center gap-2">
+                        <span className="material-symbols-outlined text-xl">sell</span>
+                        Tags / Disciplinas *
+                        <HelpTooltip text="Para a Central de Anotações, é obrigatório associar pelo menos uma disciplina." />
+                    </label>
+                    <div className="flex flex-wrap gap-2 p-3 bg-white dark:bg-form-dark border-2 border-gray-100 dark:border-gray-800 rounded-2xl ring-2 ring-brand-yellow/20">
+                        {watchedValues.tags?.map((tag: string) => (
+                            <span key={tag} className="flex items-center gap-1.5 px-3 py-1 bg-brand-yellow/10 text-brand-yellow rounded-xl text-xs font-bold animate-in zoom-in-75 duration-200">
+                                #{tag}
+                                <button type="button" onClick={() => removeTag(tag)}><span className="material-symbols-outlined text-[14px]">close</span></button>
+                            </span>
+                        ))}
+                        <input 
+                            value={tagInput} 
+                            onChange={e => setTagInput(e.target.value)} 
+                            onKeyDown={handleTagKeyDown} 
+                            className="flex-grow bg-transparent outline-none text-sm px-2" 
+                            placeholder="Adicionar disciplina obrigatoria (Pressione Enter)..." 
+                        />
+                    </div>
+                </div>
+            )}
+
             {/* Descrição */}
             <div className="space-y-3">
                 <label className="text-sm font-black uppercase tracking-widest flex items-center justify-between text-brand-yellow">
                     <div className="flex items-center gap-2">
                         <span className="material-symbols-outlined text-xl">{isTextMode ? 'article' : 'description'}</span>
-                        {isTextMode ? 'Seu Texto (Markdown) *' : 'Descrição e Contexto *'}
-                        <HelpTooltip text="Explique o contexto técnico e humano. Isso ajuda quem não é da área a entender o valor do seu trabalho." />
+                        {isTextMode ? 'Seu Texto (Markdown & LaTeX) *' : 'Descrição e Contexto (Suporte a LaTeX) *'}
+                        <HelpTooltip text="Explique o contexto técnico e humano. Use Markdown para formatar e LaTeX para fórmulas. Isso ajuda quem não é da área a entender o valor do seu trabalho." />
                     </div>
                 </label>
-                <textarea
-                    {...register('description')}
-                    rows={6}
-                    className={`w-full bg-white dark:bg-form-dark border-2 px-6 py-4 outline-none focus:ring-4 transition-all dark:text-white ${errors.description ? 'border-red-500 focus:ring-red-500/10' : 'border-gray-100 dark:border-gray-800 focus:border-brand-yellow focus:ring-brand-yellow/10'} rounded-2xl`}
-                    placeholder={isTextMode ? 'Utilize Markdown...' : 'Explique do que se trata esse material...'}
-                />
+
+                {/* Markdown Toolkit & Textarea Container */}
+                <div className={`flex flex-col border-2 rounded-2xl overflow-hidden transition-all focus-within:ring-4 ${errors.description ? 'border-red-500 focus-within:ring-red-500/10' : 'border-gray-100 dark:border-gray-800 focus-within:border-brand-yellow focus-within:ring-brand-yellow/10'}`}>
+                    {/* Toolbar */}
+                    <div className="flex flex-wrap gap-2 p-2 bg-gray-50/50 dark:bg-gray-800/20 border-b border-gray-100 dark:border-gray-800">
+                        {[
+                            { icon: 'format_bold', label: 'Negrito', snippet: '**texto**', tooltip: 'Negrito (**text**)' },
+                            { icon: 'format_italic', label: 'Itálico', snippet: '*texto*', tooltip: 'Itálico (*text*)' },
+                            { icon: 'link', label: 'Link', snippet: '[título](url)', tooltip: 'Link ([title](url))' },
+                            { icon: 'code', label: 'Código', snippet: '`código`', tooltip: 'Código (`code`)' },
+                            { icon: 'functions', label: 'LaTeX', snippet: '$f(x) = x^2$', tooltip: 'Fórmula LaTeX ($...$)' },
+                            { icon: 'format_list_bulleted', label: 'Lista', snippet: '\n- Item', tooltip: 'Lista (- Item)' },
+                        ].map((tool) => (
+                            <button
+                                key={tool.label}
+                                type="button"
+                                onClick={() => {
+                                    const textarea = document.querySelector('textarea[name="description"]') as HTMLTextAreaElement;
+                                    if (!textarea) return;
+                                    const start = textarea.selectionStart;
+                                    const end = textarea.selectionEnd;
+                                    const text = textarea.value;
+                                    const before = text.substring(0, start);
+                                    const after = text.substring(end);
+                                    const newText = before + tool.snippet + after;
+                                    setValue('description', newText);
+                                    // Focus back and set cursor
+                                    setTimeout(() => {
+                                        textarea.focus();
+                                        textarea.setSelectionRange(start + tool.snippet.length, start + tool.snippet.length);
+                                    }, 10);
+                                }}
+                                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl hover:bg-white dark:hover:bg-gray-800 text-gray-500 hover:text-brand-yellow transition-all border border-transparent hover:border-gray-200 dark:hover:border-gray-700"
+                                title={tool.tooltip}
+                            >
+                                <span className="material-symbols-outlined text-sm">{tool.icon}</span>
+                                <span className="text-[10px] font-bold uppercase tracking-wider">{tool.label}</span>
+                            </button>
+                        ))}
+                    </div>
+
+                    <textarea
+                        {...register('description')}
+                        rows={8}
+                        className="w-full bg-white dark:bg-form-dark px-6 py-4 outline-none dark:text-white resize-none"
+                        placeholder={isTextMode ? 'Utilize Markdown e LaTeX (ex: $E=mc^2$)...' : 'Explique do que se trata esse material, use LaTeX se necessário...'}
+                    />
+                </div>
                 {errors.description && <p className="text-red-500 text-xs font-bold">{errors.description.message}</p>}
             </div>
 

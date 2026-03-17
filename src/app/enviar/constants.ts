@@ -108,7 +108,7 @@ export const FORMATS = [
     {
         id: 'video',
         title: 'Vídeo',
-        description: 'Links do YouTube. Máx 10MB.',
+        description: 'Links do YouTube hospedados externamente.',
         icon: 'smart_display',
         color: 'brand-red'
     },
@@ -136,7 +136,7 @@ export const FORMATS = [
     {
         id: 'text',
         title: 'Texto',
-        description: 'Postagem direta em Markdown. Máx 10MB.',
+        description: 'Postagem direta em Markdown e LaTeX.',
         icon: 'article',
         color: 'brand-blue'
     },

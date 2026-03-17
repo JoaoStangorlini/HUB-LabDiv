@@ -8,9 +8,10 @@ import { supabase } from '@/lib/supabase';
 import { SubmissionFormData } from '../schema';
 import { toast } from 'react-hot-toast';
 import { HelpTooltip } from './HelpTooltip';
+import { SelectedIndicators } from './SelectedIndicators';
 
 export function OptionalDetailsStep({ onSubmit, isLoading }: { onSubmit: (data: any) => void, isLoading: boolean }) {
-    const { setStep } = useSubmissionStore();
+    const { setStep, category } = useSubmissionStore();
     const {
         register,
         handleSubmit,
@@ -81,6 +82,7 @@ export function OptionalDetailsStep({ onSubmit, isLoading }: { onSubmit: (data: 
 
     return (
         <div className="space-y-10 pb-20">
+            <SelectedIndicators />
             <div className="flex items-center gap-4">
                 <button onClick={() => setStep('basic')} className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
                     <span className="material-symbols-outlined">arrow_back</span>
@@ -107,22 +109,24 @@ export function OptionalDetailsStep({ onSubmit, isLoading }: { onSubmit: (data: 
                 </div>
 
                 {/* Tags / Disciplinas */}
-                <div className="space-y-3 lg:col-span-2">
-                    <label className="text-sm font-black uppercase tracking-widest text-brand-yellow flex items-center gap-2">
-                        <span className="material-symbols-outlined text-xl">sell</span>
-                        Tags / Disciplinas
-                        <HelpTooltip text="Associe disciplinas ao seu conteúdo para melhorar a descoberta e a filtragem no catálogo." />
-                    </label>
-                    <div className="flex flex-wrap gap-2 p-3 bg-white dark:bg-form-dark border-2 border-gray-100 dark:border-gray-800 rounded-2xl">
-                        {watchedValues.tags?.map((tag: string) => (
-                            <span key={tag} className="flex items-center gap-1.5 px-3 py-1 bg-brand-yellow/10 text-brand-yellow rounded-xl text-xs font-bold">
-                                #{tag}
-                                <button type="button" onClick={() => removeTag(tag)}><span className="material-symbols-outlined text-[14px]">close</span></button>
-                            </span>
-                        ))}
-                        <input value={tagInput} onChange={e => setTagInput(e.target.value)} onKeyDown={handleTagKeyDown} className="flex-grow bg-transparent outline-none text-sm" placeholder="Adicionar disciplina ou tag..." />
+                {category !== 'Central de Anotações' && (
+                    <div className="space-y-3 lg:col-span-2">
+                        <label className="text-sm font-black uppercase tracking-widest text-brand-yellow flex items-center gap-2">
+                            <span className="material-symbols-outlined text-xl">sell</span>
+                            Tags / Disciplinas
+                            <HelpTooltip text="Associe disciplinas ao seu conteúdo para melhorar a descoberta e a filtragem no catálogo." />
+                        </label>
+                        <div className="flex flex-wrap gap-2 p-3 bg-white dark:bg-form-dark border-2 border-gray-100 dark:border-gray-800 rounded-2xl">
+                            {watchedValues.tags?.map((tag: string) => (
+                                <span key={tag} className="flex items-center gap-1.5 px-3 py-1 bg-brand-yellow/10 text-brand-yellow rounded-xl text-xs font-bold">
+                                    #{tag}
+                                    <button type="button" onClick={() => removeTag(tag)}><span className="material-symbols-outlined text-[14px]">close</span></button>
+                                </span>
+                            ))}
+                            <input value={tagInput} onChange={e => setTagInput(e.target.value)} onKeyDown={handleTagKeyDown} className="flex-grow bg-transparent outline-none text-sm" placeholder="Adicionar disciplina ou tag..." />
+                        </div>
                     </div>
-                </div>
+                )}
 
                 {/* Hashtag / Isótopos */}
                 <div className="space-y-3 lg:col-span-2">

@@ -142,7 +142,7 @@ export const SidebarRight = ({ tags: propTags, authors: propAuthors }: SidebarRi
     };
 
     return (
-        <aside className="sticky top-24 h-[calc(100vh-6rem)] w-full flex flex-col gap-6 py-6 pl-4 overflow-y-auto hidden-scrollbar">
+        <div className="flex flex-col gap-6 mt-6">
 
             {/* ISÓTOPOS EM ÓRBITA */}
             <div className="bg-gray-50 dark:bg-card-dark rounded-3xl p-5 border border-gray-100 dark:border-gray-800">
@@ -286,6 +286,6 @@ export const SidebarRight = ({ tags: propTags, authors: propAuthors }: SidebarRi
                 <Link href="/sobre" className="hover:underline">Cookies</Link>
                 <span>© 2026 IFUSP Lab-Div - Hub de Comunicação Científica</span>
             </div>
-        </aside>
+        </div>
     );
 };

@@ -54,7 +54,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ c
   return (
     <MainLayoutWrapper
       userId={undefined}
-      rightSidebar={<FluxoFeedbackCard />}
+      rightSidebar={<><FluxoFeedbackCard /><SidebarRight /></>}
     >
       <HomeClientView
         initialItems={initialItems}

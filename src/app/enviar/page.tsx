@@ -13,6 +13,9 @@ import { CategoryStep } from './components/CategoryStep';
 import { FormatStep } from './components/FormatStep';
 import { FormStep } from './components/FormStep';
 import { Stepper } from './components/Stepper';
+import { ReportModal } from '@/components/feedback/ReportModal';
+import { useNavigationStore } from '@/store/useNavigationStore';
+import Link from 'next/link';
 
 
 import { useAuth } from '@/providers/AuthProvider';
@@ -21,6 +24,7 @@ export default function SubmitPage() {
     const router = useRouter();
     const { user, loading: authLoading } = useAuth();
     const { currentStep, reset } = useSubmissionStore();
+    const { isReportModalOpen, setReportModalOpen } = useNavigationStore();
     const [isInitializing, setIsInitializing] = useState(true);
 
     useEffect(() => {
@@ -75,8 +79,8 @@ export default function SubmitPage() {
                         </button>
 
                         {/* Branding */}
-                        <div className="flex items-center gap-3">
-                            <div className="relative">
+                        <Link href="/" className="flex items-center gap-3 group hover:opacity-80 transition-all">
+                            <div className="relative group-hover:scale-105 transition-transform">
                                 <Image src="/labdiv-logo.png" alt="Hub Lab-Div" width={32} height={32} className="relative w-8 h-8 object-contain rounded-lg" priority />
                             </div>
                             <div className="flex flex-col leading-none">
@@ -86,10 +90,21 @@ export default function SubmitPage() {
                                 </div>
                                 <span className="text-[8px] font-bold text-gray-400 uppercase tracking-widest">Instituto de Física</span>
                             </div>
-                        </div>
+                        </Link>
 
-                        <div className="hidden md:block w-64 lg:w-80">
-                            <Stepper currentStep={currentStep} />
+                        <div className="flex items-center gap-6">
+                            <button
+                                onClick={() => setReportModalOpen(true)}
+                                className="hidden lg:flex items-center gap-2 px-4 py-2 rounded-xl bg-brand-red/10 text-brand-red hover:bg-brand-red/20 transition-all border border-brand-red/20 group"
+                                title="Reportar Erro / Feedback"
+                            >
+                                <span className="material-symbols-outlined text-lg group-hover:scale-110 transition-transform">report</span>
+                                <span className="text-[10px] font-bold uppercase tracking-widest">Reportar</span>
+                            </button>
+
+                            <div className="hidden md:block w-64 lg:w-80">
+                                <Stepper currentStep={currentStep} />
+                            </div>
                         </div>
                     </div>
                 </header>
@@ -158,6 +173,10 @@ export default function SubmitPage() {
                     </div>
                 </main>
             </div>
+            <ReportModal
+                isOpen={isReportModalOpen}
+                onClose={() => setReportModalOpen(false)}
+            />
         </MainLayoutWrapper>
     );
 }

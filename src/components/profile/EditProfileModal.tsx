@@ -39,6 +39,7 @@ const profileSchema = z.object({
     is_visible: z.boolean().optional(),
     user_category: z.enum(['curioso', 'aluno_usp', 'pesquisador']).default('curioso'),
     seeking_assistant: z.boolean().default(false),
+    interest_area: z.string().max(100).optional(),
 }).superRefine((data, ctx) => {
     const isUsp = data.email?.endsWith('@usp.br') || data.email?.endsWith('@if.usp.br');
     if (isUsp) {
@@ -106,6 +107,7 @@ export function EditProfileModal({ isOpen, onClose, onSuccess, adminMode = false
             is_visible: true,
             user_category: 'curioso',
             seeking_assistant: false,
+            interest_area: '',
         }
     });
 
@@ -199,6 +201,7 @@ export function EditProfileModal({ isOpen, onClose, onSuccess, adminMode = false
             setValue('office_room', profile.office_room || '');
             setValue('laboratory_name', profile.laboratory_name || '');
             setValue('department', profile.department || '');
+            setValue('interest_area', profile.interest_area || profile.ic_research_area || '');
             setProfileData(profile);
             setPseudonyms(pNames);
         }
@@ -249,11 +252,12 @@ export function EditProfileModal({ isOpen, onClose, onSuccess, adminMode = false
         }
 
         // Remove new_nickname and email (read-only) and map fields to profileData
-        const { new_nickname, email, artistic_interests_str, entrance_year, other_institute, education_level, external_institution, research_line, office_room, laboratory_name, department, ...restData } = data;
+        const { new_nickname, email, artistic_interests_str, entrance_year, other_institute, education_level, external_institution, research_line, interest_area, office_room, laboratory_name, department, ...restData } = data;
 
         const updatedProfileData: any = {
             ...restData,
             research_line,
+            interest_area,
             office_room,
             laboratory_name,
             department,
@@ -573,6 +577,14 @@ export function EditProfileModal({ isOpen, onClose, onSuccess, adminMode = false
                                                 placeholder="Sua escola ou faculdade"
                                             />
                                         </div>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Área de Interesse</label>
+                                        <input
+                                            {...register('interest_area')}
+                                            className="w-full bg-gray-50 dark:bg-black/20 border border-gray-100 dark:border-white/5 rounded-2xl px-4 py-3 text-sm focus:border-brand-blue/50 outline-none transition-all font-bold"
+                                            placeholder="Ex: Astrofísica, Robótica, IA..."
+                                        />
                                     </div>
                                 </div>
                             )}

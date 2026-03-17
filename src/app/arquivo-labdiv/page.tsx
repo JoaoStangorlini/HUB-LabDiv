@@ -23,9 +23,13 @@ export default function ArquivoLabDivPage() {
                             </p>
 
                             <div className="flex flex-wrap gap-4">
-                                <a href="https://labdiv.notion.site" target="_blank" rel="noopener noreferrer" className="px-6 py-3 bg-brand-blue text-white rounded-2xl font-bold shadow-xl shadow-brand-blue/20 flex items-center gap-2 hover:-translate-y-1 transition-transform">
-                                    <span className="material-symbols-outlined text-[20px]">language</span>
-                                    Visite nosso Site
+                                <a href="#equipe" className="px-6 py-3 bg-brand-blue text-white rounded-2xl font-bold shadow-xl shadow-brand-blue/20 flex items-center gap-2 hover:-translate-y-1 transition-transform">
+                                    <span className="material-symbols-outlined text-[20px]">groups</span>
+                                    Conhecer a Equipe
+                                </a>
+                                <a href="#catalogo" className="px-6 py-3 bg-brand-yellow text-gray-900 rounded-2xl font-bold shadow-xl shadow-brand-yellow/20 flex items-center gap-2 hover:-translate-y-1 transition-transform">
+                                    <span className="material-symbols-outlined text-[20px]">auto_awesome</span>
+                                    Ver Catálogo Padrão Ouro
                                 </a>
                             </div>
 
@@ -73,6 +77,42 @@ export default function ArquivoLabDivPage() {
                                 Solicitar Mentoria
                                 <span className="material-symbols-outlined text-[16px] group-hover:translate-x-1 transition-transform">arrow_forward</span>
                             </Link>
+                        </div>
+
+                        {/* Entrar para a Equipe CTA */}
+                        <div className="relative overflow-hidden bg-gradient-to-br from-brand-yellow/10 to-transparent dark:from-brand-yellow/20 dark:to-card-dark rounded-3xl p-8 border border-brand-yellow/20 hover:border-brand-yellow/40 transition-colors group flex flex-col items-start">
+                            <div className="absolute top-0 right-0 p-8 opacity-10 -rotate-12 group-hover:rotate-0 transition-transform duration-500">
+                                <span className="material-symbols-outlined text-[120px] text-brand-yellow">diversity_3</span>
+                            </div>
+                            <div className="w-12 h-12 bg-white dark:bg-gray-900 rounded-2xl flex items-center justify-center mb-6 shadow-sm">
+                                <span className="material-symbols-outlined text-brand-yellow text-2xl">person_add</span>
+                            </div>
+                            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Faça Parte da Equipe</h2>
+                            <p className="text-sm text-gray-600 dark:text-gray-400 mb-8 max-w-sm relative z-10">
+                                Quer contribuir com a divulgação científica do IFUSP? Junte-se ao Lab-Div como colaborador, roteirista, designer ou desenvolvedor. Vamos construir juntos.
+                            </p>
+                            <a href="#equipe" className="mt-auto relative z-10 px-6 py-3 bg-brand-yellow text-gray-900 text-sm font-bold rounded-xl flex items-center gap-2 hover:scale-105 transition-transform group-hover:shadow-lg group-hover:shadow-brand-yellow/20">
+                                Quero Participar
+                                <span className="material-symbols-outlined text-[16px] group-hover:translate-x-1 transition-transform">arrow_forward</span>
+                            </a>
+                        </div>
+
+                        {/* Espaço Novo Milênio CTA */}
+                        <div className="relative overflow-hidden bg-gradient-to-br from-emerald-500/10 to-transparent dark:from-emerald-500/20 dark:to-card-dark rounded-3xl p-8 border border-emerald-500/20 hover:border-emerald-500/40 transition-colors group flex flex-col items-start">
+                            <div className="absolute top-0 right-0 p-8 opacity-10 rotate-6 group-hover:rotate-0 transition-transform duration-500">
+                                <span className="material-symbols-outlined text-[120px] text-emerald-500">meeting_room</span>
+                            </div>
+                            <div className="w-12 h-12 bg-white dark:bg-gray-900 rounded-2xl flex items-center justify-center mb-6 shadow-sm">
+                                <span className="material-symbols-outlined text-emerald-500 text-2xl">event_available</span>
+                            </div>
+                            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Espaço Novo Milênio</h2>
+                            <p className="text-sm text-gray-600 dark:text-gray-400 mb-8 max-w-sm relative z-10">
+                                Um espaço multimídia do IFUSP disponível para gravações, reuniões e eventos acadêmicos. Agende a utilização e transforme suas ideias em produções profissionais.
+                            </p>
+                            <a href="https://labdiv.notion.site" target="_blank" rel="noopener noreferrer" className="mt-auto relative z-10 px-6 py-3 bg-emerald-500 text-white text-sm font-bold rounded-xl flex items-center gap-2 hover:scale-105 transition-transform group-hover:shadow-lg group-hover:shadow-emerald-500/20">
+                                Agendar Espaço
+                                <span className="material-symbols-outlined text-[16px] group-hover:translate-x-1 transition-transform">arrow_forward</span>
+                            </a>
                         </div>
                     </div>
                 </section>
