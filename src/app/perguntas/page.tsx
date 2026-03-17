@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { MainLayoutWrapper } from '@/components/layout/MainLayoutWrapper';
+import { PergunteFeedbackCard } from './PergunteFeedbackCard';
 
 interface Pergunta {
     id: string;
@@ -93,7 +94,9 @@ export default function PerguntasPage() {
     // ... inside the component ...
     return (
         <>
-            <MainLayoutWrapper>
+            <MainLayoutWrapper
+                rightSidebar={<PergunteFeedbackCard />}
+            >
                 {/* Page Header */}
                 <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 border-b border-gray-200 dark:border-gray-800 pb-6 gap-6">
                     <div className="max-w-3xl">
@@ -104,6 +107,10 @@ export default function PerguntasPage() {
                         <h1 className="font-display font-bold text-4xl md:text-5xl tracking-tight mb-4 text-gray-900 dark:text-white">
                             Pergunte a um <span className="text-brand-blue">Cientista</span>
                         </h1>
+
+                        {/* Mobile Feedback Card - Pós H1 */}
+                        <PergunteFeedbackCard className="block lg:hidden mb-8" />
+
                         <p className="text-lg text-gray-600 dark:text-gray-400">
                             Tem uma dúvida sobre ciência? Envie sua pergunta e nossos pesquisadores do IF-USP responderão!
                         </p>

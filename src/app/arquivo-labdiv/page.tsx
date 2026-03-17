@@ -5,10 +5,11 @@ import { MainLayoutWrapper } from "@/components/layout/MainLayoutWrapper";
 import { LabDivCatalogExplorer } from "@/components/LabDivCatalogExplorer";
 import { LabDivTeam } from "@/components/labdiv/LabDivTeam";
 import Link from "next/link";
+import { LabDivFeedbackCard } from "./LabDivFeedbackCard";
 
 export default function ArquivoLabDivPage() {
     return (
-        <MainLayoutWrapper>
+        <MainLayoutWrapper rightSidebar={<LabDivFeedbackCard />}>
             <main className="flex-1 w-full animate-in fade-in duration-700">
                 {/* Hero */}
                 <section className="relative overflow-hidden py-16 bg-gradient-to-br from-brand-blue/10 via-white to-brand-red/5 dark:from-brand-blue/20 dark:via-background-dark dark:to-brand-red/10 border-b border-gray-200 dark:border-gray-800 rounded-3xl mb-12">
@@ -27,6 +28,8 @@ export default function ArquivoLabDivPage() {
                                     Visite nosso Site
                                 </a>
                             </div>
+
+                            <LabDivFeedbackCard className="block lg:hidden mt-8" />
                         </div>
                         <div className="hidden md:block w-48 h-48 relative opacity-80">
                             {/* Decorative element */}

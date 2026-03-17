@@ -11,6 +11,7 @@ import { parseMediaUrl, getYoutubeThumbnail, getOptimizedUrl } from '@/lib/media
 import { MainLayoutWrapper } from '@/components/layout/MainLayoutWrapper';
 
 import { User, Grid, Medal, Star, Image as ImageIcon, PlayCircle, FileText, Heart, MessageSquare, Info, Camera, ExternalLink, ShieldCheck, Play, UserPlus, GraduationCap } from 'lucide-react';
+import { PerfilFeedbackCard } from './PerfilFeedbackCard';
 import dynamic from 'next/dynamic';
 import { RadiationBadge } from '@/components/gamification/RadiationBadge';
 import { EditProfileModal } from '@/components/profile/EditProfileModal';
@@ -164,7 +165,10 @@ function LabContent() {
 
 
     return (
-        <MainLayoutWrapper userId={currentUser?.id}>
+        <MainLayoutWrapper 
+            userId={currentUser?.id}
+            rightSidebar={<PerfilFeedbackCard />}
+        >
             <div className="animate-in fade-in slide-in-from-top-4 duration-500">
                 <div className="bg-white dark:bg-[#121212] rounded-3xl p-8 shadow-sm border border-gray-100 dark:border-gray-800 mb-8">
                     <div className="flex flex-col sm:flex-row items-center sm:items-start gap-8 sm:gap-12 max-w-3xl mx-auto">
@@ -187,6 +191,9 @@ function LabContent() {
                                 </span>
                                 {viewedProfile && <RadiationBadge xp={viewedProfile.xp || 0} level={viewedProfile.level || 1} size="md" showTierName />}
                             </h1>
+
+                            {/* Mobile Feedback Card - Pós H1 */}
+                            <PerfilFeedbackCard className="block lg:hidden mb-8" />
 
                             <div className="flex flex-wrap items-center justify-center sm:justify-start gap-6 pt-1">
                                 <div className="text-center sm:text-left">

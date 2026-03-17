@@ -1,6 +1,7 @@
 import { fetchSubmissions } from '@/app/actions/submissions';
 import MapClient from './MapClient';
 import { MainLayoutWrapper } from '@/components/layout/MainLayoutWrapper';
+import { MapaFeedbackCard } from './MapaFeedbackCard';
 
 export const metadata = {
     title: 'Mapa do Instituto | Hub Lab-Div',
@@ -16,7 +17,10 @@ export default async function MapPage() {
     });
 
     return (
-        <MainLayoutWrapper focusMode={false}>
+        <MainLayoutWrapper
+            focusMode={false}
+            rightSidebar={<MapaFeedbackCard />}
+        >
             <MapClient initialItems={items as any} />
         </MainLayoutWrapper>
     );

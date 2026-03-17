@@ -5,6 +5,7 @@ import { MainLayoutWrapper } from "@/components/layout/MainLayoutWrapper";
 import { supabase } from "@/lib/supabase";
 import { MessageSquare, Send, Atom, Clock, User, Star, Hash } from 'lucide-react';
 import { toast } from 'react-hot-toast';
+import { LogsFeedbackCard } from './LogsFeedbackCard';
 
 interface Drop {
     id: string;
@@ -93,7 +94,9 @@ export default function DropsPage() {
     const recentDrops = useMemo(() => drops.filter(d => !d.is_featured), [drops]);
 
     return (
-        <MainLayoutWrapper>
+        <MainLayoutWrapper
+            rightSidebar={<LogsFeedbackCard />}
+        >
             <div className="max-w-2xl mx-auto space-y-12 pb-20">
                 {/* Header */}
                 <div className="flex flex-col gap-3 relative">
@@ -102,6 +105,10 @@ export default function DropsPage() {
                         <MessageSquare className="w-12 h-12" />
                         Logs do IFUSP
                     </h1>
+
+                    {/* Mobile Feedback Card - Pós H1 */}
+                    <LogsFeedbackCard className="block lg:hidden mb-8" />
+
                     <p className="text-gray-500 font-bold uppercase tracking-widest text-[10px] border-l-2 border-brand-red pl-4">Divulgação científica em tempo real. O que está acontecendo no IFUSP agora?</p>
                 </div>
 

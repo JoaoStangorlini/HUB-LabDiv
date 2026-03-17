@@ -11,6 +11,7 @@ import { supabase } from '@/lib/supabase';
 import { toast } from 'react-hot-toast';
 import { updateProfile } from '@/app/actions/profiles';
 import { Download, FileText, ChevronDown } from 'lucide-react';
+import { TrilhasFeedbackCard } from './TrilhasFeedbackCard';
 
 const COURSE_MAPS = [
     { id: 'bach', name: 'Bacharelado em Física', image: '/unnamed.jpg', pdf: '/Manual-Bacharelado-Fisica-IFUSP-2025_0.pdf' },
@@ -364,7 +365,9 @@ export default function TrilhasClient({
     }, [filteredTrails, visibleCount]);
 
     return (
-        <MainLayoutWrapper>
+        <>
+            <TrilhasFeedbackCard className="block lg:hidden mt-6" />
+
             <main className="py-20 min-h-screen dark:text-white text-gray-900 transition-colors">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
 
@@ -379,6 +382,8 @@ export default function TrilhasClient({
                                     [ACOMPANHAMENTO_CURRICULAR] &gt; Explore as disciplinas, requisitos e o progresso do seu curso no IFUSP.
                                 </p>
                             </div>
+
+                            <TrilhasFeedbackCard className="block lg:hidden mt-6" />
 
                             {userProfile && (
                                 <div className="dark:bg-[#1E1E1E] bg-white border border-gray-800 rounded-2xl p-4 flex items-center gap-4 animate-in fade-in slide-in-from-right-4 duration-700">
@@ -1230,7 +1235,7 @@ export default function TrilhasClient({
                     </div>
                 )}
             </AnimatePresence>
-        </MainLayoutWrapper>
+        </>
     );
 }
 

@@ -26,6 +26,7 @@ import {
     Flame,
     Satellite
 } from 'lucide-react';
+import { FluxoFeedbackCard } from '@/app/fluxo/FluxoFeedbackCard';
 
 import { useSearch } from '@/providers/SearchProvider';
 import { CATEGORIES as CATEGORY_LIST, CATEGORY_STYLES, DEFAULT_STYLE } from '@/lib/constants';
@@ -249,6 +250,9 @@ export const HomeClientView = ({
                         Hub de Comunicação Científica <br />
                         <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-blue via-brand-yellow to-brand-red">Lab-Div</span>
                     </h1>
+
+                    {/* Mobile Feedback Card - Pós H1 */}
+                    <FluxoFeedbackCard className="block lg:hidden mb-8" />
 
                     <p
                         className="text-base md:text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto leading-relaxed font-medium animate-fade-in-up"

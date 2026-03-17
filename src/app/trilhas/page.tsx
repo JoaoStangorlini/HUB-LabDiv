@@ -1,5 +1,7 @@
 import { createServerSupabase } from '@/lib/supabase/server';
 import TrilhasClient from './TrilhasClient';
+import { MainLayoutWrapper } from '@/components/layout/MainLayoutWrapper';
+import { TrilhasFeedbackCard } from './TrilhasFeedbackCard';
 
 export const revalidate = 0;
 
@@ -92,11 +94,15 @@ export default async function TrilhasPage() {
     }
 
     return (
-        <TrilhasClient
-            initialTrails={trails}
-            cursandoTrails={cursandoTrails}
-            completedTrailIds={completedTrailIds}
-            userProfile={userProfile}
-        />
+        <MainLayoutWrapper
+            rightSidebar={<TrilhasFeedbackCard />}
+        >
+            <TrilhasClient
+                initialTrails={trails}
+                cursandoTrails={cursandoTrails}
+                completedTrailIds={completedTrailIds}
+                userProfile={userProfile}
+            />
+        </MainLayoutWrapper>
     );
 }

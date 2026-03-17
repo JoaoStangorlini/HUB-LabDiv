@@ -3,6 +3,7 @@ import { Footer } from '@/components/layout/Footer';
 import { HomeClientView } from '@/components/HomeClientView';
 import { fetchSubmissions, fetchTrendingSubmissions, getFeaturedSubmissions, getTrendingTags } from '@/app/actions/submissions';
 import { MainLayoutWrapper } from '@/components/layout/MainLayoutWrapper';
+import { FluxoFeedbackCard } from './FluxoFeedbackCard';
 
 // Helper to ensure stability before we have real data
 export const revalidate = 0;
@@ -29,21 +30,19 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ c
   const trendingTags = await getTrendingTags();
 
   return (
-    <div className="bg-background-light dark:bg-background-dark text-text-main dark:text-gray-100 min-h-screen">
-      <Header />
-      <MainLayoutWrapper>
-        <div className="py-8 lg:py-12">
-          <HomeClientView
-            initialItems={initialItems}
-            initialHasMore={initialHasMore}
-            initialCategory={initialCategory}
-            trendingItems={trendingItems}
-            featuredItems={featuredItems}
-            trendingTags={trendingTags}
-          />
-        </div>
-      </MainLayoutWrapper>
-      <Footer />
-    </div>
+    <MainLayoutWrapper
+      rightSidebar={<FluxoFeedbackCard />}
+    >
+      <div className="py-8 lg:py-12">
+        <HomeClientView
+          initialItems={initialItems}
+          initialHasMore={initialHasMore}
+          initialCategory={initialCategory}
+          trendingItems={trendingItems}
+          featuredItems={featuredItems}
+          trendingTags={trendingTags}
+        />
+      </div>
+    </MainLayoutWrapper>
   );
 }

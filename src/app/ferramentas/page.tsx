@@ -2,6 +2,7 @@ import { createServerSupabase } from '@/lib/supabase/server';
 import FerramentasClient from './FerramentasClient';
 import { redirect } from 'next/navigation';
 import { MainLayoutWrapper } from '@/components/layout/MainLayoutWrapper';
+import { FerramentasFeedbackCard } from './FerramentasFeedbackCard';
 
 export default async function FerramentasPage() {
     const supabase = await createServerSupabase();
@@ -23,7 +24,10 @@ export default async function FerramentasPage() {
     }
 
     return (
-        <MainLayoutWrapper userId={user.id}>
+        <MainLayoutWrapper 
+            userId={user.id}
+            rightSidebar={<FerramentasFeedbackCard />}
+        >
             <FerramentasClient profile={profile} />
         </MainLayoutWrapper>
     );

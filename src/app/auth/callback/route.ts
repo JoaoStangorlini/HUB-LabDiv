@@ -38,7 +38,7 @@ export async function GET(request: NextRequest) {
             const track = searchParams.get('track');
             const categoryHint = searchParams.get('category');
             const email = session.user.email || '';
-            const isUspDomain = email.endsWith('@usp.br') || email.endsWith('@alumni.usp.br');
+            const isUspDomain = email.endsWith('@usp.br') || email.endsWith('@alumni.usp.br') || email.endsWith('@if.usp.br');
 
             if (track === 'usp' && !isUspDomain) {
                 console.warn(`Auth Conflict: Non-USP email attempted USP login: ${email}`);

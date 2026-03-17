@@ -12,6 +12,8 @@ import { updateProfile } from '@/app/actions/profiles';
 
 type Tab = 'challenges' | 'suggestions';
 
+import { ArenaFeedbackCard } from './ArenaFeedbackCard';
+
 export default function ArenaClient({ profile }: { profile: any }) {
     const [activeTab, setActiveTab] = useState<Tab>('challenges');
     const [challenges, setChallenges] = useState<any[]>([]);
@@ -126,9 +128,9 @@ export default function ArenaClient({ profile }: { profile: any }) {
             <header className="flex flex-col md:flex-row items-center justify-between gap-6">
                 <div className="space-y-2 text-center md:text-left">
                     <h1 className="text-4xl font-display font-black text-white uppercase tracking-tighter">
-                        Arena de <span className="text-brand-yellow">Pesquisadores</span>
+                        Observatório de <span className="text-brand-yellow">Pesquisa</span>
                     </h1>
-                    <p className="text-gray-400 font-medium italic">Onde o conhecimento se torna um desafio coletivo.</p>
+                    <p className="text-gray-400 font-medium italic">Ambiente dedicado à excelência acadêmica e cooperação científica.</p>
                 </div>
 
                 <div className="flex flex-wrap items-center gap-4">
@@ -155,10 +157,12 @@ export default function ArenaClient({ profile }: { profile: any }) {
                         className="px-6 py-3 bg-brand-yellow text-black font-black uppercase text-xs tracking-widest rounded-2xl hover:scale-105 transition-all shadow-lg flex items-center gap-2"
                     >
                         <Plus className="w-4 h-4" />
-                        Propor Desafio
+                        Propor Novo Desafio
                     </button>
                 </div>
             </header>
+
+            <ArenaFeedbackCard className="lg:hidden mt-4" />
 
             {/* Navigation Tabs */}
             <div className="flex items-center gap-2 border-b border-white/5 pb-px overflow-x-auto no-scrollbar">

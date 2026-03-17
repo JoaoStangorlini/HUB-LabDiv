@@ -6,6 +6,7 @@ import Image from "next/image";
 import { MainLayoutWrapper } from "@/components/layout/MainLayoutWrapper";
 import { MediaCard, MediaCardProps } from "@/components/MediaCard";
 import { Megaphone, ArrowRight, UserPlus, Award, Star, ExternalLink, BookOpen, Route, Rocket, Smartphone, Gamepad2, Database, Users, Mic, Shield, Map, Layout, MessageSquare, Book, Calculator, Settings, Link2, Globe, Video, Briefcase, Accessibility, Building, ScrollText, FileText, Network, ChevronLeft, ChevronRight, GraduationCap, Microscope, HelpCircle, Sparkles, Trophy, Calendar } from 'lucide-react';
+import { SobreFeedbackCard } from './SobreFeedbackCard';
 import { Profile } from '@/types';
 
 interface SobreClientProps {
@@ -32,20 +33,25 @@ export function SobreClient({ initialTestimonials, profile }: SobreClientProps) 
         if (activePersonaOverride) return activePersonaOverride;
         if (!profile) return 'visitante';
         if (profile.user_category === 'pesquisador' || profile.email?.includes('pesquisador')) return 'pesquisador';
-        if (profile.email?.endsWith('@usp.br') || profile.user_category === 'aluno_usp') return 'aluno_usp';
+        if (profile.email?.endsWith('@usp.br') || profile.email?.endsWith('@if.usp.br') || profile.user_category === 'aluno_usp') return 'aluno_usp';
         return 'curioso';
     };
 
     const effectivePersona = calculateEffectivePersona();
 
     return (
-        <MainLayoutWrapper>
+        <MainLayoutWrapper
+            rightSidebar={<SobreFeedbackCard />}
+        >
 
             {/* Hero Section */}
             <div className="text-center mb-20">
                 <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-gray-900 dark:text-white mb-6">
                     O que é o <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-blue via-brand-red to-brand-yellow">Hub de Comunicação</span>?
                 </h1>
+
+                {/* Mobile Feedback Card - Pós H1 */}
+                <SobreFeedbackCard className="block lg:hidden mb-12 max-w-2xl mx-auto" />
                 <p className="text-xl md:text-2xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto leading-relaxed">
                 </p>
             </div>
@@ -300,10 +306,10 @@ export function SobreClient({ initialTestimonials, profile }: SobreClientProps) 
                             O Papel do <span className="text-brand-blue">Lab-Div</span>
                         </h2>
                         <p className="text-lg text-gray-700 dark:text-gray-300 leading-relaxed mb-6">
-                            O Laboratório de Divulgação Científica do IFUSP atua como o motor técnico e curatorial desta plataforma. Nosso trabalho se estende da produção de conteúdo "Padrão Ouro" à moderação, suporte e mentoria contínua para garantir a qualidade da comunicação.
+                            O Laboratório de Divulgação Científica do IFUSP atua como o motor técnico e curatorial desta plataforma. Inspirado no modelo do <strong>MIT Comm Lab</strong>, nosso trabalho se estende da produção de conteúdo "Padrão Ouro" à moderação, suporte e mentoria contínua para garantir a qualidade da comunicação.
                         </p>
                         <p className="text-lg text-gray-700 dark:text-gray-300 leading-relaxed">
-                            Desenvolvemos o Hub para resolver a falta de acessibilidade visual sobre a pesquisa de base. Ao unificar criadores, arquivistas e pesquisadores, o Lab-Div garante que a ciência produzida no instituto não apenas exista, mas seja vista, compreendida e compartilhada.
+                            O projeto nasceu com a ideia de apenas criar material de divulgação, mas evoluiu para uma nova categoria de plataforma digital: um <strong>Hub Acadêmico</strong> que transforma a simples divulgação em comunicação viva. Unificamos alunos, curiosos e pesquisadores através de um fluxo com dinâmicas de rede social e ferramentas que auxiliam o dia a dia, como a Wiki, as Trilhas e o Cronograma inteligente.
                         </p>
                         <Link href="/arquivo-labdiv" className="inline-flex items-center text-brand-blue font-black hover:text-brand-blue/80 transition-colors mt-8 group uppercase text-xs tracking-widest">
                             Conhecer o trabalho <ArrowRight className="w-5 h-5 ml-1 group-hover:translate-x-1 transition-transform" />
@@ -322,6 +328,45 @@ export function SobreClient({ initialTestimonials, profile }: SobreClientProps) 
                 <div className="lg:col-span-3 mb-4">
                     <h3 className="text-[10px] font-black uppercase tracking-[0.4em] text-gray-400 mb-2">Ecossistema em Expansão</h3>
                     <div className="h-px bg-gradient-to-r from-brand-blue/20 via-brand-red/20 to-transparent w-full mb-8"></div>
+                </div>
+
+                <div className="glass-card rounded-3xl p-10 hover:border-brand-blue/20 transition-all group h-full flex flex-col hover:shadow-lg">
+                    <div className="size-12 rounded-2xl bg-brand-blue/10 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                        <span className="material-symbols-outlined text-brand-blue text-2xl">grain</span>
+                    </div>
+                    <h4 className="text-xl font-black uppercase italic tracking-tight mb-4">O Fluxo</h4>
+                    <p className="text-gray-500 text-sm leading-relaxed mb-6 flex-1">
+                        O pulso do IFUSP em tempo real. Uma timeline dinâmica que transforma a divulgação científica em comunicação interativa, reunindo materiais do Lab-Div, contribuições da comunidade e mentorados em um só lugar.
+                    </p>
+                    <Link href="/" className="text-[10px] font-black uppercase tracking-widest text-brand-blue flex items-center gap-2 group/link">
+                        Entrar no Fluxo <ArrowRight className="size-3 group-hover/link:translate-x-1 transition-transform" />
+                    </Link>
+                </div>
+
+                <div className="glass-card rounded-3xl p-10 hover:border-brand-red/20 transition-all group h-full flex flex-col hover:shadow-lg">
+                    <div className="size-12 rounded-2xl bg-brand-red/10 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                        <span className="material-symbols-outlined text-brand-red text-2xl">list_alt</span>
+                    </div>
+                    <h4 className="text-xl font-black uppercase italic tracking-tight mb-4">Logs do IF-USP</h4>
+                    <p className="text-gray-500 text-sm leading-relaxed mb-6 flex-1">
+                        O mural da nossa gente. Um espaço informal para desabafos, avisos rápidos e aquelas fofocas de laboratório que fazem parte do dia a dia, sem o peso do rigor acadêmico ou oficial.
+                    </p>
+                    <Link href="/drops" className="text-[10px] font-black uppercase tracking-widest text-brand-red flex items-center gap-2 group/link">
+                        Ler os Logs <ArrowRight className="size-3 group-hover/link:translate-x-1 transition-transform" />
+                    </Link>
+                </div>
+
+                <div className="glass-card rounded-3xl p-10 hover:border-brand-yellow/20 transition-all group h-full flex flex-col hover:shadow-lg">
+                    <div className="size-12 rounded-2xl bg-brand-yellow/10 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                        <span className="material-symbols-outlined text-brand-yellow text-2xl">palette</span>
+                    </div>
+                    <h4 className="text-xl font-black uppercase italic tracking-tight mb-4">Lab-Div & Curadoria</h4>
+                    <p className="text-gray-500 text-sm leading-relaxed mb-6 flex-1">
+                        O núcleo criativo do Hub. Aqui você acessa o catálogo Padrão Ouro, agenda mentorias de comunicação científica, conhece o KitDiv e explora a utilização do Espaço Novo Milênio.
+                    </p>
+                    <Link href="/arquivo-labdiv" className="text-[10px] font-black uppercase tracking-widest text-brand-yellow flex items-center gap-2 group/link">
+                        Ver Portfólio <ArrowRight className="size-3 group-hover/link:translate-x-1 transition-transform" />
+                    </Link>
                 </div>
 
                 <div className="glass-card rounded-3xl p-10 hover:border-brand-red/20 transition-all group h-full flex flex-col hover:shadow-lg">
@@ -354,9 +399,9 @@ export function SobreClient({ initialTestimonials, profile }: SobreClientProps) 
                     <div className="size-12 rounded-2xl bg-brand-blue/10 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                         <ExternalLink className="text-brand-blue w-6 h-6" />
                     </div>
-                    <h4 className="text-xl font-black uppercase italic tracking-tight mb-4">Mapa de Mídia</h4>
+                    <h4 className="text-xl font-black uppercase italic tracking-tight mb-4">Mapa do Instituto</h4>
                     <p className="text-gray-500 text-sm leading-relaxed mb-6 flex-1">
-                        A geolocalização da ciência. Através do Mapa, visualizamos o alcance das nossas produções e a localização dos laboratórios, transformando dados brutos em um panorama visual do impacto científico do Instituto.
+                        A conexão entre o Hub e o mundo real. O Mapa geolocaliza a ciência do IFUSP, permitindo navegar pelos laboratórios e utilizar QR codes físicos para escanear e descobrir instantaneamente o que é produzido em cada espaço do instituto.
                     </p>
                     <Link href="/mapa" className="text-[10px] font-black uppercase tracking-widest text-brand-blue flex items-center gap-2 group/link">
                         Ver Impacto no Mapa <ArrowRight className="size-3 group-hover/link:translate-x-1 transition-transform" />

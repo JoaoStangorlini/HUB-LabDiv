@@ -20,6 +20,7 @@ import {
     Landmark
 } from 'lucide-react';
 import { MainLayoutWrapper } from '@/components/layout/MainLayoutWrapper';
+import { WikiFeedbackCard } from './WikiFeedbackCard';
 
 // --- DATA STRUCTURE (O Síncrotron) ---
 export const wikiCells = [
@@ -228,7 +229,7 @@ export default function WikiPage() {
     // --- Search Logic (Keyword Optimized) ---
 
     return (
-        <MainLayoutWrapper>
+        <MainLayoutWrapper rightSidebar={<WikiFeedbackCard />}>
             <div className="min-h-screen bg-transparent pb-12 px-4 overflow-x-hidden">
                 <div className="max-w-6xl mx-auto">
 
@@ -259,6 +260,8 @@ export default function WikiPage() {
                                     O Síncrotron de Conhecimento do IFUSP. O repositório definitivo para sobrevivência, ética e divulgação científica.
                                 </p>
                             </motion.div>
+
+                            <WikiFeedbackCard className="block lg:hidden mt-6" />
 
                             <motion.div
                                 initial={{ opacity: 0, scale: 0.9 }}

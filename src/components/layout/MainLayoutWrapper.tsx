@@ -11,13 +11,14 @@ interface MainLayoutWrapperProps {
     children: React.ReactNode;
     focusMode?: boolean;
     userId?: string;
+    rightSidebar?: React.ReactNode;
 }
 
 /**
  * Standardized structure for V4.0 Golden Master pages.
  * Ensures consistent padding, header, and footer mounting.
  */
-export function MainLayoutWrapper({ children, focusMode = false, userId }: MainLayoutWrapperProps) {
+export function MainLayoutWrapper({ children, focusMode = false, userId, rightSidebar }: MainLayoutWrapperProps) {
     return (
         <div className="min-h-screen bg-transparent font-sans text-gray-900 dark:text-gray-100 flex flex-col">
             <Header />
@@ -36,10 +37,10 @@ export function MainLayoutWrapper({ children, focusMode = false, userId }: MainL
                         {children}
                     </main>
 
-                    {/* Right Sidebar (Optional - using a placeholder if needed, or keeping it empty for consistency) */}
+                    {/* Right Sidebar */}
                     <aside className="hidden lg:block w-[320px] shrink-0 px-4 py-8 border-l border-gray-200 dark:border-gray-800 bg-transparent">
-                        <div className="sticky top-20">
-                            {/* In a real scenario, we might pass SidebarRight content here via props if needed */}
+                        <div className="sticky top-24 pt-4">
+                            {rightSidebar}
                         </div>
                     </aside>
                 </div>

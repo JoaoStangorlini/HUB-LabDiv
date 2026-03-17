@@ -28,23 +28,23 @@ import { Avatar } from '../ui/Avatar';
 import { supabase } from '@/lib/supabase';
 
 const mainLinks = [
-    { name: 'Fluxo', href: AppRoutes.HOME, icon: <LayoutDashboard className="w-6 h-6" />, color: 'brand-blue' },
-    { name: 'Logs do IFUSP', href: '/drops', icon: <MessageSquare className="w-6 h-6" />, color: 'brand-red' },
-    { name: 'Lab-Div', href: '/arquivo-labdiv', icon: <Megaphone className="w-6 h-6" />, color: 'brand-yellow' },
-    { name: 'Grande Colisor', href: '/colisor', icon: <Network className="w-6 h-6" />, color: 'brand-red' },
-    { name: 'Wiki', href: AppRoutes.WIKI, icon: <BookOpen className="w-6 h-6" />, color: 'brand-blue' },
-    { name: 'Trilhas', href: '/trilhas', icon: <Route className="w-6 h-6" />, color: 'brand-red' },
-    { name: 'Mapa', href: '/mapa', icon: <Map className="w-6 h-6" />, color: 'brand-blue' },
+    { name: 'Fluxo', href: AppRoutes.HOME, icon: <span className="material-symbols-outlined text-2xl">grain</span>, color: 'brand-blue' },
+    { name: 'Logs do IFUSP', href: '/drops', icon: <span className="material-symbols-outlined text-2xl">history</span>, color: 'brand-red' },
+    { name: 'Lab-Div', href: '/arquivo-labdiv', icon: <span className="material-symbols-outlined text-2xl">campaign</span>, color: 'brand-yellow' },
+    { name: 'Grande Colisor', href: '/colisor', icon: <span className="material-symbols-outlined text-2xl">hub</span>, color: 'brand-red' },
+    { name: 'Wiki', href: AppRoutes.WIKI, icon: <span className="material-symbols-outlined text-2xl">menu_book</span>, color: 'brand-blue' },
+    { name: 'Trilhas', href: '/trilhas', icon: <span className="material-symbols-outlined text-2xl">route</span>, color: 'brand-red' },
+    { name: 'Mapa', href: '/mapa', icon: <span className="material-symbols-outlined text-2xl">map</span>, color: 'brand-blue' },
 ];
 
 const categoryLinks = [
-    { name: 'Ferramentas Acadêmicas', href: '/ferramentas', icon: <Calendar className="w-6 h-6" />, color: 'brand-blue', role: 'aluno_usp' },
-    { name: 'Ingresso USP', href: '/ingresso', icon: <Sparkles className="w-6 h-6" />, color: 'brand-yellow', role: 'curioso' },
-    { name: 'Arena do Pesquisador', href: '/arena', icon: <Trophy className="w-6 h-6" />, color: 'brand-red', role: 'pesquisador' },
+    { name: 'Ferramentas Acadêmicas', href: '/ferramentas', icon: <span className="material-symbols-outlined text-2xl">construction</span>, color: 'brand-blue', role: 'aluno_usp' },
+    { name: 'Como Ingressar', href: '/ingresso', icon: <span className="material-symbols-outlined text-2xl">login</span>, color: 'brand-yellow', role: 'curioso' },
+    { name: 'Observatório de Pesquisa', href: '/arena', icon: <span className="material-symbols-outlined text-2xl">visibility</span>, color: 'brand-red', role: 'pesquisador' },
 ];
 
 const bottomLinks = [
-    { name: 'Pergunte', href: '/perguntas', icon: <HelpCircle className="w-6 h-6" />, color: 'brand-yellow' },
+    { name: 'Pergunte', href: '/perguntas', icon: <span className="material-symbols-outlined text-2xl">help_outline</span>, color: 'brand-yellow' },
     { name: 'Lab Pessoal', href: '/lab', icon: <span className="material-symbols-outlined text-2xl">science</span>, color: 'brand-yellow' },
     { name: 'Sobre', href: '/sobre', icon: <span className="material-symbols-outlined text-2xl">info</span>, color: 'brand-red' },
 ];
@@ -58,6 +58,7 @@ export const SidebarLeft = ({ userId }: { userId?: string }) => {
     const [recentEntanglements, setRecentEntanglements] = React.useState<any[]>([]);
     const [isLoading, setIsLoading] = React.useState(true);
     const [userCategory, setUserCategory] = React.useState<string | null>(null);
+    const [isLoggedIn, setIsLoggedIn] = React.useState(false);
 
     const loadSidebarData = async () => {
         setIsLoading(true);
@@ -72,13 +73,14 @@ export const SidebarLeft = ({ userId }: { userId?: string }) => {
             const userEmail = session?.user.email;
 
             if (currentUserId) {
+                setIsLoggedIn(true);
                 const { data: profileData } = await supabase.from('profiles')
                     .select('user_category, is_usp_member')
                     .eq('id', currentUserId)
                     .single();
                 
                 const category = profileData?.user_category;
-                const isUspMember = profileData?.is_usp_member || userEmail?.endsWith('@usp.br');
+                const isUspMember = profileData?.is_usp_member || userEmail?.endsWith('@usp.br') || userEmail?.endsWith('@if.usp.br');
                 
                 if (category === 'pesquisador') {
                     setUserCategory('pesquisador');
@@ -91,6 +93,7 @@ export const SidebarLeft = ({ userId }: { userId?: string }) => {
                 }
             } else {
                 // Visitante deslogado -> Pode ver ingresso ou curioso
+                setIsLoggedIn(false);
                 setUserCategory('curioso');
             }
         } catch (error) {
@@ -155,6 +158,10 @@ export const SidebarLeft = ({ userId }: { userId?: string }) => {
                 {/* Category-Specific Links */}
                 {categoryLinks.filter(l => l.role === userCategory).map((link) => {
                     const isActive = pathname === link.href;
+                    const isGuest = !isLoggedIn;
+                    const displayName = (isGuest && link.role === 'curioso') ? 'Acesso ao Hub' : link.name;
+                    const displayHref = (isGuest && link.role === 'curioso') ? '/login' : link.href;
+
                     const colorMap: Record<string, { bg: string; text: string; border: string; hoverBorder: string }> = {
                         'brand-blue': { bg: 'bg-brand-blue/10', text: 'text-brand-blue', border: 'border-l-brand-blue', hoverBorder: 'hover:border-l-brand-blue' },
                         'brand-red': { bg: 'bg-brand-red/10', text: 'text-brand-red', border: 'border-l-brand-red', hoverBorder: 'hover:border-l-brand-red' },
@@ -164,7 +171,7 @@ export const SidebarLeft = ({ userId }: { userId?: string }) => {
                     return (
                         <Link
                             key={link.href}
-                            href={link.href}
+                            href={displayHref}
                             className={`flex items-center gap-4 px-4 py-3 rounded-2xl transition-all group border-l-[3px] ${isActive
                                 ? `${c.bg} ${c.text} ${c.border}`
                                 : `border-l-transparent ${c.hoverBorder} text-gray-500 hover:bg-gray-100 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-white`
@@ -174,7 +181,7 @@ export const SidebarLeft = ({ userId }: { userId?: string }) => {
                                 {link.icon}
                             </span>
                             <span className={`font-bold text-base ${isActive ? 'text-gray-900 dark:text-white' : ''}`}>
-                                {link.name}
+                                {displayName}
                             </span>
                         </Link>
                     );
@@ -217,7 +224,7 @@ export const SidebarLeft = ({ userId }: { userId?: string }) => {
                     href="/emaranhamento"
                     className={`flex items-center gap-4 px-4 py-3 rounded-2xl transition-all group mb-4 border-l-[3px] ${pathname === '/emaranhamento' ? 'bg-brand-blue text-white shadow-lg shadow-brand-blue/20 border-l-brand-blue' : 'border-l-transparent hover:border-l-brand-blue text-gray-500 hover:bg-gray-100 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-white'}`}
                 >
-                    <Network className="w-6 h-6 group-hover:scale-110 transition-transform" />
+                    <span className="material-symbols-outlined text-2xl group-hover:scale-110 transition-transform">cyclone</span>
                     <div className="flex flex-col overflow-hidden">
                         <span className="font-bold text-sm">Emaranhamento</span>
                         <span className="text-[9px] opacity-60 uppercase tracking-wider font-bold truncate">Conversas Ativas</span>

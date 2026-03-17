@@ -4,6 +4,7 @@ import { useState } from 'react';
 import dynamic from 'next/dynamic';
 import { MediaCardProps } from '@/components/MediaCard';
 import { HelpCircle } from 'lucide-react';
+import { MapaFeedbackCard } from './MapaFeedbackCard';
 
 const CampusMap = dynamic(() => import('@/components/map/CampusMap').then(mod => mod.CampusMap), {
     ssr: false,
@@ -26,6 +27,8 @@ export default function MapClient({ initialItems }: { initialItems: MediaCardPro
                         Navegue pelas descobertas e registros através da geografia do Instituto.
                     </p>
                 </header>
+
+                <MapaFeedbackCard className="block lg:hidden mb-8" />
 
                 <div className="w-full max-w-5xl mx-auto aspect-video rounded-3xl overflow-hidden relative shadow-2xl border border-gray-200 dark:border-gray-800">
                     <CampusMap items={items} />

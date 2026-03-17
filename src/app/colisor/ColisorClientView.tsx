@@ -3,6 +3,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
+import { ColisorFeedbackCard } from './ColisorFeedbackCard';
 
 interface ColisorClientViewProps {
     oportunidades: any[] | null;
@@ -132,6 +133,8 @@ export function ColisorClientView({ oportunidades }: ColisorClientViewProps) {
                     O repositório técnico de conhecimento estruturado do Instituto de Física e da USP. Explore a conexão entre iniciativas e oportunidades.
                 </p>
             </div>
+
+            <ColisorFeedbackCard className="block lg:hidden mb-12" />
 
             {/* --- SEÇÃO OPORTUNIDADES --- */}
             <section id="oportunidades" className="mb-20">

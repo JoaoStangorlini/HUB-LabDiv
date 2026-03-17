@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { useSearchParams } from 'next/navigation';
+import { EmaranhamentoFeedbackCard } from './EmaranhamentoFeedbackCard';
 import { MainLayoutWrapper } from '@/components/layout/MainLayoutWrapper';
 import { Header } from '@/components/layout/Header';
 import { getProfileById, fetchRecentEntanglements } from '@/app/actions/submissions';
@@ -203,12 +204,18 @@ export default function EmaranhamentoPage() {
     };
 
     return (
-        <div className="bg-background-light dark:bg-background-dark min-h-screen">
-            <Header />
-            <MainLayoutWrapper userId={userId || undefined}>
-                <div className="flex flex-col lg:flex-row gap-8 py-8 h-[calc(100vh-120px)]">
-                    {/* Active Chat Column */}
-                    <div className="flex-1 flex flex-col min-h-0">
+        <MainLayoutWrapper 
+            userId={userId || undefined} 
+            rightSidebar={<EmaranhamentoFeedbackCard />}
+        >
+            <div className="flex flex-col lg:flex-row gap-8 py-8 h-[calc(100vh-120px)]">
+                {/* Mobile Feedback Card */}
+                <div className="lg:hidden px-4">
+                    <EmaranhamentoFeedbackCard className="mb-4" />
+                </div>
+
+                {/* Active Chat Column */}
+                <div className="flex-1 flex flex-col min-h-0">
                         {isLoading ? (
                             <div className="flex-1 flex items-center justify-center">
                                 <Loader2 className="w-8 h-8 text-brand-blue animate-spin" />
@@ -549,6 +556,5 @@ export default function EmaranhamentoPage() {
                     </div>
                 )}
             </MainLayoutWrapper>
-        </div>
     );
 }

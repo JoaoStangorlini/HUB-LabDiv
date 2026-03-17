@@ -11,8 +11,9 @@ import listPlugin from '@fullcalendar/list';
 import { Draggable } from '@fullcalendar/interaction';
 import { supabase } from '@/lib/supabase';
 import { toast } from 'react-hot-toast';
-import { X, Eye, Edit3 } from 'lucide-react';
+import { X, Eye, Edit3, ChevronLeft, ChevronRight } from 'lucide-react';
 import * as CalendarActions from '@/app/actions/calendar';
+import { FerramentasFeedbackCard } from './FerramentasFeedbackCard';
 
 interface CalendarEvent {
     id: string;
@@ -68,8 +69,18 @@ export default function FerramentasClient({ profile }: { profile: any }) {
     const [newBlockDuration, setNewBlockDuration] = useState(2);
     const [isUpdating, setIsUpdating] = useState<string | null>(null);
     const [viewMode, setViewMode] = useState<'view' | 'edit'>('edit');
+    const [isMobile, setIsMobile] = useState(false);
+    const [selectedBlockToAdd, setSelectedBlockToAdd] = useState<any>(null);
     const draggableRef = React.useRef<any>(null);
     const calendarRef = React.useRef<any>(null);
+    const enrollmentListRef = React.useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        const checkMobile = () => setIsMobile(window.innerWidth < 768);
+        checkMobile();
+        window.addEventListener('resize', checkMobile);
+        return () => window.removeEventListener('resize', checkMobile);
+    }, []);
 
     const toggleCursando = async (e: React.MouseEvent, trailId: string) => {
         e.preventDefault();
@@ -149,7 +160,7 @@ export default function FerramentasClient({ profile }: { profile: any }) {
                     
                     // Convert float duration to HH:mm:ss for FullCalendar
                     let formattedDuration = durationVal;
-                    if (durationVal.includes('.')) {
+                    if (!durationVal.includes(':')) {
                         const numericDuration = parseFloat(durationVal);
                         const hours = Math.floor(numericDuration);
                         const minutes = Math.round((numericDuration - hours) * 60);
@@ -160,7 +171,7 @@ export default function FerramentasClient({ profile }: { profile: any }) {
                         title: type === 'custom' ? title : `${type === 'estudo' ? '📚 Estudo' : '🎓 Aula'}: ${title}`,
                         duration: formattedDuration,
                         color: colorData.bg,
-                        extendedProps: { code, type, sourceId: seed }
+                        extendedProps: { code, type, sourceId: seed, trail_id: type !== 'custom' ? id : null, duration: durationVal }
                     };
                 }
             });
@@ -181,15 +192,82 @@ export default function FerramentasClient({ profile }: { profile: any }) {
                 .fc { --fc-border-color: rgba(var(--brand-blue-rgb), 0.1); }
                 .dark .fc { --fc-border-color: rgba(255, 255, 255, 0.03); }
                 
-                .fc-theme-standard td, .fc-theme-standard th { 
-                    border: 1px solid rgba(0, 0, 0, 0.05) !important; 
+                .fc-theme-standard td, .fc-theme-standard th, .fc-scrollgrid { 
+                    border: 0 !important; 
                 }
-                .dark .fc-theme-standard td, .dark .fc-theme-standard th { 
-                    border: 1px solid rgba(255, 255, 255, 0.02) !important; 
+                .fc-toolbar-chunk .fc-button {
+                    border-radius: 9999px !important;
+                    text-transform: lowercase !important;
+                    font-weight: 800 !important;
+                    padding: 8px 20px !important;
+                    background-color: rgba(59, 130, 246, 0.1) !important;
+                    border: 1px solid rgba(59, 130, 246, 0.2) !important;
+                    color: #3b82f6 !important;
+                    margin: 0 6px !important;
+                    transition: all 0.2s;
+                    display: flex !important;
+                    align-items: center !important;
+                    justify-content: center !important;
                 }
-                .fc-scrollgrid { border: 0 !important; }
-                .fc-scrollgrid-section > td { border: 0 !important; }
-                .fc-col-header-cell { border: 0 !important; }
+                .fc-toolbar-chunk .fc-button:hover, .fc-button-active {
+                    background-color: #3b82f6 !important;
+                    color: white !important;
+                }
+                .fc-toolbar-title {
+                    margin: 0 32px !important;
+                    font-weight: 900 !important;
+                    font-size: 1.25rem !important;
+                }
+                
+                /* Canva-style resizing handles */
+                .fc-event-resizer {
+                    width: 14px !important;
+                    height: 14px !important;
+                    border-radius: 9999px !important;
+                    background-color: white !important;
+                    border: 3px solid #3b82f6 !important;
+                    box-shadow: 0 4px 12px rgba(0,0,0,0.3) !important;
+                    right: -7px !important;
+                    bottom: -7px !important;
+                    opacity: 0;
+                    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+                    z-index: 50 !important;
+                    cursor: ns-resize !important;
+                }
+                
+                .fc-event-resizer-y-top {
+                    top: -7px !important;
+                    bottom: auto !important;
+                }
+
+                .fc-event:hover .fc-event-resizer, 
+                .fc-event-dragging .fc-event-resizer,
+                .fc-event-resizing .fc-event-resizer {
+                    opacity: 1 !important;
+                    transform: scale(1.1);
+                }
+
+                @media (max-width: 768px) {
+                    .fc-event-resizer {
+                        width: 18px !important;
+                        height: 18px !important;
+                        opacity: 1 !important;
+                        right: -9px !important;
+                        bottom: -9px !important;
+                        border-width: 4px !important;
+                    }
+                    .fc-event-resizer-y-top {
+                        top: -9px !important;
+                    }
+                }
+                
+                .scrollbar-hide {
+                    -ms-overflow-style: none;
+                    scrollbar-width: none;
+                }
+                .scrollbar-hide::-webkit-scrollbar {
+                    display: none;
+                }
 
                 .fc .fc-timegrid-slot { height: 3.5em !important; border-bottom: 0 !important; }
                 
@@ -223,12 +301,14 @@ export default function FerramentasClient({ profile }: { profile: any }) {
                     color: rgba(255, 255, 255, 0.2) !important;
                 }
 
-                .fc-col-header-cell {
-                    background-color: #f9fafb !important;
+                .fc-col-header-cell, .fc-timegrid-axis, .fc-scrollgrid, .fc-theme-standard th {
+                    background-color: transparent !important;
+                    background: transparent !important;
                     border: 0 !important;
                 }
-                .dark .fc-col-header-cell {
-                    background-color: #1a1a1a !important;
+                .dark .fc-col-header-cell, .dark .fc-timegrid-axis, .dark .fc-scrollgrid, .dark .fc-theme-standard th {
+                    background-color: transparent !important;
+                    background: transparent !important;
                     border: 0 !important;
                 }
 
@@ -290,35 +370,8 @@ export default function FerramentasClient({ profile }: { profile: any }) {
                 </div>
             </header>
 
-            <div className="relative group overflow-hidden rounded-[32px] bg-brand-blue/5 dark:bg-gradient-to-br dark:from-brand-blue/20 dark:via-brand-blue/5 dark:to-transparent border border-brand-blue/10 dark:border-brand-blue/20 p-8 print:hidden">
-                <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:opacity-20 transition-opacity">
-                    <Info className="w-32 h-32 text-brand-blue" />
-                </div>
-                
-                <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-8">
-                    <div className="max-w-2xl space-y-4">
-                        <div className="flex items-center gap-2 text-brand-blue">
-                            <div className="px-3 py-1 bg-brand-blue text-[10px] font-black uppercase tracking-widest rounded-full text-white">Versão Beta</div>
-                            <span className="text-xs font-bold uppercase tracking-widest opacity-60">Instruções de Uso</span>
-                        </div>
-                        <h2 className="text-2xl font-display font-black text-gray-900 dark:text-white uppercase tracking-tight">Sincronize seu Semestre</h2>
-                        <p className="text-gray-700 dark:text-gray-400 text-sm font-medium leading-relaxed">
-                            Organize sua rotina acadêmica arrastando as disciplinas da seção <span className="text-brand-blue font-bold">"Suas Matrículas"</span> diretamente para o calendário. Você pode alocar tanto os horários de <span className="text-brand-blue font-bold">Aula</span> quanto blocos personalizados de <span className="text-brand-yellow font-bold">Estudo</span>.
-                        </p>
-                    </div>
+            <FerramentasFeedbackCard className="block lg:hidden" />
 
-                    <button 
-                        onClick={() => {
-                            const { useNavigationStore } = require('@/store/useNavigationStore');
-                            useNavigationStore.getState().setReportModalOpen(true, 'sugestao');
-                        }}
-                        className="flex items-center gap-3 px-6 py-4 bg-white text-black rounded-2xl font-black text-xs uppercase tracking-widest hover:scale-105 transition-transform shadow-xl shadow-white/10 shrink-0"
-                    >
-                        <MessageSquareCode className="w-4 h-4" />
-                        Mande seu Feedback
-                    </button>
-                </div>
-            </div>
 
             <div className="bg-transparent min-h-[600px] rounded-[40px] overflow-hidden">
                 <div className="p-8 h-full flex flex-col gap-12">
@@ -332,9 +385,12 @@ export default function FerramentasClient({ profile }: { profile: any }) {
                                 <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest hidden sm:block">
                                     Arraste os blocos abaixo para o cronograma
                                 </p>
+                                <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest sm:hidden">
+                                    {selectedBlockToAdd ? 'Toque no calendário para alocar' : 'Toque num bloco para selecioná-lo'}
+                                </p>
                                 <button
                                     onClick={() => setIsCreateModalOpen(true)}
-                                    className="flex items-center gap-2 px-4 py-2 bg-brand-blue text-white rounded-xl font-black text-[10px] uppercase tracking-widest hover:scale-105 transition-transform"
+                                    className="flex items-center gap-2 px-4 py-2 bg-brand-blue text-white rounded-xl font-black text-[10px] uppercase tracking-widest hover:scale-105 transition-transform shrink-0"
                                 >
                                     <Plus className="w-3 h-3" />
                                     Criar Bloco
@@ -342,65 +398,108 @@ export default function FerramentasClient({ profile }: { profile: any }) {
                             </div>
                         </div>
                         
-                        <div id="enrollment-list" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                            {customBlocks.map((block) => {
-                                const colorData = getStableColor(block.id, block.title);
-                                return (
-                                    <div key={block.id} className="space-y-2">
-                                        <div 
-                                            data-title={block.title}
-                                            data-type="custom"
-                                            data-id={block.id}
-                                            data-color={colorData.bg}
-                                            data-duration={block.duration.toString()} // Pass original for converter
-                                            className="group draggable-item p-4 rounded-2xl border transition-all cursor-grab active:cursor-grabbing shadow-lg relative print:hidden"
-                                            style={{ 
-                                                borderLeft: `6px solid ${colorData.bg}`,
-                                                backgroundColor: `${colorData.bg}40`,
-                                                borderColor: `${colorData.bg}30`
-                                            }}
-                                        >
-                                            <div className="text-[10px] font-black uppercase mb-1" style={{ color: colorData.bg }}>Customizado</div>
-                                            <div className="text-xs font-bold text-gray-800 dark:text-white line-clamp-1">{fixEncoding(block.title)}</div>
-                                            <div className="mt-2 text-[9px] font-bold text-gray-500 uppercase tracking-widest">
-                                                Duração: {block.duration}h
-                                            </div>
-
-                                            {viewMode === 'edit' && (
-                                                <button
-                                                    onClick={async (e) => {
-                                                        e.preventDefault();
-                                                        const res = await CalendarActions.deleteCustomBlock(block.id);
-                                                        if (res.success) {
-                                                            setCustomBlocks(prev => prev.filter(b => b.id !== block.id));
-                                                            toast.success('Bloco removido');
+                        <div className="relative group/scroll">
+                            <button
+                                onClick={() => enrollmentListRef.current?.scrollBy({ left: -300, behavior: 'smooth' })}
+                                className="absolute left-0 top-1/2 -translate-y-1/2 -ml-2 z-10 p-2 bg-white dark:bg-[#1a1a1a] rounded-full shadow-lg border border-gray-200 dark:border-gray-800 text-brand-blue transition-opacity flex"
+                            >
+                                <ChevronLeft size={20} />
+                            </button>
+                            <button
+                                onClick={() => enrollmentListRef.current?.scrollBy({ left: 300, behavior: 'smooth' })}
+                                className="absolute right-0 top-1/2 -translate-y-1/2 -mr-2 z-10 p-2 bg-white dark:bg-[#1a1a1a] rounded-full shadow-lg border border-gray-200 dark:border-gray-800 text-brand-blue transition-opacity flex"
+                            >
+                                <ChevronRight size={20} />
+                            </button>
+                            <div id="enrollment-list" ref={enrollmentListRef} className="flex flex-row overflow-x-auto snap-x gap-4 pb-4 scrollbar-hide scroll-smooth relative px-8 sm:px-0">
+                                {customBlocks.map((block) => {
+                                    const colorData = getStableColor(block.id, block.title);
+                                    return (
+                                        <div key={block.id} className="space-y-2 snap-start">
+                                            <div 
+                                                onClick={() => {
+                                                    if (isMobile) {
+                                                        if (selectedBlockToAdd?.id === block.id) {
+                                                            setSelectedBlockToAdd(null);
                                                         } else {
-                                                            toast.error('Erro ao remover bloco');
+                                                            const colorData = getStableColor(block.id, block.title);
+                                                            setSelectedBlockToAdd({
+                                                                id: Math.random().toString(),
+                                                                title: block.title,
+                                                                type: 'custom',
+                                                                color: colorData.bg,
+                                                                extendedProps: { code: null, type: 'custom', sourceId: block.id, trail_id: null, duration: block.duration.toString() }
+                                                            });
                                                         }
-                                                    }}
-                                                    className="absolute top-2 right-2 p-1.5 rounded-lg bg-red-500/10 text-red-500 opacity-0 group-hover:opacity-100 hover:bg-red-500 hover:text-white transition-all"
-                                                >
-                                                    <X size={12} />
-                                                </button>
-                                            )}
+                                                    }
+                                                }}
+                                                data-title={block.title}
+                                                data-type="custom"
+                                                data-id={block.id}
+                                                data-color={colorData.bg}
+                                                data-duration={block.duration.toString()}
+                                                className={`group draggable-item p-4 rounded-2xl border transition-all cursor-grab active:cursor-grabbing shadow-lg relative print:hidden sm:min-w-0 min-w-[240px] ${selectedBlockToAdd?.extendedProps?.sourceId === block.id ? 'ring-2 ring-offset-2 ring-offset-black ring-white' : ''}`}
+                                                style={{ 
+                                                    borderLeft: `6px solid ${colorData.bg}`,
+                                                    backgroundColor: `${colorData.bg}40`,
+                                                    borderColor: `${colorData.bg}30`
+                                                }}
+                                            >
+                                                <div className="text-[10px] font-black uppercase mb-1" style={{ color: colorData.bg }}>Customizado</div>
+                                                <div className="text-xs font-bold text-gray-800 dark:text-white line-clamp-1">{fixEncoding(block.title)}</div>
+                                                <div className="mt-2 text-[9px] font-bold text-gray-500 uppercase tracking-widest">
+                                                    Duração: {block.duration}h
+                                                </div>
+
+                                                {viewMode === 'edit' && (
+                                                    <button
+                                                        onClick={async (e) => {
+                                                            e.preventDefault();
+                                                            const res = await CalendarActions.deleteCustomBlock(block.id);
+                                                            if (res.success) {
+                                                                setCustomBlocks(prev => prev.filter(b => b.id !== block.id));
+                                                                toast.success('Bloco removido');
+                                                            } else {
+                                                                toast.error('Erro ao remover bloco');
+                                                            }
+                                                        }}
+                                                        className="absolute top-2 right-2 p-1.5 rounded-lg bg-red-500/10 text-red-500 opacity-0 group-hover:opacity-100 hover:bg-red-500 hover:text-white transition-all"
+                                                    >
+                                                        <X size={12} />
+                                                    </button>
+                                                )}
+                                            </div>
                                         </div>
-                                    </div>
-                                );
-                            })}
+                                    );
+                                })}
                                 {academicData?.inProgress?.length > 0 ? (
                                     academicData.inProgress.map((p: any) => {
-                                        // CRITICAL: Seed must be consistent (trail_id is the master ID for the subject)
                                         const seed = p.trail_id || p.course_code || p.id;
                                         const colorData = getStableColor(seed, p.learning_trails?.title);
                                         return (
-                                            <div key={p.id} className="space-y-2">
+                                            <div key={p.id} className="space-y-2 snap-start">
                                                 <div 
+                                                    onClick={() => {
+                                                        if (isMobile) {
+                                                            if (selectedBlockToAdd?.extendedProps?.sourceId === seed && selectedBlockToAdd?.extendedProps?.type === 'aula') {
+                                                                setSelectedBlockToAdd(null);
+                                                            } else {
+                                                                setSelectedBlockToAdd({
+                                                                    id: Math.random().toString(),
+                                                                    title: `🎓 Aula: ${p.learning_trails?.title}`,
+                                                                    type: 'aula',
+                                                                    color: colorData.bg,
+                                                                    extendedProps: { code: p.course_code, type: 'aula', sourceId: seed, trail_id: seed, duration: "02:00" }
+                                                                });
+                                                            }
+                                                        }
+                                                    }}
                                                     data-title={p.learning_trails?.title}
                                                     data-code={p.course_code}
                                                     data-type="aula"
                                                     data-id={seed}
                                                     data-duration="02:00"
-                                                    className="group draggable-item p-4 rounded-2xl border transition-all cursor-grab active:cursor-grabbing shadow-sm relative overflow-hidden print:hidden"
+                                                    className={`group draggable-item p-4 rounded-2xl border transition-all cursor-grab active:cursor-grabbing shadow-sm relative overflow-hidden print:hidden sm:min-w-0 min-w-[240px] ${selectedBlockToAdd?.extendedProps?.sourceId === seed && selectedBlockToAdd?.extendedProps?.type === 'aula' ? 'ring-2 ring-offset-2 ring-offset-black ring-white' : ''}`}
                                                     style={{ 
                                                         borderLeft: `6px solid ${colorData.bg}`,
                                                         backgroundColor: `${colorData.bg}40`,
@@ -415,31 +514,51 @@ export default function FerramentasClient({ profile }: { profile: any }) {
                                                         Bloco: Aula
                                                     </div>
 
-                                                <button
-                                                    onClick={(e) => toggleCursando(e, p.trail_id)}
-                                                    disabled={isUpdating === p.trail_id}
-                                                    className="absolute top-2 right-2 p-1.5 rounded-lg bg-red-500/10 text-red-500 opacity-0 group-hover:opacity-100 hover:bg-red-500 hover:text-white transition-all disabled:opacity-50"
-                                                    title="Remover matrícula"
+                                                    <button
+                                                        onClick={(e) => toggleCursando(e, p.trail_id)}
+                                                        disabled={isUpdating === p.trail_id}
+                                                        className="absolute top-2 right-2 p-1.5 rounded-lg bg-red-500/10 text-red-500 opacity-0 group-hover:opacity-100 hover:bg-red-500 hover:text-white transition-all disabled:opacity-50"
+                                                        title="Remover matrícula"
+                                                    >
+                                                        <X size={12} />
+                                                    </button>
+                                                </div>
+                                                <div 
+                                                    onClick={() => {
+                                                        if (isMobile) {
+                                                            if (selectedBlockToAdd?.extendedProps?.sourceId === seed && selectedBlockToAdd?.extendedProps?.type === 'estudo') {
+                                                                setSelectedBlockToAdd(null);
+                                                            } else {
+                                                                setSelectedBlockToAdd({
+                                                                    id: Math.random().toString(),
+                                                                    title: `📚 Estudo: ${p.learning_trails?.title}`,
+                                                                    type: 'estudo',
+                                                                    color: colorData.bg,
+                                                                    extendedProps: { code: p.course_code, type: 'estudo', sourceId: seed, trail_id: seed, duration: "02:00" }
+                                                                });
+                                                            }
+                                                        }
+                                                    }}
+                                                    data-title={p.learning_trails?.title}
+                                                    data-code={p.course_code}
+                                                    data-type="estudo"
+                                                    data-id={seed}
+                                                    data-duration="02:00"
+                                                    className={`draggable-item p-3 bg-gray-200 dark:bg-white/5 rounded-2xl border border-gray-300 dark:border-white/10 group hover:border-gray-400 dark:hover:border-white/30 transition-all cursor-grab active:cursor-grabbing shadow-sm print:hidden ${selectedBlockToAdd?.extendedProps?.sourceId === seed && selectedBlockToAdd?.extendedProps?.type === 'estudo' ? 'ring-2 ring-offset-2 ring-offset-black ring-white' : ''}`}
                                                 >
-                                                    <X size={12} />
-                                                </button>
-                                            </div>
-                                            <div 
-                                                data-title={p.learning_trails?.title}
-                                                data-code={p.course_code}
-                                                data-type="estudo"
-                                                data-id={seed}
-                                                data-duration="02:00"
-                                                className="draggable-item p-3 bg-gray-200 dark:bg-white/5 rounded-2xl border border-gray-300 dark:border-white/10 group hover:border-gray-400 dark:hover:border-white/30 transition-all cursor-grab active:cursor-grabbing shadow-sm print:hidden"
-                                            >
-                                                <div className="text-[9px] font-bold text-gray-700 dark:text-gray-400 uppercase">
-                                                    Bloco: Estudo
+                                                    <div className="text-[9px] font-bold text-gray-700 dark:text-gray-400 uppercase">
+                                                        Bloco: Estudo
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                    );
-                                })
-                            ) : null}
+                                        );
+                                    })
+                                ) : (
+                                    <div className="flex items-center justify-center p-12 bg-white/5 border border-dashed border-white/10 rounded-3xl">
+                                        <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest text-center">Nenhuma matrícula identificada</p>
+                                    </div>
+                                )}
+                            </div>
                         </div>
                     </div>
 
@@ -478,60 +597,84 @@ export default function FerramentasClient({ profile }: { profile: any }) {
                                 </div>
                             </div>
                         </div>
-                        
+                
                         <div className={`bg-white dark:bg-[#1e1e1e] p-6 rounded-3xl border border-gray-100 dark:border-white/5 overflow-hidden transition-all ${viewMode === 'view' ? 'bg-gray-50/50 dark:bg-[#121212] border-brand-blue/10' : ''}`}>
                             {viewMode === 'view' ? (
-                                <div className="flex flex-row gap-4 overflow-x-auto pb-8 scrollbar-hide snap-x">
-                                    {['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'].map((dayName, dayIdx) => {
-                                        const dayEvents = events.filter(e => new Date(e.start).getDay() === dayIdx).sort((a,b) => new Date(a.start).getTime() - new Date(b.start).getTime());
-                                        const dayColor = dayIdx === 0 ? '#888' : (dayIdx % 3 === 1 ? '#3b82f6' : (dayIdx % 3 === 2 ? '#ef4444' : '#eab308'));
-                                        
-                                        return (
-                                            <div key={dayName} className="flex flex-col gap-4 min-w-[280px] bg-gray-50/80 dark:bg-white/[0.03] rounded-[32px] p-5 border border-transparent dark:border-white/[0.05] snap-start">
-                                                <div className="flex items-center justify-between px-2">
-                                                    <span className="text-xs font-black uppercase tracking-widest" style={{ color: dayColor }}>
-                                                        {dayName}
-                                                    </span>
-                                                    <span className="text-[10px] font-bold text-gray-400 dark:text-white/20">
-                                                        {dayEvents.length} {dayEvents.length === 1 ? 'evento' : 'eventos'}
-                                                    </span>
-                                                </div>
-                                                <div className="flex flex-col gap-3">
-                                                    {dayEvents.length > 0 ? dayEvents.map(e => (
-                                                        <div 
-                                                            key={e.id} 
-                                                            className="p-4 rounded-[22px] border border-black/5 dark:border-white/10 shadow-lg flex flex-col gap-2 transition-all hover:bg-black/[0.02] dark:hover:bg-white/[0.05] relative overflow-hidden"
-                                                            style={{ 
-                                                                borderLeft: `4px solid ${e.color}`,
-                                                                backgroundColor: `${e.color}40`,
-                                                            }}
-                                                        >
-                                                            <div className="flex items-center justify-between">
-                                                                <span className="text-[10px] font-black bg-black/5 dark:bg-white/10 px-2.5 py-1 rounded-full text-gray-700 dark:text-white/70">
-                                                                    {new Date(e.start).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
-                                                                </span>
+                                <div className="relative group/view-scroll">
+                                    <button
+                                        onClick={() => {
+                                            const el = document.getElementById('view-calendar-scroll');
+                                            el?.scrollBy({ left: -300, behavior: 'smooth' });
+                                        }}
+                                        className="absolute left-0 top-1/2 -translate-y-1/2 -ml-2 z-10 p-2 bg-white dark:bg-[#1a1a1a] rounded-full shadow-lg border border-gray-200 dark:border-gray-800 text-brand-blue transition-opacity flex"
+                                    >
+                                        <ChevronLeft size={20} />
+                                    </button>
+                                    <button
+                                        onClick={() => {
+                                            const el = document.getElementById('view-calendar-scroll');
+                                            el?.scrollBy({ left: 300, behavior: 'smooth' });
+                                        }}
+                                        className="absolute right-0 top-1/2 -translate-y-1/2 -mr-2 z-10 p-2 bg-white dark:bg-[#1a1a1a] rounded-full shadow-lg border border-gray-200 dark:border-gray-800 text-brand-blue transition-opacity flex"
+                                    >
+                                        <ChevronRight size={20} />
+                                    </button>
+                                    <div id="view-calendar-scroll" className="flex flex-row gap-4 overflow-x-auto pb-8 scrollbar-hide snap-x px-8 sm:px-0">
+                                        {['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'].map((dayName, dayIdx) => {
+                                            const dayEvents = events.filter(e => new Date(e.start).getDay() === dayIdx).sort((a,b) => new Date(a.start).getTime() - new Date(b.start).getTime());
+                                            const dayColor = dayIdx === 0 ? '#888' : (dayIdx % 3 === 1 ? '#3b82f6' : (dayIdx % 3 === 2 ? '#ef4444' : '#eab308'));
+                                            
+                                            return (
+                                                <div key={dayName} className="flex flex-col gap-4 min-w-[280px] bg-gray-50/80 dark:bg-white/[0.03] rounded-[32px] p-5 border border-transparent dark:border-white/[0.05] snap-start">
+                                                    <div className="flex items-center justify-between px-2">
+                                                        <span className="text-xs font-black uppercase tracking-widest" style={{ color: dayColor }}>
+                                                            {dayName}
+                                                        </span>
+                                                        <span className="text-[10px] font-bold text-gray-400 dark:text-white/20">
+                                                            {dayEvents.length} {dayEvents.length === 1 ? 'evento' : 'eventos'}
+                                                        </span>
+                                                    </div>
+                                                    <div className="flex flex-col gap-3">
+                                                        {dayEvents.length > 0 ? dayEvents.map(e => (
+                                                            <div 
+                                                                key={e.id} 
+                                                                className="p-4 rounded-[22px] border border-black/5 dark:border-white/10 shadow-lg flex flex-col gap-2 transition-all hover:bg-black/[0.02] dark:hover:bg-white/[0.05] relative overflow-hidden"
+                                                                style={{ 
+                                                                    borderLeft: `4px solid ${e.color}`,
+                                                                    backgroundColor: `${e.color}40`,
+                                                                }}
+                                                            >
+                                                                <div className="flex items-center justify-between">
+                                                                    <span className="text-[10px] font-black bg-black/5 dark:bg-white/10 px-2.5 py-1 rounded-full text-gray-700 dark:text-white/70">
+                                                                        {new Date(e.start).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+                                                                    </span>
+                                                                </div>
+                                                                <div className="text-xs font-bold leading-tight text-gray-900 dark:text-white mb-1">
+                                                                    {e.title}
+                                                                </div>
                                                             </div>
-                                                            <div className="text-xs font-bold leading-tight text-gray-900 dark:text-white mb-1">
-                                                                {e.title}
+                                                        )) : (
+                                                            <div className="h-32 flex items-center justify-center border-2 border-dashed border-black/[0.1] dark:border-white/[0.02] rounded-[28px]">
+                                                                <span className="text-[10px] font-bold uppercase text-gray-400 dark:text-white/5 tracking-widest">Livre</span>
                                                             </div>
-                                                        </div>
-                                                    )) : (
-                                                        <div className="h-32 flex items-center justify-center border-2 border-dashed border-black/[0.1] dark:border-white/[0.02] rounded-[28px]">
-                                                            <span className="text-[10px] font-bold uppercase text-gray-400 dark:text-white/5 tracking-widest">Livre</span>
-                                                        </div>
-                                                    )}
+                                                        )}
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        );
-                                    })}
+                                            );
+                                        })}
+                                    </div>
                                 </div>
                             ) : (
                                 <FullCalendar
-                                    key={viewMode}
+                                    key={`${viewMode}-${isMobile ? 'mobile' : 'desktop'}`}
                                     ref={calendarRef}
                                     plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
-                                    initialView="timeGridWeek"
-                                    headerToolbar={false}
+                                    initialView={isMobile ? 'timeGridDay' : 'timeGridWeek'}
+                                    headerToolbar={isMobile ? {
+                                        left: 'prev,next',
+                                        center: 'title',
+                                        right: 'timeGridDay,timeGridWeek'
+                                    } : false}
                                     dayHeaderFormat={{ weekday: 'long' }}
                                     slotMinTime="06:00:00"
                                     slotMaxTime="24:00:00"
@@ -546,6 +689,41 @@ export default function FerramentasClient({ profile }: { profile: any }) {
                                     selectMirror={true}
                                     dayMaxEvents={true}
                                     nowIndicator={true}
+                                    dateClick={async (info) => {
+                                        if (isMobile && selectedBlockToAdd) {
+                                            const durationStr = selectedBlockToAdd.extendedProps.duration;
+                                            let durationHours = 2;
+                                            
+                                            if (durationStr.includes(':')) {
+                                                const parts = durationStr.split(':');
+                                                durationHours = parseInt(parts[0]) + (parseInt(parts[1])/60);
+                                            } else {
+                                                durationHours = parseFloat(durationStr);
+                                            }
+
+                                            const tempId = Math.random().toString();
+                                            const newEvent: CalendarEvent = {
+                                                id: tempId,
+                                                title: selectedBlockToAdd.title,
+                                                start: info.dateStr,
+                                                end: new Date(new Date(info.dateStr).getTime() + durationHours * 60 * 60 * 1000).toISOString(),
+                                                color: selectedBlockToAdd.color,
+                                                extendedProps: selectedBlockToAdd.extendedProps
+                                            };
+                                            
+                                            setEvents((prev) => [...prev, newEvent]);
+                                            setSelectedBlockToAdd(null);
+                                            toast.success('Bloco adicionado!');
+
+                                            const res = await CalendarActions.upsertCalendarEvent(newEvent);
+                                            if (res.success && res.data) {
+                                                setEvents(prev => prev.map(e => e.id === tempId ? { ...e, id: res.data.id } : e));
+                                            } else {
+                                                toast.error('Erro ao salvar no banco');
+                                                setEvents(prev => prev.filter(e => e.id !== tempId));
+                                            }
+                                        }
+                                    }}
                                     eventReceive={async (info: any) => {
                                         const tempId = Math.random().toString();
                                         const newEvent: CalendarEvent = {

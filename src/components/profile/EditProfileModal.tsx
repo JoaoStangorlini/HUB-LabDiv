@@ -40,7 +40,7 @@ const profileSchema = z.object({
     user_category: z.enum(['curioso', 'aluno_usp', 'pesquisador']).default('curioso'),
     seeking_assistant: z.boolean().default(false),
 }).superRefine((data, ctx) => {
-    const isUsp = data.email?.endsWith('@usp.br');
+    const isUsp = data.email?.endsWith('@usp.br') || data.email?.endsWith('@if.usp.br');
     if (isUsp) {
         if (!data.institute || data.institute.trim() === '') {
             ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Selecione um instituto", path: ["institute"] });
@@ -118,7 +118,7 @@ export function EditProfileModal({ isOpen, onClose, onSuccess, adminMode = false
     const selectedInstitute = watch('institute');
 
     const formEmail = watch('email');
-    const isUspUser = formEmail ? formEmail.endsWith('@usp.br') : false;
+    const isUspUser = formEmail ? (formEmail.endsWith('@usp.br') || formEmail.endsWith('@if.usp.br')) : false;
 
     const institutes = ['IF-USP', 'IME-USP', 'IQ-USP', 'FFLCH-USP', 'Outros'];
     const ifCourses = ['Bacharelado', 'Licenciatura', 'Física Médica'];

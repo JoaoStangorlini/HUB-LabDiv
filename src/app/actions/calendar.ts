@@ -90,11 +90,18 @@ export async function upsertCalendarEvent(event: any) {
 
     if (!user) return { success: false, error: 'Não autenticado' };
 
+    let calculatedEndTime = event.end;
+    if (!calculatedEndTime) {
+        // If event.end is missing (common on first drop), use duration from extendedProps, or default to 2 hours
+        const durationH = event.extendedProps?.duration ? parseFloat(event.extendedProps.duration) : 2;
+        calculatedEndTime = new Date(new Date(event.start).getTime() + durationH * 60 * 60 * 1000).toISOString();
+    }
+
     const payload = {
         user_id: user.id,
         title: event.title,
         start_time: event.start,
-        end_time: event.end,
+        end_time: calculatedEndTime,
         color: event.color,
         type: event.extendedProps?.type || 'aula',
         trail_id: event.extendedProps?.trail_id || null

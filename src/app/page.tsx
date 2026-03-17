@@ -12,6 +12,8 @@ import {
   getTrendingTags,
 } from '@/app/actions/submissions';
 import { Rocket } from 'lucide-react';
+import { MainLayoutWrapper } from '@/components/layout/MainLayoutWrapper';
+import { FluxoFeedbackCard } from '@/app/FluxoFeedbackCard';
 
 // Direct import — contains LCP image, must SSR
 import { HomeClientView } from '@/components/HomeClientView';
@@ -50,51 +52,19 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ c
   const initialLikedIds: string[] = [];
 
   return (
-    <div className="bg-transparent text-text-main dark:text-gray-100 min-h-screen flex flex-col">
-      <Header />
-
-      <div className="flex-1 w-full max-w-[1920px] mx-auto flex justify-center">
-        {/* Esquerda: Navegação / Side Menu */}
-        <aside className="hidden xl:block w-[280px] shrink-0 border-r border-gray-200 dark:border-gray-800 bg-transparent">
-          <div className="sticky top-20">
-            <SidebarLeft />
-          </div>
-        </aside>
-
-        {/* Centro: Feed */}
-        <main id="main-content" tabIndex={-1} className="flex-1 max-w-[800px] w-full px-4 sm:px-6 py-8 lg:py-12 outline-none">
-          <HomeClientView
-            initialItems={initialItems}
-            initialHasMore={initialHasMore}
-            initialCategory={initialCategory}
-            trendingItems={trendingItems}
-            featuredItems={featuredItems}
-            trendingTags={trendingTags}
-            initialLikedIds={initialLikedIds}
-          />
-        </main>
-
-        {/* Direita: hidden on mobile, fetches own data */}
-        <aside className="hidden lg:block w-[320px] shrink-0 px-4 py-8 border-l border-gray-200 dark:border-gray-800 bg-transparent">
-          <div className="sticky top-20">
-            <SidebarRight />
-          </div>
-        </aside>
-      </div>
-
-      <Footer />
-
-      {/* FAB via Lucide */}
-      <Link
-        href="/enviar"
-        className="hidden xl:flex fixed bottom-8 right-8 z-[60] bg-brand-blue text-white px-6 h-14 rounded-full shadow-2xl items-center justify-center gap-3 hover:scale-105 active:scale-95 transition-all group"
-        title="Lançar à Órbita"
-      >
-        <Rocket className="w-6 h-6 group-hover:-translate-y-1 transition-transform" />
-        <span className="font-bold text-sm tracking-wide">Lançar à Órbita</span>
-      </Link>
-
-      <BottomNavBar />
-    </div>
+    <MainLayoutWrapper
+      userId={undefined}
+      rightSidebar={<FluxoFeedbackCard />}
+    >
+      <HomeClientView
+        initialItems={initialItems}
+        initialHasMore={initialHasMore}
+        initialCategory={initialCategory}
+        trendingItems={trendingItems}
+        featuredItems={featuredItems}
+        trendingTags={trendingTags}
+        initialLikedIds={initialLikedIds}
+      />
+    </MainLayoutWrapper>
   );
 }
