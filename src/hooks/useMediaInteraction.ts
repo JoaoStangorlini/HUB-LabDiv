@@ -12,9 +12,10 @@ interface UseMediaInteractionProps {
     initialLiked?: boolean;
     initialSaved?: boolean;
     userId?: string;
+    setIsSyncing?: (val: boolean) => void;
 }
 
-export function useMediaInteraction({ id, initialLikes, initialSaves, initialLiked = false, initialSaved = false, userId }: UseMediaInteractionProps) {
+export function useMediaInteraction({ id, initialLikes, initialSaves, initialLiked = false, initialSaved = false, userId, setIsSyncing }: UseMediaInteractionProps) {
     const router = useRouter();
     const [likes, setLikes] = useState(initialLikes);
     const [liked, setLiked] = useState(initialLiked);
@@ -59,6 +60,7 @@ export function useMediaInteraction({ id, initialLikes, initialSaves, initialLik
         setLikes(prevLiked ? Math.max(0, prevLikes - 1) : prevLikes + 1);
 
         setIsLiking(true);
+        if (setIsSyncing) setIsSyncing(true);
         try {
             const result = await toggleLike({ submission_id: id });
             if (result.error) {
@@ -78,6 +80,7 @@ export function useMediaInteraction({ id, initialLikes, initialSaves, initialLik
             toast.error(err.message || "Erro ao curtir");
         } finally {
             setIsLiking(false);
+            if (setIsSyncing) setIsSyncing(false);
         }
     }, [id, liked, likes, isLiking, checkAuth]);
 
@@ -92,6 +95,7 @@ export function useMediaInteraction({ id, initialLikes, initialSaves, initialLik
         setSaves(!prevSaved ? prevSaves + 1 : Math.max(0, prevSaves - 1));
 
         setIsSaving(true);
+        if (setIsSyncing) setIsSyncing(true);
         try {
             const result = await toggleSave({ submission_id: id });
             if (result.error) throw new Error(result.error);
@@ -110,6 +114,7 @@ export function useMediaInteraction({ id, initialLikes, initialSaves, initialLik
             toast.error(err.message || "Erro ao salvar");
         } finally {
             setIsSaving(false);
+            if (setIsSyncing) setIsSyncing(false);
         }
     }, [id, saved, saves, isSaving, checkAuth]);
 

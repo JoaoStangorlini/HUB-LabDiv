@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { MainLayoutWrapper } from '@/components/layout/MainLayoutWrapper';
@@ -52,7 +52,19 @@ export default function TrilhasClient({
     const [completedIds, setCompletedIds] = useState<string[]>(initialCompletedIds);
     const [cursandoIds, setCursandoIds] = useState<string[]>(cursandoTrails.map(t => t.id));
     const [isUpdating, setIsUpdating] = useState<string | null>(null);
-    const [isSyncing, setIsSyncing] = useState(false);
+    const [isSyncing, setIsSyncingState] = useState(false);
+    const syncTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+    const setIsSyncing = useCallback((val: boolean) => {
+        if (val) {
+            if (syncTimeoutRef.current) clearTimeout(syncTimeoutRef.current);
+            setIsSyncingState(true);
+        } else {
+            syncTimeoutRef.current = setTimeout(() => {
+                setIsSyncingState(false);
+            }, 4000);
+        }
+    }, []);
     const [dashboardTab, setDashboardTab] = useState<'faltam' | 'concluidas' | 'cursando'>('faltam');
     const [isDashboardCollapsed, setIsDashboardCollapsed] = useState(false);
     const [sortOrder, setSortOrder] = useState<'trending' | 'sem-asc' | 'sem-desc'>('sem-asc');
@@ -1079,60 +1091,50 @@ export default function TrilhasClient({
             </main>
 
             {/* Global Sync Overlay */}
+            {/* Sincronizador Atômico (Canto Superior Direito) */}
             <AnimatePresence>
-                {
-                    isSyncing && (
-                        <motion.div
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            className="fixed inset-0 z-[200] flex flex-col items-center justify-center bg-black/60 backdrop-blur-md"
-                        >
-                            <div className="relative w-32 h-32 flex items-center justify-center">
-                                {/* Animated Rings */}
+                {isSyncing && (
+                    <motion.div
+                        initial={{ opacity: 0, x: 50, scale: 0.9 }}
+                        animate={{ opacity: 1, x: 0, scale: 1 }}
+                        exit={{ opacity: 0, x: 50, scale: 0.9 }}
+                        className="fixed top-24 right-6 z-[200] bg-black/80 backdrop-blur-xl border border-blue-500/30 rounded-2xl p-4 flex items-center gap-4 shadow-[0_0_30px_rgba(0,163,255,0.15)]"
+                    >
+                        <div className="relative w-10 h-10 flex items-center justify-center">
+                            <motion.div
+                                animate={{ rotate: 360 }}
+                                transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
+                                className="absolute inset-0 border border-blue-500/30 rounded-full"
+                            />
+                            <div className="relative">
                                 <motion.div
-                                    animate={{ rotate: 360 }}
-                                    transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
-                                    className="absolute inset-0 border-2 border-dashed border-[#00A3FF]/40 rounded-full"
+                                    animate={{ scale: [1, 1.2, 1] }}
+                                    transition={{ duration: 1, repeat: Infinity }}
+                                    className="w-2 h-2 bg-blue-500 rounded-full shadow-[0_0_10px_#00A3FF]"
                                 />
-                                <motion.div
-                                    animate={{ rotate: -360 }}
-                                    transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-                                    className="absolute inset-4 border border-brand-yellow/30 rounded-full"
-                                />
-
-                                {/* Central Particle */}
-                                <div className="relative">
-                                    <motion.div
-                                        animate={{ scale: [1, 1.2, 1] }}
-                                        transition={{ duration: 1, repeat: Infinity }}
-                                        className="w-4 h-4 bg-[#00A3FF] rounded-full shadow-[0_0_20px_#00A3FF]"
-                                    />
-                                    <Atom className="absolute -top-6 -left-6 w-16 h-16 text-white/20 animate-pulse" />
-                                </div>
+                                <Atom className="absolute -top-3 -left-3 w-8 h-8 text-white/10 animate-pulse" />
                             </div>
+                        </div>
+                        <div className="flex flex-col pr-2">
+                            <h2 className="text-[10px] font-black font-mono text-white uppercase tracking-[0.2em]">
+                                Sinc_Atômico
+                            </h2>
+                            <p className="text-[8px] font-mono text-gray-400 uppercase tracking-widest leading-none">
+                                Sincronizando_Grade_IFUSP...
+                            </p>
+                        </div>
 
-                            <div className="mt-8 text-center space-y-2">
-                                <h2 className="text-lg font-black font-mono text-white uppercase tracking-[0.3em] animate-pulse">
-                                    Sincronizando_Partículas
-                                </h2>
-                                <p className="text-[10px] font-mono text-gray-400 uppercase tracking-widest">
-                                    Protocolo Síncrotron v3 {'>'} Salvando na grade curricular...
-                                </p>
-                            </div>
-
-                            {/* Progress Bar simulada */}
-                            <div className="mt-6 w-48 h-1 bg-white/10 rounded-full overflow-hidden">
-                                <motion.div
-                                    initial={{ width: 0 }}
-                                    animate={{ width: "100%" }}
-                                    transition={{ duration: 2.0, ease: "linear" }}
-                                    className="h-full bg-[#00A3FF] shadow-[0_0_10px_#00A3FF]"
-                                />
-                            </div>
-                        </motion.div>
-                    )
-                }
+                        {/* Barra de Carregamento (4s) */}
+                        <div className="absolute bottom-0 left-0 right-0 h-1 bg-white/5 rounded-b-2xl overflow-hidden">
+                            <motion.div
+                                initial={{ width: 0 }}
+                                animate={{ width: "100%" }}
+                                transition={{ duration: 4, ease: "linear" }}
+                                className="h-full bg-blue-500 shadow-[0_0_10px_#3b82f6]"
+                            />
+                        </div>
+                    </motion.div>
+                )}
             </AnimatePresence>
 
             {/* Visual Map Modal Card */}

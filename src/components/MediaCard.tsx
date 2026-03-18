@@ -48,6 +48,7 @@ export interface MediaCardProps {
     isLikedByUser?: boolean;
     isSavedByUser?: boolean;
     highlightQuery?: string;
+    setIsSyncing?: (val: boolean) => void;
 }
 
 import { CATEGORY_STYLES, DEFAULT_STYLE } from '@/lib/constants';
@@ -56,7 +57,7 @@ import { CATEGORY_STYLES, DEFAULT_STYLE } from '@/lib/constants';
  * V8.0 MediaCard - Hardened & Refactored
  * Implements DTO Enforcement and hook-based logic.
  */
-export const MediaCard = React.memo(({ post, priority = false, isLikedByUser = false, isSavedByUser = false, highlightQuery = '' }: MediaCardProps) => {
+export const MediaCard = React.memo(({ post, priority = false, isLikedByUser = false, isSavedByUser = false, highlightQuery = '', setIsSyncing }: MediaCardProps) => {
     const { user } = useAuth();
     const userId = user?.id;
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -87,7 +88,8 @@ export const MediaCard = React.memo(({ post, priority = false, isLikedByUser = f
         initialSaves: post.saveCount || 0,
         initialLiked: isLikedByUser,
         // (Note: useMediaInteraction hook currently lacks initialSaved param, we will need to update it next)
-        userId
+        userId,
+        setIsSyncing
     });
 
     const handleMouseEnter = () => {
@@ -182,13 +184,18 @@ export const MediaCard = React.memo(({ post, priority = false, isLikedByUser = f
                         xp={post.authorXp}
                         level={post.authorLevel}
                         isLabDiv={post.authorIsLabDiv}
-                    />
-                    <Link
-                        href={post.authors.startsWith('@') ? `/?collection=${encodeURIComponent(post.authors)}` : `/?autor=${encodeURIComponent(post.authors)}`}
                         onClick={(e) => {
                             e.preventDefault();
                             e.stopPropagation();
-                            router.push(post.authors.startsWith('@') ? `/?collection=${encodeURIComponent(post.authors)}` : `/?autor=${encodeURIComponent(post.authors)}`);
+                            router.push(`/lab?user=${post.userId}`);
+                        }}
+                    />
+                    <Link
+                        href={`/lab?user=${post.userId}`}
+                        onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            router.push(`/lab?user=${post.userId}`);
                         }}
                         className="text-xs font-bold text-gray-900 dark:text-gray-100 hover:text-brand-blue transition-colors truncate max-w-[120px] sm:max-w-[180px]"
                     >

@@ -10,7 +10,7 @@ import { getAvatarUrl } from '@/lib/utils';
 import { parseMediaUrl, getYoutubeThumbnail, getOptimizedUrl } from '@/lib/media-utils';
 import { MainLayoutWrapper } from '@/components/layout/MainLayoutWrapper';
 
-import { User, Grid, Medal, Star, Image as ImageIcon, PlayCircle, FileText, Heart, MessageSquare, Info, Camera, ExternalLink, ShieldCheck, Play, UserPlus, GraduationCap, Github, Linkedin, Youtube, Instagram, Globe } from 'lucide-react';
+import { User, Grid, Medal, Star, Image as ImageIcon, PlayCircle, FileText, Heart, MessageSquare, Info, Camera, ExternalLink, ShieldCheck, Play, UserPlus, GraduationCap, Github, Linkedin, Youtube, Instagram, Globe, Share2 } from 'lucide-react';
 import { TikTokIcon } from '@/components/icons/TikTokIcon';
 import { PerfilFeedbackCard } from './PerfilFeedbackCard';
 import dynamic from 'next/dynamic';
@@ -42,6 +42,31 @@ function LabContent() {
     const [adoptionStatus, setAdoptionStatus] = useState<'pending' | 'approved' | null>(null);
     const [academicData, setAcademicData] = useState<any>(null);
     const [followStats, setFollowStats] = useState({ followers: 0, following: 0 });
+
+    const handleShare = async () => {
+        const url = window.location.href;
+        const title = viewedProfile?.full_name ? `Laboratório de ${viewedProfile.full_name} | IFUSP Ciência` : 'Meu Laboratório | IFUSP Ciência';
+        
+        if (navigator.share) {
+            try {
+                await navigator.share({
+                    title,
+                    text: `Confira o laboratório de ${viewedProfile?.full_name || 'pesquisa'} no IFUSP Ciência!`,
+                    url
+                });
+            } catch (err) {
+                console.log('Error sharing:', err);
+            }
+        } else {
+            // Fallback for desktop: Copy to clipboard
+            try {
+                await navigator.clipboard.writeText(url);
+                // We don't have a toast here but we could add a simple feedback or just rely on the user knowing
+            } catch (err) {
+                console.error('Failed to copy text:', err);
+            }
+        }
+    };
 
 
     useEffect(() => {
@@ -100,7 +125,7 @@ function LabContent() {
                     const ids = saves.map(s => s.submission_id);
                     const { data: savedSubs } = await supabase
                         .from('submissions')
-                        .select('id, title, authors, description, media_url, media_type, category, status, like_count, comment_count, save_count, view_count, created_at, is_featured')
+                        .select('id, title, authors, description, media_url, media_type, category, status, like_count, comment_count, save_count, view_count, created_at, is_featured, user_id')
                         .in('id', ids)
                         .eq('status', 'aprovado');
 
@@ -120,6 +145,7 @@ function LabContent() {
                             viewCount: s.view_count || 0,
                             createdAt: s.created_at,
                             isFeatured: s.is_featured || false,
+                            userId: s.user_id,
                         })));
                     }
                 }
@@ -222,21 +248,39 @@ function LabContent() {
                                 </div>
 
                                 {viewedProfile?.id === currentUser.id ? (
-                                    <button
-                                        onClick={() => setIsEditModalOpen(true)}
-                                        className="sm:ml-4 px-4 py-2 bg-gray-100 dark:bg-white/5 hover:bg-gray-200 dark:hover:bg-white/10 text-gray-600 dark:text-gray-300 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2"
-                                    >
-                                        <span className="material-symbols-outlined text-sm">edit</span>
-                                        Editar Perfil
-                                    </button>
+                                    <div className="flex flex-wrap items-center gap-2 sm:ml-4">
+                                        <button
+                                            onClick={() => setIsEditModalOpen(true)}
+                                            className="px-4 py-2 bg-gray-100 dark:bg-white/5 hover:bg-gray-200 dark:hover:bg-white/10 text-gray-600 dark:text-gray-300 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2"
+                                        >
+                                            <span className="material-symbols-outlined text-sm">edit</span>
+                                            Editar Perfil
+                                        </button>
+
+                                        <button 
+                                            onClick={handleShare}
+                                            className="px-4 py-2 bg-brand-blue text-white hover:scale-105 transition-all rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2 shadow-lg shadow-brand-blue/20"
+                                        >
+                                            <Share2 className="w-3.5 h-3.5" />
+                                            Compartilhar Lab
+                                        </button>
+                                    </div>
                                 ) : (
                                     <div className="flex flex-wrap items-center gap-2">
                                         <button
                                             onClick={() => router.push('/lab')}
-                                            className="sm:ml-4 px-4 py-2 bg-gray-100 dark:bg-white/5 hover:bg-gray-200 dark:hover:bg-white/10 text-gray-600 dark:text-gray-300 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2"
+                                            className="px-4 py-2 bg-gray-100 dark:bg-white/5 hover:bg-gray-200 dark:hover:bg-white/10 text-gray-600 dark:text-gray-300 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2"
                                         >
                                             <span className="material-symbols-outlined text-sm">person</span>
                                             Meu Perfil
+                                        </button>
+
+                                        <button 
+                                            onClick={handleShare}
+                                            className="px-4 py-2 bg-brand-blue text-white hover:scale-105 transition-all rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2 shadow-lg shadow-brand-blue/20"
+                                        >
+                                            <Share2 className="w-3.5 h-3.5" />
+                                            Compartilhar Lab
                                         </button>
 
                                         {currentUserProfile?.available_to_mentor && viewedProfile?.seeking_mentor && (
@@ -362,12 +406,12 @@ function LabContent() {
                                         </a>
                                     )}
                                     {viewedProfile?.github_url && (
-                                        <a href={viewedProfile.github_url} target="_blank" rel="noopener noreferrer" title="GitHub" className="p-2 bg-gray-100 dark:bg-white/5 hover:bg-gray-200 dark:hover:bg-white/10 text-gray-500 hover:text-gray-900 dark:hover:text-white rounded-xl transition-colors">
+                                        <a href={viewedProfile.github_url} target="_blank" rel="noopener noreferrer" title="GitHub" className="p-2 bg-gray-900 dark:bg-white text-white dark:text-black hover:scale-110 transition-transform rounded-xl">
                                             <Github className="w-4 h-4" />
                                         </a>
                                     )}
                                     {viewedProfile?.youtube_url && (
-                                        <a href={viewedProfile.youtube_url} target="_blank" rel="noopener noreferrer" title="YouTube" className="p-2 bg-gray-100 dark:bg-white/5 hover:bg-[#FF0000]/10 text-gray-500 hover:text-[#FF0000] rounded-xl transition-colors">
+                                        <a href={viewedProfile.youtube_url} target="_blank" rel="noopener noreferrer" title="YouTube" className="p-2 bg-[#FF0000] text-white hover:scale-110 transition-transform rounded-xl">
                                             <Youtube className="w-4 h-4" />
                                         </a>
                                     )}
@@ -489,7 +533,7 @@ function LabContent() {
                     {activeTab === 'publicacoes' && (
                         <div>
                             {submissions.length > 0 ? (
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
                                     {submissions.map(sub => {
                                         const urls = parseMediaUrl(sub.post.mediaUrl);
                                         const firstMedia = urls[0] || '';
@@ -578,7 +622,7 @@ function LabContent() {
                     {activeTab === 'estrelados' && (
                         <div>
                             {savedPosts.length > 0 ? (
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
                                     {savedPosts.map(post => {
                                         const urls = parseMediaUrl(post.mediaUrl);
                                         const firstMedia = urls[0] || '';

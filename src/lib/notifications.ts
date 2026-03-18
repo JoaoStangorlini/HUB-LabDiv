@@ -4,7 +4,7 @@ const resendApiKey = process.env.RESEND_API_KEY;
 const resend = resendApiKey ? new Resend(resendApiKey) : null;
 const adminEmail = process.env.ADMIN_EMAIL || 'joaopaulostangorlini@usp.br';
 
-export type NotificationType = 'submission' | 'question' | 'comment' | 'profile_update' | 'profile_creation' | 'bug_report' | 'arena_suggestion' | 'hub_improvement' | 'drop_submission';
+export type NotificationType = 'submission' | 'question' | 'comment' | 'profile_update' | 'profile_creation' | 'bug_report' | 'arena_suggestion' | 'hub_improvement' | 'drop_submission' | 'thread_reply';
 
 interface NotificationData {
     type: NotificationType;
@@ -133,6 +133,17 @@ export async function sendAdminNotification(data: NotificationData) {
                 <h2 style="color: #1a1a1a; margin-top: 0; font-size: 20px;">Novo Log Enviado (Drop)</h2>
                 <p style="color: #4a5568; line-height: 1.6; font-size: 15px;">O pesquisador <strong>@${data.userName}</strong> postou uma nova atualização rápida que aguarda moderação.</p>
                 <div style="background-color: #f8fafc; border-left: 4px solid #EF4444; padding: 20px; margin: 24px 0; border-radius: 8px; font-style: italic; color: #2d3748;">
+                    "${data.content}"
+                </div>`;
+            break;
+
+        case 'thread_reply':
+            subject = `🧵 Hub: Novo Fio (Thread) - @${data.userName}`;
+            dashboardLink = 'https://hub.labdiv.if.usp.br/admin/drops';
+            emailTemplate = `
+                <h2 style="color: #1a1a1a; margin-top: 0; font-size: 20px;">Nova Resposta em Fio (Thread)</h2>
+                <p style="color: #4a5568; line-height: 1.6; font-size: 15px;">O pesquisador <strong>@${data.userName}</strong> respondeu a um log existente. A thread aguarda moderação.</p>
+                <div style="background-color: #f0f9ff; border-left: 4px solid #3B82F6; padding: 20px; margin: 24px 0; border-radius: 8px; font-style: italic; color: #2d3748;">
                     "${data.content}"
                 </div>`;
             break;

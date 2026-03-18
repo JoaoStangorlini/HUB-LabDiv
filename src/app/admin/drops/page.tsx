@@ -24,6 +24,12 @@ interface Drop {
         course?: string;
         interest_area?: string;
     };
+    parent?: {
+        content: string;
+        author?: {
+            handle: string;
+        };
+    };
 }
 
 export default function AdminDropsPage() {
@@ -48,6 +54,12 @@ export default function AdminDropsPage() {
                     research_line,
                     course,
                     interest_area
+                ),
+                parent:parent_id (
+                    content,
+                    author:author_id (
+                        handle:username
+                    )
                 )
             `)
             .order('created_at', { ascending: false });
@@ -285,6 +297,12 @@ function DropAdminCard({ drop, handleAction }: { drop: Drop, handleAction: (id: 
             </div>
 
             <div className="relative">
+                {drop.parent && (
+                    <div className="mb-4 p-3 bg-black/40 rounded-2xl border-l-4 border-brand-red/50 text-[10px] text-gray-400 italic">
+                        <span className="font-black text-brand-red/70 not-italic mr-1">RESPONDENDO A @{drop.parent.author?.handle}:</span>
+                        "{drop.parent.content.slice(0, 100)}{drop.parent.content.length > 100 ? '...' : ''}"
+                    </div>
+                )}
                 <p className="text-base text-gray-300 leading-relaxed min-h-[100px] font-medium relative z-10 break-words italic pl-6 border-l-2 border-white/10 group-hover:border-brand-red/50 transition-colors">
                     "{drop.content}"
                 </p>

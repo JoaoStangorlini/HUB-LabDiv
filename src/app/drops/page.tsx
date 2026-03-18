@@ -1,17 +1,22 @@
 'use client';
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import { MainLayoutWrapper } from "@/components/layout/MainLayoutWrapper";
 import { supabase } from "@/lib/supabase";
-import { FilePenLine, Send, Atom, Clock, User, Star, Hash } from 'lucide-react';
+import { FilePenLine, Send, Atom, Clock, Star, Hash, GitCommit, ChevronDown, ChevronUp, User, Loader2, Zap, ArrowUp, ArrowDown, Sparkles, Network } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'react-hot-toast';
 import { LogsFeedbackCard } from './LogsFeedbackCard';
+import { fetchThreads, createDrop, reactToDrop } from '@/app/actions/drops';
 
 interface Drop {
     id: string;
     author_id: string;
     content: string;
+    parent_id?: string | null;
     likes_count: number;
+    dislikes_count: number;
     created_at: string;
     status: string;
     is_featured: boolean;
@@ -24,6 +29,8 @@ interface Drop {
         course?: string;
         interest_area?: string;
     };
+    replies_count?: number;
+    user_reaction?: 'up' | 'down' | null;
 }
 
 export default function DropsPage() {
@@ -31,6 +38,20 @@ export default function DropsPage() {
     const [content, setContent] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [user, setUser] = useState<any>(null);
+    const [isSyncing, setIsSyncingState] = useState(false);
+    const syncTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+    const setIsSyncing = useCallback((val: boolean) => {
+        if (val) {
+            if (syncTimeoutRef.current) clearTimeout(syncTimeoutRef.current);
+            setIsSyncingState(true);
+        } else {
+            // Garante que fique visível por pelo menos 4s para completar a barra
+            syncTimeoutRef.current = setTimeout(() => {
+                setIsSyncingState(false);
+            }, 4000);
+        }
+    }, []);
 
     useEffect(() => {
         fetchDrops();
@@ -49,11 +70,13 @@ export default function DropsPage() {
     const fetchDrops = async () => {
         const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
         
-        // Featured logs: sem limite de tempo — nunca expiram
-        const featuredPromise = supabase
+        // Buscando logs raiz aprovados
+        const { data, error } = await supabase
             .from('micro_articles')
             .select(`
                 *,
+                likes_count,
+                dislikes_count,
                 profiles:author_id (
                     name:full_name,
                     handle:username,
@@ -64,41 +87,46 @@ export default function DropsPage() {
                     interest_area
                 )
             `)
-            .eq('is_featured', true)
+            .is('parent_id', null) // Apenas logs raiz
             .eq('status', 'approved')
+            .or(`is_featured.eq.true,created_at.gte.${twentyFourHoursAgo}`)
+            .order('is_featured', { ascending: false })
             .order('created_at', { ascending: false });
 
-        // Recent logs: só as últimas 24h, excluindo featured para não duplicar
-        const recentPromise = supabase
-            .from('micro_articles')
-            .select(`
-                *,
-                profiles:author_id (
-                    name:full_name,
-                    handle:username,
-                    avatar:avatar_url,
-                    user_category,
-                    research_line,
-                    course,
-                    interest_area
-                )
-            `)
-            .gte('created_at', twentyFourHoursAgo)
-            .eq('status', 'approved')
-            .eq('is_featured', false)
-            .order('created_at', { ascending: false });
+        if (error) {
+            console.error('[Drops] Fetch error:', error);
+            return;
+        }
 
-        const [featuredRes, recentRes] = await Promise.all([featuredPromise, recentPromise]);
-        
-        if (featuredRes.error) console.error('[Drops] Featured error:', featuredRes.error);
-        if (recentRes.error) console.error('[Drops] Recent error:', recentRes.error);
+        // Buscando contagem de respostas e reação do usuário logado
+        const dropsWithContext = await Promise.all((data || []).map(async (drop) => {
+            // Contagem de respostas
+            const { count } = await supabase
+                .from('micro_articles')
+                .select('*', { count: 'exact', head: true })
+                .eq('parent_id', drop.id)
+                .eq('status', 'approved');
 
-        const allDrops = [
-            ...(featuredRes.data || []),
-            ...(recentRes.data || []),
-        ] as Drop[];
+            // Reação do usuário atual
+            let userReaction = null;
+            if (user) {
+                const { data: reaction } = await supabase
+                    .from('micro_article_likes')
+                    .select('reaction_type')
+                    .eq('article_id', drop.id)
+                    .eq('user_id', user.id)
+                    .single();
+                userReaction = reaction?.reaction_type || null;
+            }
 
-        setDrops(allDrops);
+            return { 
+                ...drop, 
+                replies_count: count || 0,
+                user_reaction: userReaction
+            };
+        }));
+
+        setDrops(dropsWithContext as Drop[]);
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -108,7 +136,6 @@ export default function DropsPage() {
         if (content.length > 260) return toast.error('O limite é de 260 caracteres!');
 
         setIsSubmitting(true);
-        const { createDrop } = await import('@/app/actions/drops');
         const result = await createDrop(content.trim());
 
         if (result.error) {
@@ -116,7 +143,7 @@ export default function DropsPage() {
         } else {
             setContent('');
             toast.success('Log enviado para aprovação!');
-            fetchDrops();
+            // Não atualizamos a lista local para respeitar a CLÁUSULA 2
         }
         setIsSubmitting(false);
     };
@@ -125,9 +152,7 @@ export default function DropsPage() {
     const recentDrops = useMemo(() => drops.filter(d => !d.is_featured), [drops]);
 
     return (
-        <MainLayoutWrapper
-            rightSidebar={<LogsFeedbackCard />}
-        >
+        <MainLayoutWrapper rightSidebar={<LogsFeedbackCard />}>
             <div className="max-w-2xl mx-auto space-y-12 pb-20">
                 {/* Header */}
                 <div className="flex flex-col gap-3 relative">
@@ -136,14 +161,13 @@ export default function DropsPage() {
                         <FilePenLine className="w-12 h-12" />
                         Logs do IFUSP
                     </h1>
-
-                    {/* Mobile Feedback Card - Pós H1 */}
                     <LogsFeedbackCard className="block lg:hidden mb-8" />
-
-                    <p className="text-gray-500 font-bold uppercase tracking-widest text-[10px] border-l-2 border-brand-red pl-4">Divulgação científica em tempo real. O que está acontecendo no IFUSP agora?</p>
+                    <p className="text-gray-500 font-bold uppercase tracking-widest text-[10px] border-l-2 border-brand-red pl-4">
+                        Divulgação científica em tempo real. O que está acontecendo no IFUSP agora?
+                    </p>
                 </div>
 
-                {/* Input Area */}
+                {/* Main Input */}
                 <form onSubmit={handleSubmit} className="relative glass-card p-8 rounded-[40px] border-brand-red/10 bg-gradient-to-br from-brand-red/10 via-transparent to-transparent shadow-2xl overflow-hidden group">
                     <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
                         <Hash size={80} />
@@ -160,239 +184,371 @@ export default function DropsPage() {
                             <span className={`text-[10px] font-black font-mono px-3 py-1 rounded-full border ${content.length > 240 ? 'text-brand-red border-brand-red/20 bg-brand-red/10' : 'text-gray-500 border-white/5 bg-white/5'}`}>
                                 {content.length} <span className="opacity-40">/</span> 260
                             </span>
-                            <span className="text-[10px] font-mono text-gray-500 uppercase tracking-widest animate-pulse">#IFUSP_LOGS</span>
                         </div>
                         <button
                             type="submit"
                             disabled={isSubmitting || !content.trim()}
-                            className="bg-brand-red hover:bg-red-600 text-white px-8 py-3 rounded-2xl font-black uppercase tracking-widest text-xs flex items-center gap-3 hover:scale-105 active:scale-95 transition-all disabled:opacity-50 shadow-lg shadow-brand-red/20 shadow-inner"
+                            className="bg-brand-red hover:bg-red-600 text-white px-8 py-3 rounded-2xl font-black uppercase tracking-widest text-xs flex items-center gap-3 hover:scale-105 active:scale-95 transition-all shadow-lg shadow-brand-red/20 shadow-inner"
                         >
-                            {isSubmitting ? 'Transmitindo...' : (
-                                <>
-                                    Lançar <Send className="w-4 h-4" />
-                                </>
-                            )}
+                            {isSubmitting ? 'Transmitindo...' : <>Lançar <Send className="w-4 h-4" /></>}
                         </button>
                     </div>
                 </form>
 
-                {/* Featured Section */}
-                <div className="space-y-6">
-                    <div className="flex items-center gap-4 px-2">
-                         <div className="h-px bg-gradient-to-r from-transparent via-yellow-500/50 to-transparent flex-1"></div>
-                         <div className="flex items-center gap-2 text-yellow-500 font-black uppercase italic tracking-tighter text-sm">
-                            <Star className="w-4 h-4 fill-yellow-500" />
-                            Logs Destacados
-                         </div>
-                         <div className="h-px bg-gradient-to-r from-transparent via-yellow-500/50 to-transparent flex-1"></div>
-                    </div>
-                    <div className="space-y-4">
-                        {featuredDrops.length > 0 ? (
-                            featuredDrops.map((drop) => (
-                                <DropCard key={drop.id} drop={drop} isFeatured />
-                            ))
+                {/* Feed Sections */}
+                <div className="space-y-12">
+                    {/* Featured */}
+                    {featuredDrops.length > 0 && (
+                        <FeedSection title="Logs Destacados" icon={<Star className="w-4 h-4 fill-yellow-500" />} color="yellow">
+                            {featuredDrops.map(drop => <ThreadNode key={drop.id} drop={drop} level={0} onRefresh={fetchDrops} setIsSyncing={setIsSyncing} />)}
+                        </FeedSection>
+                    )}
+
+                    {/* Recent */}
+                    <FeedSection title="Logs Recentes (24h)" icon={<Clock className="w-4 h-4" />} color="red">
+                        {recentDrops.length > 0 ? (
+                            recentDrops.map(drop => <ThreadNode key={drop.id} drop={drop} level={0} onRefresh={fetchDrops} setIsSyncing={setIsSyncing} />)
                         ) : (
-                            <div className="py-10 text-center opacity-40">
-                                <Star className="w-6 h-6 mx-auto mb-3 text-yellow-500/30" />
-                                <p className="font-mono text-xs uppercase tracking-widest">Nenhum log em destaque no momento.</p>
-                            </div>
-                        )}
-                    </div>
-                </div>
-
-
-                {/* Recent Section */}
-                <div className="space-y-6">
-                    <div className="flex items-center gap-4 px-2">
-                         <div className="h-px bg-gradient-to-r from-transparent via-brand-red/50 to-transparent flex-1"></div>
-                         <div className="flex items-center gap-2 text-brand-red font-black uppercase italic tracking-tighter text-sm">
-                            <Clock className="w-4 h-4" />
-                            Logs Recentes (24h)
-                         </div>
-                         <div className="h-px bg-gradient-to-r from-transparent via-brand-red/50 to-transparent flex-1"></div>
-                    </div>
-                    <div className="space-y-4">
-                        {recentDrops.length === 0 ? (
                             <div className="py-20 text-center opacity-40">
                                 <p className="font-mono text-xs uppercase tracking-widest">Nenhuma transmissão captada nas últimas 24h.</p>
                             </div>
-                        ) : (
-                            recentDrops.map((drop) => (
-                                <DropCard key={drop.id} drop={drop} />
-                            ))
                         )}
-                    </div>
+                    </FeedSection>
                 </div>
             </div>
+
+            {/* Mini Sincronizador Atômico (Canto Superior Direito) */}
+            <AnimatePresence>
+                {isSyncing && (
+                    <motion.div
+                        initial={{ opacity: 0, x: 50, scale: 0.9 }}
+                        animate={{ opacity: 1, x: 0, scale: 1 }}
+                        exit={{ opacity: 0, x: 50, scale: 0.9 }}
+                        className="fixed top-6 right-6 z-[100] bg-black/80 backdrop-blur-xl border border-blue-500/30 rounded-2xl p-4 flex items-center gap-4 shadow-[0_0_30px_rgba(0,163,255,0.15)]"
+                    >
+                        <div className="relative w-10 h-10 flex items-center justify-center">
+                            <motion.div
+                                animate={{ rotate: 360 }}
+                                transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
+                                className="absolute inset-0 border border-blue-500/30 rounded-full"
+                            />
+                            <div className="relative">
+                                <motion.div
+                                    animate={{ scale: [1, 1.2, 1] }}
+                                    transition={{ duration: 1, repeat: Infinity }}
+                                    className="w-2 h-2 bg-blue-500 rounded-full shadow-[0_0_10px_#00A3FF]"
+                                />
+                                <Atom className="absolute -top-3 -left-3 w-8 h-8 text-white/10 animate-pulse" />
+                            </div>
+                        </div>
+                        <div className="flex flex-col pr-2">
+                            <h2 className="text-[10px] font-black font-mono text-white uppercase tracking-[0.2em]">
+                                Sinc_Atômico
+                            </h2>
+                            <p className="text-[8px] font-mono text-gray-400 uppercase tracking-widest leading-none">
+                                Atualizando_Partículas...
+                            </p>
+                        </div>
+
+                        {/* Barra de Carregamento (4s) */}
+                        <div className="absolute bottom-0 left-0 right-0 h-1 bg-white/5 rounded-b-2xl overflow-hidden">
+                            <motion.div
+                                initial={{ width: 0 }}
+                                animate={{ width: "100%" }}
+                                transition={{ duration: 4, ease: "linear" }}
+                                className="h-full bg-blue-500 shadow-[0_0_10px_#3b82f6]"
+                            />
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </MainLayoutWrapper>
     );
 }
 
-function DropCard({ drop, isFeatured }: { drop: Drop, isFeatured?: boolean }) {
-    const [imgError, setImgError] = useState(false);
-    const [dicebearError, setDicebearError] = useState(false);
-    const [likes, setLikes] = useState(drop.likes_count);
-    const [isLiked, setIsLiked] = useState(false);
-    const [timeLeft, setTimeLeft] = useState('');
-    
-    const initials = (drop.profiles?.name || 'M')
-        .split(' ')
-        .map(n => n[0])
-        .join('')
-        .slice(0, 2)
-        .toUpperCase();
+function FeedSection({ title, icon, color, children }: { title: string, icon: React.ReactNode, color: 'red' | 'yellow', children: React.ReactNode }) {
+    const borderColor = color === 'red' ? 'via-brand-red/50' : 'via-yellow-500/50';
+    const textColor = color === 'red' ? 'text-brand-red' : 'text-yellow-500';
 
-    const avatarUrl = !imgError && drop.profiles?.avatar 
-        ? drop.profiles.avatar 
-        : !dicebearError 
-            ? `https://api.dicebear.com/7.x/avataaars/svg?seed=${drop.id}`
-            : null;
+    return (
+        <div className="space-y-6">
+            <div className="flex items-center gap-4 px-2">
+                <div className={`h-px bg-gradient-to-r from-transparent ${borderColor} to-transparent flex-1`}></div>
+                <div className={`flex items-center gap-2 ${textColor} font-black uppercase italic tracking-tighter text-sm`}>
+                    {icon} {title}
+                </div>
+                <div className={`h-px bg-gradient-to-r from-transparent ${borderColor} to-transparent flex-1`}></div>
+            </div>
+            <div className="space-y-4">{children}</div>
+        </div>
+    );
+}
+
+function ThreadNode({ drop, level = 0, onRefresh, setIsSyncing }: { drop: Drop, level?: number, onRefresh?: () => void, setIsSyncing?: (val: boolean) => void }) {
+    const [isExpanded, setIsExpanded] = useState(false);
+    const [threads, setThreads] = useState<Drop[]>([]);
+    const [isLoadingThreads, setIsLoadingThreads] = useState(false);
+    const [replyContent, setReplyContent] = useState('');
+    const [isSubmittingReply, setIsSubmittingReply] = useState(false);
+    const [showReplyInput, setShowReplyInput] = useState(false);
+    const [imgError, setImgError] = useState(false);
+    const router = useRouter();
+
+    const fetchCurrentThreads = async () => {
+        setIsLoadingThreads(true);
+        if (setIsSyncing) setIsSyncing(true);
+        const { data } = await fetchThreads(drop.id);
+        if (data) setThreads(data as Drop[]);
+        setIsLoadingThreads(false);
+        if (setIsSyncing) setIsSyncing(false);
+    };
+
+    const handleToggleExpand = async () => {
+        if (!isExpanded && threads.length === 0 && (drop.replies_count || 0) > 0) {
+            await fetchCurrentThreads();
+        }
+        setIsExpanded(!isExpanded);
+    };
+
+    const handleReply = async (e: React.FormEvent) => {
+        e.preventDefault();
+        
+        // BLOQUEIO DE IMENDAS (Limite 4)
+        if ((drop.replies_count || 0) >= 4) {
+            toast.error('Limite de imendas atingido! Para continuar este debate, use as reações atômicas ou mande uma DM.', {
+                duration: 5000,
+                icon: '🧪'
+            });
+            setShowReplyInput(false);
+            return;
+        }
+
+        if (!replyContent.trim()) return;
+        setIsSubmittingReply(true);
+        const result = await createDrop(replyContent.trim(), drop.id);
+        if (!result.error) {
+            setReplyContent('');
+            setShowReplyInput(false);
+            toast.success('Resposta enviada para aprovação!');
+        } else {
+            toast.error(result.error);
+        }
+        setIsSubmittingReply(false);
+    };
+
+    // Estética IDE: Linhas guia e Limite Mobile
+    const hasReplies = (drop.replies_count || 0) > 0 || threads.length > 0;
+    const marginClass = level > 0 ? (level <= 3 ? `ml-4 sm:ml-6` : `ml-2 sm:ml-4`) : '';
+    const borderClass = level > 0 ? `border-l-2 ${hasReplies ? 'border-brand-red/50 shadow-[0_0_10px_rgba(239,68,68,0.2)]' : 'border-zinc-800'} hover:border-zinc-500 transition-colors` : '';
+
+    return (
+        <div className={`${marginClass} ${borderClass} pl-4 space-y-3`}>
+            {/* Log Card (Glassmorphism + IDE Style) */}
+            <div className={`group relative glass-card p-6 rounded-[2.5rem] border-white/5 transition-all ${level === 0 ? 'bg-zinc-950/40 backdrop-blur-md' : 'bg-transparent border-transparent'}`}>
+                <div className="flex gap-4 text-left items-start">
+                    {/* Avatar Container */}
+                    <div className="shrink-0">
+                        <div className="w-10 h-10 rounded-xl bg-brand-red/10 flex items-center justify-center overflow-hidden border border-brand-red/20 shadow-inner">
+                            {drop.profiles?.avatar && !imgError ? (
+                                <img 
+                                    src={drop.profiles.avatar} 
+                                    className="w-full h-full object-cover" 
+                                    alt="" 
+                                    onError={() => setImgError(true)}
+                                />
+                            ) : (
+                                <span className="text-[10px] font-black text-brand-red uppercase">
+                                    {(drop.profiles?.handle || drop.profiles?.name || 'M')[0]}
+                                </span>
+                            )}
+                        </div>
+                    </div>
+
+                    {/* Content Area */}
+                    <div className="flex-1 min-w-0 flex flex-col gap-2">
+                        {/* Header: CLS Zero Fix */}
+                        <div className="flex flex-wrap items-center gap-2 mb-1">
+                            <span className="font-black text-sm text-gray-900 dark:text-white truncate max-w-[150px]">
+                                @{drop.profiles?.handle || 'membro'}
+                            </span>
+                            <div className="flex items-center gap-2 text-[9px] font-black font-mono text-gray-500 bg-black/20 px-2 py-1 rounded-lg border border-white/5 shrink-0">
+                                <Clock className="w-2.5 h-2.5 text-brand-red" />
+                                {new Date(drop.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                            </div>
+                            {/* Temporizador Real */}
+                            {!drop.is_featured && level === 0 && (
+                                <div className="px-2 py-1 bg-brand-red/10 border border-brand-red/20 rounded-full shrink-0">
+                                    <LogTimer createdAt={drop.created_at} />
+                                </div>
+                            )}
+                        </div>
+
+                        <p className={`font-medium break-words ${level === 0 ? 'text-gray-100 text-sm' : 'text-gray-400 text-xs'}`}>
+                            {drop.content}
+                        </p>
+
+                        {/* Actions Row */}
+                        <div className="flex items-center gap-4 pt-1">
+                            <button 
+                                onClick={handleToggleExpand}
+                                className="flex flex-col items-center gap-0.5 group/btn"
+                            >
+                                <div className={`flex items-center gap-1.5 px-1.5 py-0.5 border border-brand-red/30 rounded group-hover/btn:border-brand-red/60 transition-colors ${hasReplies ? 'bg-brand-red/5' : ''}`}>
+                                    {/* Lógica de Sobrecarga (4+ fios) */}
+                                    {hasReplies && (drop.replies_count || 0) >= 4 && (
+                                        <Zap size={10} className="text-yellow-400 fill-yellow-400 animate-bounce" />
+                                    )}
+
+                                    {hasReplies && (drop.replies_count || 0) >= 4 ? (
+                                        <Zap className="w-4 h-4 text-brand-red fill-brand-red filter drop-shadow-[0_0_3px_rgba(239,68,68,0.5)]" />
+                                    ) : (
+                                        <GitCommit className={`w-4 h-4 group-hover/btn:scale-110 transition-transform ${hasReplies ? 'text-brand-red' : ''}`} />
+                                    )}
+                                    
+                                    <span className={`text-[10px] font-black font-mono ${hasReplies ? 'text-brand-red' : ''}`}>
+                                        {drop.replies_count || threads.length || 0}
+                                    </span>
+
+                                    {/* Progressão de Raios à Direita */}
+                                    <div className="flex gap-0.5">
+                                        {hasReplies && Array.from({ length: Math.min(drop.replies_count || 0, 3) }).map((_, i) => (
+                                            <Zap key={i} size={10} className="text-brand-red fill-brand-red opacity-80" />
+                                        ))}
+                                    </div>
+                                </div>
+                                <span className="text-[8px] uppercase font-black tracking-tighter text-gray-600 group-hover/btn:text-brand-red transition-colors leading-none">
+                                    ver
+                                </span>
+                            </button>
+                            <button 
+                                onClick={() => {
+                                    if ((drop.replies_count || 0) >= 4) {
+                                        toast('Limite de imendas atingido! Use as reações ou DM para prosseguir.', { icon: '⚛️' });
+                                        return;
+                                    }
+                                    setShowReplyInput(!showReplyInput);
+                                }}
+                                className={`text-[10px] uppercase font-black tracking-widest transition-colors ${ (drop.replies_count || 0) >= 4 ? 'text-gray-800 cursor-not-allowed' : 'text-gray-600 hover:text-brand-red'}`}
+                            >
+                                IMENDAR
+                            </button>
+                            
+                            {/* Sistema de Reações Atômicas */}
+                            <div className="flex items-center gap-4 border-l border-white/5 pl-4 ml-2">
+                                {/* Aprovo (2 Camadas) */}
+                                <button 
+                                    onClick={async (e) => {
+                                        e.stopPropagation();
+                                        if (setIsSyncing) setIsSyncing(true);
+                                        const res = await reactToDrop(drop.id, 'up');
+                                        if (res?.error) toast.error(res.error);
+                                        else if (onRefresh) onRefresh();
+                                        if (setIsSyncing) setIsSyncing(false);
+                                    }}
+                                    className="flex items-center gap-2 group/react hover:scale-110 transition-transform"
+                                    title="Aprovar (2 Camadas Eletrônicas)"
+                                >
+                                    <div className="relative">
+                                        <Atom size={18} className={`${drop.user_reaction === 'up' ? 'text-blue-400' : 'text-gray-600/40'} group-hover/react:text-blue-400 transition-colors`} />
+                                        {drop.user_reaction === 'up' && (
+                                            <Atom size={12} className="absolute inset-0 m-auto text-blue-500 animate-[spin_8s_linear_infinite]" />
+                                        )}
+                                        <ArrowUp size={10} className={`absolute -top-1.5 -right-1.5 ${drop.user_reaction === 'up' ? 'text-blue-400 font-bold' : 'text-gray-600/40'} group-hover/react:text-blue-400 transition-colors`} />
+                                    </div>
+                                    <span className={`text-[10px] font-mono font-black ${drop.user_reaction === 'up' ? 'text-blue-500' : 'text-gray-600/60'}`}>{drop.likes_count || 0}</span>
+                                </button>
+
+                                {/* Desaprovo (1 Camada) */}
+                                <button 
+                                    onClick={async (e) => {
+                                        e.stopPropagation();
+                                        if (setIsSyncing) setIsSyncing(true);
+                                        const res = await reactToDrop(drop.id, 'down');
+                                        if (res?.error) toast.error(res.error);
+                                        else if (onRefresh) onRefresh();
+                                        if (setIsSyncing) setIsSyncing(false);
+                                    }}
+                                    className="flex items-center gap-2 group/react hover:scale-110 transition-transform"
+                                    title="Desaprovar (1 Camada Eletrônica)"
+                                >
+                                    <div className={`relative ${drop.user_reaction === 'down' ? 'opacity-100' : 'opacity-30 group-hover/react:opacity-100'} transition-opacity`}>
+                                        <Atom size={18} className={`${drop.user_reaction === 'down' ? 'text-red-400' : 'text-gray-500'} group-hover/react:text-red-400 transition-colors`} />
+                                        <ArrowDown size={10} className={`absolute -bottom-1.5 -right-1.5 ${drop.user_reaction === 'down' ? 'text-red-400' : 'text-gray-400'} group-hover/react:text-red-400`} />
+                                    </div>
+                                    <span className={`text-[10px] font-mono font-black ${drop.user_reaction === 'down' ? 'text-red-500/80' : 'text-gray-600/60'}`}>{drop.dislikes_count || 0}</span>
+                                </button>
+                            </div>
+
+                            {isLoadingThreads && <div className="w-3 h-3 border-2 border-brand-red border-t-transparent rounded-full animate-spin"></div>}
+                        </div>
+                    </div>
+                </div>
+
+                {/* Reply Input (Aninhado) */}
+                <div className={`overflow-hidden transition-all duration-300 ${showReplyInput ? 'mt-4 opacity-100' : 'max-h-0 opacity-0'}`} style={{ maxHeight: showReplyInput ? '500px' : '0' }}>
+                    <form onSubmit={handleReply} className="flex gap-2">
+                        <input 
+                            value={replyContent}
+                            onChange={(e) => setReplyContent(e.target.value)}
+                            placeholder="Adicionar ao fio..."
+                            className="flex-1 bg-black/40 border border-white/10 rounded-xl px-4 py-2 text-xs focus:ring-1 focus:ring-brand-red outline-none text-white"
+                            maxLength={260}
+                            autoFocus={showReplyInput}
+                        />
+                        <button 
+                            type="submit"
+                            disabled={isSubmittingReply || !replyContent.trim()}
+                            className="bg-brand-red p-2 rounded-xl text-white hover:scale-105 transition-all text-xs font-black flex items-center justify-center min-w-[36px]"
+                        >
+                            {isSubmittingReply ? <Loader2 size={14} className="animate-spin" /> : <Send size={14} />}
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            {/* Nested Threads (Smooth Transition) */}
+            <div 
+                className={`grid transition-all duration-300 ease-in-out ${isExpanded ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`}
+                style={{ gridTemplateRows: isExpanded ? '1fr' : '0fr' }}
+            >
+                <div className="overflow-hidden space-y-3">
+                    {threads.map(reply => (
+                        <ThreadNode key={reply.id} drop={reply} level={level + 1} onRefresh={fetchCurrentThreads} setIsSyncing={setIsSyncing} />
+                    ))}
+                </div>
+            </div>
+        </div>
+    );
+}
+
+function LogTimer({ createdAt }: { createdAt: string }) {
+    const [timeLeft, setTimeLeft] = useState('');
 
     useEffect(() => {
-        // Expiration Timer Logic (24h)
         const updateTimer = () => {
-            const createdAt = new Date(drop.created_at).getTime();
-            const expirationTime = createdAt + 24 * 60 * 60 * 1000;
+            const created = new Date(createdAt).getTime();
+            const expiration = created + 24 * 60 * 60 * 1000;
             const now = Date.now();
-            const diff = expirationTime - now;
+            const diff = expiration - now;
 
             if (diff <= 0) {
-                setTimeLeft('EXPIRADO');
+                setTimeLeft('00h 00m');
                 return;
             }
 
             const h = Math.floor(diff / (1000 * 60 * 60));
             const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-            const s = Math.floor((diff % (1000 * 60)) / 1000);
-
-            setTimeLeft(`${h}h ${m}m ${s}s`);
+            setTimeLeft(`${h}h ${m}m`);
         };
 
-        const timer = setInterval(updateTimer, 1000);
+        const interval = setInterval(updateTimer, 60000);
         updateTimer();
-
-        // Check if liked (Initial check - simplified)
-        const checkInitialLike = async () => {
-            const { data: { user } } = await supabase.auth.getUser();
-            if (user) {
-                const { data } = await supabase
-                    .from('micro_article_likes')
-                    .select('id')
-                    .eq('article_id', drop.id)
-                    .eq('user_id', user.id)
-                    .single();
-                if (data) setIsLiked(true);
-            }
-        };
-        checkInitialLike();
-
-        return () => clearInterval(timer);
-    }, [drop.id, drop.created_at]);
-
-    const handleLike = async () => {
-        const { data: { user } } = await supabase.auth.getUser();
-        
-        // Optimistic UI
-        const newIsLiked = !isLiked;
-        setIsLiked(newIsLiked);
-        setLikes(prev => newIsLiked ? prev + 1 : prev - 1);
-
-        const { data, error } = await supabase.rpc('toggle_micro_article_like', {
-            p_article_id: drop.id,
-            p_user_id: user?.id || null,
-            p_fingerprint: user ? null : 'browser-native' // Basic fallback
-        });
-
-        if (error) {
-            console.error('Like error:', error);
-            // Rollback optimistic UI
-            setIsLiked(!newIsLiked);
-            setLikes(prev => !newIsLiked ? prev + 1 : prev - 1);
-            toast.error('Erro ao processar curtida');
-        } else if (data) {
-            setLikes(data.count);
-            setIsLiked(data.liked);
-        }
-    };
+        return () => clearInterval(interval);
+    }, [createdAt]);
 
     return (
-        <div 
-            className={`glass-card p-8 rounded-[2.5rem] border-white/5 hover:border-white/10 transition-all flex gap-6 group relative overflow-hidden ${isFeatured ? 'bg-gradient-to-br from-yellow-500/5 to-transparent border-yellow-500/10' : ''}`}
-        >
-            {isFeatured && (
-                <div className="absolute top-0 right-0 p-6 opacity-10 group-hover:opacity-20 transition-opacity">
-                    <Star size={40} className="fill-yellow-500 text-yellow-500" />
-                </div>
-            )}
-            
-            {/* Countdown Badge */}
-            {!isFeatured && (
-                <div className="absolute top-4 right-8 px-3 py-1 bg-black/40 border border-white/5 rounded-full z-20">
-                    <div className="flex items-center gap-2">
-                        <Clock className="w-3 h-3 text-brand-red animate-pulse" />
-                        <span className="text-[9px] font-black font-mono text-gray-400 uppercase tracking-tighter">
-                            Expira em: <span className="text-white">{timeLeft}</span>
-                        </span>
-                    </div>
-                </div>
-            )}
-
-            <div className="shrink-0 relative">
-                {avatarUrl ? (
-                    <img 
-                        src={avatarUrl} 
-                        onError={() => {
-                            if (!imgError) setImgError(true);
-                            else setDicebearError(true);
-                        }}
-                        className={`w-14 h-14 rounded-[20px] object-cover ring-4 ${isFeatured ? 'ring-yellow-500/20' : 'ring-white/5'}`} 
-                        alt={drop.profiles?.name || 'Avatar'}
-                    />
-                ) : (
-                    <div className={`w-14 h-14 rounded-[20px] flex items-center justify-center font-black text-xs ring-4 ${isFeatured ? 'bg-yellow-500/20 text-yellow-500 ring-yellow-500/20' : 'bg-brand-red/10 text-brand-red ring-white/5'}`}>
-                        {initials}
-                    </div>
-                )}
-            </div>
-            <div className="flex-1 space-y-3">
-                <div className="flex items-center justify-between">
-                    <div className="flex flex-col">
-                        <span className="font-black text-gray-900 dark:text-white leading-tight flex items-center gap-2">
-                            {drop.profiles?.handle || drop.profiles?.name || 'Membro do IF'}
-                            {isFeatured && <span className="bg-yellow-500/10 text-yellow-500 text-[8px] px-1.5 py-0.5 rounded font-black uppercase tracking-tighter">DESTAQUE</span>}
-                        </span>
-                        <div className="flex flex-col">
-                            <span className="text-[10px] text-gray-500 uppercase tracking-[0.2em] font-black italic">
-                                {drop.profiles?.user_category === 'pesquisador' 
-                                    ? (drop.profiles?.research_line || 'Pesquisador IFUSP')
-                                    : drop.profiles?.user_category === 'aluno_usp'
-                                        ? (drop.profiles?.course || 'Graduação IFUSP')
-                                        : (drop.profiles?.interest_area || 'Curioso / Entusiasta')}
-                            </span>
-                        </div>
-                    </div>
-                    <div className="flex items-center gap-2 text-gray-500 text-[10px] font-black font-mono bg-black/20 px-3 py-1.5 rounded-xl border border-white/5">
-                        <Clock className="w-3 h-3 text-brand-red" />
-                        {new Date(drop.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                    </div>
-                </div>
-                <p className={`leading-relaxed font-medium break-words ${isFeatured ? 'text-gray-900 dark:text-gray-100 text-lg leading-tight' : 'text-gray-700 dark:text-gray-300 text-sm'}`}>
-                    {drop.content}
-                </p>
-                <div className="flex items-center gap-6 pt-2">
-                    <button 
-                        onClick={handleLike}
-                        className={`flex items-center gap-2 transition-all group ${isLiked ? 'text-brand-red' : 'text-gray-500 hover:text-brand-red'}`}
-                    >
-                        <div className={`p-2 rounded-xl transition-all ${isLiked ? 'bg-brand-red/10' : 'group-hover:bg-brand-red/10'}`}>
-                            <Atom className={`w-4 h-4 ${isLiked ? 'fill-brand-red animate-spin-slow' : 'group-hover:scale-110 transition-transform'}`} />
-                        </div>
-                        <span className="text-xs font-black font-mono">{likes}</span>
-                    </button>
-                    <div className="h-1 w-1 rounded-full bg-gray-700"></div>
-                    <span className="text-[9px] font-mono text-gray-600 uppercase font-bold tracking-widest">{new Date(drop.created_at).toLocaleDateString('pt-BR')}</span>
-                </div>
-            </div>
-        </div>
+        <span className="text-[8px] font-black font-mono text-brand-red uppercase">
+            {timeLeft}
+        </span>
     );
 }

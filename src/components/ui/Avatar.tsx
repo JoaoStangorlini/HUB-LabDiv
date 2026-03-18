@@ -14,6 +14,7 @@ interface AvatarProps {
     xp?: number;
     level?: number;
     isLabDiv?: boolean;
+    onClick?: (e: React.MouseEvent) => void;
 }
 
 const sizeClasses = {
@@ -34,7 +35,7 @@ const badgeSizeClasses = {
     custom: 'size-4 text-[10px]',
 };
 
-export const Avatar = ({ src, name = 'Usuário', size = 'md', className = '', customSize, xp, level, isLabDiv }: AvatarProps) => {
+export const Avatar = ({ src, name = 'Usuário', size = 'md', className = '', customSize, xp, level, isLabDiv, onClick }: AvatarProps) => {
     const [error, setError] = useState(false);
 
     // Tier calculations
@@ -93,7 +94,10 @@ export const Avatar = ({ src, name = 'Usuário', size = 'md', className = '', cu
     };
 
     return (
-        <div className={`relative shrink-0 ${sizeClass} ${className}`}>
+        <div 
+            className={`relative shrink-0 ${sizeClass} ${className} ${onClick ? 'cursor-pointer' : ''}`}
+            onClick={onClick}
+        >
             {/* The Ring Container */}
             <div
                 className={`w-full h-full rounded-full p-[3px] transition-all

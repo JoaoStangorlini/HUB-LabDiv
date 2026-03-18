@@ -28,6 +28,7 @@ export interface PostDTO {
     location_lat?: number;
     location_lng?: number;
     location_name?: string;
+    userId: string;
     status: string;
 }
 
@@ -95,6 +96,7 @@ export function mapToPostDTO(submission: any, counts?: { likes?: number, saves?:
         location_lat: typeof submission.location_lat === 'number' ? submission.location_lat : undefined,
         location_lng: typeof submission.location_lng === 'number' ? submission.location_lng : undefined,
         location_name: submission.location_name,
+        userId: submission.user_id,
         status: String(submission.status),
     };
 }
