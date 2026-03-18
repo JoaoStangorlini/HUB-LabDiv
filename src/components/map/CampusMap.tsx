@@ -22,34 +22,38 @@ const CampusMapBase = ({ items }: CampusMapProps) => {
     const selectedItem = pinnedItems.find(i => i.post.id === selectedId);
 
     return (
-        <div className="w-full max-w-5xl mx-auto aspect-video rounded-3xl overflow-hidden relative bg-gray-50 dark:bg-[#1E1E1E] border border-gray-100 dark:border-gray-800 shadow-inner group">
-
-            {/* Legend / Overlay */}
-            <div className="absolute top-6 left-6 z-10 space-y-2 pointer-events-none">
-                <h3 className="text-xl font-black text-gray-900 dark:text-white flex items-center gap-2">
-                    <MapIcon className="w-6 h-6 text-brand-blue" />
-                    Mapa do Instituto
-                </h3>
-                <p className="text-xs text-gray-500 font-medium bg-white/80 dark:bg-black/40 backdrop-blur px-2 py-1 rounded-md inline-block">
-                    Explore as mídias espalhadas pelo campus do IFUSP
-                </p>
+        <div className="w-full h-full aspect-square relative bg-gray-50 dark:bg-[#1E1E1E] group">
+            
+            {/* Legend / Overlay - Repositioned to Bottom Left */}
+            <div className="absolute bottom-6 left-6 z-30 space-y-2 pointer-events-none">
+                <m.div 
+                    initial={{ y: 20, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    className="p-3 rounded-xl glass-card border border-white/10 shadow-2xl backdrop-blur-md"
+                >
+                    <h3 className="text-sm font-black text-gray-900 dark:text-white flex items-center gap-2 mb-0.5">
+                        <MapIcon className="w-4 h-4 text-brand-blue" />
+                        Mapa IFUSP 2025
+                    </h3>
+                    <p className="text-[8px] text-gray-500 dark:text-gray-400 font-bold uppercase tracking-wider">
+                        Geolocalização Ativa
+                    </p>
+                </m.div>
             </div>
 
-            {/* Stylized SVG Map */}
-            <svg viewBox="0 0 1000 600" className="w-full h-full text-gray-200 dark:text-gray-800/20 opacity-50">
-                <defs>
-                    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
-                        <path d="M 40 0 L 0 0 0 40" fill="none" stroke="currentColor" strokeWidth="0.5" />
-                    </pattern>
-                </defs>
-                <rect width="1000" height="600" fill="url(#grid)" />
-                <rect x="100" y="100" width="200" height="150" rx="10" fill="currentColor" fillOpacity="0.1" />
-                <rect x="400" y="50" width="300" height="200" rx="10" fill="currentColor" fillOpacity="0.1" />
-                <rect x="750" y="300" width="150" height="200" rx="10" fill="currentColor" fillOpacity="0.1" />
-                <rect x="200" y="350" width="250" height="180" rx="10" fill="currentColor" fillOpacity="0.1" />
-                <path d="M 300 250 L 400 250" stroke="currentColor" strokeDasharray="5,5" />
-                <path d="M 450 530 L 750 400" stroke="currentColor" strokeDasharray="5,5" />
-            </svg>
+            {/* Interactive Image Map */}
+            <m.img
+                src="/mapa-ifusp-2025.jpg"
+                alt="Mapa IFUSP 2025"
+                initial={{ opacity: 0, scale: 1.05 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.8, ease: "easeOut" }}
+                className="w-full h-full object-contain transition-all duration-700 select-none pointer-events-none"
+            />
+            
+            {/* Map Overlay Filter - Subtler */}
+            <div className="absolute inset-0 pointer-events-none bg-gradient-to-b from-black/5 to-transparent dark:from-white/5" />
+            <div className="absolute inset-0 bg-brand-blue/5 mix-blend-overlay pointer-events-none z-10" />
 
             {/* Container for Event Delegation */}
             <div
@@ -91,10 +95,15 @@ const CampusMapBase = ({ items }: CampusMapProps) => {
                             initial={{ scale: 0, opacity: 0 }}
                             animate={{ scale: 1, opacity: 1 }}
                             whileHover={{ scale: 1.2, zIndex: 30 }}
-                            className={`absolute -translate-x-1/2 -translate-y-1/2 cursor-pointer size-8 flex items-center justify-center rounded-full border-2 border-white dark:border-[#1E1E1E] shadow-xl transition-colors ${selectedId === item.post.id ? 'bg-brand-red' : 'bg-brand-blue'}`}
+                            className={`absolute -translate-x-1/2 -translate-y-1/2 cursor-pointer size-8 flex items-center justify-center rounded-full border-2 border-white dark:border-[#1E1E1E] shadow-xl transition-all ${selectedId === item.post.id ? 'bg-brand-red ring-4 ring-brand-red/20' : 'bg-brand-blue ring-4 ring-brand-blue/20'}`}
                             style={{ left: `${(x / 10)}%`, top: `${(y / 6)}%` }}
                         >
-                            {item.post.mediaType === 'video' ? <PlayCircle className="w-5 h-5 text-white" /> : <ImageIcon className="w-5 h-5 text-white" />}
+                            <m.div 
+                                animate={{ scale: [1, 1.5, 1], opacity: [0.5, 0, 0.5] }}
+                                transition={{ duration: 2, repeat: Infinity }}
+                                className={`absolute inset-0 rounded-full ${selectedId === item.post.id ? 'bg-brand-red' : 'bg-brand-blue'}`}
+                            />
+                            {item.post.mediaType === 'video' ? <PlayCircle className="w-4 h-4 text-white z-10" /> : <ImageIcon className="w-4 h-4 text-white z-10" />}
 
                             <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-[10px] font-bold px-2 py-1 rounded-md whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">
                                 {item.post.title}

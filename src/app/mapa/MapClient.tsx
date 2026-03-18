@@ -30,7 +30,7 @@ export default function MapClient({ initialItems }: { initialItems: MediaCardPro
 
                 <MapaFeedbackCard className="block lg:hidden mb-8" />
 
-                <div className="w-full max-w-5xl mx-auto aspect-video rounded-3xl overflow-hidden relative shadow-2xl border border-gray-200 dark:border-gray-800">
+                <div className="w-full max-w-2xl mx-auto aspect-square rounded-3xl overflow-hidden relative shadow-2xl border border-gray-100 dark:border-gray-800 bg-[#D5ED9E]/20 dark:bg-[#1B2B1B]/40">
                     <CampusMap items={items} />
                 </div>
 
