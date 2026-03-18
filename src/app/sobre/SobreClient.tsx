@@ -322,128 +322,128 @@ export function SobreClient({ initialTestimonials, profile }: SobreClientProps) 
             </div>
 
             {/* Ecosystem Sections */}
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-20 px-4 md:px-0">
+            <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8 mb-20 px-4 md:px-0">
 
                 {/* Grande Colisor Explanation row */}
-                <div className="lg:col-span-3 mb-4">
+                <div className="col-span-2 lg:col-span-3 mb-4">
                     <h3 className="text-[10px] font-black uppercase tracking-[0.4em] text-gray-400 mb-2">Ecossistema em Expansão</h3>
                     <div className="h-px bg-gradient-to-r from-brand-blue/20 via-brand-red/20 to-transparent w-full mb-8"></div>
                 </div>
 
-                <div className="glass-card rounded-3xl p-10 hover:border-brand-blue/20 transition-all group h-full flex flex-col hover:shadow-lg">
-                    <div className="size-12 rounded-2xl bg-brand-blue/10 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                        <span className="material-symbols-outlined text-brand-blue text-2xl">grain</span>
+                <div className="glass-card rounded-3xl p-5 md:p-10 hover:border-brand-blue/20 transition-all group h-full flex flex-col hover:shadow-lg">
+                    <div className="size-10 md:size-12 rounded-xl md:rounded-2xl bg-brand-blue/10 flex items-center justify-center mb-4 md:mb-6 group-hover:scale-110 transition-transform">
+                        <span className="material-symbols-outlined text-brand-blue text-xl md:text-2xl">grain</span>
                     </div>
-                    <h4 className="text-xl font-black uppercase italic tracking-tight mb-4">O Fluxo</h4>
-                    <p className="text-gray-500 text-sm leading-relaxed mb-6 flex-1">
+                    <h4 className="text-sm md:text-xl font-black uppercase italic tracking-tight mb-2 md:mb-4">O Fluxo</h4>
+                    <p className="text-gray-500 text-[10px] md:text-sm leading-relaxed mb-4 md:mb-6 flex-1">
                         O pulso do IFUSP em tempo real. Uma timeline dinâmica que transforma a divulgação científica em comunicação interativa, reunindo materiais do Lab-Div, contribuições da comunidade e mentorados em um só lugar.
                     </p>
-                    <Link href="/" className="text-[10px] font-black uppercase tracking-widest text-brand-blue flex items-center gap-2 group/link">
-                        Entrar no Fluxo <ArrowRight className="size-3 group-hover/link:translate-x-1 transition-transform" />
+                    <Link href="/" className="text-[10px] font-black uppercase tracking-widest text-brand-blue flex items-center gap-1 md:gap-2 group/link mt-auto">
+                        <span className="hidden sm:inline">Entrar no </span>Fluxo <ArrowRight className="size-3 group-hover/link:translate-x-1 transition-transform" />
                     </Link>
                 </div>
 
-                <div className="glass-card rounded-3xl p-10 hover:border-brand-red/20 transition-all group h-full flex flex-col hover:shadow-lg">
-                    <div className="size-12 rounded-2xl bg-brand-red/10 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                        <span className="material-symbols-outlined text-brand-red text-2xl">list_alt</span>
+                <div className="glass-card rounded-3xl p-5 md:p-10 hover:border-brand-red/20 transition-all group h-full flex flex-col hover:shadow-lg">
+                    <div className="size-10 md:size-12 rounded-xl md:rounded-2xl bg-brand-red/10 flex items-center justify-center mb-4 md:mb-6 group-hover:scale-110 transition-transform">
+                        <span className="material-symbols-outlined text-brand-red text-xl md:text-2xl">list_alt</span>
                     </div>
-                    <h4 className="text-xl font-black uppercase italic tracking-tight mb-4">Logs do IF-USP</h4>
-                    <p className="text-gray-500 text-sm leading-relaxed mb-6 flex-1">
+                    <h4 className="text-sm md:text-xl font-black uppercase italic tracking-tight mb-2 md:mb-4">Logs do IF-USP</h4>
+                    <p className="text-gray-500 text-[10px] md:text-sm leading-relaxed mb-4 md:mb-6 flex-1">
                         O mural da nossa gente. Um espaço informal para desabafos, avisos rápidos e aquelas fofocas de laboratório que fazem parte do dia a dia, sem o peso do rigor acadêmico ou oficial.
                     </p>
-                    <Link href="/drops" className="text-[10px] font-black uppercase tracking-widest text-brand-red flex items-center gap-2 group/link">
-                        Ler os Logs <ArrowRight className="size-3 group-hover/link:translate-x-1 transition-transform" />
+                    <Link href="/drops" className="text-[10px] font-black uppercase tracking-widest text-brand-red flex items-center gap-1 md:gap-2 group/link mt-auto">
+                        <span className="hidden sm:inline">Ler os </span>Logs <ArrowRight className="size-3 group-hover/link:translate-x-1 transition-transform" />
                     </Link>
                 </div>
 
-                <div className="glass-card rounded-3xl p-10 hover:border-brand-yellow/20 transition-all group h-full flex flex-col hover:shadow-lg">
-                    <div className="size-12 rounded-2xl bg-brand-yellow/10 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                        <span className="material-symbols-outlined text-brand-yellow text-2xl">palette</span>
+                <div className="glass-card rounded-3xl p-5 md:p-10 hover:border-brand-yellow/20 transition-all group h-full flex flex-col hover:shadow-lg">
+                    <div className="size-10 md:size-12 rounded-xl md:rounded-2xl bg-brand-yellow/10 flex items-center justify-center mb-4 md:mb-6 group-hover:scale-110 transition-transform">
+                        <span className="material-symbols-outlined text-brand-yellow text-xl md:text-2xl">palette</span>
                     </div>
-                    <h4 className="text-xl font-black uppercase italic tracking-tight mb-4">Lab-Div & Curadoria</h4>
-                    <p className="text-gray-500 text-sm leading-relaxed mb-6 flex-1">
+                    <h4 className="text-sm md:text-xl font-black uppercase italic tracking-tight mb-2 md:mb-4">Lab-Div & Curadoria</h4>
+                    <p className="text-gray-500 text-[10px] md:text-sm leading-relaxed mb-4 md:mb-6 flex-1">
                         O núcleo criativo do Hub. Aqui você acessa o catálogo Padrão Ouro, agenda mentorias de comunicação científica, conhece o KitDiv e explora a utilização do Espaço Novo Milênio.
                     </p>
-                    <Link href="/arquivo-labdiv" className="text-[10px] font-black uppercase tracking-widest text-brand-yellow flex items-center gap-2 group/link">
-                        Ver Portfólio <ArrowRight className="size-3 group-hover/link:translate-x-1 transition-transform" />
+                    <Link href="/arquivo-labdiv" className="text-[10px] font-black uppercase tracking-widest text-brand-yellow flex items-center gap-1 md:gap-2 group/link mt-auto">
+                        <span className="hidden sm:inline">Ver </span>Portfólio <ArrowRight className="size-3 group-hover/link:translate-x-1 transition-transform" />
                     </Link>
                 </div>
 
-                <div className="glass-card rounded-3xl p-10 hover:border-brand-red/20 transition-all group h-full flex flex-col hover:shadow-lg">
-                    <div className="size-12 rounded-2xl bg-brand-red/10 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                        <Star className="text-brand-red w-6 h-6" />
+                <div className="glass-card rounded-3xl p-5 md:p-10 hover:border-brand-red/20 transition-all group h-full flex flex-col hover:shadow-lg">
+                    <div className="size-10 md:size-12 rounded-xl md:rounded-2xl bg-brand-red/10 flex items-center justify-center mb-4 md:mb-6 group-hover:scale-110 transition-transform">
+                        <Star className="text-brand-red w-5 h-5 md:w-6 md:h-6" />
                     </div>
-                    <h4 className="text-xl font-black uppercase italic tracking-tight mb-4">Grande Colisor</h4>
-                    <p className="text-gray-500 text-sm leading-relaxed mb-6 flex-1">
+                    <h4 className="text-sm md:text-xl font-black uppercase italic tracking-tight mb-2 md:mb-4">Grande Colisor</h4>
+                    <p className="text-gray-500 text-[10px] md:text-sm leading-relaxed mb-4 md:mb-6 flex-1">
                         Muito mais que um site, uma rede. O Colisor integra iniciativas como o **BiFUSP**, o **Laboratório de Demonstrações Ernst Wolfgang Hamburger**, o Parque CienTec, o Boletim Supernova e o DigitalLab, conectando espaços físicos e projetos de extensão do IFUSP e da USP em um só mapa de visibilidade.
                     </p>
-                    <Link href="/colisor" className="text-[10px] font-black uppercase tracking-widest text-brand-red flex items-center gap-2 group/link">
-                        Explorar Colisor <ArrowRight className="size-3 group-hover/link:translate-x-1 transition-transform" />
+                    <Link href="/colisor" className="text-[10px] font-black uppercase tracking-widest text-brand-red flex items-center gap-1 md:gap-2 group/link mt-auto">
+                        <span className="hidden sm:inline">Explorar </span>Colisor <ArrowRight className="size-3 group-hover/link:translate-x-1 transition-transform" />
                     </Link>
                 </div>
 
-                <div className="glass-card rounded-3xl p-10 hover:border-brand-yellow/20 transition-all group h-full flex flex-col hover:shadow-lg">
-                    <div className="size-12 rounded-2xl bg-brand-yellow/10 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                        <Megaphone className="text-brand-yellow w-6 h-6" />
+                <div className="glass-card rounded-3xl p-5 md:p-10 hover:border-brand-yellow/20 transition-all group h-full flex flex-col hover:shadow-lg">
+                    <div className="size-10 md:size-12 rounded-xl md:rounded-2xl bg-brand-yellow/10 flex items-center justify-center mb-4 md:mb-6 group-hover:scale-110 transition-transform">
+                        <Megaphone className="text-brand-yellow w-5 h-5 md:w-6 md:h-6" />
                     </div>
-                    <h4 className="text-xl font-black uppercase italic tracking-tight mb-4">Perguntas a um Cientista</h4>
-                    <p className="text-gray-500 text-sm leading-relaxed mb-6 flex-1">
+                    <h4 className="text-sm md:text-xl font-black uppercase italic tracking-tight mb-2 md:mb-4">Perguntas a um Cientista</h4>
+                    <p className="text-gray-500 text-[10px] md:text-sm leading-relaxed mb-4 md:mb-6 flex-1">
                         Ponte direta entre a dúvida e a descoberta. Esta seção permite que a comunidade interaja diretamente com pesquisadores, humanizando o processo científico e quebrando barreiras através do diálogo aberto.
                     </p>
-                    <Link href="/perguntas" className="text-[10px] font-black uppercase tracking-widest text-brand-yellow flex items-center gap-2 group/link">
-                        Fazer uma Pergunta <ArrowRight className="size-3 group-hover/link:translate-x-1 transition-transform" />
+                    <Link href="/perguntas" className="text-[10px] font-black uppercase tracking-widest text-brand-yellow flex items-center gap-1 md:gap-2 group/link mt-auto">
+                        Fazer Pergunta <ArrowRight className="size-3 group-hover/link:translate-x-1 transition-transform" />
                     </Link>
                 </div>
 
-                <div className="glass-card rounded-3xl p-10 hover:border-brand-blue/20 transition-all group h-full flex flex-col hover:shadow-lg">
-                    <div className="size-12 rounded-2xl bg-brand-blue/10 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                        <ExternalLink className="text-brand-blue w-6 h-6" />
+                <div className="glass-card rounded-3xl p-5 md:p-10 hover:border-brand-blue/20 transition-all group h-full flex flex-col hover:shadow-lg">
+                    <div className="size-10 md:size-12 rounded-xl md:rounded-2xl bg-brand-blue/10 flex items-center justify-center mb-4 md:mb-6 group-hover:scale-110 transition-transform">
+                        <ExternalLink className="text-brand-blue w-5 h-5 md:w-6 md:h-6" />
                     </div>
-                    <h4 className="text-xl font-black uppercase italic tracking-tight mb-4">Mapa do Instituto</h4>
-                    <p className="text-gray-500 text-sm leading-relaxed mb-6 flex-1">
+                    <h4 className="text-sm md:text-xl font-black uppercase italic tracking-tight mb-2 md:mb-4">Mapa do Instituto</h4>
+                    <p className="text-gray-500 text-[10px] md:text-sm leading-relaxed mb-4 md:mb-6 flex-1">
                         A conexão entre o Hub e o mundo real. O Mapa geolocaliza a ciência do IFUSP, permitindo navegar pelos laboratórios e utilizar QR codes físicos para escanear e descobrir instantaneamente o que é produzido em cada espaço do instituto.
                     </p>
-                    <Link href="/mapa" className="text-[10px] font-black uppercase tracking-widest text-brand-blue flex items-center gap-2 group/link">
-                        Ver Impacto no Mapa <ArrowRight className="size-3 group-hover/link:translate-x-1 transition-transform" />
+                    <Link href="/mapa" className="text-[10px] font-black uppercase tracking-widest text-brand-blue flex items-center gap-1 md:gap-2 group/link mt-auto">
+                        <span className="hidden sm:inline">Ver Impacto no </span>Mapa <ArrowRight className="size-3 group-hover/link:translate-x-1 transition-transform" />
                     </Link>
                 </div>
 
-                <div className="glass-card rounded-3xl p-10 hover:border-brand-red/20 transition-all group h-full flex flex-col hover:shadow-lg">
-                    <div className="size-12 rounded-2xl bg-brand-red/10 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                        <Route className="text-brand-red w-6 h-6" />
+                <div className="glass-card rounded-3xl p-5 md:p-10 hover:border-brand-red/20 transition-all group h-full flex flex-col hover:shadow-lg">
+                    <div className="size-10 md:size-12 rounded-xl md:rounded-2xl bg-brand-red/10 flex items-center justify-center mb-4 md:mb-6 group-hover:scale-110 transition-transform">
+                        <Route className="text-brand-red w-5 h-5 md:w-6 md:h-6" />
                     </div>
-                    <h4 className="text-xl font-black uppercase italic tracking-tight mb-4">Trilhas de Aprendizagem</h4>
-                    <p className="text-gray-500 text-sm leading-relaxed mb-6 flex-1">
+                    <h4 className="text-sm md:text-xl font-black uppercase italic tracking-tight mb-2 md:mb-4">Trilhas de Aprendizagem</h4>
+                    <p className="text-gray-500 text-[10px] md:text-sm leading-relaxed mb-4 md:mb-6 flex-1">
                         Roteiros organizados por disciplina que reúnem materiais, artigos e anotações da comunidade em sequências lógicas de estudo. Acompanhe seu progresso e domine os conteúdos do currículo do IFUSP com apoio colaborativo.
                     </p>
-                    <Link href="/trilhas" className="text-[10px] font-black uppercase tracking-widest text-brand-red flex items-center gap-2 group/link">
+                    <Link href="/trilhas" className="text-[10px] font-black uppercase tracking-widest text-brand-red flex items-center gap-1 md:gap-2 group/link mt-auto">
                         Ver Trilhas <ArrowRight className="size-3 group-hover/link:translate-x-1 transition-transform" />
                     </Link>
                 </div>
 
-                <div className="glass-card rounded-3xl p-10 hover:border-brand-yellow/20 transition-all group h-full flex flex-col hover:shadow-lg">
-                    <div className="size-12 rounded-2xl bg-brand-yellow/10 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                        <span className="material-symbols-outlined text-brand-yellow text-2xl">science</span>
+                <div className="glass-card rounded-3xl p-5 md:p-10 hover:border-brand-yellow/20 transition-all group h-full flex flex-col hover:shadow-lg">
+                    <div className="size-10 md:size-12 rounded-xl md:rounded-2xl bg-brand-yellow/10 flex items-center justify-center mb-4 md:mb-6 group-hover:scale-110 transition-transform">
+                        <span className="material-symbols-outlined text-brand-yellow text-xl md:text-2xl">science</span>
                     </div>
-                    <h4 className="text-xl font-black uppercase italic tracking-tight mb-4">Laboratório Pessoal</h4>
-                    <p className="text-gray-500 text-sm leading-relaxed mb-6 flex-1">
+                    <h4 className="text-sm md:text-xl font-black uppercase italic tracking-tight mb-2 md:mb-4">Laboratório Pessoal</h4>
+                    <p className="text-gray-500 text-[10px] md:text-sm leading-relaxed mb-4 md:mb-6 flex-1">
                         Seu espaço privado no Hub. Reúna suas publicações, acompanhe seu nível de radiação (XP), gerencie suas trilhas em andamento e visualize seu impacto na comunidade científica do IFUSP — tudo em um único painel personalizado.
                     </p>
-                    <Link href="/lab" className="text-[10px] font-black uppercase tracking-widest text-brand-yellow flex items-center gap-2 group/link">
+                    <Link href="/lab" className="text-[10px] font-black uppercase tracking-widest text-brand-yellow flex items-center gap-1 md:gap-2 group/link mt-auto">
                         Acessar Lab <ArrowRight className="size-3 group-hover/link:translate-x-1 transition-transform" />
                     </Link>
                 </div>
 
-                <div className="glass-card rounded-3xl p-10 hover:border-brand-blue/20 transition-all group h-full flex flex-col hover:shadow-lg">
-                    <div className="size-12 rounded-2xl bg-brand-blue/10 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                        <BookOpen className="text-brand-blue w-6 h-6" />
+                <div className="glass-card rounded-3xl p-5 md:p-10 hover:border-brand-blue/20 transition-all group h-full flex flex-col hover:shadow-lg col-span-2 md:col-span-1">
+                    <div className="size-10 md:size-12 rounded-xl md:rounded-2xl bg-brand-blue/10 flex items-center justify-center mb-4 md:mb-6 group-hover:scale-110 transition-transform">
+                        <BookOpen className="text-brand-blue w-5 h-5 md:w-6 md:h-6" />
                     </div>
-                    <h4 className="text-xl font-black uppercase italic tracking-tight mb-4">Wiki do IFUSP</h4>
-                    <p className="text-gray-500 text-sm leading-relaxed mb-6 flex-1">
+                    <h4 className="text-sm md:text-xl font-black uppercase italic tracking-tight mb-2 md:mb-4">Wiki do IFUSP</h4>
+                    <p className="text-gray-500 text-[10px] md:text-sm leading-relaxed mb-4 md:mb-6 flex-1">
                         A enciclopédia colaborativa do Instituto de Física. Uma base de conhecimento construída pela comunidade com anotações, guias de sobrevivência, explicações sobre o funcionamento do instituto, seus departamentos, laboratórios e a vida acadêmica no dia a dia.
                     </p>
-                    <Link href="/wiki" className="text-[10px] font-black uppercase tracking-widest text-brand-blue flex items-center gap-2 group/link">
-                        Explorar Wiki <ArrowRight className="size-3 group-hover/link:translate-x-1 transition-transform" />
+                    <Link href="/wiki" className="text-[10px] font-black uppercase tracking-widest text-brand-blue flex items-center gap-1 md:gap-2 group/link mt-auto">
+                        <span className="hidden sm:inline">Explorar </span>Wiki <ArrowRight className="size-3 group-hover/link:translate-x-1 transition-transform" />
                     </Link>
                 </div>
             </div>

@@ -17,7 +17,7 @@ const navItems: (NavItem & { color?: string })[] = [
 
 const drawerLinks: (NavItem & { color?: string })[] = [
     { name: 'Laboratório Pessoal', href: AppRoutes.LAB, icon: 'science', isPrimary: true, color: 'brand-blue' },
-    { name: 'Logs do IFUSP', href: AppRoutes.DROPS, icon: 'list_alt', color: 'brand-red' },
+    { name: 'Logs do IFUSP', href: AppRoutes.DROPS, icon: 'edit_document', color: 'brand-red' },
     { name: 'Ferramentas Acadêmicas', href: '/ferramentas', icon: 'calendar_month', color: 'brand-blue' },
     { name: 'Pergunte', href: AppRoutes.PERGUNTAS, icon: 'help_outline', color: 'brand-blue' },
     { name: 'Colisor', href: AppRoutes.COLISOR, icon: 'auto_awesome', color: 'brand-yellow' },
@@ -25,7 +25,6 @@ const drawerLinks: (NavItem & { color?: string })[] = [
     { name: 'Mapa', href: AppRoutes.MAPA, icon: 'map', color: 'brand-red' },
     { name: 'Sobre', href: '/sobre', icon: 'info', color: 'brand-blue' },
     { name: 'LabDiv', href: AppRoutes.ARQUIVO_LABDIV, icon: 'campaign', color: 'brand-blue' },
-    { name: 'Painel Admin', href: AppRoutes.ADMIN, icon: 'admin_panel_settings', color: 'brand-red' },
 ];
 
 /**

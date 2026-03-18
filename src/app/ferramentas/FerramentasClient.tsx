@@ -71,6 +71,8 @@ export default function FerramentasClient({ profile }: { profile: any }) {
     const [viewMode, setViewMode] = useState<'view' | 'edit'>('edit');
     const [isMobile, setIsMobile] = useState(false);
     const [selectedBlockToAdd, setSelectedBlockToAdd] = useState<any>(null);
+    const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
+    const [isHelpModalOpen, setIsHelpModalOpen] = useState(false);
     const draggableRef = React.useRef<any>(null);
     const calendarRef = React.useRef<any>(null);
     const enrollmentListRef = React.useRef<HTMLDivElement>(null);
@@ -364,9 +366,18 @@ export default function FerramentasClient({ profile }: { profile: any }) {
                     <p className="text-gray-400 font-medium italic">Seu cockpit de navegação pelo IFUSP.</p>
                 </div>
 
-                <div className="flex items-center gap-2 px-4 py-2 bg-brand-blue/10 border border-brand-blue/20 rounded-2xl">
-                    <Calendar className="w-4 h-4 text-brand-blue" />
-                    <span className="text-[10px] font-black uppercase tracking-widest text-brand-blue">Sincronizador Ativo</span>
+                <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2 px-4 py-2 bg-brand-blue/10 border border-brand-blue/20 rounded-2xl">
+                        <Calendar className="w-4 h-4 text-brand-blue" />
+                        <span className="text-[10px] font-black uppercase tracking-widest text-brand-blue">Sincronizador Ativo</span>
+                    </div>
+                    <button
+                        onClick={() => setIsHelpModalOpen(true)}
+                        className="flex items-center justify-center p-3 rounded-2xl bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 text-gray-500 hover:text-brand-blue hover:bg-brand-blue/10 transition-colors"
+                        title="Como usar o cronograma?"
+                    >
+                        <Info className="w-5 h-5" />
+                    </button>
                 </div>
             </header>
 
@@ -575,8 +586,8 @@ export default function FerramentasClient({ profile }: { profile: any }) {
                                     }`}
                                 >
                                     {viewMode === 'view' ? <Edit3 className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                                    <span className="text-[10px] font-black uppercase tracking-widest hidden sm:inline">
-                                        {viewMode === 'view' ? 'Editar Cronograma' : 'Ver Cronograma'}
+                                    <span className="text-[10px] font-black uppercase tracking-widest">
+                                        {isMobile ? 'Ver / Editar' : (viewMode === 'view' ? 'Editar Cronograma' : 'Ver Cronograma')}
                                     </span>
                                 </button>
                                 <button
@@ -589,10 +600,20 @@ export default function FerramentasClient({ profile }: { profile: any }) {
                                 </button>
                                 <div 
                                     id="calendar-trash"
-                                    className={`flex items-center gap-2 px-4 py-2 bg-red-500/10 border border-red-500/20 text-red-500 rounded-2xl transition-all group hover:bg-red-500/20 hover:border-red-500/40 ${viewMode === 'view' ? 'hidden' : ''}`}
-                                    title="Arraste aqui para excluir"
+                                    onClick={async () => {
+                                        if (selectedEventId) {
+                                            setEvents(prev => prev.filter(e => e.id !== selectedEventId));
+                                            await CalendarActions.deleteCalendarEvent(selectedEventId);
+                                            toast.success('Evento removido');
+                                            setSelectedEventId(null);
+                                        } else if (isMobile) {
+                                            toast.error('Selecione um bloco no calendário primeiro');
+                                        }
+                                    }}
+                                    className={`flex items-center gap-2 px-4 py-2 bg-red-500/10 border border-red-500/20 text-red-500 rounded-2xl transition-all hover:bg-red-500 hover:text-white cursor-pointer ${viewMode === 'view' ? 'hidden' : ''}`}
+                                    title="Arraste aqui para excluir, ou clique após selecionar o bloco"
                                 >
-                                    <Trash2 className="w-4 h-4 transition-transform group-hover:scale-110" />
+                                    <Trash2 className="w-4 h-4 transition-transform" />
                                     <span className="text-[10px] font-black uppercase tracking-widest hidden sm:inline">Excluir</span>
                                 </div>
                             </div>
@@ -722,7 +743,37 @@ export default function FerramentasClient({ profile }: { profile: any }) {
                                                 toast.error('Erro ao salvar no banco');
                                                 setEvents(prev => prev.filter(e => e.id !== tempId));
                                             }
+                                        } else if (selectedEventId) {
+                                            const eventToMove = events.find(e => e.id === selectedEventId);
+                                            if (eventToMove) {
+                                                const durationMs = new Date(eventToMove.end).getTime() - new Date(eventToMove.start).getTime();
+                                                const newStart = info.dateStr;
+                                                const newEnd = new Date(new Date(newStart).getTime() + durationMs).toISOString();
+                                                
+                                                const updatedEvent = { ...eventToMove, start: newStart, end: newEnd };
+                                                setEvents(prev => prev.map(e => e.id === selectedEventId ? updatedEvent : e));
+                                                setSelectedEventId(null);
+                                                toast.success('Horário Atualizado!');
+                                                
+                                                await CalendarActions.upsertCalendarEvent(updatedEvent);
+                                            }
                                         }
+                                    }}
+                                    eventClick={(info) => {
+                                        if (selectedEventId === info.event.id) {
+                                            setSelectedEventId(null);
+                                        } else {
+                                            setSelectedEventId(info.event.id);
+                                            if (isMobile) {
+                                                toast('Bloco Selecionado! Toque na lixeira para excluir ou em outro horário para mover.', { icon: '👆', duration: 3000 });
+                                            }
+                                        }
+                                    }}
+                                    eventClassNames={(arg) => {
+                                        if (arg.event.id === selectedEventId) {
+                                            return ['ring-4', 'ring-white', 'ring-offset-2', 'ring-offset-black'];
+                                        }
+                                        return [];
                                     }}
                                     eventReceive={async (info: any) => {
                                         const tempId = Math.random().toString();
@@ -894,6 +945,48 @@ export default function FerramentasClient({ profile }: { profile: any }) {
                             </button>
                         </div>
                         <button onClick={() => setIsExportModalOpen(false)} className="mt-6 w-full py-4 bg-white/5 rounded-2xl font-bold text-xs uppercase text-gray-500 hover:text-white transition-colors">Fechar</button>
+                    </div>
+                </div>
+            )}
+
+            {isHelpModalOpen && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+                    <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={() => setIsHelpModalOpen(false)} />
+                    <div className="relative bg-[#1e1e1e] border border-white/10 rounded-[40px] p-10 max-w-lg w-full shadow-2xl animate-in zoom-in-95 duration-200">
+                        <div className="flex items-center gap-4 mb-8">
+                            <div className="size-12 rounded-2xl bg-brand-blue/10 flex items-center justify-center text-brand-blue border border-brand-blue/20">
+                                <Info className="w-6 h-6" />
+                            </div>
+                            <h3 className="text-2xl font-display font-black text-white uppercase tracking-tight">Como utilizar?</h3>
+                        </div>
+
+                        <ul className="space-y-6">
+                            <li className="flex gap-4">
+                                <div className="mt-1 size-6 rounded-full bg-brand-blue/20 text-brand-blue font-black flex items-center justify-center text-xs shrink-0 border border-brand-blue/30">1</div>
+                                <div>
+                                    <h4 className="font-bold text-white text-sm mb-1">Adicionando Materiais</h4>
+                                    <p className="text-xs text-gray-400 font-medium leading-relaxed">Suas disciplinas cursadas nas <span className="text-white">Trilhas</span> já aparecem nos blocos superiores. Arraste-as (Desktop) ou clique e depois selecione o horário (Celular) no calendário.</p>
+                                </div>
+                            </li>
+                            <li className="flex gap-4">
+                                <div className="mt-1 size-6 rounded-full bg-brand-yellow/20 text-brand-yellow font-black flex items-center justify-center text-xs shrink-0 border border-brand-yellow/30">2</div>
+                                <div>
+                                    <h4 className="font-bold text-white text-sm mb-1">Crie seus próprios Blocos</h4>
+                                    <p className="text-xs text-gray-400 font-medium leading-relaxed">Você pode criar blocos personalizados (Ex: "Pesquisa na Biblioteca", "Almoço") pelo botão "Criar Bloco" para completar sua grade.</p>
+                                </div>
+                            </li>
+                            <li className="flex gap-4">
+                                <div className="mt-1 size-6 rounded-full bg-brand-red/20 text-brand-red font-black flex items-center justify-center text-xs shrink-0 border border-brand-red/30">3</div>
+                                <div>
+                                    <h4 className="font-bold text-white text-sm mb-1">Edição Rápida</h4>
+                                    <p className="text-xs text-gray-400 font-medium leading-relaxed">Para mover o horário de um bloco no celular, clique nele e em seguida clique no horário de destino. Para remover, clique no bloco e depois no ícone da lixeira vermelha.</p>
+                                </div>
+                            </li>
+                        </ul>
+
+                        <button onClick={() => setIsHelpModalOpen(false)} className="mt-10 w-full py-4 bg-white/5 rounded-2xl font-bold text-xs uppercase text-white hover:bg-brand-blue hover:text-white transition-colors border border-white/10">
+                            Entendi!
+                        </button>
                     </div>
                 </div>
             )}

@@ -29,7 +29,7 @@ import { supabase } from '@/lib/supabase';
 
 const mainLinks = [
     { name: 'Fluxo', href: AppRoutes.HOME, icon: <span className="material-symbols-outlined text-2xl">grain</span>, color: 'brand-blue' },
-    { name: 'Logs do IFUSP', href: '/drops', icon: <span className="material-symbols-outlined text-2xl">history</span>, color: 'brand-red' },
+    { name: 'Logs do IFUSP', href: '/drops', icon: <span className="material-symbols-outlined text-2xl">edit_document</span>, color: 'brand-red' },
     { name: 'Lab-Div', href: '/arquivo-labdiv', icon: <span className="material-symbols-outlined text-2xl">campaign</span>, color: 'brand-yellow' },
     { name: 'Grande Colisor', href: '/colisor', icon: <span className="material-symbols-outlined text-2xl">hub</span>, color: 'brand-red' },
     { name: 'Wiki', href: AppRoutes.WIKI, icon: <span className="material-symbols-outlined text-2xl">menu_book</span>, color: 'brand-blue' },

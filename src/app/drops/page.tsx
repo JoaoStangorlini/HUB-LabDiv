@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { MainLayoutWrapper } from "@/components/layout/MainLayoutWrapper";
 import { supabase } from "@/lib/supabase";
-import { MessageSquare, Send, Atom, Clock, User, Star, Hash } from 'lucide-react';
+import { FilePenLine, Send, Atom, Clock, User, Star, Hash } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { LogsFeedbackCard } from './LogsFeedbackCard';
 
@@ -133,7 +133,7 @@ export default function DropsPage() {
                 <div className="flex flex-col gap-3 relative">
                     <div className="absolute -top-10 -left-10 w-40 h-40 bg-brand-red/5 rounded-full blur-[60px] pointer-events-none"></div>
                     <h1 className="text-5xl font-black uppercase italic tracking-tighter text-brand-red flex items-center gap-4 relative z-10">
-                        <MessageSquare className="w-12 h-12" />
+                        <FilePenLine className="w-12 h-12" />
                         Logs do IFUSP
                     </h1>
 

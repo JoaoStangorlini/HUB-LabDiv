@@ -1,8 +1,9 @@
 'use client';
 
-import React from 'react';
+import React, { useRef } from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { ColisorFeedbackCard } from './ColisorFeedbackCard';
 
 interface ColisorClientViewProps {
@@ -119,6 +120,16 @@ const getPlatformIcon = (platform: string) => {
 };
 
 export function ColisorClientView({ oportunidades }: ColisorClientViewProps) {
+    const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+    const scrollLocal = (direction: 'left' | 'right') => {
+        if (scrollContainerRef.current) {
+            const container = scrollContainerRef.current;
+            const scrollAmount = container.clientWidth > 768 ? 600 : container.clientWidth * 0.85;
+            container.scrollBy({ left: direction === 'left' ? -scrollAmount : scrollAmount, behavior: 'smooth' });
+        }
+    };
+
     return (
         <div className="py-12 max-w-5xl mx-auto px-4">
             {/* Wiki Header */}
@@ -182,125 +193,125 @@ export function ColisorClientView({ oportunidades }: ColisorClientViewProps) {
                     <h2 className="text-2xl font-black uppercase italic tracking-tight">Iniciativas & Espaços</h2>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-8">
                     {/* Lab-Div Card */}
-                    <div className="bg-white dark:bg-card-dark rounded-[32px] p-8 border border-gray-100 dark:border-gray-800 shadow-xl shadow-gray-200/5 hover:-translate-y-1 transition-transform group relative overflow-hidden">
-                        <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-                            <span className="material-symbols-outlined text-6xl text-brand-blue">science</span>
+                    <div className="bg-white dark:bg-card-dark rounded-3xl md:rounded-[32px] p-5 md:p-8 border border-gray-100 dark:border-gray-800 shadow-xl shadow-gray-200/5 hover:-translate-y-1 transition-transform group relative overflow-hidden flex flex-col">
+                        <div className="absolute top-0 right-0 p-3 md:p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                            <span className="material-symbols-outlined text-4xl md:text-6xl text-brand-blue">science</span>
                         </div>
-                        <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-6 overflow-hidden">
+                        <div className="w-12 h-12 md:w-16 md:h-16 rounded-2xl flex items-center justify-center mb-4 md:mb-6 overflow-hidden">
                             <img src="/labdiv-logo.png" alt="Logo do Lab-Div" className="w-full h-full object-contain" />
                         </div>
-                        <h2 className="text-2xl font-black tracking-tight mb-3">
+                        <h2 className="text-xl md:text-2xl font-black tracking-tight mb-2 md:mb-3">
                             <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-red via-brand-blue to-brand-yellow">Lab-Div</span>
                         </h2>
-                        <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed mb-6">
+                        <p className="text-[10px] md:text-sm text-gray-500 dark:text-gray-400 leading-relaxed mb-4 md:mb-6">
                             Inspirada no CommLab do MIT, foca na comunicação científica no IFUSP. Oferece tutoria entre pares para escrita científica, apresentações e design.
                         </p>
-                        <Link href="/arquivo-labdiv" className="text-brand-blue font-black flex items-center gap-2 group-hover:underline text-sm">
-                            Explorar Acervo <span className="material-symbols-outlined text-sm">arrow_forward</span>
+                        <Link href="/arquivo-labdiv" className="text-brand-blue font-black flex items-center gap-1 md:gap-2 group-hover:underline text-[10px] md:text-sm mt-auto w-fit">
+                            Explorar <span className="hidden sm:inline">Acervo</span> <span className="material-symbols-outlined text-sm md:text-base">arrow_forward</span>
                         </Link>
                     </div>
 
                     {/* Hackerspace IFUSP Card */}
-                    <div className="bg-white dark:bg-card-dark rounded-[32px] p-8 border border-gray-100 dark:border-gray-800 shadow-xl shadow-gray-200/5 hover:-translate-y-1 transition-transform group relative overflow-hidden">
-                        <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-                            <span className="material-symbols-outlined text-6xl text-brand-green">memory</span>
+                    <div className="bg-white dark:bg-card-dark rounded-3xl md:rounded-[32px] p-5 md:p-8 border border-gray-100 dark:border-gray-800 shadow-xl shadow-gray-200/5 hover:-translate-y-1 transition-transform group relative overflow-hidden flex flex-col">
+                        <div className="absolute top-0 right-0 p-3 md:p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                            <span className="material-symbols-outlined text-4xl md:text-6xl text-brand-green">memory</span>
                         </div>
-                        <div className="w-16 h-16 bg-brand-green/10 rounded-2xl flex items-center justify-center mb-6">
-                            <span className="material-symbols-outlined text-4xl text-brand-green">memory</span>
+                        <div className="w-12 h-12 md:w-16 md:h-16 bg-brand-green/10 rounded-2xl flex items-center justify-center mb-4 md:mb-6">
+                            <span className="material-symbols-outlined text-3xl md:text-4xl text-brand-green">memory</span>
                         </div>
-                        <h2 className="text-2xl font-black text-gray-900 dark:text-white tracking-tight mb-3">Hackerspace IFUSP</h2>
-                        <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed mb-6">
+                        <h2 className="text-xl md:text-2xl font-black text-gray-900 dark:text-white tracking-tight mb-2 md:mb-3">Hackerspace IFUSP</h2>
+                        <p className="text-[10px] md:text-sm text-gray-500 dark:text-gray-400 leading-relaxed mb-4 md:mb-6">
                             Laboratório aberto e colaborativo. Oferece Arduinos, Raspberry Pis, impressoras 3D e eletrônica para projetos de física e robótica.
                         </p>
-                        <a href="https://hackerspace.if.usp.br" target="_blank" rel="noopener noreferrer" className="text-brand-green font-black flex items-center gap-2 group-hover:underline text-sm">
-                            Conhecer <span className="material-symbols-outlined text-sm">arrow_forward</span>
+                        <a href="https://hackerspace.if.usp.br" target="_blank" rel="noopener noreferrer" className="text-brand-green font-black flex items-center gap-1 md:gap-2 group-hover:underline text-[10px] md:text-sm mt-auto w-fit">
+                            Conhecer<span className="hidden sm:inline"> o Espaço</span> <span className="material-symbols-outlined text-sm md:text-base">arrow_forward</span>
                         </a>
                     </div>
 
                     {/* Boletim Supernova */}
-                    <div className="bg-white dark:bg-card-dark rounded-[32px] p-8 border border-gray-100 dark:border-gray-800 shadow-xl shadow-gray-200/5 hover:-translate-y-1 transition-transform group relative overflow-hidden">
-                        <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-                            <span className="material-symbols-outlined text-6xl text-brand-yellow">newspaper</span>
+                    <div className="bg-white dark:bg-card-dark rounded-3xl md:rounded-[32px] p-5 md:p-8 border border-gray-100 dark:border-gray-800 shadow-xl shadow-gray-200/5 hover:-translate-y-1 transition-transform group relative overflow-hidden flex flex-col">
+                        <div className="absolute top-0 right-0 p-3 md:p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                            <span className="material-symbols-outlined text-4xl md:text-6xl text-brand-yellow">newspaper</span>
                         </div>
-                        <div className="w-16 h-16 bg-brand-yellow/10 rounded-2xl flex items-center justify-center mb-6">
-                            <span className="material-symbols-outlined text-4xl text-brand-yellow">newspaper</span>
+                        <div className="w-12 h-12 md:w-16 md:h-16 bg-brand-yellow/10 rounded-2xl flex items-center justify-center mb-4 md:mb-6">
+                            <span className="material-symbols-outlined text-3xl md:text-4xl text-brand-yellow">newspaper</span>
                         </div>
-                        <h2 className="text-2xl font-black text-gray-900 dark:text-white tracking-tight mb-3">Boletim Supernova</h2>
-                        <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed mb-6">
+                        <h2 className="text-xl md:text-2xl font-black text-gray-900 dark:text-white tracking-tight mb-2 md:mb-3">Boletim Supernova</h2>
+                        <p className="text-[10px] md:text-sm text-gray-500 dark:text-gray-400 leading-relaxed mb-4 md:mb-6">
                             Publicação do CEFISMA que serve como espaço de diálogo crítico e cultural no IFUSP. Traz textos de estudantes, artigos de opinião e artes.
                         </p>
-                        <a href="https://cefisma.com.br" target="_blank" rel="noopener noreferrer" className="text-brand-yellow font-black flex items-center gap-2 group-hover:underline text-sm">
-                            Ler Boletim <span className="material-symbols-outlined text-sm">arrow_forward</span>
+                        <a href="https://cefisma.com.br" target="_blank" rel="noopener noreferrer" className="text-brand-yellow font-black flex items-center gap-1 md:gap-2 group-hover:underline text-[10px] md:text-sm mt-auto w-fit">
+                            Ler <span className="hidden sm:inline">Boletim</span> <span className="material-symbols-outlined text-sm md:text-base">arrow_forward</span>
                         </a>
                     </div>
 
                     {/* BIFUSP Card */}
-                    <div className="bg-white dark:bg-card-dark rounded-[32px] p-8 border border-gray-100 dark:border-gray-800 shadow-xl shadow-gray-200/5 hover:-translate-y-1 transition-transform group relative overflow-hidden">
-                        <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-                            <span className="material-symbols-outlined text-6xl text-brand-blue">library_books</span>
+                    <div className="bg-white dark:bg-card-dark rounded-3xl md:rounded-[32px] p-5 md:p-8 border border-gray-100 dark:border-gray-800 shadow-xl shadow-gray-200/5 hover:-translate-y-1 transition-transform group relative overflow-hidden flex flex-col">
+                        <div className="absolute top-0 right-0 p-3 md:p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                            <span className="material-symbols-outlined text-4xl md:text-6xl text-brand-blue">library_books</span>
                         </div>
-                        <div className="w-16 h-16 bg-brand-blue/10 rounded-2xl flex items-center justify-center mb-6">
-                            <span className="material-symbols-outlined text-4xl text-brand-blue">library_books</span>
+                        <div className="w-12 h-12 md:w-16 md:h-16 bg-brand-blue/10 rounded-2xl flex items-center justify-center mb-4 md:mb-6">
+                            <span className="material-symbols-outlined text-3xl md:text-4xl text-brand-blue">library_books</span>
                         </div>
-                        <h2 className="text-2xl font-black text-gray-900 dark:text-white tracking-tight mb-3">BIFUSP</h2>
-                        <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed mb-6">
+                        <h2 className="text-xl md:text-2xl font-black text-gray-900 dark:text-white tracking-tight mb-2 md:mb-3">BIFUSP</h2>
+                        <p className="text-[10px] md:text-sm text-gray-500 dark:text-gray-400 leading-relaxed mb-4 md:mb-6">
                             A Biblioteca do Instituto de Física. Um acervo vasto de livros, periódicos e teses, oferecendo suporte essencial para o estudo e a pesquisa acadêmica de excelência.
                         </p>
-                        <a href="https://portal.if.usp.br/biblioteca/" target="_blank" rel="noopener noreferrer" className="text-brand-blue font-black flex items-center gap-2 group-hover:underline text-sm">
-                            Acessar Biblioteca <span className="material-symbols-outlined text-sm">arrow_forward</span>
+                        <a href="https://portal.if.usp.br/biblioteca/" target="_blank" rel="noopener noreferrer" className="text-brand-blue font-black flex items-center gap-1 md:gap-2 group-hover:underline text-[10px] md:text-sm mt-auto w-fit">
+                            Acessar<span className="hidden sm:inline"> Biblioteca</span> <span className="material-symbols-outlined text-sm md:text-base">arrow_forward</span>
                         </a>
                     </div>
 
                     {/* Lab Demo Card */}
-                    <div className="bg-white dark:bg-card-dark rounded-[32px] p-8 border border-gray-100 dark:border-gray-800 shadow-xl shadow-gray-200/5 hover:-translate-y-1 transition-transform group relative overflow-hidden">
-                        <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-                            <span className="material-symbols-outlined text-6xl text-brand-red">rocket_launch</span>
+                    <div className="bg-white dark:bg-card-dark rounded-3xl md:rounded-[32px] p-5 md:p-8 border border-gray-100 dark:border-gray-800 shadow-xl shadow-gray-200/5 hover:-translate-y-1 transition-transform group relative overflow-hidden flex flex-col">
+                        <div className="absolute top-0 right-0 p-3 md:p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                            <span className="material-symbols-outlined text-4xl md:text-6xl text-brand-red">rocket_launch</span>
                         </div>
-                        <div className="w-16 h-16 bg-brand-red/10 rounded-2xl flex items-center justify-center mb-6">
-                            <span className="material-symbols-outlined text-4xl text-brand-red">rocket_launch</span>
+                        <div className="w-12 h-12 md:w-16 md:h-16 bg-brand-red/10 rounded-2xl flex items-center justify-center mb-4 md:mb-6">
+                            <span className="material-symbols-outlined text-3xl md:text-4xl text-brand-red">rocket_launch</span>
                         </div>
-                        <h2 className="text-2xl font-black text-gray-900 dark:text-white tracking-tight mb-3">Lab Demo</h2>
-                        <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed mb-6">
+                        <h2 className="text-xl md:text-2xl font-black text-gray-900 dark:text-white tracking-tight mb-2 md:mb-3">Lab Demo</h2>
+                        <p className="text-[10px] md:text-sm text-gray-500 dark:text-gray-400 leading-relaxed mb-4 md:mb-6">
                             Laboratório de Demonstrações Ernst Wolfgang Hamburger. Espaço dedicado à experimentação física e demonstrações lúdicas que aproximam a ciência do cotidiano.
                         </p>
-                        <a href="https://portal.if.usp.br/demonstracoes/" target="_blank" rel="noopener noreferrer" className="text-brand-red font-black flex items-center gap-2 group-hover:underline text-sm">
-                            Ver Experimentos <span className="material-symbols-outlined text-sm">arrow_forward</span>
+                        <a href="https://portal.if.usp.br/demonstracoes/" target="_blank" rel="noopener noreferrer" className="text-brand-red font-black flex items-center gap-1 md:gap-2 group-hover:underline text-[10px] md:text-sm mt-auto w-fit">
+                            Ver<span className="hidden sm:inline"> Experimentos</span> <span className="material-symbols-outlined text-sm md:text-base">arrow_forward</span>
                         </a>
                     </div>
 
                     {/* DigitalLab */}
-                    <div className="bg-white dark:bg-card-dark rounded-[32px] p-8 border border-gray-100 dark:border-gray-800 shadow-xl shadow-gray-200/5 hover:-translate-y-1 transition-transform group relative overflow-hidden">
-                        <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-                            <span className="material-symbols-outlined text-6xl text-brand-red">desktop_windows</span>
+                    <div className="bg-white dark:bg-card-dark rounded-3xl md:rounded-[32px] p-5 md:p-8 border border-gray-100 dark:border-gray-800 shadow-xl shadow-gray-200/5 hover:-translate-y-1 transition-transform group relative overflow-hidden flex flex-col">
+                        <div className="absolute top-0 right-0 p-3 md:p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                            <span className="material-symbols-outlined text-4xl md:text-6xl text-brand-red">desktop_windows</span>
                         </div>
-                        <div className="w-16 h-16 bg-brand-red/10 rounded-2xl flex items-center justify-center mb-6">
-                            <span className="material-symbols-outlined text-4xl text-brand-red">desktop_windows</span>
+                        <div className="w-12 h-12 md:w-16 md:h-16 bg-brand-red/10 rounded-2xl flex items-center justify-center mb-4 md:mb-6">
+                            <span className="material-symbols-outlined text-3xl md:text-4xl text-brand-red">desktop_windows</span>
                         </div>
-                        <h2 className="text-2xl font-black text-gray-900 dark:text-white tracking-tight mb-3">DigitalLab</h2>
-                        <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed mb-6">
+                        <h2 className="text-xl md:text-2xl font-black text-gray-900 dark:text-white tracking-tight mb-2 md:mb-3">DigitalLab</h2>
+                        <p className="text-[10px] md:text-sm text-gray-500 dark:text-gray-400 leading-relaxed mb-4 md:mb-6">
                             Foco na criação de experiências digitais, programação e conteúdos audiovisuais voltados para a popularização da ciência na internet.
                         </p>
-                        <div className="text-brand-red font-black flex items-center gap-2 text-sm opacity-50 cursor-default">
-                            Em breve <span className="material-symbols-outlined text-sm">hourglass_empty</span>
+                        <div className="text-brand-red font-black flex items-center gap-1 md:gap-2 text-[10px] md:text-sm opacity-50 cursor-default mt-auto w-fit">
+                            Em breve <span className="material-symbols-outlined text-sm md:text-base">hourglass_empty</span>
                         </div>
                     </div>
 
                     {/* Cientec Card */}
-                    <div className="bg-white dark:bg-card-dark rounded-[32px] p-8 border border-gray-100 dark:border-gray-800 shadow-xl shadow-gray-200/5 hover:-translate-y-1 transition-transform group relative overflow-hidden md:col-span-2">
-                        <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity text-brand-blue">
-                            <span className="material-symbols-outlined text-8xl">park</span>
+                    <div className="bg-white dark:bg-card-dark rounded-3xl md:rounded-[32px] p-5 md:p-8 border border-gray-100 dark:border-gray-800 shadow-xl shadow-gray-200/5 hover:-translate-y-1 transition-transform group relative overflow-hidden col-span-2 md:col-span-3 lg:col-span-2 flex flex-col justify-center">
+                        <div className="absolute top-0 right-0 p-3 md:p-4 opacity-10 group-hover:opacity-20 transition-opacity text-brand-blue">
+                            <span className="material-symbols-outlined text-6xl md:text-8xl">park</span>
                         </div>
-                        <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-6 overflow-hidden">
+                        <div className="w-12 h-12 md:w-16 md:h-16 rounded-2xl flex items-center justify-center mb-4 md:mb-6 overflow-hidden">
                             <img src="/cientec-logo.png" alt="Logo do Parque CienTec" className="w-full h-full object-contain" />
                         </div>
-                        <h2 className="text-2xl font-black text-gray-900 dark:text-white tracking-tight mb-3">Parque CienTec</h2>
-                        <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed mb-6">
+                        <h2 className="text-xl md:text-2xl font-black text-gray-900 dark:text-white tracking-tight mb-2 md:mb-3">Parque CienTec</h2>
+                        <p className="text-[10px] md:text-sm text-gray-500 dark:text-gray-400 leading-relaxed mb-4 md:mb-6">
                             Museu interativo e a céu aberto dedicado à divulgação científica e preservação ambiental. Inclui trilhas, observatório astronômico e estação meteorológica.
                         </p>
-                        <a href="https://parquecientec.usp.br" target="_blank" rel="noopener noreferrer" className="text-brand-blue font-black flex items-center gap-2 group-hover:underline text-sm">
-                            Visitar Site <span className="material-symbols-outlined text-sm">arrow_forward</span>
+                        <a href="https://parquecientec.usp.br" target="_blank" rel="noopener noreferrer" className="text-brand-blue font-black flex items-center gap-1 md:gap-2 group-hover:underline text-[10px] md:text-sm mt-auto w-fit">
+                            Visitar<span className="hidden sm:inline"> Site</span> <span className="material-symbols-outlined text-sm md:text-base">arrow_forward</span>
                         </a>
                     </div>
                 </div>
@@ -308,20 +319,39 @@ export function ColisorClientView({ oportunidades }: ColisorClientViewProps) {
 
             {/* --- SEÇÃO INFLUENCIADORES --- */}
             <section className="mt-20">
-                <div className="mb-8 flex flex-col gap-2">
-                    <div className="flex items-center gap-3">
-                        <span className="material-symbols-outlined text-brand-blue text-3xl">record_voice_over</span>
-                        <h2 className="text-2xl font-black uppercase tracking-tight">
-                            Influenciadores do <span className="text-brand-yellow">IF-USP</span>
-                        </h2>
+                <div className="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-6 text-center md:text-left">
+                    <div className="flex flex-col gap-2">
+                        <div className="flex items-center gap-3 justify-center md:justify-start">
+                            <span className="material-symbols-outlined text-brand-blue text-3xl">record_voice_over</span>
+                            <h2 className="text-2xl font-black uppercase tracking-tight">
+                                Influenciadores do <span className="text-brand-yellow">IF-USP</span>
+                            </h2>
+                        </div>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                            Acompanhe nossos estudantes espalhando ciência criativa pelo TikTok, YouTube e outras plataformas.
+                        </p>
                     </div>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                        Acompanhe nossos estudantes espalhando ciência criativa pelo TikTok, YouTube e outras plataformas.
-                    </p>
+                    {/* Botões de Rolagem */}
+                    <div className="flex items-center justify-center gap-3">
+                        <button 
+                            onClick={() => scrollLocal('left')}
+                            className="p-3 rounded-xl bg-white dark:bg-card-dark border border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-white/5 hover:scale-105 active:scale-95 hover:shadow-lg transition-all text-gray-700 dark:text-gray-300"
+                            aria-label="Rolar para esquerda"
+                        >
+                            <ChevronLeft className="w-5 h-5" />
+                        </button>
+                        <button 
+                            onClick={() => scrollLocal('right')}
+                            className="p-3 rounded-xl bg-white dark:bg-card-dark border border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-white/5 hover:scale-105 active:scale-95 hover:shadow-lg transition-all text-gray-700 dark:text-gray-300"
+                            aria-label="Rolar para direita"
+                        >
+                            <ChevronRight className="w-5 h-5" />
+                        </button>
+                    </div>
                 </div>
 
-                <div className="w-full">
-                    <div className="flex overflow-x-auto scroll-smooth snap-x snap-mandatory gap-6 pb-8 no-scrollbar">
+                <div className="w-full relative">
+                    <div ref={scrollContainerRef} className="flex overflow-x-auto scroll-smooth snap-x snap-mandatory gap-6 pb-8 no-scrollbar">
                         {influencers.map((influencer, index) => (
                             <div key={index} className="flex flex-col items-center text-center group snap-center shrink-0 w-[260px] md:w-[300px] p-6 bg-white dark:bg-card-dark rounded-3xl shadow-sm border border-gray-100 dark:border-gray-800 hover:-translate-y-2 hover:shadow-xl transition-all duration-300">
                                 <div className={`relative w-28 h-28 rounded-full mb-5 flex items-center justify-center text-4xl font-bold text-white bg-${influencer.color} shadow-lg ring-4 ring-background-light dark:ring-background-dark outline outline-2 outline-gray-200 dark:outline-gray-800 transition-transform group-hover:scale-105 duration-300`}>
