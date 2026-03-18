@@ -10,13 +10,15 @@ import { getAvatarUrl } from '@/lib/utils';
 import { parseMediaUrl, getYoutubeThumbnail, getOptimizedUrl } from '@/lib/media-utils';
 import { MainLayoutWrapper } from '@/components/layout/MainLayoutWrapper';
 
-import { User, Grid, Medal, Star, Image as ImageIcon, PlayCircle, FileText, Heart, MessageSquare, Info, Camera, ExternalLink, ShieldCheck, Play, UserPlus, GraduationCap } from 'lucide-react';
+import { User, Grid, Medal, Star, Image as ImageIcon, PlayCircle, FileText, Heart, MessageSquare, Info, Camera, ExternalLink, ShieldCheck, Play, UserPlus, GraduationCap, Github, Linkedin, Youtube, Instagram, Globe } from 'lucide-react';
+import { TikTokIcon } from '@/components/icons/TikTokIcon';
 import { PerfilFeedbackCard } from './PerfilFeedbackCard';
 import dynamic from 'next/dynamic';
 import { RadiationBadge } from '@/components/gamification/RadiationBadge';
 import { EditProfileModal } from '@/components/profile/EditProfileModal';
 import { RadiationTab } from '@/components/gamification/RadiationTab';
 import { MatchAcademicoTab } from '@/components/profile/MatchAcademicoTab';
+import { ArtesHobbiesTab } from '@/components/profile/ArtesHobbiesTab';
 import { Profile } from '@/types';
 
 
@@ -39,6 +41,7 @@ function LabContent() {
     const [activeTab, setActiveTab] = useState(initialTab);
     const [adoptionStatus, setAdoptionStatus] = useState<'pending' | 'approved' | null>(null);
     const [academicData, setAcademicData] = useState<any>(null);
+    const [followStats, setFollowStats] = useState({ followers: 0, following: 0 });
 
 
     useEffect(() => {
@@ -81,6 +84,11 @@ function LabContent() {
                 const targetSubId = targetUserId;
                 const userSubs = await fetchUserSubmissions(targetSubId);
                 setSubmissions(userSubs || []);
+
+                // Fetch follower stats
+                const { getFollowStats } = await import('@/app/actions/submissions');
+                const stats = await getFollowStats(targetUserId);
+                setFollowStats(stats);
 
                 // Fetch saved/starred posts
                 const { data: saves } = await supabase
@@ -200,9 +208,17 @@ function LabContent() {
                                     <span className="block text-lg font-bold text-gray-900 dark:text-white">{submissions.length}</span>
                                     <span className="text-sm text-gray-500 dark:text-gray-400">publicações</span>
                                 </div>
-                                <div className="text-center sm:text-left">
+                                <div className="text-center sm:text-left hidden sm:block">
                                     <span className="block text-lg font-bold text-gray-900 dark:text-white">{viewedProfile?.level || 1}</span>
                                     <span className="text-sm text-gray-500 dark:text-gray-400">nível</span>
+                                </div>
+                                <div className="text-center sm:text-left cursor-pointer transition-colors hover:bg-gray-50 dark:hover:bg-white/5 rounded-xl px-2 -mx-2">
+                                    <span className="block text-lg font-bold text-gray-900 dark:text-white">{followStats.following}</span>
+                                    <span className="text-sm text-gray-500 dark:text-gray-400">seguindo</span>
+                                </div>
+                                <div className="text-center sm:text-left cursor-pointer transition-colors hover:bg-gray-50 dark:hover:bg-white/5 rounded-xl px-2 -mx-2">
+                                    <span className="block text-lg font-bold text-gray-900 dark:text-white">{followStats.followers}</span>
+                                    <span className="text-sm text-gray-500 dark:text-gray-400">seguidores</span>
                                 </div>
 
                                 {viewedProfile?.id === currentUser.id ? (
@@ -312,17 +328,6 @@ function LabContent() {
                                             Bixo / Buscando Adotante
                                         </span>
                                     )}
-                                    {viewedProfile?.lattes_url && (
-                                        <a
-                                            href={viewedProfile.lattes_url}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="px-2 py-0.5 bg-brand-yellow/10 text-brand-yellow text-[10px] font-bold rounded uppercase hover:bg-brand-yellow/20 transition-colors flex items-center gap-1"
-                                        >
-                                            <ExternalLink className="w-3 h-3" />
-                                            Lattes
-                                        </a>
-                                    )}
                                 </div>
                                 {viewedProfile?.id === currentUser.id && viewedProfile?.review_status === 'pending' && (viewedProfile?.bio_draft || !viewedProfile?.is_public) && (
                                     <div className="mt-4 p-3 bg-brand-yellow/10 border border-brand-yellow/20 rounded-xl flex items-center gap-3 animate-pulse">
@@ -336,6 +341,52 @@ function LabContent() {
                                 <p className="mt-4 text-gray-500 italic text-[13px] leading-relaxed">
                                     {viewedProfile?.bio_draft || viewedProfile?.bio || (viewedProfile?.id === currentUser.id ? "Seu laboratório pessoal está quase pronto!" : "Membro da comunidade Lab-Div.")}
                                 </p>
+
+                                {/* Redes Sociais e Contato */}
+                                <div className="mt-4 flex flex-wrap gap-3">
+                                    {viewedProfile?.lattes_url && (
+                                        <a
+                                            href={viewedProfile.lattes_url}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            title="Currículo Lattes"
+                                            className="px-3 py-1.5 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-800/50 rounded-xl text-[10px] font-black uppercase hover:bg-blue-100 dark:hover:bg-blue-900/40 transition-colors flex items-center gap-1.5 shadow-sm"
+                                        >
+                                            <FileText className="w-3.5 h-3.5" />
+                                            Lattes CNPq
+                                        </a>
+                                    )}
+                                    {viewedProfile?.linkedin_url && (
+                                        <a href={viewedProfile.linkedin_url} target="_blank" rel="noopener noreferrer" title="LinkedIn" className="p-2 bg-gray-100 dark:bg-white/5 hover:bg-[#0A66C2]/10 text-gray-500 hover:text-[#0A66C2] rounded-xl transition-colors">
+                                            <Linkedin className="w-4 h-4" />
+                                        </a>
+                                    )}
+                                    {viewedProfile?.github_url && (
+                                        <a href={viewedProfile.github_url} target="_blank" rel="noopener noreferrer" title="GitHub" className="p-2 bg-gray-100 dark:bg-white/5 hover:bg-gray-200 dark:hover:bg-white/10 text-gray-500 hover:text-gray-900 dark:hover:text-white rounded-xl transition-colors">
+                                            <Github className="w-4 h-4" />
+                                        </a>
+                                    )}
+                                    {viewedProfile?.youtube_url && (
+                                        <a href={viewedProfile.youtube_url} target="_blank" rel="noopener noreferrer" title="YouTube" className="p-2 bg-gray-100 dark:bg-white/5 hover:bg-[#FF0000]/10 text-gray-500 hover:text-[#FF0000] rounded-xl transition-colors">
+                                            <Youtube className="w-4 h-4" />
+                                        </a>
+                                    )}
+                                    {viewedProfile?.instagram_url && (
+                                        <a href={viewedProfile.instagram_url} target="_blank" rel="noopener noreferrer" title="Instagram" className="p-2 bg-gray-100 dark:bg-white/5 hover:bg-[#E1306C]/10 text-gray-500 hover:text-[#E1306C] rounded-xl transition-colors">
+                                            <Instagram className="w-4 h-4" />
+                                        </a>
+                                    )}
+                                    {viewedProfile?.tiktok_url && (
+                                        <a href={viewedProfile.tiktok_url} target="_blank" rel="noopener noreferrer" title="TikTok" className="p-2 bg-gray-100 dark:bg-white/5 hover:bg-gray-200 dark:hover:bg-white/10 text-gray-500 hover:text-black dark:hover:text-white rounded-xl transition-colors">
+                                            <TikTokIcon className="w-4 h-4" />
+                                        </a>
+                                    )}
+                                    {viewedProfile?.portfolio_url && (
+                                        <a href={viewedProfile.portfolio_url} target="_blank" rel="noopener noreferrer" title="Site Pessoal / Portfólio" className="p-2 bg-gray-100 dark:bg-white/5 hover:bg-brand-blue/10 text-gray-500 hover:text-brand-blue rounded-xl transition-colors">
+                                            <Globe className="w-4 h-4" />
+                                        </a>
+                                    )}
+                                </div>
 
                                 {viewedProfile?.artistic_interests && viewedProfile.artistic_interests.length > 0 && (
                                     <div className="mt-4 flex flex-wrap gap-2 border-t border-gray-100 dark:border-gray-800 pt-4">
@@ -412,12 +463,13 @@ function LabContent() {
                     </div>
                 )}
 
-                <div className="flex justify-center border-t border-gray-200 dark:border-gray-800 mb-8 max-w-3xl mx-auto">
+                <div className="flex justify-center border-t border-gray-200 dark:border-gray-800 mb-8 max-w-3xl mx-auto flex-wrap">
                     {[
                         { id: 'publicacoes', label: 'PUBLICAÇÕES', icon: <Grid className="w-4 h-4" /> },
                         { id: 'radiacao', label: 'RADIAÇÃO', icon: <span className="text-sm">☢️</span> },
                         ...(viewedProfile?.id === currentUser.id ? [{ id: 'match', label: 'MATCH ACADÊMICO', icon: <UserPlus className="w-4 h-4" /> }] : []),
                         { id: 'estrelados', label: 'CONSTELAÇÃO', icon: <Star className="w-4 h-4" /> },
+                        { id: 'artes', label: 'ARTES & HOBBIES', icon: <ImageIcon className="w-4 h-4" /> },
                     ].map((tab) => (
                         <button
                             key={tab.id}
@@ -588,6 +640,10 @@ function LabContent() {
                                 </div>
                             )}
                         </div>
+                    )}
+
+                    {activeTab === 'artes' && viewedProfile && (
+                        <ArtesHobbiesTab profile={viewedProfile} isOwner={viewedProfile.id === currentUser.id} />
                     )}
                 </div>
             </div>

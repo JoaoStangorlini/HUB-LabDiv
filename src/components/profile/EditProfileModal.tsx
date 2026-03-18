@@ -6,7 +6,8 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { toast } from 'react-hot-toast';
-import { Loader2, X, User, FileText, Globe, Link, Building2, ShieldCheck, Star, Mail, Phone, FileUp, Info, Users, Microscope, Briefcase, Zap } from 'lucide-react';
+import { Loader2, X, User, FileText, Globe, Link as LinkIcon, Building2, ShieldCheck, Star, Mail, Phone, FileUp, Info, Users, Microscope, Briefcase, Zap, Github, Linkedin, Youtube, Instagram } from 'lucide-react';
+import { TikTokIcon } from '@/components/icons/TikTokIcon';
 import { updateProfile, getProfileWithPseudonyms, uploadEnrollmentProof, updateProfileAsAdmin } from '@/app/actions/profiles';
 import { getUserPseudonyms, createPseudonym } from '@/app/actions/submissions';
 import { createServerSupabase } from '@/lib/supabase/server';
@@ -28,6 +29,12 @@ const profileSchema = z.object({
     entrance_year: z.string().optional(),
     artistic_interests_str: z.string().default(''),
     lattes_url: z.string().url("Link do Lattes inválido").or(z.literal("")).default(''),
+    linkedin_url: z.string().url("Link inválido").or(z.literal("")).default(''),
+    github_url: z.string().url("Link inválido").or(z.literal("")).default(''),
+    youtube_url: z.string().url("Link inválido").or(z.literal("")).default(''),
+    tiktok_url: z.string().url("Link inválido").or(z.literal("")).default(''),
+    instagram_url: z.string().url("Link inválido").or(z.literal("")).default(''),
+    portfolio_url: z.string().url("Link inválido").or(z.literal("")).default(''),
     new_nickname: z.string().max(30).default(''),
     available_to_mentor: z.boolean().default(false),
     seeking_mentor: z.boolean().default(false),
@@ -79,6 +86,18 @@ export function EditProfileModal({ isOpen, onClose, onSuccess, adminMode = false
     const [currentStatus, setCurrentStatus] = useState<'pending' | 'approved' | 'rejected'>('approved');
     const [showHobbiesHelp, setShowHobbiesHelp] = useState(false);
 
+    const [isAddingNetwork, setIsAddingNetwork] = useState(false);
+    const [selectedNetworkToAdd, setSelectedNetworkToAdd] = useState('');
+    const [activeNetworks, setActiveNetworks] = useState<string[]>([]);
+
+    const SOCIAL_NETWORKS = [
+        { id: 'linkedin_url', label: 'LinkedIn', icon: Linkedin },
+        { id: 'github_url', label: 'GitHub', icon: Github },
+        { id: 'youtube_url', label: 'YouTube', icon: Youtube },
+        { id: 'instagram_url', label: 'Instagram', icon: Instagram },
+        { id: 'tiktok_url', label: 'TikTok', icon: TikTokIcon },
+    ];
+
     const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm<ProfileFormValues>({
         resolver: zodResolver(profileSchema) as any,
         defaultValues: {
@@ -96,6 +115,11 @@ export function EditProfileModal({ isOpen, onClose, onSuccess, adminMode = false
             entrance_year: '',
             artistic_interests_str: '',
             lattes_url: '',
+            linkedin_url: '',
+            github_url: '',
+            youtube_url: '',
+            tiktok_url: '',
+            instagram_url: '',
             new_nickname: '',
             available_to_mentor: false,
             seeking_mentor: false,
@@ -191,6 +215,21 @@ export function EditProfileModal({ isOpen, onClose, onSuccess, adminMode = false
             setValue('entrance_year', profile.entrance_year?.toString() || new Date().getFullYear().toString());
             setValue('artistic_interests_str', profile.artistic_interests?.join(', ') || '');
             setValue('lattes_url', profile.lattes_url || '');
+            setValue('linkedin_url', profile.linkedin_url || '');
+            setValue('github_url', profile.github_url || '');
+            setValue('youtube_url', profile.youtube_url || '');
+            setValue('tiktok_url', profile.tiktok_url || '');
+            setValue('instagram_url', profile.instagram_url || '');
+            setValue('portfolio_url', profile.portfolio_url || '');
+
+            const pNetworks = [];
+            if (profile.linkedin_url) pNetworks.push('linkedin_url');
+            if (profile.github_url) pNetworks.push('github_url');
+            if (profile.youtube_url) pNetworks.push('youtube_url');
+            if (profile.instagram_url) pNetworks.push('instagram_url');
+            if (profile.tiktok_url) pNetworks.push('tiktok_url');
+            setActiveNetworks(pNetworks);
+
             setValue('available_to_mentor', profile.available_to_mentor || false);
             setValue('seeking_mentor', profile.seeking_mentor || false);
             setValue('is_labdiv', profile.is_labdiv || false);
@@ -477,28 +516,135 @@ export function EditProfileModal({ isOpen, onClose, onSuccess, adminMode = false
                         </div>
 
                         {/* 3. CONECTIVIDADE E INTERESSES */}
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                                <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1 flex items-center gap-2">
-                                    <Phone className="w-3 h-3" /> WhatsApp
-                                </label>
-                                <input
-                                    {...register('whatsapp')}
-                                    className="w-full bg-gray-50 dark:bg-black/20 border border-gray-100 dark:border-white/5 rounded-2xl px-4 py-3 text-sm focus:border-brand-blue/50 outline-none transition-all"
-                                    placeholder="(11) 98765-4321"
-                                />
+                        <div className="space-y-4">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                    <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1 flex items-center gap-2">
+                                        <Phone className="w-3 h-3" /> WhatsApp
+                                    </label>
+                                    <input
+                                        {...register('whatsapp')}
+                                        className="w-full bg-gray-50 dark:bg-black/20 border border-gray-100 dark:border-white/5 rounded-2xl px-4 py-3 text-sm focus:border-brand-blue/50 outline-none transition-all"
+                                        placeholder="(11) 98765-4321"
+                                    />
+                                </div>
+
+                                <div className="space-y-2">
+                                    <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1 flex items-center gap-2">
+                                        <LinkIcon className="w-3 h-3" /> Currículo Lattes
+                                    </label>
+                                    <input
+                                        {...register('lattes_url')}
+                                        className="w-full bg-gray-50 dark:bg-black/20 border border-gray-100 dark:border-white/5 rounded-2xl px-4 py-3 text-sm focus:border-brand-blue/50 outline-none transition-all"
+                                        placeholder="https://lattes.cnpq.br/..."
+                                    />
+                                    {errors.lattes_url && <p className="text-[10px] text-brand-red font-bold ml-1 uppercase">{errors.lattes_url.message}</p>}
+                                </div>
+
+                                <div className="space-y-2 sm:col-span-2">
+                                    <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1 flex items-center gap-2">
+                                        <Globe className="w-3 h-3" /> Site Pessoal / Portfólio
+                                    </label>
+                                    <input
+                                        {...register('portfolio_url')}
+                                        className="w-full bg-gray-50 dark:bg-black/20 border border-gray-100 dark:border-white/5 rounded-2xl px-4 py-3 text-sm focus:border-brand-blue/50 outline-none transition-all"
+                                        placeholder="https://seu-site.com..."
+                                    />
+                                    {errors.portfolio_url && <p className="text-[10px] text-brand-red font-bold ml-1 uppercase">{errors.portfolio_url.message}</p>}
+                                </div>
                             </div>
 
-                            <div className="space-y-2">
-                                <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1 flex items-center gap-2">
-                                    <Link className="w-3 h-3" /> Currículo Lattes
+                            <div className="space-y-3 pt-2">
+                                <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">
+                                    Redes Sociais
                                 </label>
-                                <input
-                                    {...register('lattes_url')}
-                                    className="w-full bg-gray-50 dark:bg-black/20 border border-gray-100 dark:border-white/5 rounded-2xl px-4 py-3 text-sm focus:border-brand-blue/50 outline-none transition-all"
-                                    placeholder="https://lattes.cnpq.br/..."
-                                />
-                                {errors.lattes_url && <p className="text-[10px] text-brand-red font-bold ml-1 uppercase">{errors.lattes_url.message}</p>}
+                                
+                                {activeNetworks.map(netId => {
+                                    const network = SOCIAL_NETWORKS.find(n => n.id === netId)!;
+                                    const Icon = network.icon;
+                                    const errorMsg = (errors as any)[netId]?.message;
+                                    
+                                    return (
+                                        <div key={netId} className="flex flex-col gap-1 animate-in fade-in slide-in-from-top-2">
+                                            <div className="flex items-center gap-2">
+                                                <div className="w-10 h-10 flex items-center justify-center bg-gray-50 dark:bg-black/20 border border-gray-100 dark:border-white/5 rounded-2xl shrink-0">
+                                                    <Icon className="w-4 h-4 text-gray-400" />
+                                                </div>
+                                                <div className="flex-1">
+                                                    <input
+                                                        {...register(netId as any)}
+                                                        className="w-full bg-gray-50 dark:bg-black/20 border border-gray-100 dark:border-white/5 rounded-2xl px-4 py-3 text-sm focus:border-brand-blue/50 outline-none transition-all placeholder:text-gray-400 font-bold text-gray-900 dark:text-white"
+                                                        placeholder={`Link do seu ${network.label}...`}
+                                                    />
+                                                </div>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => {
+                                                        setActiveNetworks(prev => prev.filter(id => id !== netId));
+                                                        setValue(netId as any, '');
+                                                    }}
+                                                    className="p-3 text-gray-400 hover:text-brand-red hover:bg-brand-red/10 rounded-2xl transition-colors"
+                                                    title={`Remover ${network.label}`}
+                                                >
+                                                    <X className="w-4 h-4" />
+                                                </button>
+                                            </div>
+                                            {errorMsg && <p className="text-[10px] text-brand-red font-bold ml-[52px] uppercase tracking-tight">{errorMsg as React.ReactNode}</p>}
+                                        </div>
+                                    );
+                                })}
+
+                                {/* Add Network Flow */}
+                                {SOCIAL_NETWORKS.filter(n => !activeNetworks.includes(n.id)).length > 0 && (
+                                    <div className="mt-2">
+                                        {!isAddingNetwork ? (
+                                            <button
+                                                type="button"
+                                                onClick={() => setIsAddingNetwork(true)}
+                                                className="w-full py-4 border border-dashed border-gray-200 dark:border-white/10 rounded-2xl text-[10px] font-black uppercase tracking-widest text-gray-500 hover:text-brand-blue hover:border-brand-blue/30 hover:bg-brand-blue/5 transition-all flex items-center justify-center gap-2"
+                                            >
+                                                + Vincular Rede Social
+                                            </button>
+                                        ) : (
+                                            <div className="p-3 bg-gray-50 dark:bg-black/20 border border-gray-100 dark:border-white/5 rounded-2xl flex flex-wrap items-center gap-2 animate-in fade-in slide-in-from-top-2">
+                                                <select
+                                                    value={selectedNetworkToAdd}
+                                                    onChange={(e) => setSelectedNetworkToAdd(e.target.value)}
+                                                    className="flex-1 bg-white dark:bg-[#1E1E1E] border border-gray-200 dark:border-white/10 rounded-xl px-3 py-3 text-xs focus:border-brand-blue/50 outline-none font-bold cursor-pointer transition-all uppercase tracking-tight"
+                                                >
+                                                    <option value="" disabled>Escolha a rede...</option>
+                                                    {SOCIAL_NETWORKS.filter(n => !activeNetworks.includes(n.id)).map(net => (
+                                                        <option key={net.id} value={net.id}>{net.label}</option>
+                                                    ))}
+                                                </select>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => {
+                                                        if (selectedNetworkToAdd) {
+                                                            setActiveNetworks(prev => [...prev, selectedNetworkToAdd]);
+                                                            setSelectedNetworkToAdd('');
+                                                            setIsAddingNetwork(false);
+                                                        }
+                                                    }}
+                                                    disabled={!selectedNetworkToAdd}
+                                                    className="px-5 py-3 bg-brand-blue text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-brand-blue/80 disabled:opacity-50 transition-all border border-brand-blue shadow-lg shadow-brand-blue/20"
+                                                >
+                                                    Add
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => {
+                                                        setIsAddingNetwork(false);
+                                                        setSelectedNetworkToAdd('');
+                                                    }}
+                                                    className="p-3 text-gray-400 hover:text-brand-red hover:bg-brand-red/10 rounded-xl transition-colors"
+                                                >
+                                                    <X className="w-4 h-4" />
+                                                </button>
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
                             </div>
                         </div>
 
@@ -691,6 +837,9 @@ export function EditProfileModal({ isOpen, onClose, onSuccess, adminMode = false
                                                 Comprovante USP
                                             </label>
                                         </div>
+                                        <p className="text-[9px] text-brand-red/80 font-medium leading-relaxed">
+                                            ⚠️ Para sua privacidade, a foto/documento será apagada permanentemente dos nossos servidores 60 segundos após a avaliação da moderação. Se não houver avaliação, o arquivo será excluído automaticamente da nuvem em alguns dias.
+                                        </p>
                                         <input
                                             type="file"
                                             accept="image/*,.pdf"

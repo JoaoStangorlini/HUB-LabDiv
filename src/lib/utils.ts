@@ -57,9 +57,20 @@ export function getAvatarUrl(url: string | null | undefined): string {
     if (url.startsWith('/') || url.startsWith('data:')) return url;
 
     let processedUrl = url;
-    // Optimize Google avatars (they default to s96-c, we want smaller for UI)
-    if (processedUrl.includes('googleusercontent.com') && processedUrl.includes('=s96-c')) {
-        processedUrl = processedUrl.replace('=s96-c', '=s48-c');
+    
+    // Upgrade Google avatars (often end in =s96-c, forcing them to 500x500 to keep high res across UI)
+    if (processedUrl.includes('googleusercontent.com')) {
+        if (processedUrl.includes('=s')) {
+            processedUrl = processedUrl.replace(/=s\d+-c/g, '=s500-c');
+            processedUrl = processedUrl.replace(/=s\d+$/g, '=s500'); // Some don't have -c
+        } else {
+            processedUrl += '=s500-c';
+        }
+    }
+
+    // Upgrade GitHub avatars
+    if (processedUrl.includes('githubusercontent.com') && !processedUrl.includes('&s=')) {
+        processedUrl += (processedUrl.includes('?') ? '&' : '?') + 's=500';
     }
 
     return `/api/avatar?url=${encodeURIComponent(processedUrl)}`;

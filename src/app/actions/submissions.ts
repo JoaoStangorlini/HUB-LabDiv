@@ -403,6 +403,27 @@ export async function checkIsFollowing(followingId: string) {
     return !!data;
 }
 
+export async function getFollowStats(userId: string) {
+    const supabaseServer = await createServerSupabase();
+    
+    // Followers: count where following_id = userId
+    const { count: followersCount } = await supabaseServer
+        .from('follows')
+        .select('*', { count: 'exact', head: true })
+        .eq('following_id', userId);
+        
+    // Following: count where follower_id = userId
+    const { count: followingCount } = await supabaseServer
+        .from('follows')
+        .select('*', { count: 'exact', head: true })
+        .eq('follower_id', userId);
+
+    return {
+        followers: followersCount || 0,
+        following: followingCount || 0
+    };
+}
+
 export async function getProfileById(id: string) {
     const supabaseServer = await createServerSupabase();
     const { data } = await supabaseServer

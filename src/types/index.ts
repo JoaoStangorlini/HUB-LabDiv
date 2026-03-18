@@ -6,6 +6,14 @@
 export type SubmissionStatus = 'pendente' | 'aprovado' | 'rejeitado';
 export type MediaType = 'image' | 'video' | 'pdf' | 'text' | 'link' | 'zip' | 'sdocx';
 
+export interface HobbyCard {
+    id: string;
+    type: 'photo' | 'video' | 'music' | 'text' | 'link';
+    url: string;
+    title: string;
+    description?: string;
+}
+
 export interface Profile {
     id: string;
     email: string;
@@ -22,6 +30,12 @@ export interface Profile {
     course?: string;
     whatsapp?: string;
     lattes_url?: string;
+    linkedin_url?: string;
+    github_url?: string;
+    youtube_url?: string;
+    tiktok_url?: string;
+    instagram_url?: string;
+    portfolio_url?: string;
     usp_proof_url?: string;
     available_to_mentor: boolean;
     seeking_mentor: boolean;
@@ -59,6 +73,7 @@ export interface Profile {
     interest_area?: string;
     areas_of_interest?: string[];
     pending_edits?: any;
+    hobbies_gallery?: HobbyCard[];
     created_at: string;
 }
 
