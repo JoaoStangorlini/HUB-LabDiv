@@ -294,11 +294,11 @@ export default function GerenciadorAcervoPage() {
                 <div className="masonry-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                     {filteredSubmissions.map((item) => (
                         <div key={item.id} className={`flex flex-col gap-2 relative group/card ${item.status === 'rejeitado' ? 'opacity-50 grayscale' : ''}`}>
-                            <div className="absolute top-3 left-12 z-10 transition-all flex items-center gap-2">
+                            <div className="absolute top-3 left-12 z-20 transition-all flex items-center gap-2">
                                 {getStatusBadge(item.status)}
                             </div>
 
-                            <div className="absolute top-3 right-3 z-10 flex gap-1.5 opacity-0 group-hover/card:opacity-100 transition-opacity">
+                            <div className="absolute top-3 right-3 z-20 flex gap-1.5 opacity-0 group-hover/card:opacity-100 transition-opacity">
                                 <button
                                     onClick={(e) => { e.stopPropagation(); handleToggleGoldenStandard(item.id, !!item.isGoldenStandard); }}
                                     title={item.isGoldenStandard ? 'Remover Padrão Ouro' : 'Marcar como Padrão Ouro'}
@@ -322,7 +322,7 @@ export default function GerenciadorAcervoPage() {
 
                             <div
                                 onClick={(e) => { e.stopPropagation(); toggleSelect(item.id); }}
-                                className={`absolute top-3 left-3 z-[15] w-6 h-6 rounded-lg cursor-pointer flex items-center justify-center transition-all shadow-md border-2 ${selectedIds.has(item.id) ? 'bg-brand-blue border-brand-blue opacity-100' : 'bg-white/40 border-white/60 opacity-0 group-hover/card:opacity-100'}`}
+                                className={`absolute top-3 left-3 z-[25] w-6 h-6 rounded-lg cursor-pointer flex items-center justify-center transition-all shadow-md border-2 ${selectedIds.has(item.id) ? 'bg-brand-blue border-brand-blue opacity-100' : 'bg-white/40 border-white/60 opacity-0 group-hover/card:opacity-100'}`}
                             >
                                 {selectedIds.has(item.id) && <CheckCheck className="w-3.5 h-3.5 text-white" />}
                             </div>
