@@ -26,16 +26,46 @@ interface PageProps {
     params: Promise<{ id: string }>;
 }
 
-async function getSubmission(id: string) {
-    const { data, error } = await supabase
-        .from('submissions')
-        .select('*')
-        .eq('id', id)
-        .eq('status', 'aprovado')
-        .single();
+import { institutoData } from '@/data/institutoData';
 
-    if (error || !data) return null;
-    return data;
+async function getSubmission(id: string) {
+    // 1. Try Supabase if ID is UUID-like
+    const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
+    
+    if (isUUID) {
+        const { data, error } = await supabase
+            .from('submissions')
+            .select('*')
+            .eq('id', id)
+            .eq('status', 'aprovado')
+            .single();
+
+        if (data && !error) return data;
+    }
+
+    // 2. Fallback: Search in institutoData static winners
+    const allWinners = Object.values(institutoData).flatMap(dept => dept.postsGanhadores.map(w => ({ ...w, dept })));
+    const staticWinner = allWinners.find(w => w.postId === id || w.id === id);
+
+    if (staticWinner) {
+        return {
+            id: staticWinner.postId || staticWinner.id,
+            title: staticWinner.title,
+            authors: staticWinner.autor,
+            description: `Vencedor da Arena (${staticWinner.ano}) na categoria ${staticWinner.categoria}. Este material foi destaque no departamento ${staticWinner.dept.sigla} (${staticWinner.dept.nome}).`,
+            media_type: 'image',
+            media_url: staticWinner.mediaUrl,
+            category: 'Arena',
+            is_featured: true,
+            is_golden_standard: true,
+            tags: [staticWinner.ano, staticWinner.dept.sigla],
+            created_at: new Date().toISOString(),
+            status: 'aprovado',
+            user_id: 'system'
+        };
+    }
+
+    return null;
 }
 
 async function getRelatedSubmissions(categoryId: string, currentSubmissionId: string) {
