@@ -99,6 +99,28 @@ export function LabDivCatalogExplorer() {
 
     return (
         <div className="space-y-20 py-12">
+            {/* Produzido pelo Lab-Div */}
+            <section>
+                <div className="flex items-center gap-3 mb-8 px-4 sm:px-0">
+                    <div className="p-2 bg-brand-blue/10 rounded-xl">
+                        <Star className="w-6 h-6 text-brand-blue fill-current" />
+                    </div>
+                    <div>
+                        <h2 className="text-2xl font-black uppercase tracking-widest text-gray-900 dark:text-white leading-tight">
+                            Produzido pelo <span className="text-brand-blue">Lab-Div</span>
+                        </h2>
+                        <p className="text-xs font-bold text-gray-500 uppercase tracking-tighter">Conteúdo proprietário e oficial</p>
+                    </div>
+                </div>
+                {labDivItems.length > 0 ? (
+                    <FeaturedCarousel items={labDivItems} />
+                ) : (
+                    <div className="px-4 py-12 border-2 border-dashed border-gray-100 dark:border-gray-800 rounded-[40px] flex flex-col items-center justify-center text-center opacity-50">
+                        <p className="text-gray-400 font-bold uppercase tracking-widest">Nenhum rastro detectado com #LabDiv</p>
+                    </div>
+                )}
+            </section>
+
             {/* Vencedores da Arena (Competições Semestrais) */}
             <section>
                 <div className="flex items-center justify-between mb-8 px-4 sm:px-0">
@@ -119,28 +141,6 @@ export function LabDivCatalogExplorer() {
                 ) : (
                     <div className="px-4 py-12 border-2 border-dashed border-gray-100 dark:border-gray-800 rounded-[40px] flex flex-col items-center justify-center text-center opacity-50">
                         <p className="text-gray-400 font-bold uppercase tracking-widest">Nenhum rastro detectado nas competições</p>
-                    </div>
-                )}
-            </section>
-
-            {/* Produzido pelo Lab-Div */}
-            <section>
-                <div className="flex items-center gap-3 mb-8 px-4 sm:px-0">
-                    <div className="p-2 bg-brand-blue/10 rounded-xl">
-                        <Star className="w-6 h-6 text-brand-blue fill-current" />
-                    </div>
-                    <div>
-                        <h2 className="text-2xl font-black uppercase tracking-widest text-gray-900 dark:text-white leading-tight">
-                            Produzido pelo <span className="text-brand-blue">Lab-Div</span>
-                        </h2>
-                        <p className="text-xs font-bold text-gray-500 uppercase tracking-tighter">Conteúdo proprietário e oficial</p>
-                    </div>
-                </div>
-                {labDivItems.length > 0 ? (
-                    <FeaturedCarousel items={labDivItems} />
-                ) : (
-                    <div className="px-4 py-12 border-2 border-dashed border-gray-100 dark:border-gray-800 rounded-[40px] flex flex-col items-center justify-center text-center opacity-50">
-                        <p className="text-gray-400 font-bold uppercase tracking-widest">Nenhum rastro detectado com #LabDiv</p>
                     </div>
                 )}
             </section>
