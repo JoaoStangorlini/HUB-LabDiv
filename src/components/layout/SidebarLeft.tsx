@@ -33,7 +33,6 @@ const mainLinks = [
     { name: 'Lab-Div', href: '/arquivo-labdiv', icon: <span className="material-symbols-outlined text-2xl">campaign</span>, color: 'brand-yellow' },
     { name: 'Grande Colisor', href: '/colisor', icon: <span className="material-symbols-outlined text-2xl">hub</span>, color: 'brand-red' },
     { name: 'Wiki', href: AppRoutes.WIKI, icon: <span className="material-symbols-outlined text-2xl">menu_book</span>, color: 'brand-blue' },
-    { name: 'Trilhas', href: '/trilhas', icon: <span className="material-symbols-outlined text-2xl">route</span>, color: 'brand-red' },
     { name: 'Mapa', href: '/mapa', icon: <span className="material-symbols-outlined text-2xl">map</span>, color: 'brand-blue' },
 ];
 
@@ -157,7 +156,7 @@ export const SidebarLeft = ({ userId }: { userId?: string }) => {
 
                 {/* Category-Specific Links */}
                 {categoryLinks.filter(l => l.role === userCategory).map((link) => {
-                    const isActive = pathname === link.href;
+                    const isActive = pathname === link.href || pathname.startsWith(link.href + '/');
                     const isGuest = !isLoggedIn;
                     const displayName = (isGuest && link.role === 'curioso') ? 'Acesso ao Hub' : link.name;
                     const displayHref = (isGuest && link.role === 'curioso') ? '/login' : link.href;

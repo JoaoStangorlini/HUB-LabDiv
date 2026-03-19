@@ -1,8 +1,13 @@
 import { createServerSupabase } from '@/lib/supabase/server';
-import FerramentasClient from './FerramentasClient';
 import { redirect } from 'next/navigation';
+import { MatchAcademicoTab } from '@/components/profile/MatchAcademicoTab';
 
-export default async function FerramentasPage() {
+export const metadata = {
+    title: 'Match Acadêmico | IFUSP',
+    description: 'Encontre colegas com interesses acadêmicos compatíveis.',
+};
+
+export default async function FerramentasMatchPage() {
     const supabase = await createServerSupabase();
     const { data: { user } } = await supabase.auth.getUser();
 
@@ -16,9 +21,9 @@ export default async function FerramentasPage() {
         .eq('id', user.id)
         .single();
 
-    if (!profile || profile.user_category !== 'aluno_usp') {
+    if (!profile) {
         redirect('/lab');
     }
 
-    return <FerramentasClient profile={profile} />;
+    return <MatchAcademicoTab profile={profile} />;
 }
