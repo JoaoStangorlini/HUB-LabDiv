@@ -4,7 +4,6 @@ import { InstitutoHero } from '@/components/wiki/instituto/InstitutoHero';
 import { DepartmentGrid } from '@/components/wiki/instituto/DepartmentGrid';
 import { InstitutoHistory } from '@/components/wiki/instituto/InstitutoHistory';
 import { InstitutoTimeline } from '@/components/wiki/instituto/InstitutoTimeline';
-import { SemanticGraph } from '@/components/wiki/instituto/SemanticGraph';
 import { HistoricalPosts } from '@/components/wiki/instituto/HistoricalPosts';
 import { WikiFeedbackCard } from '@/app/wiki/WikiFeedbackCard';
 import Link from 'next/link';
@@ -28,7 +27,6 @@ export default function WikiInstitutoPage() {
                 <InstitutoHero />
                 
                 <div className="space-y-12">
-                    <SemanticGraph />
                     <DepartmentGrid />
                     <InstitutoHistory />
                     <InstitutoTimeline />
