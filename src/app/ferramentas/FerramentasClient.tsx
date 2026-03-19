@@ -367,13 +367,9 @@ export default function FerramentasClient({ profile }: { profile: any }) {
                 </div>
 
                 <div className="flex items-center gap-3">
-                    <div className="flex items-center gap-2 px-4 py-2 bg-brand-blue/10 border border-brand-blue/20 rounded-2xl">
-                        <Calendar className="w-4 h-4 text-brand-blue" />
-                        <span className="text-[10px] font-black uppercase tracking-widest text-brand-blue">Sincronizador Ativo</span>
-                    </div>
                     <button
                         onClick={() => setIsHelpModalOpen(true)}
-                        className="flex items-center justify-center p-3 rounded-2xl bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 text-gray-500 hover:text-brand-blue hover:bg-brand-blue/10 transition-colors"
+                        className="flex items-center justify-center p-3 rounded-2xl bg-brand-blue/10 border border-brand-blue/20 text-brand-blue hover:bg-brand-blue/20 transition-colors"
                         title="Como usar o cronograma?"
                     >
                         <Info className="w-5 h-5" />
