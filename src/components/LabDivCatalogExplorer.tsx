@@ -61,7 +61,11 @@ export function LabDivCatalogExplorer() {
                     categories: ['Lab-Div'],
                     sort: 'recentes'
                 });
-                setLabDivItems(labDivRes.items);
+                // Force golden standard on ALL Lab-Div catalog items
+                setLabDivItems(labDivRes.items.map(item => ({
+                    ...item,
+                    post: { ...item.post, isGoldenStandard: true }
+                })));
 
                 // Fetch Mentored material
                 const mentoredRes = await fetchSubmissions({
@@ -71,7 +75,11 @@ export function LabDivCatalogExplorer() {
                     categories: ['Mentorados Lab-Div'],
                     sort: 'recentes'
                 });
-                setMentoredItems(mentoredRes.items);
+                // Force golden standard on ALL Mentorados catalog items
+                setMentoredItems(mentoredRes.items.map(item => ({
+                    ...item,
+                    post: { ...item.post, isGoldenStandard: true }
+                })));
             } catch (error) {
                 console.error('Error loading Lab-Div catalog:', error);
             } finally {

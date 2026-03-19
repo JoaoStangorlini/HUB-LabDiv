@@ -149,10 +149,10 @@ export const MediaCard = React.memo(({ post, priority = false, isLikedByUser = f
 
     return (
         <div
-            className={`masonry-item group relative flex flex-col overflow-hidden rounded-2xl bg-white dark:bg-card-dark shadow-sm transition-all hover:shadow-xl border cursor-pointer gpu-isolate 
-            ${post.isGoldenStandard ? 'border-brand-yellow/60 shadow-[0_0_20px_rgba(234,179,8,0.4)] animate-premium-glow z-10' : 
-              post.isFeatured ? 'border-brand-yellow/50 animate-premium-glow z-10' : 
-              'border-gray-100 dark:border-gray-800'} ${sizeModifierStyles}`}
+            className={`masonry-item group relative flex flex-col overflow-hidden rounded-2xl bg-white dark:bg-card-dark shadow-sm transition-all hover:shadow-xl cursor-pointer gpu-isolate 
+            ${post.isGoldenStandard ? 'border-2 border-brand-yellow shadow-[0_0_25px_rgba(234,179,8,0.5),0_0_50px_rgba(234,179,8,0.15)] z-10' : 
+              post.isFeatured ? 'border-2 border-brand-yellow/50 animate-premium-glow z-10' : 
+              'border border-gray-100 dark:border-gray-800'} ${sizeModifierStyles}`}
         >
             <CardPresenceBadge submissionId={post.id} />
 
