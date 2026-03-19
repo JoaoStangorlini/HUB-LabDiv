@@ -11,7 +11,7 @@ import {
     LayoutDashboard, Search, Filter, UserSearch,
     CheckCircle, XCircle, Clock, Trash2,
     CheckCheck, Sparkles, RefreshCw, ChevronDown,
-    FileEdit, X, Save, AlertTriangle, Loader2, Star
+    FileEdit, X, Save, AlertTriangle, Loader2, Star, Trophy
 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 
@@ -120,6 +120,14 @@ export default function GerenciadorAcervoPage() {
         const updated = mapToAdminPostDTO(data);
         setAllSubmissions(prev => prev.map(s => s.id === id ? updated : s));
         toast.success(updated.isFeatured ? 'Destaque ativado' : 'Destaque removido');
+    };
+
+    const handleToggleGoldenStandard = async (id: string, current: boolean) => {
+        const { error, data } = await updateSubmissionAdmin(id, { is_golden_standard: !current });
+        if (error) { toast.error('Erro ao alterar Padrão Ouro'); return; }
+        const updated = mapToAdminPostDTO(data);
+        setAllSubmissions(prev => prev.map(s => s.id === id ? updated : s));
+        toast.success(updated.isGoldenStandard ? '🏆 Padrão Ouro ativado' : 'Padrão Ouro removido');
     };
 
     const handleSave = async (e: React.FormEvent) => {
@@ -291,6 +299,13 @@ export default function GerenciadorAcervoPage() {
                             </div>
 
                             <div className="absolute top-3 right-3 z-10 flex gap-1.5 opacity-0 group-hover/card:opacity-100 transition-opacity">
+                                <button
+                                    onClick={(e) => { e.stopPropagation(); handleToggleGoldenStandard(item.id, !!item.isGoldenStandard); }}
+                                    title={item.isGoldenStandard ? 'Remover Padrão Ouro' : 'Marcar como Padrão Ouro'}
+                                    className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all shadow ${item.isGoldenStandard ? 'bg-brand-yellow text-white golden-frame' : 'bg-white/90 dark:bg-gray-800/90 text-gray-400'}`}
+                                >
+                                    <Trophy className={`w-4 h-4 ${item.isGoldenStandard ? 'fill-current' : ''}`} />
+                                </button>
                                 <button
                                     onClick={(e) => { e.stopPropagation(); handleToggleFeatured(item.id, item.isFeatured); }}
                                     className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all shadow ${item.isFeatured ? 'bg-brand-yellow text-white' : 'bg-white/90 dark:bg-gray-800/90 text-gray-400'}`}
