@@ -28,8 +28,8 @@ export default function WikiInstitutoPage() {
                 <InstitutoHero />
                 
                 <div className="space-y-12">
-                    <DepartmentGrid />
                     <SemanticGraph />
+                    <DepartmentGrid />
                     <InstitutoHistory />
                     <InstitutoTimeline />
                     <HistoricalPosts />

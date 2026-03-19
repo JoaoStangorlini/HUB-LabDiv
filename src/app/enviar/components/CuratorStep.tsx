@@ -26,30 +26,50 @@ export function CuratorStep({ onSubmit, isLoading }: { onSubmit: (data: any) => 
     const [dbLaboratories, setDbLaboratories] = useState<any[]>([]);
     const [dbResearchers, setDbResearchers] = useState<any[]>([]);
     const [dbResearchLines, setDbResearchLines] = useState<any[]>([]);
+    const [junctionLabs, setJunctionLabs] = useState<any[]>([]);
+    const [junctionResearchers, setJunctionResearchers] = useState<any[]>([]);
     const [isFetchingData, setIsFetchingData] = useState(true);
 
     useEffect(() => {
         const fetchGraphData = async () => {
             try {
-                const [dRes, lRes, rRes, rlRes] = await Promise.all([
-                    supabase.from('departments').select('id, nome, sigla'),
-                    supabase.from('laboratories').select('id, nome'),
-                    supabase.from('researchers').select('id, nome'),
-                    supabase.from('research_lines').select('id, nome'),
+                const [dRes, lRes, rRes, rlRes, jlRes, jrRes] = await Promise.all([
+                    supabase.from('departments').select('id, nome, sigla').order('sigla'),
+                    supabase.from('laboratories').select('id, nome').order('nome'),
+                    supabase.from('researchers').select('id, nome').order('nome'),
+                    supabase.from('research_lines').select('id, nome').order('nome'),
+                    supabase.from('department_laboratories').select('department_id, laboratory_id'),
+                    supabase.from('department_researchers').select('department_id, researcher_id'),
                 ]);
 
                 if (dRes.data) setDbDepartments(dRes.data);
                 if (lRes.data) setDbLaboratories(lRes.data);
                 if (rRes.data) setDbResearchers(rRes.data);
                 if (rlRes.data) setDbResearchLines(rlRes.data);
+                if (jlRes.data) setJunctionLabs(jlRes.data);
+                if (jrRes.data) setJunctionResearchers(jrRes.data);
             } catch (err) {
                 console.error("Erro ao buscar dados do grafo:", err);
+                toast.error("Erro ao carregar dados do Grafo de Conhecimento");
             } finally {
                 setIsFetchingData(false);
             }
         };
         fetchGraphData();
     }, []);
+
+    // Reactive filtering logic
+    const filteredLaboratories = selectedDepartments.length > 0
+        ? dbLaboratories.filter(lab => 
+            junctionLabs.some(jl => jl.laboratory_id === lab.id && selectedDepartments.includes(jl.department_id))
+          )
+        : dbLaboratories;
+
+    const filteredResearchers = selectedDepartments.length > 0
+        ? dbResearchers.filter(res => 
+            junctionResearchers.some(jr => jr.researcher_id === res.id && selectedDepartments.includes(jr.department_id))
+          )
+        : dbResearchers;
 
     const MultiSelect = ({
         label, description, items, selected, onChange, icon, color
@@ -65,30 +85,38 @@ export function CuratorStep({ onSubmit, isLoading }: { onSubmit: (data: any) => 
                 </div>
                 
                 <div className="flex flex-wrap gap-2 mt-4">
-                    {items.map(item => {
-                        const isSelected = selected.includes(item.id);
-                        return (
-                            <button
-                                key={item.id}
-                                type="button"
-                                onClick={() => {
-                                    if (isSelected) {
-                                        onChange(selected.filter(id => id !== item.id));
-                                    } else {
-                                        onChange([...selected, item.id]);
-                                    }
-                                }}
-                                className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
-                                    isSelected 
-                                    ? `bg-${color} text-white shadow-lg` 
-                                    : `bg-gray-100 dark:bg-gray-800 text-gray-500 hover:bg-${color}/10 hover:text-${color}`
-                                }`}
-                            >
-                                {item.sigla ? `${item.sigla} - ${item.nome}` : item.nome}
-                                {isSelected && <span className="material-symbols-outlined text-[14px]">check</span>}
-                            </button>
-                        );
-                    })}
+                    {items.length > 0 ? (
+                        items.map(item => {
+                            const isSelected = selected.includes(item.id);
+                            return (
+                                <button
+                                    key={item.id}
+                                    type="button"
+                                    onClick={() => {
+                                        if (isSelected) {
+                                            onChange(selected.filter(id => id !== item.id));
+                                        } else {
+                                            onChange([...selected, item.id]);
+                                        }
+                                    }}
+                                    className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
+                                        isSelected 
+                                        ? `bg-${color} text-white shadow-lg` 
+                                        : `bg-gray-100 dark:bg-gray-800 text-gray-500 hover:bg-${color}/10 hover:text-${color}`
+                                    }`}
+                                >
+                                    {item.sigla ? `${item.sigla} - ${item.nome}` : item.nome}
+                                    {isSelected && <span className="material-symbols-outlined text-[14px]">check</span>}
+                                </button>
+                            );
+                        })
+                    ) : (
+                        <p className="text-xs text-gray-400 italic py-2">
+                            {selectedDepartments.length > 0 
+                                ? "Nenhuma opção vinculada aos departamentos selecionados." 
+                                : "Selecione um departamento para filtrar as opções."}
+                        </p>
+                    )}
                 </div>
             </div>
         );
@@ -175,7 +203,7 @@ export function CuratorStep({ onSubmit, isLoading }: { onSubmit: (data: any) => 
                 <MultiSelect 
                     label="Laboratórios" 
                     description="Vincular a laboratórios específicos."
-                    items={dbLaboratories} 
+                    items={filteredLaboratories} 
                     selected={selectedLaboratories} 
                     onChange={setSelectedLaboratories} 
                     icon="science" 
@@ -185,7 +213,7 @@ export function CuratorStep({ onSubmit, isLoading }: { onSubmit: (data: any) => 
                 <MultiSelect 
                     label="Pesquisadores/Professores" 
                     description="Vincular a docentes ou pesquisadores reconhecidos."
-                    items={dbResearchers} 
+                    items={filteredResearchers} 
                     selected={selectedResearchers} 
                     onChange={setSelectedResearchers} 
                     icon="school" 

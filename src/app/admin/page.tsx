@@ -21,6 +21,7 @@ interface DashboardCounts {
     pendentesPerfis: number;
     reportsPendentes: number;
     logsPendentes: number;
+    knowledgePendentes: number;
 }
 
 export default function AdminDashboardOverview() {
@@ -34,6 +35,7 @@ export default function AdminDashboardOverview() {
         pendentesPerfis: 0,
         reportsPendentes: 0,
         logsPendentes: 0,
+        knowledgePendentes: 0,
     });
     const [isLoading, setIsLoading] = useState(true);
 
@@ -50,6 +52,7 @@ export default function AdminDashboardOverview() {
                 profilesPendentesRes,
                 reportsPendentesRes,
                 logsPendentesRes,
+                knowledgePendentesRes,
             ] = await Promise.all([
                 supabase.from('submissions').select('*', { count: 'exact', head: true }).eq('status', 'pendente'),
                 supabase.from('submissions').select('*', { count: 'exact', head: true }).eq('status', 'aprovado'),
@@ -65,6 +68,7 @@ export default function AdminDashboardOverview() {
                 supabase.from('profiles').select('*', { count: 'exact', head: true }).eq('review_status', 'pending'),
                 supabase.from('feedback_reports').select('*', { count: 'exact', head: true }).neq('status', 'closed'),
                 supabase.from('micro_articles').select('*', { count: 'exact', head: true }).eq('status', 'pending'),
+                supabase.from('knowledge_suggestions').select('*', { count: 'exact', head: true }).eq('status', 'pendente'),
             ]);
 
             // Calculate unique tags from all approved submissions
@@ -107,6 +111,7 @@ export default function AdminDashboardOverview() {
                 pendentesPerfis: profilesPendentesRes.count || 0,
                 reportsPendentes: reportsPendentesRes.count || 0,
                 logsPendentes: logsPendentesRes.count || 0,
+                knowledgePendentes: knowledgePendentesRes.count || 0,
             });
 
             setIsLoading(false);
@@ -178,6 +183,15 @@ export default function AdminDashboardOverview() {
             color: 'red' as const,
             href: '/admin/drops',
             urgent: counts.logsPendentes > 0,
+        },
+        {
+            title: 'Sugestões Grafo',
+            subtitle: 'Novos Laboratórios',
+            count: counts.knowledgePendentes,
+            icon: 'hub',
+            color: 'yellow' as const,
+            href: '/admin/sugestoes',
+            urgent: counts.knowledgePendentes > 0,
         },
     ];
 

@@ -42,7 +42,7 @@ const departments = [
         metrics: { researchers: 30, labs: 8 }
     },
     {
-        id: 'FMA',
+        id: 'DFMA',
         name: 'Física Matemática',
         description: 'Aplicação de métodos matemáticos a problemas da física teórica.',
         icon: <Atom className="w-6 h-6" />,
