@@ -17,7 +17,6 @@ import dynamic from 'next/dynamic';
 import { RadiationBadge } from '@/components/gamification/RadiationBadge';
 import { EditProfileModal } from '@/components/profile/EditProfileModal';
 import { RadiationTab } from '@/components/gamification/RadiationTab';
-import { MatchAcademicoTab } from '@/components/profile/MatchAcademicoTab';
 import { ArtesHobbiesTab } from '@/components/profile/ArtesHobbiesTab';
 import { Profile } from '@/types';
 
@@ -44,7 +43,8 @@ function LabContent() {
     const [followStats, setFollowStats] = useState({ followers: 0, following: 0 });
 
     const handleShare = async () => {
-        const url = window.location.href;
+        const origin = typeof window !== 'undefined' ? window.location.origin : '';
+        const url = `${origin}/lab?user=${viewedProfile?.id}`;
         const title = viewedProfile?.full_name ? `Laboratório de ${viewedProfile.full_name} | IFUSP Ciência` : 'Meu Laboratório | IFUSP Ciência';
         
         if (navigator.share) {
@@ -510,10 +510,9 @@ function LabContent() {
                 <div className="flex justify-center border-t border-gray-200 dark:border-gray-800 mb-8 max-w-3xl mx-auto flex-wrap">
                     {[
                         { id: 'publicacoes', label: 'PUBLICAÇÕES', icon: <Grid className="w-4 h-4" /> },
-                        { id: 'radiacao', label: 'RADIAÇÃO', icon: <span className="text-sm">☢️</span> },
-                        ...(viewedProfile?.id === currentUser.id ? [{ id: 'match', label: 'MATCH ACADÊMICO', icon: <UserPlus className="w-4 h-4" /> }] : []),
-                        { id: 'estrelados', label: 'CONSTELAÇÃO', icon: <Star className="w-4 h-4" /> },
                         { id: 'artes', label: 'ARTES & HOBBIES', icon: <ImageIcon className="w-4 h-4" /> },
+                        { id: 'estrelados', label: 'CONSTELAÇÃO', icon: <Star className="w-4 h-4" /> },
+                        { id: 'radiacao', label: 'RADIAÇÃO', icon: <span className="text-sm">☢️</span> },
                     ].map((tab) => (
                         <button
                             key={tab.id}
@@ -613,10 +612,6 @@ function LabContent() {
 
                     {activeTab === 'radiacao' && viewedProfile && (
                         <RadiationTab profile={{ id: viewedProfile.id, xp: viewedProfile.xp || 0, level: viewedProfile.level || 1 }} />
-                    )}
-
-                    {activeTab === 'match' && viewedProfile?.id === currentUser.id && viewedProfile && (
-                        <MatchAcademicoTab profile={viewedProfile} />
                     )}
 
                     {activeTab === 'estrelados' && (

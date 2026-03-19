@@ -381,10 +381,32 @@ export const institutoData: Record<string, Department> = {
         slug: "dfma",
         sigla: "DFMA",
         nome: "Física Matemática",
-        descricao: "O Departamento de Física Matemática (DFMA) foca na fundamentação teórica e matemática das leis da física, incluindo mecânica estatística, teoria quântica de campos e gravitação.",
+        descricao: "O Departamento de Física Matemática (DFMA) foca na fundamentação teórica e matemática das leis da física. Suas atividades de pesquisa abrangem áreas na fronteira do conhecimento, como cosmologia teórica e observacional, teoria quântica de campos, física de partículas e astropartículas, além de sistemas de muitos corpos e informação quântica.",
         laboratorios: [],
-        pesquisadores: [],
-        linhasPesquisa: [],
+        pesquisadores: [
+            { id: "andre-vieira", nome: "André de Pinho Vieira", role: "Docente", iniciais: "AV", lattes: "http://lattes.cnpq.br/" },
+            { id: "barbara-amaral", nome: "Bárbara Lopes Amaral", role: "Docente", iniciais: "BA", lattes: "http://lattes.cnpq.br/" },
+            { id: "eduardo-casali", nome: "Eduardo Trevisan Casali", role: "Docente", iniciais: "EC", lattes: "http://lattes.cnpq.br/" },
+            { id: "gabriel-marques", nome: "Gabriel Santos Marques", role: "Docente", iniciais: "GM", lattes: "http://lattes.cnpq.br/" },
+            { id: "gustavo-burdman", nome: "Gustavo Alberto Burdman", role: "Docente", iniciais: "GB", lattes: "http://lattes.cnpq.br/" },
+            { id: "joao-barata", nome: "João Carlos Alves Barata", role: "Docente", iniciais: "JB", lattes: "http://lattes.cnpq.br/" },
+            { id: "jorge-lyra", nome: "Jorge Lacerda de Lyra", role: "Docente", iniciais: "JL", lattes: "http://lattes.cnpq.br/" },
+            { id: "luis-abramo", nome: "Luís Raul Weber Abramo", role: "Docente", iniciais: "LA", lattes: "http://lattes.cnpq.br/" },
+            { id: "marcos-lima", nome: "Marcos Vinícius Borges Teixeira Lima", role: "Docente", iniciais: "ML", lattes: "http://lattes.cnpq.br/" },
+            { id: "matthew-luzum", nome: "Matthew William Luzum", role: "Docente", iniciais: "ML", lattes: "http://lattes.cnpq.br/" },
+            { id: "oscar-eboli", nome: "Oscar José Pinto Éboli", role: "Docente", iniciais: "OE", lattes: "http://lattes.cnpq.br/" },
+            { id: "paulo-sobrinho", nome: "Paulo Teotônio Sobrinho", role: "Docente", iniciais: "PS", lattes: "http://lattes.cnpq.br/" },
+            { id: "renata-funchal", nome: "Renata Zukanovich Funchal", role: "Docente", iniciais: "RF", lattes: "http://lattes.cnpq.br/" },
+            { id: "ricardo-silva", nome: "Ricardo Correa da Silva", role: "Docente", iniciais: "RS", lattes: "http://lattes.cnpq.br/" }
+        ],
+        linhasPesquisa: [
+            "Cosmologia",
+            "Teoria de Campos e Cordas",
+            "Física de Partículas",
+            "Física-Matemática",
+            "Íons Pesados Relativísticos",
+            "Informação Quântica"
+        ],
         postsGanhadores: []
     }
 };

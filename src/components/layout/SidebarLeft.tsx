@@ -123,7 +123,7 @@ export const SidebarLeft = ({ userId }: { userId?: string }) => {
     }, []);
 
     return (
-        <aside className="sticky top-0 h-screen w-full flex flex-col gap-8 py-6 pr-4 overflow-y-auto hidden-scrollbar pt-16">
+        <aside className="sticky top-0 h-screen w-full flex flex-col gap-2 pt-[72px] py-6 pr-4 overflow-y-auto hidden-scrollbar">
             {/* Primary Navigation */}
             <nav className="flex flex-col gap-1">
                 {/* Main Links */}

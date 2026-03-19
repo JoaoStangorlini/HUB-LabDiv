@@ -44,9 +44,9 @@ const departments = [
     {
         id: 'DFMA',
         name: 'Física Matemática',
-        description: 'Aplicação de métodos matemáticos a problemas da física teórica.',
+        description: 'Pesquisa fundamentada em cosmologia, teoria quântica de campos e informação quântica.',
         icon: <Atom className="w-6 h-6" />,
-        metrics: { researchers: 25, labs: 0 }
+        metrics: { researchers: 14, labs: 0 }
     },
     {
         id: 'FNC',

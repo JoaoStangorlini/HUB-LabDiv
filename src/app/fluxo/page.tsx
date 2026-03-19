@@ -33,16 +33,14 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ c
     <MainLayoutWrapper
       rightSidebar={<FluxoFeedbackCard />}
     >
-      <div className="py-8 lg:py-12">
-        <HomeClientView
-          initialItems={initialItems}
-          initialHasMore={initialHasMore}
-          initialCategory={initialCategory}
-          trendingItems={trendingItems}
-          featuredItems={featuredItems}
-          trendingTags={trendingTags}
-        />
-      </div>
+      <HomeClientView
+        initialItems={initialItems}
+        initialHasMore={initialHasMore}
+        initialCategory={initialCategory}
+        trendingItems={trendingItems}
+        featuredItems={featuredItems}
+        trendingTags={trendingTags}
+      />
     </MainLayoutWrapper>
   );
 }

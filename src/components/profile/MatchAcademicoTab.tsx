@@ -63,9 +63,6 @@ export function MatchAcademicoTab({ profile }: MatchAcademicoTabProps) {
                     toast.error(res.error);
                 }
             } else {
-                // For 'mine', we can reuse fetchMyAdoptedFreshmen for now, 
-                // or extend it if we had a generic 'contacts' system.
-                // Given the instructions, we'll focus on the 'discovery' part first.
                 const { fetchMyAdoptedFreshmen } = await import('@/app/actions/profiles');
                 const res = await fetchMyAdoptedFreshmen();
                 if (res.success && res.data) {
@@ -118,204 +115,220 @@ export function MatchAcademicoTab({ profile }: MatchAcademicoTabProps) {
     const displayData = subTab === 'available' ? people : myContacts;
 
     return (
-        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-6 border-b border-gray-100 dark:border-white/5 pb-6">
-                <div className="space-y-1">
-                    <h2 className="text-2xl font-display font-bold text-gray-900 dark:text-white uppercase tracking-tight">Match Acadêmico</h2>
-                    <p className="text-xs text-gray-500 font-bold uppercase tracking-widest">
-                        {isResearcher ? 'Encontre talentos para sua pesquisa' : isStudent ? 'Encontre oportunidades de IC' : 'Conecte-se com a nova geração'}
-                    </p>
-                </div>
+        <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
 
-                <div className="flex bg-gray-100 dark:bg-white/5 p-1 rounded-2xl border border-gray-200 dark:border-white/5">
-                    <button
-                        onClick={() => setSubTab('available')}
-                        className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${subTab === 'available'
-                            ? 'bg-white dark:bg-brand-blue text-brand-blue dark:text-white shadow-sm'
-                            : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
-                            }`}
-                    >
-                        {isResearcher ? 'Alunos (IC)' : isStudent ? 'Oportunidades' : 'Disponíveis'}
-                    </button>
-                    <button
-                        onClick={() => setSubTab('mine')}
-                        className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${subTab === 'mine'
-                            ? 'bg-white dark:bg-brand-blue text-brand-blue dark:text-white shadow-sm'
-                            : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
-                            }`}
-                    >
-                        {isMentor ? 'Meus Bixos' : 'Meus Contatos'}
-                    </button>
-                </div>
-            </div>
-
-            {/* IC Interest Signaling Form (For Students) */}
-             {isStudent && subTab === 'available' && (
-                <div className="glass-card p-8 rounded-[32px] border-brand-red/20 bg-brand-red/5 relative overflow-hidden group">
-                    <div className="absolute top-0 right-0 p-6 opacity-10 group-hover:rotate-12 transition-transform duration-500">
-                        <Microscope size={80} />
+            {/* ═══════════════ SEÇÃO 1: SISTEMA DE ADOÇÃO ═══════════════ */}
+            <section className="space-y-6">
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
+                    <div className="space-y-1">
+                        <h2 className="text-2xl font-display font-bold text-gray-900 dark:text-white uppercase tracking-tight">
+                            {isResearcher ? 'Match Acadêmico' : 'Sistema de Adoção'}
+                        </h2>
+                        <p className="text-xs text-gray-500 font-bold uppercase tracking-widest">
+                            {isResearcher ? 'Encontre talentos para sua pesquisa' : isStudent ? 'Adote um bixo e ajude na integração' : 'Conecte-se com a nova geração'}
+                        </p>
                     </div>
-                    <div className="relative z-10 space-y-6">
-                        <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-                            <div className="space-y-2">
-                                <h3 className="text-xl font-display font-black text-gray-900 dark:text-white uppercase tracking-tight">Cápsula de Interesse em Pesquisa</h3>
-                                <p className="text-xs text-gray-500 font-bold uppercase tracking-wider">Mostre seu potencial para pesquisadores do IFUSP</p>
-                            </div>
-                            <button
-                                onClick={() => setIsICModalOpen(true)}
-                                className="px-8 py-4 bg-brand-red text-white rounded-[24px] text-[10px] font-black uppercase tracking-widest hover:scale-[1.05] active:scale-95 transition-all shadow-xl shadow-brand-red/20 flex items-center gap-3"
-                            >
-                                <Sparkles className="w-4 h-4" />
-                                Sinalizar Interesse (IC)
-                            </button>
-                        </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4 border-t border-brand-red/10">
-                            {[
-                                { label: 'Área', val: profile.ic_research_area || 'NÃO DEFINIDA' },
-                                { label: 'Departamento', val: profile.ic_preferred_department || 'NÃO DEFINIDO' },
-                                { label: 'Laboratório', val: profile.ic_preferred_lab || 'NÃO DEFINIDO' },
-                            ].map((item, i) => (
-                                <div key={i} className="flex flex-col">
-                                    <span className="text-[8px] font-black text-brand-red/60 uppercase tracking-widest">{item.label}</span>
-                                    <span className="text-[11px] font-bold text-gray-900 dark:text-white uppercase truncate">{item.val}</span>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                </div>
-            )}
-
-            {isLoading ? (
-                <div className="flex items-center justify-center py-20">
-                    <Loader2 className="w-8 h-8 text-brand-blue animate-spin" />
-                </div>
-            ) : displayData.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-20 text-center">
-                    <div className="w-24 h-24 mb-6 rounded-full border-2 border-gray-200 dark:border-white/10 flex items-center justify-center">
-                        {isResearcher ? <GraduationCap className="w-12 h-12 text-gray-300 dark:text-gray-700" /> : <Microscope className="w-12 h-12 text-gray-300 dark:text-gray-700" />}
-                    </div>
-                    <h2 className="text-xl font-display font-bold text-gray-900 dark:text-white mb-2 uppercase tracking-tight">
-                        {subTab === 'available' ? 'Ninguém na fila ainda' : 'Nenhum contato salvo'}
-                    </h2>
-                    <p className="text-sm text-gray-500 max-w-xs mx-auto font-medium italic">
-                        {subTab === 'available'
-                            ? 'Fique de olho! Assim que alguém sinalizar interesse, aparecerá aqui.'
-                            : 'Seus contatos aprovados aparecerão aqui.'}
-                    </p>
-                </div>
-            ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {displayData.map((person) => (
-                        <div
-                            key={person.id}
-                            className={`glass-card p-6 rounded-[32px] group hover:scale-[1.02] transition-all duration-300 border ${subTab === 'mine' ? 'border-brand-blue/30 bg-brand-blue/5' : 'border-gray-100 dark:border-white/5'
+                    <div className="flex bg-gray-100 dark:bg-white/5 p-1 rounded-2xl border border-gray-200 dark:border-white/5">
+                        <button
+                            onClick={() => setSubTab('available')}
+                            className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${subTab === 'available'
+                                ? 'bg-white dark:bg-brand-blue text-brand-blue dark:text-white shadow-sm'
+                                : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
                                 }`}
                         >
-                            <div className="flex items-start gap-4 mb-6">
-                                <Avatar
-                                    src={person.avatar_url}
-                                    name={person.use_nickname ? person.username : person.full_name}
-                                    size="md"
-                                    xp={person.xp}
-                                    level={person.level}
-                                    isLabDiv={person.is_labdiv}
-                                />
-                                <div className="flex-1 min-w-0">
-                                    <h3 className="font-display font-bold text-gray-900 dark:text-white truncate">
-                                        {person.use_nickname ? person.username : person.full_name}
-                                    </h3>
-                                    <div className="flex flex-wrap gap-1 mt-1">
-                                        <span className={`px-2 py-0.5 ${
-                                            person.user_category === 'pesquisador' ? 'bg-brand-yellow/10 text-brand-yellow' : 
-                                            person.user_category === 'aluno_usp' ? 'bg-brand-blue/10 text-brand-blue' : 
-                                            'bg-brand-red/10 text-brand-red'
-                                        } text-[9px] font-black rounded uppercase tracking-tighter`}>
-                                            {person.user_category === 'pesquisador' ? 'Pesquisador' : 
-                                             person.user_category === 'aluno_usp' ? 'Aluno USP' : 
-                                             'Curioso'}
-                                        </span>
-                                        {person.entrance_year && (
-                                            <span className="px-2 py-0.5 bg-gray-100 dark:bg-white/5 text-gray-500 dark:text-gray-400 text-[9px] font-black rounded uppercase tracking-tighter">
-                                                {person.entrance_year}
+                            {isResearcher ? 'Alunos (IC)' : isStudent ? 'Adote' : 'Disponíveis'}
+                        </button>
+                        <button
+                            onClick={() => setSubTab('mine')}
+                            className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${subTab === 'mine'
+                                ? 'bg-white dark:bg-brand-blue text-brand-blue dark:text-white shadow-sm'
+                                : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
+                                }`}
+                        >
+                            {isMentor ? 'Meus Bixos' : 'Meus Contatos'}
+                        </button>
+                    </div>
+                </div>
+
+                {isLoading ? (
+                    <div className="flex items-center justify-center py-20">
+                        <Loader2 className="w-8 h-8 text-brand-blue animate-spin" />
+                    </div>
+                ) : displayData.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center py-20 text-center">
+                        <div className="w-24 h-24 mb-6 rounded-full border-2 border-gray-200 dark:border-white/10 flex items-center justify-center">
+                            {isResearcher ? <GraduationCap className="w-12 h-12 text-gray-300 dark:text-gray-700" /> : <Microscope className="w-12 h-12 text-gray-300 dark:text-gray-700" />}
+                        </div>
+                        <h2 className="text-xl font-display font-bold text-gray-900 dark:text-white mb-2 uppercase tracking-tight">
+                            {subTab === 'available' ? 'Ninguém na fila ainda' : 'Nenhum contato salvo'}
+                        </h2>
+                        <p className="text-sm text-gray-500 max-w-xs mx-auto font-medium italic">
+                            {subTab === 'available'
+                                ? 'Fique de olho! Assim que alguém sinalizar interesse, aparecerá aqui.'
+                                : 'Seus contatos aprovados aparecerão aqui.'}
+                        </p>
+                    </div>
+                ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {displayData.map((person) => (
+                            <div
+                                key={person.id}
+                                className={`glass-card p-6 rounded-[32px] group hover:scale-[1.02] transition-all duration-300 border ${subTab === 'mine' ? 'border-brand-blue/30 bg-brand-blue/5' : 'border-gray-100 dark:border-white/5'
+                                    }`}
+                            >
+                                <div className="flex items-start gap-4 mb-6">
+                                    <Avatar
+                                        src={person.avatar_url}
+                                        name={person.use_nickname ? person.username : person.full_name}
+                                        size="md"
+                                        xp={person.xp}
+                                        level={person.level}
+                                        isLabDiv={person.is_labdiv}
+                                    />
+                                    <div className="flex-1 min-w-0">
+                                        <h3 className="font-display font-bold text-gray-900 dark:text-white truncate">
+                                            {person.use_nickname ? person.username : person.full_name}
+                                        </h3>
+                                        <div className="flex flex-wrap gap-1 mt-1">
+                                            <span className={`px-2 py-0.5 ${
+                                                person.user_category === 'pesquisador' ? 'bg-brand-yellow/10 text-brand-yellow' : 
+                                                person.user_category === 'aluno_usp' ? 'bg-brand-blue/10 text-brand-blue' : 
+                                                'bg-brand-red/10 text-brand-red'
+                                            } text-[9px] font-black rounded uppercase tracking-tighter`}>
+                                                {person.user_category === 'pesquisador' ? 'Pesquisador' : 
+                                                 person.user_category === 'aluno_usp' ? 'Aluno USP' : 
+                                                 'Curioso'}
                                             </span>
-                                        )}
+                                            {person.entrance_year && (
+                                                <span className="px-2 py-0.5 bg-gray-100 dark:bg-white/5 text-gray-500 dark:text-gray-400 text-[9px] font-black rounded uppercase tracking-tighter">
+                                                    {person.entrance_year}
+                                                </span>
+                                            )}
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
 
-                            {person.bio && (
-                                <p className="text-[13px] text-gray-600 dark:text-gray-400 italic mb-6 line-clamp-3 leading-relaxed">
-                                    "{person.bio}"
-                                </p>
-                            )}
+                                {person.bio && (
+                                    <p className="text-[13px] text-gray-600 dark:text-gray-400 italic mb-6 line-clamp-3 leading-relaxed">
+                                        "{person.bio}"
+                                    </p>
+                                )}
 
-                            {person.user_category === 'pesquisador' && (
-                                <div className="mb-6 p-4 rounded-2xl bg-brand-yellow/5 border border-brand-yellow/10 space-y-2">
-                                    {person.research_line && (
-                                        <div className="flex flex-col">
-                                            <span className="text-[8px] font-black text-brand-yellow/60 uppercase tracking-widest">Linha de Pesquisa</span>
-                                            <span className="text-[10px] font-bold text-gray-900 dark:text-white uppercase truncate">{person.research_line}</span>
-                                        </div>
+                                {person.user_category === 'pesquisador' && (
+                                    <div className="mb-6 p-4 rounded-2xl bg-brand-yellow/5 border border-brand-yellow/10 space-y-2">
+                                        {person.research_line && (
+                                            <div className="flex flex-col">
+                                                <span className="text-[8px] font-black text-brand-yellow/60 uppercase tracking-widest">Linha de Pesquisa</span>
+                                                <span className="text-[10px] font-bold text-gray-900 dark:text-white uppercase truncate">{person.research_line}</span>
+                                            </div>
+                                        )}
+                                        {person.laboratory_name && (
+                                            <div className="flex flex-col">
+                                                <span className="text-[8px] font-black text-brand-yellow/60 uppercase tracking-widest">Laboratório</span>
+                                                <span className="text-[10px] font-bold text-gray-900 dark:text-white uppercase truncate">{person.laboratory_name}</span>
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+
+                                <div className="flex items-center gap-2 pt-4 border-t border-gray-50 dark:border-white/5">
+                                    {person.whatsapp && (
+                                        <a
+                                            href={`https://wa.me/${person.whatsapp.replace(/\D/g, '')}`}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-brand-blue text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-brand-blue/90 transition-all shadow-sm"
+                                        >
+                                            <Phone className="w-3 h-3" />
+                                            WhatsApp
+                                        </a>
                                     )}
-                                    {person.laboratory_name && (
-                                        <div className="flex flex-col">
-                                            <span className="text-[8px] font-black text-brand-yellow/60 uppercase tracking-widest">Laboratório</span>
-                                            <span className="text-[10px] font-bold text-gray-900 dark:text-white uppercase truncate">{person.laboratory_name}</span>
-                                        </div>
+                                    {person.email && (
+                                        <button
+                                            onClick={() => {
+                                                if (person.email) {
+                                                    navigator.clipboard.writeText(person.email);
+                                                    toast.success('E-mail copiado!');
+                                                    window.location.href = `mailto:${person.email}`;
+                                                }
+                                            }}
+                                            className="flex items-center justify-center p-2.5 bg-gray-100 dark:bg-white/5 text-gray-500 dark:text-gray-400 rounded-2xl hover:bg-gray-200 dark:hover:bg-white/10 transition-all shadow-sm"
+                                            title="Enviar E-mail"
+                                        >
+                                            <Mail className="w-4 h-4" />
+                                        </button>
                                     )}
-                                </div>
-                            )}
-
-                            <div className="flex items-center gap-2 pt-4 border-t border-gray-50 dark:border-white/5">
-                                {person.whatsapp && (
                                     <a
-                                        href={`https://wa.me/${person.whatsapp.replace(/\D/g, '')}`}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-brand-blue text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-brand-blue/90 transition-all shadow-sm"
+                                        href={`/emaranhamento?user=${person.id}`}
+                                        className="flex items-center justify-center p-2.5 bg-brand-yellow/10 text-brand-yellow rounded-2xl hover:bg-brand-yellow/20 transition-all shadow-sm"
+                                        title="Emaranhar"
                                     >
-                                        <Phone className="w-3 h-3" />
-                                        WhatsApp
+                                        <span className="material-symbols-outlined text-lg">hub</span>
                                     </a>
-                                )}
-                                {person.email && (
                                     <button
-                                        onClick={() => {
-                                            if (person.email) {
-                                                navigator.clipboard.writeText(person.email);
-                                                toast.success('E-mail copiado!');
-                                                window.location.href = `mailto:${person.email}`;
-                                            }
-                                        }}
+                                        onClick={() => handleViewPortfolio(person.id)}
                                         className="flex items-center justify-center p-2.5 bg-gray-100 dark:bg-white/5 text-gray-500 dark:text-gray-400 rounded-2xl hover:bg-gray-200 dark:hover:bg-white/10 transition-all shadow-sm"
-                                        title="Enviar E-mail"
+                                        title="Ver Portfólio"
                                     >
-                                        <Mail className="w-4 h-4" />
+                                        {isPortfolioLoading && selectedPerson?.profile?.id === person.id ? (
+                                            <Loader2 className="w-4 h-4 animate-spin" />
+                                        ) : (
+                                            <ExternalLink className="w-4 h-4" />
+                                        )}
                                     </button>
-                                )}
-                                <a
-                                    href={`/emaranhamento?user=${person.id}`}
-                                    className="flex items-center justify-center p-2.5 bg-brand-yellow/10 text-brand-yellow rounded-2xl hover:bg-brand-yellow/20 transition-all shadow-sm"
-                                    title="Emaranhar"
-                                >
-                                    <span className="material-symbols-outlined text-lg">hub</span>
-                                </a>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                )}
+            </section>
+
+            {/* ═══════════════ SEPARADOR ═══════════════ */}
+            {isStudent && <div className="border-t border-white/5" />}
+
+            {/* ═══════════════ SEÇÃO 2: QUERO UMA IC ═══════════════ */}
+            {isStudent && (
+                <section className="space-y-6">
+                    <div className="space-y-1">
+                        <h2 className="text-2xl font-display font-bold text-gray-900 dark:text-white uppercase tracking-tight">Quero uma IC</h2>
+                        <p className="text-xs text-gray-500 font-bold uppercase tracking-widest">Sinalize seu interesse em pesquisa para os pesquisadores do IFUSP</p>
+                    </div>
+
+                    <div className="glass-card p-8 rounded-[32px] border-brand-red/20 bg-brand-red/5 relative overflow-hidden group">
+                        <div className="absolute top-0 right-0 p-6 opacity-10 group-hover:rotate-12 transition-transform duration-500">
+                            <Microscope size={80} />
+                        </div>
+                        <div className="relative z-10 space-y-6">
+                            <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+                                <div className="space-y-2">
+                                    <h3 className="text-xl font-display font-black text-gray-900 dark:text-white uppercase tracking-tight">Cápsula de Interesse em Pesquisa</h3>
+                                    <p className="text-xs text-gray-500 font-bold uppercase tracking-wider">Mostre seu potencial para pesquisadores do IFUSP</p>
+                                </div>
                                 <button
-                                    onClick={() => handleViewPortfolio(person.id)}
-                                    className="flex items-center justify-center p-2.5 bg-gray-100 dark:bg-white/5 text-gray-500 dark:text-gray-400 rounded-2xl hover:bg-gray-200 dark:hover:bg-white/10 transition-all shadow-sm"
-                                    title="Ver Portfólio"
+                                    onClick={() => setIsICModalOpen(true)}
+                                    className="px-8 py-4 bg-brand-red text-white rounded-[24px] text-[10px] font-black uppercase tracking-widest hover:scale-[1.05] active:scale-95 transition-all shadow-xl shadow-brand-red/20 flex items-center gap-3"
                                 >
-                                    {isPortfolioLoading && selectedPerson?.profile?.id === person.id ? (
-                                        <Loader2 className="w-4 h-4 animate-spin" />
-                                    ) : (
-                                        <ExternalLink className="w-4 h-4" />
-                                    )}
+                                    <Sparkles className="w-4 h-4" />
+                                    Sinalizar Interesse (IC)
                                 </button>
                             </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4 border-t border-brand-red/10">
+                                {[
+                                    { label: 'Área', val: profile.ic_research_area || 'NÃO DEFINIDA' },
+                                    { label: 'Departamento', val: profile.ic_preferred_department || 'NÃO DEFINIDO' },
+                                    { label: 'Laboratório', val: profile.ic_preferred_lab || 'NÃO DEFINIDO' },
+                                ].map((item, i) => (
+                                    <div key={i} className="flex flex-col">
+                                        <span className="text-[8px] font-black text-brand-red/60 uppercase tracking-widest">{item.label}</span>
+                                        <span className="text-[11px] font-bold text-gray-900 dark:text-white uppercase truncate">{item.val}</span>
+                                    </div>
+                                ))}
+                            </div>
                         </div>
-                    ))}
-                </div>
+                    </div>
+                </section>
             )}
 
             <AnimatePresence>

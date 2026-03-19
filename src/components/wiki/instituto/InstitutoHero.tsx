@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Landmark } from 'lucide-react';
+import { Landmark, Search, ExternalLink } from 'lucide-react';
 
 export function InstitutoHero() {
     return (
@@ -40,6 +40,17 @@ export function InstitutoHero() {
                             Fundado em 1934 como parte da Faculdade de Filosofia, Ciências e Letras, o Instituto de Física da USP consolidou-se como uma das instituições de pesquisa mais produtivas do país. Atualmente, abriga centenas de laboratórios de ponta e pesquisadores empenhados em desvendar desde as partículas subatômicas até a vasta estrutura do universo, mantendo um compromisso inabalável com a formação de excelência e a divulgação científica.
                         </p>
                     </div>
+
+                    <a 
+                        href="https://portal.if.usp.br/ifusp/usuarios/todos"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="mt-8 flex items-center justify-center gap-3 px-8 py-4 bg-brand-blue/10 hover:bg-brand-blue/20 border border-brand-blue/30 rounded-2xl text-brand-blue text-[10px] font-black uppercase tracking-[0.2em] transition-all hover:scale-[1.02] active:scale-[0.98] group shadow-lg shadow-brand-blue/5 w-fit"
+                    >
+                        <Search className="w-4 h-4 group-hover:scale-110 transition-transform" />
+                        Buscar no Instituto (Pessoas, Professores e Alunos)
+                        <ExternalLink className="w-4 h-4 opacity-50" />
+                    </a>
                 </div>
             </motion.div>
             

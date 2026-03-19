@@ -28,13 +28,13 @@ export function MainLayoutWrapper({ children, focusMode = false, wide = false, u
                 <div className="flex-1 w-full max-w-[1920px] mx-auto flex justify-center">
                     {/* Left Sidebar (Desktop) */}
                     <aside className="hidden xl:block w-[280px] shrink-0 border-r border-gray-200 dark:border-gray-800 bg-transparent">
-                        <div className="sticky top-20">
+                        <div className="sticky top-0">
                             <SidebarLeft userId={userId} />
                         </div>
                     </aside>
 
                     {/* Content Area */}
-                    <main className={`flex-1 ${wide ? 'max-w-[1400px]' : 'max-w-[800px]'} w-full px-4 sm:px-6 pt-32 pb-8 lg:pb-12 transition-all duration-500`}>
+                    <main className={`flex-1 ${wide ? 'max-w-[1400px]' : 'max-w-[800px]'} w-full px-4 sm:px-6 pt-20 pb-8 lg:pb-12 transition-all duration-500`}>
                         {children}
                     </main>
 

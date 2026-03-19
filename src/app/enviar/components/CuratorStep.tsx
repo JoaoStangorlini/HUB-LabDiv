@@ -8,6 +8,7 @@ import { supabase } from '@/lib/supabase';
 import { SubmissionFormData } from '../schema';
 import { toast } from 'react-hot-toast';
 import { HelpTooltip } from './HelpTooltip';
+import { SelectedIndicators } from './SelectedIndicators';
 
 export function CuratorStep({ onSubmit, isLoading }: { onSubmit: (data: any) => void, isLoading: boolean }) {
     const { 
@@ -135,6 +136,7 @@ export function CuratorStep({ onSubmit, isLoading }: { onSubmit: (data: any) => 
 
     return (
         <div className="space-y-10 pb-20">
+            <SelectedIndicators />
             <div className="flex flex-col md:flex-row items-center justify-between gap-4">
                 <div className="flex items-center gap-4">
                     <button onClick={() => setStep('optional')} className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
@@ -142,20 +144,19 @@ export function CuratorStep({ onSubmit, isLoading }: { onSubmit: (data: any) => 
                     </button>
                     <div>
                         <h1 className="text-2xl font-black tracking-tight text-gray-900 dark:text-white uppercase">Curadoria Ouro</h1>
-                        <p className="text-brand-blue text-sm font-bold">Acesso Restrito: Lab-Div</p>
+                        <p className="text-brand-blue text-sm font-bold tracking-tight">Vínculos Institucionais & Grafo de Conhecimento</p>
                     </div>
                 </div>
                 
-                <div className="flex items-center gap-2 px-4 py-2 bg-brand-red/10 border border-brand-red/30 rounded-full text-brand-red text-xs font-black uppercase">
+                <div className="flex items-center gap-2 px-4 py-2 bg-brand-red/10 border border-brand-red/30 rounded-full text-brand-red text-xs font-black uppercase ring-4 ring-brand-red/5">
                     <span className="material-symbols-outlined text-sm">admin_panel_settings</span>
-                    Modo Administrativo
+                    Modo Administrativo (Lab-Div)
                 </div>
             </div>
 
             <div className="bg-brand-blue/5 p-6 rounded-[32px] border border-brand-blue/10">
-                <p className="text-sm text-gray-500 leading-relaxed">
-                    Você está enviando material em nome do <b>Lab-Div</b>. Use esta etapa para classificar este registro no Grafo de Conhecimento do instituto. 
-                    Se for uma foto do arquivo histórico, marque com a flag apropriada.
+                <p className="text-sm text-gray-500 leading-relaxed font-medium">
+                    Você está catalogando material premium em nome do <b>Lab-Div</b>. Use esta etapa para vincular esta submissão a nós específicos do Grafo de Conhecimento do IFUSP, garantindo que o conteúdo apareça em murais de departamentos, laboratórios e perfis de docentes.
                 </p>
             </div>
 
