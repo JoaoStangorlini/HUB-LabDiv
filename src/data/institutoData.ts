@@ -87,7 +87,7 @@ export const institutoData: Record<string, Department> = {
         ]
     },
     "fmt": {
-        id: "d4000000-0000-0000-0000-000000000000",
+        id: "d2000000-0000-0000-0000-000000000000",
         slug: "fmt",
         sigla: "FMT",
         nome: "Física dos Materiais e Mecânica",
@@ -163,7 +163,7 @@ export const institutoData: Record<string, Department> = {
         ]
     },
     "fep": {
-        id: "d6000000-0000-0000-0000-000000000000",
+        id: "d3000000-0000-0000-0000-000000000000",
         slug: "fep",
         sigla: "FEP",
         nome: "Física Experimental",
@@ -235,7 +235,7 @@ export const institutoData: Record<string, Department> = {
         ]
     },
     "fge": {
-        id: "d5000000-0000-0000-0000-000000000000",
+        id: "d4000000-0000-0000-0000-000000000000",
         slug: "fge",
         sigla: "FGE",
         nome: "Física Geral",
@@ -298,7 +298,7 @@ export const institutoData: Record<string, Department> = {
         ]
     },
     "fnc": {
-        id: "d3000000-0000-0000-0000-000000000000",
+        id: "d6000000-0000-0000-0000-000000000000",
         slug: "fnc",
         sigla: "FNC",
         nome: "Física Nuclear",
@@ -377,7 +377,7 @@ export const institutoData: Record<string, Department> = {
         ]
     },
     "dfma": {
-        id: "d2000000-0000-0000-0000-000000000000",
+        id: "d5000000-0000-0000-0000-000000000000",
         slug: "dfma",
         sigla: "DFMA",
         nome: "Física Matemática",
