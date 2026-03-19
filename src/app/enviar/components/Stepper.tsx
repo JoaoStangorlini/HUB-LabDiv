@@ -2,13 +2,13 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { SubmissionStep } from '@/store/useSubmissionStore';
+import { useSubmissionStore, SubmissionStep } from '@/store/useSubmissionStore';
 
 interface StepperProps {
     currentStep: SubmissionStep;
 }
 
-const steps: { id: SubmissionStep; label: string }[] = [
+const baseSteps: { id: SubmissionStep; label: string }[] = [
     { id: 'category', label: 'Categoria' },
     { id: 'format', label: 'Formato' },
     { id: 'basic', label: 'Detalhes' },
@@ -16,6 +16,13 @@ const steps: { id: SubmissionStep; label: string }[] = [
 ];
 
 export function Stepper({ currentStep }: StepperProps) {
+    const { category } = useSubmissionStore();
+    
+    const steps = [...baseSteps];
+    if (category === 'Lab-Div') {
+        steps.push({ id: 'curator', label: 'Curadoria' });
+    }
+
     const currentIndex = steps.findIndex(s => s.id === currentStep);
     const progress = ((currentIndex + 1) / steps.length) * 100;
 

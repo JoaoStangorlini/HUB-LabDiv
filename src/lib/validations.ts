@@ -27,7 +27,15 @@ export const SubmissionSchema = z.object({
     new_pseudonym: z.string().max(30).optional().nullable(),
     read_guide: z.boolean().optional(),
     accepted_cc: z.boolean().optional(),
-    quiz: z.array(z.any()).default([]), // jsonb: [{id, question, options, correct_option}]
+    quiz: z.array(z.any()).default([]),
+    
+    // Knowledge Graph Fields (Geração 3.0)
+    is_historical: z.boolean().default(false),
+    is_golden_standard: z.boolean().default(false),
+    selected_departments: z.array(z.string()).default([]),
+    selected_laboratories: z.array(z.string()).default([]),
+    selected_researchers: z.array(z.string()).default([]),
+    selected_research_lines: z.array(z.string()).default([]),
 });
 
 // Reaction/Engagement Schema

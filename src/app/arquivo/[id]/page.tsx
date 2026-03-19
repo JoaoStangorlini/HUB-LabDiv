@@ -138,6 +138,19 @@ export default async function ArquivoItemPage({ params }: PageProps) {
         }
     }
 
+    // [GRAFO] Fetch departments the submission is linked to (Graph Backlinks)
+    const { data: linkedDepts } = await supabase
+        .from('submission_departments')
+        .select(`
+            departments (
+                id,
+                sigla,
+                nome
+            )
+        `)
+        .eq('submission_id', submission.id);
+    const associatedDepartments = linkedDepts?.map((rel: any) => rel.departments).filter(Boolean) || [];
+
     // Fetch comments
     const { data: routeComments } = await supabase
         .from('comments')
@@ -218,6 +231,17 @@ export default async function ArquivoItemPage({ params }: PageProps) {
                                             Destaque
                                         </span>
                                     )}
+                                    {associatedDepartments.map((dept: any) => (
+                                        <Link
+                                            key={dept.id}
+                                            href={`/wiki/instituto/${dept.sigla.toLowerCase()}`}
+                                            className="px-3 py-1 bg-brand-yellow/10 text-brand-yellow hover:bg-brand-yellow/20 border border-brand-yellow/20 rounded-full text-[10px] font-black transition-all flex items-center gap-1 uppercase tracking-widest"
+                                            title={`Retornar ao Departamento: ${dept.nome}`}
+                                        >
+                                            <span className="material-symbols-outlined text-[14px]">account_balance</span>
+                                            {dept.sigla}
+                                        </Link>
+                                    ))}
                                     {submission.tags?.map((tag: string, idx: number) => (
                                         <div key={idx} className="flex items-center gap-2">
                                             <Link

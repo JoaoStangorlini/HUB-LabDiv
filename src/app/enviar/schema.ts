@@ -25,7 +25,15 @@ export const submissionSchema = z.object({
         question: z.string().min(5, 'Pergunta muito curta').max(200, 'Pergunta muito longa'),
         options: z.array(z.string().min(1, 'Opção não pode ser vazia')).length(4, 'Deve ter exatamente 4 opções'),
         correct_option: z.coerce.number().min(0).max(3)
-    })).max(2, 'Máximo de 2 perguntas').optional().default([])
+    })).max(2, 'Máximo de 2 perguntas').optional().default([]),
+    
+    // Curator Fields
+    is_historical: z.boolean().optional().default(false),
+    is_golden_standard: z.boolean().optional().default(false),
+    selected_departments: z.array(z.string()).optional().default([]),
+    selected_laboratories: z.array(z.string()).optional().default([]),
+    selected_researchers: z.array(z.string()).optional().default([]),
+    selected_research_lines: z.array(z.string()).optional().default([]),
 });
 
 export type SubmissionFormData = z.infer<typeof submissionSchema>;

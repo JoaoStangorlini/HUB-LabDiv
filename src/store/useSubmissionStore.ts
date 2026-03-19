@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
-export type SubmissionStep = 'category' | 'format' | 'basic' | 'optional';
+export type SubmissionStep = 'category' | 'format' | 'basic' | 'optional' | 'curator';
 
 interface SubmissionState {
     currentStep: SubmissionStep;
@@ -20,6 +20,14 @@ interface SubmissionState {
     testimonial: string;
     selectedFiles: File[];
 
+    // Curator fields
+    isHistorical: boolean;
+    isGoldenStandard: boolean;
+    selectedDepartments: string[];
+    selectedLaboratories: string[];
+    selectedResearchers: string[];
+    selectedResearchLines: string[];
+
     // Setters
     watchedValues: any;
     setWatchedValues: (values: any) => void;
@@ -37,6 +45,14 @@ interface SubmissionState {
     setAltText: (text: string) => void;
     setTestimonial: (text: string) => void;
     setSelectedFiles: (files: File[]) => void;
+
+    // Curator Setters
+    setIsHistorical: (val: boolean) => void;
+    setIsGoldenStandard: (val: boolean) => void;
+    setSelectedDepartments: (val: string[]) => void;
+    setSelectedLaboratories: (val: string[]) => void;
+    setSelectedResearchers: (val: string[]) => void;
+    setSelectedResearchLines: (val: string[]) => void;
 
     // reset
     reset: () => void;
@@ -60,6 +76,13 @@ export const useSubmissionStore = create<SubmissionState>()(
             testimonial: '',
             selectedFiles: [],
 
+            isHistorical: false,
+            isGoldenStandard: false,
+            selectedDepartments: [],
+            selectedLaboratories: [],
+            selectedResearchers: [],
+            selectedResearchLines: [],
+
             watchedValues: {},
             setWatchedValues: (values) => set({ watchedValues: values }),
             setStep: (step) => set({ currentStep: step }),
@@ -77,6 +100,13 @@ export const useSubmissionStore = create<SubmissionState>()(
             setTestimonial: (testimonial) => set({ testimonial }),
             setSelectedFiles: (selectedFiles) => set({ selectedFiles }),
 
+            setIsHistorical: (isHistorical) => set({ isHistorical }),
+            setIsGoldenStandard: (isGoldenStandard) => set({ isGoldenStandard }),
+            setSelectedDepartments: (selectedDepartments) => set({ selectedDepartments }),
+            setSelectedLaboratories: (selectedLaboratories) => set({ selectedLaboratories }),
+            setSelectedResearchers: (selectedResearchers) => set({ selectedResearchers }),
+            setSelectedResearchLines: (selectedResearchLines) => set({ selectedResearchLines }),
+
             reset: () => set({
                 currentStep: 'category',
                 category: '',
@@ -90,7 +120,13 @@ export const useSubmissionStore = create<SubmissionState>()(
                 technicalDetails: '',
                 altText: '',
                 testimonial: '',
-                selectedFiles: []
+                selectedFiles: [],
+                isHistorical: false,
+                isGoldenStandard: false,
+                selectedDepartments: [],
+                selectedLaboratories: [],
+                selectedResearchers: [],
+                selectedResearchLines: []
             }),
         }),
         {

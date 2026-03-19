@@ -13,6 +13,7 @@ import { useFormAutoSave } from '@/hooks/useFormAutoSave';
 import { submissionSchema, type SubmissionFormData } from '../schema';
 import { BasicDetailsStep } from './BasicDetailsStep';
 import { OptionalDetailsStep } from './OptionalDetailsStep';
+import { CuratorStep } from './CuratorStep';
 import { createSubmission, getUserPseudonyms } from '@/app/actions/submissions';
 
 export function FormStep() {
@@ -111,11 +112,19 @@ export function FormStep() {
                 'link': 'link'
             };
 
+            const storeState = useSubmissionStore.getState();
+
             const payloadFields = {
                 ...data,
                 category: category || 'Outros',
                 media_type: (MEDIA_TYPE_MAP[mediaType] || mediaType) as any,
                 media_url: mediaType === 'video' ? (data.video_url || '') : JSON.stringify(finalMediaUrl),
+                is_historical: storeState.isHistorical,
+                is_golden_standard: storeState.isGoldenStandard,
+                selected_departments: storeState.selectedDepartments,
+                selected_laboratories: storeState.selectedLaboratories,
+                selected_researchers: storeState.selectedResearchers,
+                selected_research_lines: storeState.selectedResearchLines,
             };
 
             console.log("Calling createSubmission with payload:", JSON.stringify({
@@ -181,6 +190,7 @@ export function FormStep() {
         <FormProvider {...methods}>
             {currentStep === 'basic' && <BasicDetailsStep />}
             {currentStep === 'optional' && <OptionalDetailsStep onSubmit={onFormSubmit} isLoading={isLoading} />}
+            {currentStep === 'curator' && <CuratorStep onSubmit={onFormSubmit} isLoading={isLoading} />}
         </FormProvider>
     );
 }

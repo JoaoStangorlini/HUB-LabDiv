@@ -10,6 +10,7 @@ import { BottomNavBar } from './BottomNavBar';
 interface MainLayoutWrapperProps {
     children: React.ReactNode;
     focusMode?: boolean;
+    wide?: boolean; // New prop for broader layouts
     userId?: string;
     rightSidebar?: React.ReactNode;
 }
@@ -18,7 +19,7 @@ interface MainLayoutWrapperProps {
  * Standardized structure for V4.0 Golden Master pages.
  * Ensures consistent padding, header, and footer mounting.
  */
-export function MainLayoutWrapper({ children, focusMode = false, userId, rightSidebar }: MainLayoutWrapperProps) {
+export function MainLayoutWrapper({ children, focusMode = false, wide = false, userId, rightSidebar }: MainLayoutWrapperProps) {
     return (
         <div className="min-h-screen bg-transparent font-sans text-gray-900 dark:text-gray-100 flex flex-col">
             <Header />
@@ -33,7 +34,7 @@ export function MainLayoutWrapper({ children, focusMode = false, userId, rightSi
                     </aside>
 
                     {/* Content Area */}
-                    <main className="flex-1 max-w-[800px] w-full px-4 sm:px-6 pt-32 pb-8 lg:pb-12">
+                    <main className={`flex-1 ${wide ? 'max-w-[1400px]' : 'max-w-[800px]'} w-full px-4 sm:px-6 pt-32 pb-8 lg:pb-12 transition-all duration-500`}>
                         {children}
                     </main>
 

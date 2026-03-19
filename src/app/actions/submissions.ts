@@ -29,6 +29,8 @@ export interface AdminUpdate {
     testimonial?: string | null;
     alt_text?: string | null;
     quiz?: any;
+    is_historical?: boolean;
+    is_golden_standard?: boolean;
 }
 
 export interface FetchParams {
@@ -40,10 +42,12 @@ export interface FetchParams {
     sort: 'recentes' | 'antigas';
     author?: string;
     is_featured?: boolean;
+    is_golden_standard?: boolean;
+    is_historical?: boolean;
     years?: number[];
 }
 
-export async function fetchSubmissions({ page, limit, query, categories, mediaTypes, sort, author, is_featured: featured, years }: FetchParams): Promise<{ items: { post: PostDTO }[], hasMore: boolean }> {
+export async function fetchSubmissions({ page, limit, query, categories, mediaTypes, sort, author, is_featured: featured, years, is_golden_standard, is_historical }: FetchParams): Promise<{ items: { post: PostDTO }[], hasMore: boolean }> {
     const supabaseServer = await createServerSupabase();
     let queryBuilder = supabaseServer
         .from('submissions')
@@ -51,6 +55,8 @@ export async function fetchSubmissions({ page, limit, query, categories, mediaTy
         .eq('status', 'aprovado');
 
     if (featured) queryBuilder = queryBuilder.eq('is_featured', true);
+    if (is_golden_standard !== undefined) queryBuilder = queryBuilder.eq('is_golden_standard', is_golden_standard);
+    if (is_historical !== undefined) queryBuilder = queryBuilder.eq('is_historical', is_historical);
     if (categories && categories.length > 0) queryBuilder = queryBuilder.in('category', categories);
     if (author) queryBuilder = queryBuilder.eq('authors', author);
     if (mediaTypes && mediaTypes.length > 0) queryBuilder = queryBuilder.in('media_type', mediaTypes);
@@ -509,8 +515,14 @@ export async function createSubmission(formData: z.infer<typeof SubmissionSchema
         new_pseudonym,
         quiz,
         video_url, // Excluded from DB insert as it has no column
+        is_historical,
+        is_golden_standard,
+        selected_departments,
+        selected_laboratories,
+        selected_researchers,
+        selected_research_lines,
         ...insertData
-    } = validated.data;
+    } = validated.data as any;
 
     const co_author_ids = Array.isArray(co_authors)
         ? co_authors.map(u => typeof u === 'string' ? u : u.id).filter(Boolean)
@@ -529,6 +541,11 @@ export async function createSubmission(formData: z.infer<typeof SubmissionSchema
         // If it's a social post link, it should probably be 'link'.
     }
 
+    // Determinar status inicial: Lab-Div aprovado automaticamente se for do time
+    const { data: profile } = await serverSupabase.from('profiles').select('role').eq('id', user.id).single();
+    const isAuthorized = ['admin', 'labdiv', 'moderator', 'labdiv adm'].includes(profile?.role || '');
+    const initialStatus = (validated.data.category === 'Lab-Div' && isAuthorized) ? 'aprovado' : 'pendente';
+
     const insertPayload = {
         ...insertData,
         co_author_ids,
@@ -536,12 +553,14 @@ export async function createSubmission(formData: z.infer<typeof SubmissionSchema
         pseudonym_id,
         quiz,
         user_id: user.id,
-        status: 'pendente'
+        status: initialStatus,
+        is_historical,
+        is_golden_standard
     };
 
     console.log("Server Action: Attempting Insert with:", JSON.stringify(insertPayload, null, 2));
 
-    const { data, error } = await serverSupabase.from('submissions').insert([insertPayload]).select().single();
+    const { data: newSub, error } = await serverSupabase.from('submissions').insert([insertPayload]).select().single();
 
     if (error) {
         console.error("Server Action: DB Insert Failed!", {
@@ -560,12 +579,26 @@ export async function createSubmission(formData: z.infer<typeof SubmissionSchema
     const { sendAdminNotification } = await import('@/lib/notifications');
     await sendAdminNotification({
         type: 'submission',
-        title: data.title,
-        authors: data.authors,
-        category: data.category || 'Geral'
+        title: newSub.title,
+        authors: newSub.authors,
+        category: newSub.category || 'Geral'
     });
 
-    return { success: true, data };
+    // Knowledge Graph: Insert Junction Records
+    if (selected_departments && selected_departments.length > 0) {
+        await serverSupabase.from('submission_departments').insert(selected_departments.map((id: string) => ({ submission_id: newSub.id, department_id: id })));
+    }
+    if (selected_laboratories && selected_laboratories.length > 0) {
+        await serverSupabase.from('submission_laboratories').insert(selected_laboratories.map((id: string) => ({ submission_id: newSub.id, laboratory_id: id })));
+    }
+    if (selected_researchers && selected_researchers.length > 0) {
+        await serverSupabase.from('submission_researchers').insert(selected_researchers.map((id: string) => ({ submission_id: newSub.id, researcher_id: id })));
+    }
+    if (selected_research_lines && selected_research_lines.length > 0) {
+        await serverSupabase.from('submission_research_lines').insert(selected_research_lines.map((id: string) => ({ submission_id: newSub.id, research_line_id: id })));
+    }
+
+    return { success: true, data: newSub };
 }
 
 export async function fetchUserSubmissions(userId: string): Promise<{ post: PostDTO }[]> {

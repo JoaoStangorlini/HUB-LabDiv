@@ -149,7 +149,10 @@ export const MediaCard = React.memo(({ post, priority = false, isLikedByUser = f
 
     return (
         <div
-            className={`masonry-item group relative flex flex-col overflow-hidden rounded-2xl bg-white dark:bg-card-dark shadow-sm transition-all hover:shadow-xl border cursor-pointer gpu-isolate ${post.isFeatured ? 'border-brand-yellow/50 animate-premium-glow z-10' : 'border-gray-100 dark:border-gray-800'} ${sizeModifierStyles}`}
+            className={`masonry-item group relative flex flex-col overflow-hidden rounded-2xl bg-white dark:bg-card-dark shadow-sm transition-all hover:shadow-xl border cursor-pointer gpu-isolate 
+            ${post.isGoldenStandard ? 'border-brand-yellow/60 shadow-[0_0_20px_rgba(234,179,8,0.4)] animate-premium-glow z-10' : 
+              post.isFeatured ? 'border-brand-yellow/50 animate-premium-glow z-10' : 
+              'border-gray-100 dark:border-gray-800'} ${sizeModifierStyles}`}
         >
             <CardPresenceBadge submissionId={post.id} />
 
@@ -379,9 +382,22 @@ export const MediaCard = React.memo(({ post, priority = false, isLikedByUser = f
                             {post.category}
                         </span>
                     )}
+                    {post.isGoldenStandard && (
+                        <span className="relative overflow-hidden px-2.5 py-1 bg-gradient-to-r from-brand-yellow via-yellow-400 to-brand-yellow text-gray-900 text-[10px] font-black rounded-lg uppercase tracking-wider shadow-[0_0_15px_rgba(234,179,8,0.5)] animate-metallic-shine">
+                            <span className="relative z-10 flex items-center gap-1">
+                                <Star className="w-3 h-3 fill-current" />
+                                Padrão Ouro
+                            </span>
+                        </span>
+                    )}
                     {post.isFeatured && (
                         <span className="relative overflow-hidden px-2.5 py-1 bg-gradient-to-r from-brand-red to-brand-yellow text-white text-[10px] font-black rounded-lg uppercase tracking-wider shadow-[0_0_10px_rgba(230,57,70,0.3)] animate-metallic-shine">
                             <span className="relative z-10">Destaque</span>
+                        </span>
+                    )}
+                    {post.isHistorical && (
+                        <span className="relative overflow-hidden px-2.5 py-1 bg-gradient-to-r from-brand-yellow to-yellow-600 text-white text-[10px] font-black rounded-lg uppercase tracking-wider shadow-[0_0_10px_rgba(234,179,8,0.3)] animate-premium-glow">
+                            <span className="relative z-10">Marco Histórico</span>
                         </span>
                     )}
                     {post.tags?.map((tag, idx) => {

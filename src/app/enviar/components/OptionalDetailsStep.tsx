@@ -9,8 +9,10 @@ import { SubmissionFormData } from '../schema';
 import { toast } from 'react-hot-toast';
 import { HelpTooltip } from './HelpTooltip';
 import { SelectedIndicators } from './SelectedIndicators';
+import { useAuth } from '@/providers/AuthProvider';
 
 export function OptionalDetailsStep({ onSubmit, isLoading }: { onSubmit: (data: any) => void, isLoading: boolean }) {
+    const { profile } = useAuth();
     const { setStep, category } = useSubmissionStore();
     const {
         register,
@@ -316,8 +318,13 @@ export function OptionalDetailsStep({ onSubmit, isLoading }: { onSubmit: (data: 
                     onClick={() => {
                         console.log("Submit button clicked");
                         handleSubmit((data) => {
-                            // console.log("Form Data to Submit:", data); // Removed stringify for safety
-                            onSubmit(data);
+                            const isLabDiv = profile?.role && ['admin', 'labdiv', 'moderator', 'labdiv adm'].includes(profile.role);
+                            
+                            if (category === 'Lab-Div' && isLabDiv) {
+                                setStep('curator');
+                            } else {
+                                onSubmit(data);
+                            }
                         }, (errors) => {
                             console.error("VALIDATION ERRORS FOUND");
                             const errorObj = errors as any;
@@ -328,8 +335,8 @@ export function OptionalDetailsStep({ onSubmit, isLoading }: { onSubmit: (data: 
                     }}
                     className="bg-gradient-to-r from-brand-blue via-brand-yellow to-brand-red px-12 py-5 rounded-2xl font-black text-white uppercase tracking-widest shadow-2xl hover:-translate-y-1 transition-all flex items-center gap-3 disabled:opacity-50"
                 >
-                    {isLoading ? 'Enviando...' : 'Concluir Envio'}
-                    {!isLoading && <span className="material-symbols-outlined">rocket_launch</span>}
+                    {isLoading ? 'Aguarde...' : ((category === 'Lab-Div' && profile?.role && ['admin', 'labdiv', 'moderator', 'labdiv adm'].includes(profile.role)) ? 'Etapa Curadoria' : 'Concluir Envio')}
+                    {!isLoading && <span className="material-symbols-outlined">{(category === 'Lab-Div' && profile?.role && ['admin', 'labdiv', 'moderator', 'labdiv adm'].includes(profile.role)) ? 'admin_panel_settings' : 'rocket_launch'}</span>}
                 </button>
             </div>
         </div>

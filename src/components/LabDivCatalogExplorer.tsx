@@ -20,7 +20,8 @@ export function LabDivCatalogExplorer() {
                 const labDivRes = await fetchSubmissions({
                     page: 1,
                     limit: 10,
-                    query: '#LabDiv',
+                    query: '',
+                    categories: ['Lab-Div'],
                     sort: 'recentes'
                 });
                 setLabDivItems(labDivRes.items);
@@ -29,7 +30,8 @@ export function LabDivCatalogExplorer() {
                 const mentoredRes = await fetchSubmissions({
                     page: 1,
                     limit: 10,
-                    query: '#MentoradosLabdiv',
+                    query: '',
+                    categories: ['Mentorados Lab-Div'],
                     sort: 'recentes'
                 });
                 setMentoredItems(mentoredRes.items);

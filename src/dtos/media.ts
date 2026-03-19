@@ -13,6 +13,8 @@ export interface PostDTO {
     mediaType: MediaType;
     mediaUrl: string | string[];
     isFeatured: boolean;
+    isHistorical?: boolean;
+    isGoldenStandard?: boolean;
     tags?: string[];
     readingTime?: number;
     createdAt: string;
@@ -82,6 +84,8 @@ export function mapToPostDTO(submission: any, counts?: { likes?: number, saves?:
         mediaType: submission.media_type,
         mediaUrl: submission.media_url,
         isFeatured: submission.is_featured,
+        isHistorical: submission.is_historical,
+        isGoldenStandard: submission.is_golden_standard,
         tags: submission.tags,
         readingTime: typeof submission.reading_time === 'number' ? submission.reading_time : 0,
         createdAt: String(submission.created_at),

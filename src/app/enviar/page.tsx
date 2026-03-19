@@ -157,7 +157,7 @@ export default function SubmitPage() {
                                         <FormatStep />
                                     </motion.div>
                                 )}
-                                {(currentStep === 'basic' || currentStep === 'optional') && (
+                                {(currentStep === 'basic' || currentStep === 'optional' || currentStep === 'curator') && (
                                     <motion.div
                                         key="form-wizard"
                                         initial={{ opacity: 0, x: 20 }}
