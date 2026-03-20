@@ -21,6 +21,7 @@ import { ReadingViewManager } from '@/components/reading/ReadingViewManager';
 import { ReadingHistoryTracker } from '@/components/history/ReadingHistoryTracker';
 import { FollowTagButton } from '@/components/engagement/FollowTagButton';
 import { PostQuiz } from '@/components/media/PostQuiz';
+import { ContentRating } from '@/components/feedback/ContentRating';
 
 interface PageProps {
     params: Promise<{ id: string }>;
@@ -376,6 +377,14 @@ export default async function ArquivoItemPage({ params }: PageProps) {
                                 />
                             </div>
                         )}
+
+                        {/* Content Rating */}
+                        <div className="mt-8 mb-12 w-full">
+                            <ContentRating 
+                                postId={submission.id} 
+                                contentFormat={submission.content_format || (submission.media_type === 'video' ? 'video' : submission.media_type === 'image' ? 'image' : 'text')} 
+                            />
+                        </div>
 
                         {/* Interactive Comments */}
                         <CommentsSection

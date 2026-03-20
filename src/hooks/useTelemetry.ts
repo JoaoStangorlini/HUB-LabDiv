@@ -25,7 +25,7 @@ export function useTelemetry() {
     }, []);
 
     const trackEvent = useCallback(async (
-        eventType: 'SEARCH_QUERY' | 'SCROLL_50' | 'SCROLL_100' | 'TIME_ON_PAGE' | 'FILE_DOWNLOAD' | 'DEPT_FILTER' | 'TAB_CHANGE' | 'SEARCH_SUCCESS' | 'SEARCH_FAIL' | 'RAGE_CLICK' | 'HOVER_INTENT' | 'TOOLTIP_VIEWED' | 'TEXT_COPIED' | 'FIRST_ACTION_TAKEN' | 'FORM_ABANDONMENT' | 'LINK_SHARED' | 'CONTENT_RATING',
+        eventType: 'SEARCH_QUERY' | 'SCROLL_50' | 'SCROLL_90' | 'SCROLL_100' | 'TIME_ON_PAGE' | 'FILE_DOWNLOAD' | 'DEPT_FILTER' | 'TAB_CHANGE' | 'SEARCH_SUCCESS' | 'SEARCH_FAIL' | 'RAGE_CLICK' | 'HOVER_INTENT' | 'TOOLTIP_VIEWED' | 'TEXT_COPIED' | 'FIRST_ACTION_TAKEN' | 'FORM_ABANDONMENT' | 'LINK_SHARED' | 'CONTENT_RATING' | 'AUDIO_PLAY' | 'AUDIO_PAUSE' | 'AUDIO_ENDED' | 'IMAGE_VIEW_DETAIL',
         metadata: any = {}
     ) => {
         // Fire-and-forget

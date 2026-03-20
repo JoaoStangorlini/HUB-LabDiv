@@ -1,27 +1,45 @@
 'use client';
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useRef } from 'react';
 import { m, AnimatePresence } from 'framer-motion';
+import { useTelemetry } from '@/hooks/useTelemetry';
 
 /**
  * MarkdownImageLightbox
  * Wraps ReactMarkdown's rendered images in a full-screen click-to-zoom modal.
  * Usage: replace `img` in ReactMarkdown components prop.
  */
-export function MarkdownImage(props: React.ImgHTMLAttributes<HTMLImageElement>) {
+export function MarkdownImage({ src, alt, ...props }: any) {
     const [isOpen, setIsOpen] = useState(false);
+    const { trackEvent } = useTelemetry();
+    const hoverTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-    const handleOpen = useCallback(() => setIsOpen(true), []);
+    const handleMouseEnter = () => {
+        hoverTimerRef.current = setTimeout(() => {
+            trackEvent('IMAGE_VIEW_DETAIL', { src, alt, trigger: 'hover_5s' });
+        }, 5000);
+    };
+
+    const handleMouseLeave = () => {
+        if (hoverTimerRef.current) clearTimeout(hoverTimerRef.current);
+    };
+
     const handleClose = useCallback(() => setIsOpen(false), []);
 
     return (
         <>
             {/* Inline image — clickable to zoom */}
             <img
+                src={src}
+                alt={alt}
+                className="cursor-zoom-in hover:opacity-90 transition-opacity rounded-xl"
+                onClick={() => {
+                    setIsOpen(true);
+                    trackEvent('IMAGE_VIEW_DETAIL', { src, alt, trigger: 'click' });
+                }}
+                onMouseEnter={handleMouseEnter}
+                onMouseLeave={handleMouseLeave}
                 {...props}
-                onClick={handleOpen}
-                className="cursor-zoom-in rounded-xl transition-transform hover:scale-[1.02] hover:shadow-lg"
-                loading="lazy"
             />
 
             {/* Full-screen Lightbox */}

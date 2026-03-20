@@ -47,7 +47,7 @@ export default function TelemetryDashboard() {
   const [isLoading, setIsLoading] = useState(true);
   const [timeRange, setTimeRange] = useState<'24h' | '7d' | '30d'>('7d');
   const [segment, setSegment] = useState<string>('all');
-  const [activeTab, setActiveTab] = useState<'geral' | 'ux' | 'valor' | 'evangelistas'>('geral');
+  const [activeTab, setActiveTab] = useState<'geral' | 'ux' | 'valor' | 'empolgados' | 'eficiencia'>('geral');
   const [page, setPage] = useState(0);
   const pageSize = 20;
 
@@ -73,6 +73,13 @@ export default function TelemetryDashboard() {
   const [adoptionMetrics, setAdoptionMetrics] = useState<any[]>([]);
   const [topUsers, setTopUsers] = useState<any[]>([]);
   const [usefulPosts, setUsefulPosts] = useState<any[]>([]);
+  
+  // Tab 5: Scientific Analysis
+  const [formatPerformance, setFormatPerformance] = useState<any[]>([]);
+  const [cognitiveLoadData, setCognitiveLoadData] = useState<any[]>([]);
+  const [engagementByFormat, setEngagementByFormat] = useState<any[]>([]);
+  const [audioFunnelData, setAudioFunnelData] = useState<any[]>([]);
+  const [playCount, setPlayCount] = useState(0);
 
   const fetchTelemetry = async () => {
     setIsLoading(true);
@@ -82,8 +89,8 @@ export default function TelemetryDashboard() {
       startDate.setDate(startDate.getDate() - days);
 
       const selectFields = segment === 'all' 
-        ? '*, profiles(full_name, user_category)'
-        : '*, profiles!inner(full_name, user_category)';
+        ? '*, profiles(full_name, user_category, course, education_level)'
+        : '*, profiles!inner(full_name, user_category, course, education_level)';
 
       let query = supabase
         .from('telemetry_events')
@@ -92,7 +99,15 @@ export default function TelemetryDashboard() {
         .order('created_at', { ascending: false });
 
       if (segment !== 'all') {
-        query = query.eq('profiles.user_category', segment);
+        if (segment === 'licenciatura' || segment === 'bacharelado') {
+          query = query.eq('profiles.course', segment.charAt(0).toUpperCase() + segment.slice(1));
+        } else if (segment === 'pos_graduacao') {
+          query = query.ilike('profiles.education_level', '%graduação%');
+        } else if (segment === 'docente_pesquisador') {
+          query = query.eq('profiles.user_category', 'pesquisador');
+        } else {
+          query = query.eq('profiles.user_category', segment);
+        }
       }
 
       const { data, error } = await query;
@@ -175,7 +190,7 @@ export default function TelemetryDashboard() {
     ];
     setAdoptionMetrics(adoption);
 
-    // 5. Evangelistas (Top Users)
+    // 5. Empolgados (Top Users)
     const userStats: Record<string, { name: string, category: string, count: number }> = {};
     rawData.forEach(e => {
       if (e.user_id) {
@@ -298,6 +313,58 @@ export default function TelemetryDashboard() {
     }).sort((a, b) => b.rageCount - a.rageCount || b.avgRouteTime - a.avgRouteTime).slice(0, 12);
     
     setRouteHealth(routeHealthData);
+
+    // 7. Tab 5: Scientific Processing
+    // A. Format Performance (Avg Time)
+    const formatTime: Record<string, { total: number, count: number }> = {};
+    timeEvents.forEach(e => {
+        const fmt = e.metadata?.content_format || 'unknown';
+        if (!formatTime[fmt]) formatTime[fmt] = { total: 0, count: 0 };
+        formatTime[fmt].total += (e.metadata?.seconds || 0);
+        formatTime[fmt].count += 1;
+    });
+    setFormatPerformance(Object.entries(formatTime).map(([name, data]) => ({ 
+        name: name.toUpperCase(), 
+        value: Math.round(data.total / data.count) 
+    })));
+
+    // B. Cognitive Load (Time/Words)
+    const loadByFormat: Record<string, { totalLoad: number, count: number }> = {};
+    timeEvents.filter(e => e.metadata?.word_count > 0).forEach(e => {
+        const fmt = e.metadata?.content_format || 'text';
+        const load = e.metadata.seconds / e.metadata.word_count;
+        if (!loadByFormat[fmt]) loadByFormat[fmt] = { totalLoad: 0, count: 0 };
+        loadByFormat[fmt].totalLoad += load;
+        loadByFormat[fmt].count += 1;
+    });
+    setCognitiveLoadData(Object.entries(loadByFormat).map(([name, data]) => ({
+        name: name.toUpperCase(),
+        value: Number((data.totalLoad / data.count).toFixed(4))
+    })));
+
+    // C. Engagement by Format (KPIs)
+    const engByFmt: Record<string, number> = {};
+    const engageEvents = rawData.filter(e => ['CONTENT_RATING', 'TEXT_COPIED', 'LINK_SHARED'].includes(e.event_type));
+    engageEvents.forEach(e => {
+        const fmt = e.metadata?.content_format || 'unknown';
+        engByFmt[fmt] = (engByFmt[fmt] || 0) + 1;
+    });
+    setEngagementByFormat(Object.entries(engByFmt).map(([name, value]) => ({ 
+        name: name.toUpperCase(), 
+        value 
+    })));
+
+    // D. Audio Funnel
+    const pCount = rawData.filter(e => e.event_type === 'AUDIO_PLAY').length;
+    const midCount = rawData.filter(e => e.event_type === 'SCROLL_50').length; 
+    const endCount = rawData.filter(e => e.event_type === 'AUDIO_ENDED').length;
+    
+    setPlayCount(pCount);
+    setAudioFunnelData([
+        { name: 'PLAY', value: pCount },
+        { name: '50% MILT', value: midCount },
+        { name: 'ENDED', value: endCount }
+    ]);
   };
 
 
@@ -390,7 +457,8 @@ export default function TelemetryDashboard() {
           { id: 'geral', label: 'Visão Geral', icon: LayoutGrid },
           { id: 'ux', label: 'UX & Fricção', icon: Zap },
           { id: 'valor', label: 'Adoção & Valor', icon: Heart },
-          { id: 'evangelistas', label: 'Evangelistas', icon: Trophy },
+          { id: 'eficiencia', label: 'Eficiência de Formato', icon: BarChart3 },
+          { id: 'empolgados', label: 'Empolgados', icon: Trophy },
         ].map((tab) => (
           <button
             key={tab.id}
@@ -430,7 +498,7 @@ export default function TelemetryDashboard() {
             </div>
             
             <div className="lg:col-span-1 bg-white/[0.03] p-8 rounded-[40px] border border-white/5">
-              <h3 className="text-[10px) font-black uppercase text-gray-500 tracking-[0.2em] mb-6 flex items-center gap-2">
+              <h3 className="text-[10px] font-black uppercase text-gray-500 tracking-[0.2em] mb-6 flex items-center gap-2">
                 <TrendingUp className="w-3 h-3 text-brand-red" />
                 Engajamento p/ Depto
               </h3>
@@ -438,7 +506,7 @@ export default function TelemetryDashboard() {
             </div>
 
             <div className="lg:col-span-3 bg-white/[0.03] p-8 rounded-[40px] border border-white/5">
-              <h3 className="text-[10px) font-black uppercase text-gray-500 tracking-[0.2em] mb-6 flex items-center gap-2">
+              <h3 className="text-[10px] font-black uppercase text-gray-500 tracking-[0.2em] mb-6 flex items-center gap-2">
                 <BarChart3 className="w-3 h-3 text-brand-blue" />
                 Dinamismo da Jornada
               </h3>
@@ -589,7 +657,7 @@ export default function TelemetryDashboard() {
 
              <div className="lg:col-span-3 grid grid-cols-1 md:grid-cols-2 gap-8">
                <div className="bg-white/[0.03] p-8 rounded-[40px] border border-white/5">
-                  <h3 className="text-[10px) font-black uppercase text-gray-500 tracking-[0.2em] mb-6 flex items-center gap-2">
+                  <h3 className="text-[10px] font-black uppercase text-gray-500 tracking-[0.2em] mb-6 flex items-center gap-2">
                     <Share2 className="w-3 h-3 text-brand-yellow" />
                     Valor Extraído Ativo
                   </h3>
@@ -609,7 +677,7 @@ export default function TelemetryDashboard() {
                </div>
 
                <div className="bg-white/[0.03] p-8 rounded-[40px] border border-white/5">
-                 <h3 className="text-[10px) font-black uppercase text-gray-500 tracking-[0.2em] mb-6 flex items-center gap-2">
+                 <h3 className="text-[10px] font-black uppercase text-gray-500 tracking-[0.2em] mb-6 flex items-center gap-2">
                    <ThumbsUp className="w-3 h-3 text-green-500" />
                    Conteúdo "Padrão Ouro"
                  </h3>
@@ -627,7 +695,94 @@ export default function TelemetryDashboard() {
           </div>
         )}
 
-        {activeTab === 'evangelistas' && (
+        {activeTab === 'eficiencia' && (
+          <div className="space-y-8 animate-in slide-in-from-bottom-4 duration-500">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              {/* Avg Time by Format */}
+              <div className="bg-[#1e1e1e] p-8 rounded-[40px] border border-white/5 flex flex-col">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-10 h-10 bg-brand-blue/10 rounded-xl flex items-center justify-center">
+                    <Clock className="w-5 h-5 text-brand-blue" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-black text-white uppercase tracking-tighter">Tempo Médio p/ Formato</h3>
+                    <p className="text-[10px] text-gray-500 font-medium uppercase tracking-widest">Retenção de Atenção (Segundos)</p>
+                  </div>
+                </div>
+                <TelemetryCharts data={formatPerformance} type="bar" />
+              </div>
+
+              {/* Engagement KPI by Format */}
+              <div className="bg-[#1e1e1e] p-8 rounded-[40px] border border-white/5 flex flex-col">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-10 h-10 bg-brand-yellow/10 rounded-xl flex items-center justify-center">
+                    <ThumbsUp className="w-5 h-5 text-brand-yellow" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-black text-white uppercase tracking-tighter">KPI de Engajamento</h3>
+                    <p className="text-[10px] text-gray-500 font-medium uppercase tracking-widest">Ações Positivas / Formato</p>
+                  </div>
+                </div>
+                <TelemetryCharts data={engagementByFormat} type="pie" />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+               {/* Audio Funnel */}
+               <div className="lg:col-span-1 bg-[#1e1e1e] p-8 rounded-[40px] border border-white/5">
+                  <h3 className="text-[10px] font-black uppercase text-gray-500 tracking-[0.2em] mb-6 flex items-center gap-2">
+                    <Activity className="w-3 h-3 text-brand-red" />
+                    Funil de Áudio (Drops)
+                  </h3>
+                  <div className="space-y-6">
+                    {audioFunnelData.map((f, idx) => (
+                      <div key={idx} className="relative">
+                        <div className="flex justify-between items-end mb-1">
+                          <span className="text-[10px] font-black text-white uppercase">{f.name}</span>
+                          <span className="text-xl font-black text-brand-red">{f.value}</span>
+                        </div>
+                        <div className="h-12 bg-white/5 rounded-2xl overflow-hidden flex items-center px-4">
+                           <div 
+                             className="h-2 bg-brand-red rounded-full opacity-50" 
+                             style={{ width: `${Math.min(100, playCount > 0 ? (f.value / playCount) * 100 : 0)}%` }} 
+                           />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+               </div>
+
+               {/* Cognitive Load Metric */}
+               <div className="lg:col-span-2 bg-gradient-to-br from-brand-blue/10 to-transparent p-10 rounded-[48px] border border-white/5 relative overflow-hidden">
+                  <div className="absolute top-0 right-0 w-40 h-40 bg-brand-blue/5 rounded-full blur-3xl" />
+                  <h3 className="text-2xl font-black text-white uppercase tracking-tighter mb-2">Carga Cognitiva Presumida</h3>
+                  <p className="text-xs text-gray-500 mb-8 max-w-lg">
+                    Cálculo científico: <span className="text-brand-blue font-bold">Tempo em Página (s) / Contagem de Palavras</span>. 
+                    Quanto menor o valor, mais eficiente é a absorção do conteúdo pelo aluno.
+                  </p>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {cognitiveLoadData.map((d, idx) => (
+                      <div key={idx} className="p-6 bg-white/[0.02] rounded-3xl border border-white/5 flex flex-col justify-between">
+                        <div>
+                          <div className="text-[9px] font-black uppercase text-gray-500 tracking-widest mb-1">{d.name}</div>
+                          <div className="text-3xl font-black text-white">{d.value}</div>
+                        </div>
+                        <div className={`text-[10px] font-bold mt-4 uppercase ${d.value < 0.2 ? 'text-green-500' : 'text-brand-yellow'}`}>
+                          {d.value < 0.2 ? '✓ Absorção Fluida' : '⚠ Sobrecarga Possível'}
+                        </div>
+                      </div>
+                    ))}
+                    {cognitiveLoadData.length === 0 && (
+                      <div className="col-span-full py-10 text-center text-gray-600 italic text-xs">Aguardando dados de leitura...</div>
+                    )}
+                  </div>
+               </div>
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'empolgados' && (
           <div className="bg-[#1e1e1e] p-10 rounded-[48px] border border-white/5 shadow-2xl">
             <div className="flex items-center gap-4 mb-10">
               <div className="w-14 h-14 bg-brand-yellow/10 rounded-2xl flex items-center justify-center">

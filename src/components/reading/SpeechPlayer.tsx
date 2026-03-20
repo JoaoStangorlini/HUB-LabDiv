@@ -2,10 +2,13 @@
 
 import React, { useEffect, useState, useRef } from 'react';
 import { useReadingExperience } from './ReadingExperienceProvider';
+import { useTelemetry } from '@/hooks/useTelemetry';
 
 export function SpeechPlayer({ content, description }: { content: string, description?: string }) {
     const { isAudioPlaying, setAudioPlaying, audioLanguage } = useReadingExperience();
+    const { trackEvent } = useTelemetry();
     const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
+    const startTimeRef = useRef<number | null>(null);
     const synth = typeof window !== 'undefined' ? window.speechSynthesis : null;
     const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
 
@@ -51,12 +54,21 @@ export function SpeechPlayer({ content, description }: { content: string, descri
 
                 if (selectedVoice) utterance.voice = selectedVoice;
 
-                utterance.onend = () => setAudioPlaying(false);
+                utterance.onend = () => {
+                    setAudioPlaying(false);
+                    trackEvent('AUDIO_ENDED', { duration: performance.now() - (startTimeRef.current || 0) });
+                };
                 utterance.onerror = (e) => {
                     if (e.error !== 'canceled') setAudioPlaying(false);
                 };
 
                 utteranceRef.current = utterance;
+                startTimeRef.current = performance.now();
+                trackEvent('AUDIO_PLAY', { 
+                    current_time: 0,
+                    content_format: 'audio',
+                    mode: 'tts'
+                });
                 synth.speak(utterance);
             };
 
@@ -73,7 +85,14 @@ export function SpeechPlayer({ content, description }: { content: string, descri
         }
 
         return () => {
-            if (synth) synth.cancel();
+            if (synth) {
+                if (isAudioPlaying) {
+                    trackEvent('AUDIO_PAUSE', { 
+                        current_time: (performance.now() - (startTimeRef.current || 0)) / 1000 
+                    });
+                }
+                synth.cancel();
+            }
         };
     }, [isAudioPlaying, content, synth, audioLanguage, setAudioPlaying]);
 

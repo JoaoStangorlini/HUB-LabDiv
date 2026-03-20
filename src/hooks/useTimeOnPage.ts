@@ -8,7 +8,7 @@ import { useTelemetry } from './useTelemetry';
  * ⏳ useTimeOnPage Hook
  * Calculates and tracks time spent on page before navigation or close.
  */
-export function useTimeOnPage() {
+export function useTimeOnPage(metadata: { content_format?: string, word_count?: number } = {}) {
     const { trackEvent } = useTelemetry();
     const startTimeRef = useRef<number>(Date.now());
     const pathname = usePathname();
@@ -21,7 +21,8 @@ export function useTimeOnPage() {
             if (seconds > 2) { // Minimum threshold to count as active engagement
                 trackEvent('TIME_ON_PAGE', { 
                     seconds,
-                    path: pathname
+                    path: pathname,
+                    ...metadata
                 });
             }
         };

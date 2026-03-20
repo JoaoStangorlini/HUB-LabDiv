@@ -149,6 +149,7 @@ export const MediaCard = React.memo(({ post, priority = false, isLikedByUser = f
 
     return (
         <div
+            onClick={() => router.push(`/arquivo/${post.id}`)}
             className={`masonry-item group relative flex flex-col overflow-hidden rounded-2xl bg-white dark:bg-card-dark shadow-sm transition-all hover:shadow-xl cursor-pointer gpu-isolate 
             ${post.isGoldenStandard ? 'golden-frame z-10' : 
               post.isFeatured ? 'border-2 border-brand-yellow/50 animate-premium-glow z-10' : 
@@ -176,7 +177,8 @@ export const MediaCard = React.memo(({ post, priority = false, isLikedByUser = f
             </AnimatePresence>
 
             <div
-                className="flex items-center justify-between p-4 md:p-6 border-b border-gray-100 dark:border-gray-800"
+                onClick={(e) => e.stopPropagation()}
+                className="flex items-center justify-between p-4 md:p-6 border-b border-gray-100 dark:border-gray-800 cursor-default"
             >
                 <div className="flex items-center gap-2">
                     <Avatar
@@ -220,7 +222,8 @@ export const MediaCard = React.memo(({ post, priority = false, isLikedByUser = f
             </div>
 
             <div
-                className={`relative w-full overflow-hidden shrink-0 ${post.mediaType === 'video' || !hasMultipleImages ? 'aspect-video' : 'aspect-square'} max-h-[500px] bg-gray-100 dark:bg-gray-800 cursor-pointer select-none`}
+                onClick={(e) => e.stopPropagation()}
+                className={`relative w-full overflow-hidden shrink-0 ${post.mediaType === 'video' || !hasMultipleImages ? 'aspect-video' : 'aspect-square'} max-h-[500px] bg-gray-100 dark:bg-gray-800 cursor-default select-none`}
                 onMouseEnter={handleMouseEnter}
                 onMouseLeave={handleMouseLeave}
                 onDoubleClick={handleDoubleClick}
@@ -325,9 +328,9 @@ export const MediaCard = React.memo(({ post, priority = false, isLikedByUser = f
                 )}
             </div>
 
-            <div className="flex flex-col p-4 md:p-6 pt-3 md:pt-4">
+            <div className="flex flex-col p-4 md:p-6 pt-3 md:pt-4 cursor-default">
                 <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-4" onClick={(e) => e.stopPropagation()}>
                         <MediaReaction
                             isActive={liked}
                             count={likes}
@@ -338,21 +341,21 @@ export const MediaCard = React.memo(({ post, priority = false, isLikedByUser = f
                                 handleLike();
                             }}
                         />
-                        <Link href={`/arquivo/${post.id}#comments`} onClick={(e) => e.stopPropagation()} className="text-gray-700 dark:text-gray-200 hover:text-brand-red flex items-center gap-1.5 transition-colors">
+                        <Link href={`/arquivo/${post.id}#comments`} onClick={(e) => e.stopPropagation()} className="text-gray-700 dark:text-gray-200 hover:text-brand-red flex items-center gap-1.5 transition-colors cursor-pointer">
                             <Pencil className="w-5 h-5" />
                             <span className="text-[11px] font-black tabular-nums">{post.commentCount || 0}</span>
                         </Link>
-                        <button onClick={(e) => { e.stopPropagation(); setShowShareMenu(true); }} aria-label="Compartilhar" className="text-gray-700 dark:text-gray-200 hover:text-brand-blue"><Rocket className="w-6 h-6" /></button>
-
-                        {displayUrl && <button onClick={(e) => { e.stopPropagation(); setShowDownloadModal(true); }} aria-label="Baixar Arquivo" className="text-gray-700 dark:text-gray-200 hover:text-brand-yellow"><Download className="w-6 h-6" /></button>}
+                        <button onClick={(e) => { e.stopPropagation(); setShowShareMenu(true); }} aria-label="Compartilhar" className="text-gray-700 dark:text-gray-200 hover:text-brand-blue cursor-pointer"><Rocket className="w-6 h-6" /></button>
+    
+                        {displayUrl && <button onClick={(e) => { e.stopPropagation(); setShowDownloadModal(true); }} aria-label="Baixar Arquivo" className="text-gray-700 dark:text-gray-200 hover:text-brand-yellow cursor-pointer"><Download className="w-6 h-6" /></button>}
                     </div>
-                    <button onClick={(e) => { e.stopPropagation(); handleSave(); }} aria-label={saved ? "Remover Favorito" : "Adicionar aos Favoritos"} className="flex items-center gap-1 text-gray-700 dark:text-gray-200 hover:text-brand-yellow">
+                    <button onClick={(e) => { e.stopPropagation(); handleSave(); }} aria-label={saved ? "Remover Favorito" : "Adicionar aos Favoritos"} className="flex items-center gap-1 text-gray-700 dark:text-gray-200 hover:text-brand-yellow cursor-pointer">
                         <Star className={`w-6 h-6 ${saved ? 'fill-current text-brand-yellow' : ''}`} />
                         <span className="text-xs font-bold tabular-nums">{saves}</span>
                     </button>
                 </div>
 
-                <div className="space-y-1">
+                <div className="space-y-1 cursor-pointer">
                     <div className="text-base sm:text-2xl leading-tight">
                         <span className="font-bold mr-2 text-gray-900 dark:text-white">
                             {useMemo(() => highlightMatch(post.authors, query), [post.authors, query])}

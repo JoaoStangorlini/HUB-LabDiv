@@ -32,6 +32,7 @@ import { FluxoFeedbackCard } from '@/app/fluxo/FluxoFeedbackCard';
 
 import { useSearch } from '@/providers/SearchProvider';
 import { CATEGORIES as CATEGORY_LIST, CATEGORY_STYLES, DEFAULT_STYLE } from '@/lib/constants';
+import { useTelemetry } from '@/hooks/useTelemetry';
 
 interface HomeClientViewProps {
     initialItems: MediaCardProps[];
@@ -56,6 +57,7 @@ export const HomeClientView = ({
 }: HomeClientViewProps) => {
     const router = useRouter();
     const { query: searchQuery, setQuery: setSearchQuery } = useSearch();
+    const { trackEvent } = useTelemetry();
 
     const [items, setItems] = useState<MediaCardProps[]>(initialItems);
     const [page, setPage] = useState(1);
@@ -203,6 +205,11 @@ export const HomeClientView = ({
                 setIsLoading(false);
             }
         };
+
+        // Telemetry for no results
+        if (!isLoading && items.length === 0 && debouncedQuery) {
+            trackEvent('SEARCH_FAIL', { query: debouncedQuery });
+        }
 
         // Don't run on mount if we already have initialItems and no custom filters
         if (debouncedQuery === '' && selectedCategories.length === 1 && selectedCategories[0] === 'Todos' && selectedMediaTypes.length === 0 && selectedYears.length === 1 && selectedYears[0] === 'Todos') {

@@ -11,6 +11,8 @@ const PresenceIndicator = dynamic(() => import('./PresenceIndicator').then(mod =
 const TableOfContents = dynamic(() => import('./TableOfContents').then(mod => mod.TableOfContents), { ssr: false });
 const ReadingProgressBar = dynamic(() => import('./ReadingProgressBar').then(mod => mod.ReadingProgressBar), { ssr: false });
 
+import { useScrollTracker } from '@/hooks/useScrollTracker';
+import { useTimeOnPage } from '@/hooks/useTimeOnPage';
 import { ReadingToolbar } from './ReadingToolbar';
 import { TextSelectionHandler } from './TextSelectionHandler';
 import { PrivateNoteModal } from './PrivateNoteModal';
@@ -26,6 +28,22 @@ interface ReadingViewManagerProps {
 
 export function ReadingViewManager({ submission, children }: ReadingViewManagerProps) {
     const { isPresentationMode, setPresentationMode } = useReadingExperience();
+
+    // Scientific Telemetry
+    const wordCount = React.useMemo(() => {
+        const text = submission.description || '';
+        return text.split(/\s+/).filter(Boolean).length;
+    }, [submission.description]);
+
+    const contentFormat = submission.content_format || 
+        (submission.media_type === 'video' ? 'video' : 
+         submission.media_type === 'image' ? 'image' : 'text');
+
+    useScrollTracker();
+    useTimeOnPage({ 
+        content_format: contentFormat,
+        word_count: wordCount 
+    });
 
     // Modal & Selection States
     const [activeModal, setActiveModal] = useState<'note' | 'correction' | 'auth' | null>(null);

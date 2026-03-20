@@ -10,6 +10,7 @@ import { useTelemetry } from './useTelemetry';
 export function useScrollTracker() {
     const { trackEvent } = useTelemetry();
     const hasTracked50 = useRef(false);
+    const hasTracked90 = useRef(false);
     const hasTracked100 = useRef(false);
 
     useEffect(() => {
@@ -24,6 +25,11 @@ export function useScrollTracker() {
             if (scrollPercent >= 50 && !hasTracked50.current) {
                 trackEvent('SCROLL_50');
                 hasTracked50.current = true;
+            }
+
+            if (scrollPercent >= 90 && !hasTracked90.current) {
+                trackEvent('SCROLL_90');
+                hasTracked90.current = true;
             }
 
             if (scrollPercent >= 98 && !hasTracked100.current) { // 98% because 100% is hard to hit

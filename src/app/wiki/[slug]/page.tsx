@@ -18,6 +18,7 @@ import {
     ActionButton,
     ContentSection
 } from '@/components/wiki/WikiComponents';
+import { ContentRating } from '@/components/feedback/ContentRating';
 import {
     ShieldCheck,
     Zap,
@@ -565,8 +566,19 @@ export default function WikiSubPage() {
     const { setReportModalOpen } = useNavigationStore();
     
     // Telemetry Sensors
+    const wordCount = React.useMemo(() => {
+        if (!content) return 0;
+        return content.sections.reduce((acc: number, section: any) => {
+            const text = typeof section.content === 'string' ? section.content : '';
+            return acc + text.split(/\s+/).filter(Boolean).length;
+        }, 0);
+    }, [content]);
+
     useScrollTracker();
-    useTimeOnPage();
+    useTimeOnPage({ 
+        content_format: 'text', // Wiki is predominantly text
+        word_count: wordCount 
+    });
 
     if (!content) {
         return (
@@ -688,7 +700,10 @@ export default function WikiSubPage() {
                                             </ContentSection>
                                         </motion.div>
                                     ))}
-                                </div>
+                                {/* Feedback & Content Rating */}
+                        <div className="mt-12 mb-8 animate-in fade-in slide-in-from-bottom-4 duration-1000">
+                            <ContentRating postId={content.id} contentFormat="text" />
+                        </div>        </div>
                             </motion.div>
                         </div>
 
