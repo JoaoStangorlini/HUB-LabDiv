@@ -154,7 +154,6 @@ export default async function RootLayout({
                 <TelemetryManager />
                 {/* Microsoft Clarity */}
                 {process.env.NEXT_PUBLIC_CLARITY_ID && (
-                  <>
                     <Script
                       id="microsoft-clarity"
                       strategy="afterInteractive"
@@ -168,7 +167,6 @@ export default async function RootLayout({
                         `,
                       }}
                     />
-                  </>
                 )}
 
 
