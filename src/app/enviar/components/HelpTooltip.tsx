@@ -1,7 +1,16 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useTelemetry } from '@/hooks/useTelemetry';
 
 export function HelpTooltip({ text }: { text: string }) {
     const [isOpen, setIsOpen] = useState(false);
+    const { trackEvent } = useTelemetry();
+
+    useEffect(() => {
+        if (isOpen) {
+            trackEvent('TOOLTIP_VIEWED', { text: text.substring(0, 50) });
+        }
+    }, [isOpen, trackEvent, text]);
+
     return (
         <div className="relative inline-block ml-2">
             <button
