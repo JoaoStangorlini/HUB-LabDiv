@@ -155,7 +155,6 @@ export default async function RootLayout({
                 {/* Microsoft Clarity */}
                 {process.env.NEXT_PUBLIC_CLARITY_ID && (
                   <>
-                    <script dangerouslySetInnerHTML={{ __html: `console.log("✅ SYSTEM: Microsoft Clarity ID Loaded ->", "${process.env.NEXT_PUBLIC_CLARITY_ID}");` }} />
                     <Script
                       id="microsoft-clarity"
                       strategy="afterInteractive"
