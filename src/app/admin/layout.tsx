@@ -33,7 +33,7 @@ export default function AdminLayout({
         { name: 'Trilhas de Aprendizagem', href: '/admin/trilhas', icon: 'route' },
         { name: 'Narração & TTS', href: '/admin/narracao', icon: 'record_voice_over' },
         { name: 'Peer Review', href: '/admin/correcoes', icon: 'spellcheck' },
-        { name: 'Ranking', href: '/admin/ranking', icon: 'trending_up' },
+        { name: 'Telemetria & Dados', href: '/admin/ranking', icon: 'analytics' },
         { name: 'Oportunidades', href: '/admin/oportunidades', icon: 'event' },
         { name: 'Logs do IFUSP', href: '/admin/drops', icon: 'forum' },
     ];

@@ -26,6 +26,7 @@ import { AppRoutes } from '@/types/navigation';
 import { fetchRecentEntanglements } from '@/app/actions/submissions';
 import { Avatar } from '../ui/Avatar';
 import { supabase } from '@/lib/supabase';
+import { useTelemetry } from '@/hooks/useTelemetry';
 
 const mainLinks = [
     { name: 'Fluxo', href: AppRoutes.HOME, icon: <span className="material-symbols-outlined text-2xl">grain</span>, color: 'brand-blue' },
@@ -58,6 +59,7 @@ export const SidebarLeft = ({ userId }: { userId?: string }) => {
     const [isLoading, setIsLoading] = React.useState(true);
     const [userCategory, setUserCategory] = React.useState<string | null>(null);
     const [isLoggedIn, setIsLoggedIn] = React.useState(false);
+    const { trackEvent } = useTelemetry();
 
     const loadSidebarData = async () => {
         setIsLoading(true);
@@ -81,11 +83,9 @@ export const SidebarLeft = ({ userId }: { userId?: string }) => {
                 const category = profileData?.user_category;
                 const isUspMember = profileData?.is_usp_member || userEmail?.endsWith('@usp.br') || userEmail?.endsWith('@if.usp.br');
                 
-                if (category === 'pesquisador') {
+                if (['pesquisador', 'docente_pesquisador'].includes(category)) {
                     setUserCategory('pesquisador');
-                } else if (isUspMember) {
-                    setUserCategory('aluno_usp');
-                } else if (category === 'aluno_usp') {
+                } else if (isUspMember || ['aluno_usp', 'licenciatura', 'bacharelado', 'pos_graduacao'].includes(category)) {
                     setUserCategory('aluno_usp');
                 } else {
                     setUserCategory('curioso');
@@ -139,6 +139,7 @@ export const SidebarLeft = ({ userId }: { userId?: string }) => {
                         <Link
                             key={link.href}
                             href={link.href}
+                            onClick={() => trackEvent('TAB_CHANGE', { tab: link.name, href: link.href })}
                             className={`flex items-center gap-4 px-4 py-3 rounded-2xl transition-all group border-l-[3px] ${isActive
                                 ? `${c.bg} ${c.text} ${c.border}`
                                 : `border-l-transparent ${c.hoverBorder} text-gray-500 hover:bg-gray-100 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-white`
@@ -171,6 +172,7 @@ export const SidebarLeft = ({ userId }: { userId?: string }) => {
                         <Link
                             key={link.href}
                             href={displayHref}
+                            onClick={() => trackEvent('TAB_CHANGE', { tab: displayName, href: displayHref })}
                             className={`flex items-center gap-4 px-4 py-3 rounded-2xl transition-all group border-l-[3px] ${isActive
                                 ? `${c.bg} ${c.text} ${c.border}`
                                 : `border-l-transparent ${c.hoverBorder} text-gray-500 hover:bg-gray-100 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-white`
@@ -201,6 +203,7 @@ export const SidebarLeft = ({ userId }: { userId?: string }) => {
                         <Link
                             key={link.href}
                             href={link.href}
+                            onClick={() => trackEvent('TAB_CHANGE', { tab: link.name, href: link.href })}
                             className={`flex items-center gap-4 px-4 py-3 rounded-2xl transition-all group border-l-[3px] ${isActive
                                 ? `${c.bg} ${c.text} ${c.border}`
                                 : `border-l-transparent ${c.hoverBorder} text-gray-500 hover:bg-gray-100 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-white`

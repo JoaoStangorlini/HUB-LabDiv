@@ -8,6 +8,9 @@ import { useNavigationStore } from '@/store/useNavigationStore';
 import {
     MainLayoutWrapper
 } from '@/components/layout/MainLayoutWrapper';
+import { useScrollTracker } from '@/hooks/useScrollTracker';
+import { useTimeOnPage } from '@/hooks/useTimeOnPage';
+import { useTelemetry } from '@/hooks/useTelemetry';
 import {
     Breadcrumbs,
     TechnicalAccordion,
@@ -560,6 +563,10 @@ export default function WikiSubPage() {
     const slug = params.slug as string;
     const content = pageContent[slug];
     const { setReportModalOpen } = useNavigationStore();
+    
+    // Telemetry Sensors
+    useScrollTracker();
+    useTimeOnPage();
 
     if (!content) {
         return (

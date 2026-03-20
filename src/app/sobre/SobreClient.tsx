@@ -32,8 +32,9 @@ export function SobreClient({ initialTestimonials, profile }: SobreClientProps) 
     const calculateEffectivePersona = (): PersonaType => {
         if (activePersonaOverride) return activePersonaOverride;
         if (!profile) return 'visitante';
-        if (profile.user_category === 'pesquisador' || profile.email?.includes('pesquisador')) return 'pesquisador';
-        if (profile.email?.endsWith('@usp.br') || profile.email?.endsWith('@if.usp.br') || profile.user_category === 'aluno_usp') return 'aluno_usp';
+        const category = profile.user_category;
+        if (['pesquisador', 'docente_pesquisador'].includes(category)) return 'pesquisador';
+        if (['aluno_usp', 'licenciatura', 'bacharelado', 'pos_graduacao'].includes(category)) return 'aluno_usp';
         return 'curioso';
     };
 

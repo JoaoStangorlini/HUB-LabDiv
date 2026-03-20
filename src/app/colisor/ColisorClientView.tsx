@@ -208,7 +208,7 @@ export function ColisorClientView({ oportunidades }: ColisorClientViewProps) {
                         <p className="text-[10px] md:text-sm text-gray-500 dark:text-gray-400 leading-relaxed mb-4 md:mb-6">
                             Inspirada no CommLab do MIT, foca na comunicação científica no IFUSP. Oferece tutoria entre pares para escrita científica, apresentações e design.
                         </p>
-                        <Link href="/arquivo-labdiv" className="text-brand-blue font-black flex items-center gap-1 md:gap-2 group-hover:underline text-[10px] md:text-sm mt-auto w-fit">
+                        <Link href="/arquivo-labdiv" className="text-brand-blue font-black flex items-center gap-1 md:gap-2 group-hover:underline text-[10px] md:text-sm mt-auto w-fit whitespace-nowrap">
                             Explorar <span className="hidden sm:inline">Acervo</span> <span className="material-symbols-outlined text-sm md:text-base">arrow_forward</span>
                         </Link>
                     </div>
@@ -225,8 +225,8 @@ export function ColisorClientView({ oportunidades }: ColisorClientViewProps) {
                         <p className="text-[10px] md:text-sm text-gray-500 dark:text-gray-400 leading-relaxed mb-4 md:mb-6">
                             Laboratório aberto e colaborativo. Oferece Arduinos, Raspberry Pis, impressoras 3D e eletrônica para projetos de física e robótica.
                         </p>
-                        <a href="https://hackerspace.if.usp.br" target="_blank" rel="noopener noreferrer" className="text-brand-green font-black flex items-center gap-1 md:gap-2 group-hover:underline text-[10px] md:text-sm mt-auto w-fit">
-                            Conhecer<span className="hidden sm:inline"> o Espaço</span> <span className="material-symbols-outlined text-sm md:text-base">arrow_forward</span>
+                        <a href="https://hackerspace.if.usp.br" target="_blank" rel="noopener noreferrer" className="text-brand-green font-black flex items-center gap-1 md:gap-2 group-hover:underline text-[10px] md:text-sm mt-auto w-fit whitespace-nowrap">
+                            Conhecer <span className="hidden sm:inline">o Espaço</span> <span className="material-symbols-outlined text-sm md:text-base">arrow_forward</span>
                         </a>
                     </div>
 
@@ -242,7 +242,7 @@ export function ColisorClientView({ oportunidades }: ColisorClientViewProps) {
                         <p className="text-[10px] md:text-sm text-gray-500 dark:text-gray-400 leading-relaxed mb-4 md:mb-6">
                             Publicação do CEFISMA que serve como espaço de diálogo crítico e cultural no IFUSP. Traz textos de estudantes, artigos de opinião e artes.
                         </p>
-                        <a href="https://cefisma.com.br" target="_blank" rel="noopener noreferrer" className="text-brand-yellow font-black flex items-center gap-1 md:gap-2 group-hover:underline text-[10px] md:text-sm mt-auto w-fit">
+                        <a href="https://cefisma.com.br" target="_blank" rel="noopener noreferrer" className="text-brand-yellow font-black flex items-center gap-1 md:gap-2 group-hover:underline text-[10px] md:text-sm mt-auto w-fit whitespace-nowrap">
                             Ler <span className="hidden sm:inline">Boletim</span> <span className="material-symbols-outlined text-sm md:text-base">arrow_forward</span>
                         </a>
                     </div>
@@ -259,8 +259,8 @@ export function ColisorClientView({ oportunidades }: ColisorClientViewProps) {
                         <p className="text-[10px] md:text-sm text-gray-500 dark:text-gray-400 leading-relaxed mb-4 md:mb-6">
                             A Biblioteca do Instituto de Física. Um acervo vasto de livros, periódicos e teses, oferecendo suporte essencial para o estudo e a pesquisa acadêmica de excelência.
                         </p>
-                        <a href="https://portal.if.usp.br/biblioteca/" target="_blank" rel="noopener noreferrer" className="text-brand-blue font-black flex items-center gap-1 md:gap-2 group-hover:underline text-[10px] md:text-sm mt-auto w-fit">
-                            Acessar<span className="hidden sm:inline"> Biblioteca</span> <span className="material-symbols-outlined text-sm md:text-base">arrow_forward</span>
+                        <a href="https://portal.if.usp.br/biblioteca/" target="_blank" rel="noopener noreferrer" className="text-brand-blue font-black flex items-center gap-1 md:gap-2 group-hover:underline text-[10px] md:text-sm mt-auto w-fit whitespace-nowrap">
+                            Acessar <span className="hidden sm:inline">Biblioteca</span> <span className="material-symbols-outlined text-sm md:text-base">arrow_forward</span>
                         </a>
                     </div>
 
@@ -276,8 +276,8 @@ export function ColisorClientView({ oportunidades }: ColisorClientViewProps) {
                         <p className="text-[10px] md:text-sm text-gray-500 dark:text-gray-400 leading-relaxed mb-4 md:mb-6">
                             Laboratório de Demonstrações Ernst Wolfgang Hamburger. Espaço dedicado à experimentação física e demonstrações lúdicas que aproximam a ciência do cotidiano.
                         </p>
-                        <a href="https://portal.if.usp.br/demonstracoes/" target="_blank" rel="noopener noreferrer" className="text-brand-red font-black flex items-center gap-1 md:gap-2 group-hover:underline text-[10px] md:text-sm mt-auto w-fit">
-                            Ver<span className="hidden sm:inline"> Experimentos</span> <span className="material-symbols-outlined text-sm md:text-base">arrow_forward</span>
+                        <a href="https://portal.if.usp.br/demonstracoes/" target="_blank" rel="noopener noreferrer" className="text-brand-red font-black flex items-center gap-1 md:gap-2 group-hover:underline text-[10px] md:text-sm mt-auto w-fit whitespace-nowrap">
+                            Ver <span className="hidden sm:inline">Experimentos</span> <span className="material-symbols-outlined text-sm md:text-base">arrow_forward</span>
                         </a>
                     </div>
 
@@ -293,7 +293,7 @@ export function ColisorClientView({ oportunidades }: ColisorClientViewProps) {
                         <p className="text-[10px] md:text-sm text-gray-500 dark:text-gray-400 leading-relaxed mb-4 md:mb-6">
                             Foco na criação de experiências digitais, programação e conteúdos audiovisuais voltados para a popularização da ciência na internet.
                         </p>
-                        <div className="text-brand-red font-black flex items-center gap-1 md:gap-2 text-[10px] md:text-sm opacity-50 cursor-default mt-auto w-fit">
+                        <div className="text-brand-red font-black flex items-center gap-1 md:gap-2 text-[10px] md:text-sm opacity-50 cursor-default mt-auto w-fit whitespace-nowrap">
                             Em breve <span className="material-symbols-outlined text-sm md:text-base">hourglass_empty</span>
                         </div>
                     </div>
@@ -310,8 +310,8 @@ export function ColisorClientView({ oportunidades }: ColisorClientViewProps) {
                         <p className="text-[10px] md:text-sm text-gray-500 dark:text-gray-400 leading-relaxed mb-4 md:mb-6">
                             Museu interativo e a céu aberto dedicado à divulgação científica e preservação ambiental. Inclui trilhas, observatório astronômico e estação meteorológica.
                         </p>
-                        <a href="https://parquecientec.usp.br" target="_blank" rel="noopener noreferrer" className="text-brand-blue font-black flex items-center gap-1 md:gap-2 group-hover:underline text-[10px] md:text-sm mt-auto w-fit">
-                            Visitar<span className="hidden sm:inline"> Site</span> <span className="material-symbols-outlined text-sm md:text-base">arrow_forward</span>
+                        <a href="https://parquecientec.usp.br" target="_blank" rel="noopener noreferrer" className="text-brand-blue font-black flex items-center gap-1 md:gap-2 group-hover:underline text-[10px] md:text-sm mt-auto w-fit whitespace-nowrap">
+                            Visitar <span className="hidden sm:inline">Site</span> <span className="material-symbols-outlined text-sm md:text-base">arrow_forward</span>
                         </a>
                     </div>
                 </div>

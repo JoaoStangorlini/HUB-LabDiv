@@ -26,6 +26,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'react-hot-toast';
 import { Profile } from '@/types';
 import { ICInterestModal } from './ICInterestModal';
+import { useTelemetry } from '@/hooks/useTelemetry';
 
 interface MatchAcademicoTabProps {
     profile: Profile;
@@ -36,12 +37,13 @@ export function MatchAcademicoTab({ profile }: MatchAcademicoTabProps) {
     const [myContacts, setMyContacts] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [subTab, setSubTab] = useState<'available' | 'mine'>('available');
+    const { trackEvent } = useTelemetry();
     const [selectedPerson, setSelectedPerson] = useState<any | null>(null);
     const [isPortfolioLoading, setIsPortfolioLoading] = useState(false);
     const [isICModalOpen, setIsICModalOpen] = useState(false);
 
-    const isStudent = profile.user_category === 'aluno_usp';
-    const isResearcher = profile.user_category === 'pesquisador';
+    const isStudent = ['aluno_usp', 'licenciatura', 'bacharelado', 'pos_graduacao'].includes(profile.user_category);
+    const isResearcher = ['pesquisador', 'docente_pesquisador'].includes(profile.user_category);
     const isMentor = profile.available_to_mentor;
 
     const loadData = async () => {
@@ -89,6 +91,7 @@ export function MatchAcademicoTab({ profile }: MatchAcademicoTabProps) {
 
     useEffect(() => {
         loadData();
+        trackEvent('TAB_CHANGE', { tab: `Match Acadêmico: ${subTab === 'available' ? 'Disponíveis' : 'Meus Contatos'}` });
     }, [subTab]);
 
     if (!isStudent && !isResearcher && !isMentor) {
@@ -192,12 +195,12 @@ export function MatchAcademicoTab({ profile }: MatchAcademicoTabProps) {
                                         </h3>
                                         <div className="flex flex-wrap gap-1 mt-1">
                                             <span className={`px-2 py-0.5 ${
-                                                person.user_category === 'pesquisador' ? 'bg-brand-yellow/10 text-brand-yellow' : 
-                                                person.user_category === 'aluno_usp' ? 'bg-brand-blue/10 text-brand-blue' : 
+                                                ['pesquisador', 'docente_pesquisador'].includes(person.user_category) ? 'bg-brand-yellow/10 text-brand-yellow' : 
+                                                ['aluno_usp', 'licenciatura', 'bacharelado', 'pos_graduacao'].includes(person.user_category) ? 'bg-brand-blue/10 text-brand-blue' : 
                                                 'bg-brand-red/10 text-brand-red'
                                             } text-[9px] font-black rounded uppercase tracking-tighter`}>
-                                                {person.user_category === 'pesquisador' ? 'Pesquisador' : 
-                                                 person.user_category === 'aluno_usp' ? 'Aluno USP' : 
+                                                {['pesquisador', 'docente_pesquisador'].includes(person.user_category) ? 'Pesquisador' : 
+                                                 ['aluno_usp', 'licenciatura', 'bacharelado', 'pos_graduacao'].includes(person.user_category) ? 'Aluno USP' : 
                                                  'Curioso'}
                                             </span>
                                             {person.entrance_year && (
@@ -215,7 +218,7 @@ export function MatchAcademicoTab({ profile }: MatchAcademicoTabProps) {
                                     </p>
                                 )}
 
-                                {person.user_category === 'pesquisador' && (
+                                {['pesquisador', 'docente_pesquisador'].includes(person.user_category) && (
                                     <div className="mb-6 p-4 rounded-2xl bg-brand-yellow/5 border border-brand-yellow/10 space-y-2">
                                         {person.research_line && (
                                             <div className="flex flex-col">
@@ -380,7 +383,7 @@ export function MatchAcademicoTab({ profile }: MatchAcademicoTabProps) {
                                 )}
 
                                 {/* Detailed IC Interest (Students) */}
-                                {selectedPerson.profile.user_category === 'aluno_usp' && (selectedPerson.profile.ic_research_area || selectedPerson.profile.ic_preferred_department || selectedPerson.profile.ic_preferred_lab) && (
+                                {['aluno_usp', 'licenciatura', 'bacharelado', 'pos_graduacao'].includes(selectedPerson.profile.user_category) && (selectedPerson.profile.ic_research_area || selectedPerson.profile.ic_preferred_department || selectedPerson.profile.ic_preferred_lab) && (
                                     <section className="p-6 rounded-3xl bg-brand-red/5 border border-brand-red/10 space-y-4">
                                         <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-brand-red flex items-center gap-2">
                                             <Microscope className="w-3 h-3" /> Alvo de Iniciação Científica
@@ -409,7 +412,7 @@ export function MatchAcademicoTab({ profile }: MatchAcademicoTabProps) {
                                 )}
 
                                 {/* Researcher Details */}
-                                {selectedPerson.profile.user_category === 'pesquisador' && (
+                                {['pesquisador', 'docente_pesquisador'].includes(selectedPerson.profile.user_category) && (
                                     <section className="p-6 rounded-3xl bg-brand-yellow/5 border border-brand-yellow/10 space-y-6">
                                         <div className="flex items-center justify-between">
                                             <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-brand-yellow flex items-center gap-2">

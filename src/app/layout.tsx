@@ -4,6 +4,7 @@ import localFont from "next/font/local";
 import { cookies } from "next/headers";
 import "./globals.css";
 import { Toaster } from 'react-hot-toast';
+import Script from "next/script";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -35,6 +36,7 @@ import { SkipLink } from "@/components/ui/SkipLink";
 import { AuthProvider } from "@/providers/AuthProvider";
 import { ImpersonationBanner } from "@/components/admin/ImpersonationBanner";
 import { createServerSupabase } from "@/lib/supabase/server";
+import { TelemetryManager } from "@/components/telemetry/TelemetryManager";
 
 /**
  * V4.0.0 Layout - Protocol Apocalypse Certified
@@ -149,6 +151,27 @@ export default async function RootLayout({
                 <ClientPwaManager />
                 <ReadingProgressBar />
                 <SkipLink />
+                <TelemetryManager />
+                {/* Microsoft Clarity */}
+                {process.env.NEXT_PUBLIC_CLARITY_ID && (
+                  <>
+                    <script dangerouslySetInnerHTML={{ __html: `console.log("✅ SYSTEM: Microsoft Clarity ID Loaded ->", "${process.env.NEXT_PUBLIC_CLARITY_ID}");` }} />
+                    <Script
+                      id="microsoft-clarity"
+                      strategy="afterInteractive"
+                      dangerouslySetInnerHTML={{
+                        __html: `
+                          (function(c,l,a,r,i,t,y){
+                              c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+                              t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+                              y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+                          })(window, document, "clarity", "script", "${process.env.NEXT_PUBLIC_CLARITY_ID}");
+                        `,
+                      }}
+                    />
+                  </>
+                )}
+
 
                 {impersonatedId && <ImpersonationBanner impersonatedName={impersonatedName} />}
 

@@ -5,6 +5,7 @@ import { m, AnimatePresence } from 'framer-motion';
 import toast from 'react-hot-toast';
 import { useHistoryBack } from '@/hooks/useHistoryBack';
 import { stripMarkdownAndLatex } from '@/lib/utils';
+import { useTelemetry } from '@/hooks/useTelemetry';
 
 interface DownloadModalProps {
     id: string;
@@ -17,6 +18,7 @@ interface DownloadModalProps {
 }
 
 export const DownloadModal = ({ id, title, authors, avatarUrl, description, mediaUrl, onClose }: DownloadModalProps) => {
+    const { trackEvent } = useTelemetry();
     const [isDownloading, setIsDownloading] = useState<'pdf' | 'md' | 'img' | null>(null);
     const cardRef = useRef<HTMLDivElement>(null);
     const pdfCardRef = useRef<HTMLDivElement>(null);
@@ -27,6 +29,7 @@ export const DownloadModal = ({ id, title, authors, avatarUrl, description, medi
     // 1. Download as High-Quality PDF (Dynamic Import)
     const handleDownloadPDF = async () => {
         setIsDownloading('pdf');
+        trackEvent('FILE_DOWNLOAD', { file_name: `${title}.pdf`, type: 'pdf', submission_id: id });
         const loadingToast = toast.loading('Diagramando PDF de alta qualidade...');
 
         try {
@@ -98,6 +101,7 @@ export const DownloadModal = ({ id, title, authors, avatarUrl, description, medi
     // 2. Download as Markdown (Native)
     const handleDownloadMD = () => {
         setIsDownloading('md');
+        trackEvent('FILE_DOWNLOAD', { file_name: `${title}.md`, type: 'markdown', submission_id: id });
         try {
             const content = `# ${title}\n\n**Autores:** ${authors}\n\n---\n\n${description || ''}\n\n--- \n*Baixado do Hub de Comunicação Científica Lab-Div*`;
             const blob = new Blob([content], { type: 'text/markdown' });
@@ -118,6 +122,7 @@ export const DownloadModal = ({ id, title, authors, avatarUrl, description, medi
     // 3. Download as Social Image (Dynamic Import)
     const handleDownloadImage = async () => {
         setIsDownloading('img');
+        trackEvent('FILE_DOWNLOAD', { file_name: `${title}-social.png`, type: 'social_image', submission_id: id });
         const loadingToast = toast.loading('Gerando imagem...');
 
         try {

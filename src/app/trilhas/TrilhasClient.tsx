@@ -405,12 +405,12 @@ export default function TrilhasClient({
                                     <div>
                                         <div className="text-[10px] font-mono font-black uppercase text-[#00A3FF] tracking-widest flex items-center gap-2">
                                             Estudante_Identificado
-                                            {userProfile.user_category === 'pesquisador' ? (
-                                                <span className="px-1.5 py-0.5 bg-brand-yellow/10 text-brand-yellow border border-brand-yellow/30 rounded text-[8px] font-black">PESQUISADOR</span>
-                                            ) : userProfile.user_category === 'aluno_usp' ? (
-                                                <span className="px-1.5 py-0.5 bg-brand-blue/10 text-brand-blue border border-brand-blue/30 rounded text-[8px] font-black">ALUNO USP</span>
+                                            {['pesquisador', 'docente_pesquisador'].includes(userProfile.user_category) ? (
+                                                <span className="px-1.5 py-0.5 bg-brand-yellow/10 text-brand-yellow border border-brand-yellow/30 rounded text-[8px] font-black uppercase tracking-widest">PESQUISADOR</span>
+                                            ) : ['aluno_usp', 'licenciatura', 'bacharelado', 'pos_graduacao'].includes(userProfile.user_category) ? (
+                                                <span className="px-1.5 py-0.5 bg-brand-blue/10 text-brand-blue border border-brand-blue/30 rounded text-[8px] font-black uppercase tracking-widest">ESTUDANTE USP</span>
                                             ) : (
-                                                <span className="px-1.5 py-0.5 bg-brand-red/10 text-brand-red border border-brand-red/30 rounded text-[8px] font-black">CURIOSO</span>
+                                                <span className="px-1.5 py-0.5 bg-brand-red/10 text-brand-red border border-brand-red/30 rounded text-[8px] font-black uppercase tracking-widest">CURIOSO</span>
                                             )}
                                         </div>
                                         <div className="text-xs font-bold dark:text-gray-200">

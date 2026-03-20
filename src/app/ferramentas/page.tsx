@@ -16,7 +16,9 @@ export default async function FerramentasPage() {
         .eq('id', user.id)
         .single();
 
-    if (!profile || profile.user_category !== 'aluno_usp') {
+    const isStudent = ['aluno_usp', 'licenciatura', 'bacharelado', 'pos_graduacao'].includes(profile?.user_category);
+
+    if (!profile || !isStudent) {
         redirect('/lab');
     }
 

@@ -49,11 +49,11 @@ export async function middleware(request: NextRequest) {
     const isProd = process.env.NODE_ENV === 'production';
     const cspHeader = `
         default-src 'self';
-        script-src 'self' 'unsafe-eval' 'unsafe-inline' blob: https://*.supabase.co https://*.cloudinary.com https://*.youtube.com;
+        script-src 'self' 'unsafe-eval' 'unsafe-inline' blob: https://*.supabase.co https://*.cloudinary.com https://*.youtube.com https://www.clarity.ms https://c.bing.com;
         style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
-        img-src 'self' blob: data: https://api.dicebear.com https://*.supabase.co https://*.cloudinary.com https://i.ytimg.com https://*.ytimg.com https://*.googleusercontent.com https://*.google.com https://*.google-analytics.com https://*.googletagmanager.com;
+        img-src 'self' blob: data: https://api.dicebear.com https://*.supabase.co https://*.cloudinary.com https://i.ytimg.com https://*.ytimg.com https://*.googleusercontent.com https://*.google.com https://*.google-analytics.com https://*.googletagmanager.com https://*.clarity.ms https://*.bing.com;
         font-src 'self' data: https://fonts.gstatic.com;
-        connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.cloudinary.com https://*.resend.com https://fonts.googleapis.com https://*.google-analytics.com https://*.googletagmanager.com;
+        connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.cloudinary.com https://*.resend.com https://fonts.googleapis.com https://*.google-analytics.com https://*.googletagmanager.com https://*.clarity.ms https://*.bing.com;
         media-src 'self' https://*.supabase.co https://*.cloudinary.com https://*.youtube.com;
         frame-src 'self' https://*.youtube.com https://*.youtube-nocookie.com;
         object-src 'none';

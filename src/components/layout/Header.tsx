@@ -15,6 +15,7 @@ import { useNavigationStore } from '@/store/useNavigationStore';
 import { Avatar } from '../ui/Avatar';
 import { UserMinimalDTO, SearchSuggestion } from '@/types/navigation';
 import { useAuth } from '@/providers/AuthProvider';
+import { useTelemetry } from '@/hooks/useTelemetry';
 
 
 
@@ -24,6 +25,7 @@ import { useAuth } from '@/providers/AuthProvider';
  */
 export function Header() {
     const { query, setQuery, placeholder } = useSearch();
+    const { trackEvent } = useTelemetry();
     const pathname = usePathname();
     const { theme, toggleTheme } = useTheme();
 
@@ -108,7 +110,11 @@ export function Header() {
                 .ilike('title', `%${query}%`)
                 .eq('status', 'aprovado')
                 .limit(5);
-            setSuggestions((data as SearchSuggestion[]) || []);
+            const results = (data as SearchSuggestion[]) || [];
+            if (results.length === 0 && query.trim().length > 2) {
+                trackEvent('SEARCH_FAIL', { query: query.trim() });
+            }
+            setSuggestions(results);
         } catch (error) {
             console.error('Search error:', error);
             setSuggestions([]);
@@ -212,6 +218,7 @@ export function Header() {
                             onKeyDown={(e) => {
                                 if (e.key === 'Enter') {
                                     if (query.trim()) {
+                                        trackEvent('SEARCH_QUERY', { query: query.trim() });
                                         const forward = !e.shiftKey;
                                         // @ts-ignore
                                         const found = window.find(query, false, !forward, true, false, true, false);
@@ -257,7 +264,12 @@ export function Header() {
                                         {suggestions.map((s) => (
                                             <button
                                                 key={s.id}
-                                                onClick={() => {
+                                                 onClick={() => {
+                                                    trackEvent('SEARCH_SUCCESS', { 
+                                                        query: query.trim(),
+                                                        suggestion_id: s.id,
+                                                        suggestion_title: s.title 
+                                                    });
                                                     setQuery(s.title);
                                                     setSuggestionsVisible(false);
                                                 }}

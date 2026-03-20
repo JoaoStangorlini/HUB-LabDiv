@@ -44,7 +44,7 @@ const profileSchema = z.object({
     department: z.string().max(100).optional(),
     is_labdiv: z.boolean().optional(),
     is_visible: z.boolean().optional(),
-    user_category: z.enum(['curioso', 'aluno_usp', 'pesquisador']).default('curioso'),
+    user_category: z.enum(['curioso', 'licenciatura', 'bacharelado', 'pos_graduacao', 'docente_pesquisador', 'aluno_usp', 'pesquisador']).default('curioso'),
     seeking_assistant: z.boolean().default(false),
     interest_area: z.string().max(100).optional(),
 }).superRefine((data, ctx) => {
@@ -440,9 +440,11 @@ export function EditProfileModal({ isOpen, onClose, onSuccess, adminMode = false
                                             {...register('user_category')}
                                             className="w-full bg-gray-50 dark:bg-black/20 border border-brand-red/30 rounded-2xl px-4 py-3 text-sm focus:border-brand-red outline-none transition-all cursor-pointer font-black text-gray-900 dark:text-white uppercase tracking-tight"
                                         >
-                                            <option value="curioso">Curioso</option>
-                                            <option value="aluno_usp">Aluno USP</option>
-                                            <option value="pesquisador">Pesquisador</option>
+                                            <option value="curioso">Curioso / Visitante</option>
+                                            <option value="licenciatura">Licenciatura</option>
+                                            <option value="bacharelado">Bacharelado</option>
+                                            <option value="pos_graduacao">Pós-Graduação</option>
+                                            <option value="docente_pesquisador">Docente / Pesquisador</option>
                                         </select>
                                         <span className="text-[8px] font-black bg-brand-red/10 text-brand-red px-2 py-0.5 rounded uppercase font-mono h-fit shrink-0">Admin Edit</span>
                                     </div>

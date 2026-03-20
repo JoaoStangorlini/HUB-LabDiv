@@ -11,6 +11,7 @@ import {
     Cpu 
 } from 'lucide-react';
 import Link from 'next/link';
+import { useTelemetry } from '@/hooks/useTelemetry';
 
 const departments = [
     {
@@ -58,6 +59,7 @@ const departments = [
 ];
 
 export function DepartmentGrid() {
+    const { trackEvent } = useTelemetry();
     return (
         <section className="py-12">
             <div className="flex items-center gap-3 mb-8">
@@ -71,6 +73,7 @@ export function DepartmentGrid() {
                         key={dept.id} 
                         href={`/wiki/instituto/${dept.id.toLowerCase()}`}
                         className="block group"
+                        onClick={() => trackEvent('DEPT_FILTER', { dept_id: dept.id, dept_name: dept.name })}
                     >
                         <motion.div
                             initial={{ opacity: 0, y: 20 }}

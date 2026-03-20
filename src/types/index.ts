@@ -57,7 +57,7 @@ export interface Profile {
     has_scholarship: boolean;
     seeking_scholarship: boolean;
     interest_in_team: boolean;
-    user_category: 'curioso' | 'aluno_usp' | 'pesquisador';
+    user_category: 'curioso' | 'licenciatura' | 'bacharelado' | 'pos_graduacao' | 'docente_pesquisador' | 'aluno_usp' | 'pesquisador';
     seeking_ic: boolean;
     seeking_assistant: boolean;
     ic_research_area?: string;
