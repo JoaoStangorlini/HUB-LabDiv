@@ -46,6 +46,7 @@ export function OptionalDetailsStep({ onSubmit, isLoading }: { onSubmit: (data: 
             const { data, error } = await supabase
                 .from('profiles')
                 .select('id, full_name, email')
+                .eq('is_visible', true)
                 .or(`full_name.ilike.%${searchTerm}%,email.ilike.%${searchTerm}%`)
                 .limit(5);
             if (!error && data) setSearchResults(data);
