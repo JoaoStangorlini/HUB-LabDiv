@@ -115,8 +115,8 @@ export function OptionalDetailsStep({ onSubmit, isLoading }: { onSubmit: (data: 
                     <div className="space-y-3 lg:col-span-2">
                         <label className="text-sm font-black uppercase tracking-widest text-brand-yellow flex items-center gap-2">
                             <span className="material-symbols-outlined text-xl">sell</span>
-                            Tags / Disciplinas
-                            <HelpTooltip text="Associe disciplinas ao seu conteúdo para melhorar a descoberta e a filtragem no catálogo." />
+                            Disciplina
+                            <HelpTooltip text="Associe uma disciplina ao seu conteúdo para melhorar a descoberta e a filtragem no catálogo." />
                         </label>
                         <div className="flex flex-wrap gap-2 p-3 bg-white dark:bg-form-dark border-2 border-gray-100 dark:border-gray-800 rounded-2xl">
                             {watchedValues.tags?.map((tag: string) => (
@@ -125,7 +125,7 @@ export function OptionalDetailsStep({ onSubmit, isLoading }: { onSubmit: (data: 
                                     <button type="button" onClick={() => removeTag(tag)}><span className="material-symbols-outlined text-[14px]">close</span></button>
                                 </span>
                             ))}
-                            <input value={tagInput} onChange={e => setTagInput(e.target.value)} onKeyDown={handleTagKeyDown} className="flex-grow bg-transparent outline-none text-sm" placeholder="Adicionar disciplina ou tag..." />
+                            <input value={tagInput} onChange={e => setTagInput(e.target.value)} onKeyDown={handleTagKeyDown} className="flex-grow bg-transparent outline-none text-sm" placeholder="Adicionar disciplina..." />
                         </div>
                     </div>
                 )}
@@ -160,7 +160,7 @@ export function OptionalDetailsStep({ onSubmit, isLoading }: { onSubmit: (data: 
                                 }
                             }}
                             className="flex-grow bg-transparent outline-none text-sm"
-                            placeholder="Adicionar isótopo (ex: óptica, termodinâmica)..."
+                            placeholder="Adicionar isótopo (ex: divulgação, pesquisa, quântica)..."
                         />
                     </div>
                     <p className="text-[10px] text-gray-500 italic ml-1">Esses isótopos aparecem na seção &quot;Isótopos em Órbita&quot; do Fluxo.</p>

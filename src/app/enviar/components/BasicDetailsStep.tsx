@@ -116,7 +116,7 @@ export function BasicDetailsStep() {
         if (isValid) {
             // Central de Anotações mandatory tag check
             if (category === 'Central de Anotações' && (!watchedValues.tags || watchedValues.tags.length === 0)) {
-                toast.error("Para a Central de Anotações, é obrigatório selecionar ao menos uma disciplina (Tag).");
+                toast.error("Para a Central de Anotações, é obrigatório selecionar ao menos uma disciplina.");
                 return;
             }
 
@@ -279,7 +279,7 @@ export function BasicDetailsStep() {
                 <div className="space-y-3">
                     <label className="text-sm font-black uppercase tracking-widest text-brand-yellow flex items-center gap-2">
                         <span className="material-symbols-outlined text-xl">sell</span>
-                        Tags / Disciplinas *
+                        Disciplina *
                         <HelpTooltip text="Para a Central de Anotações, é obrigatório associar pelo menos uma disciplina." />
                     </label>
                     <div className="flex flex-wrap gap-2 p-3 bg-white dark:bg-form-dark border-2 border-gray-100 dark:border-gray-800 rounded-2xl ring-2 ring-brand-yellow/20">
@@ -294,7 +294,7 @@ export function BasicDetailsStep() {
                             onChange={e => setTagInput(e.target.value)} 
                             onKeyDown={handleTagKeyDown} 
                             className="flex-grow bg-transparent outline-none text-sm px-2" 
-                            placeholder="Adicionar disciplina obrigatoria (Pressione Enter)..." 
+                            placeholder="Adicionar disciplina (Pressione Enter)..." 
                         />
                     </div>
                 </div>
