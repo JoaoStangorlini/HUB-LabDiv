@@ -19,9 +19,9 @@ export function ToolsSubNav() {
     };
 
     return (
-        <nav className="w-full mb-12">
+        <nav className="w-full mb-6">
             <div className="flex items-center justify-center">
-                <div className="flex gap-2 p-1 bg-white/5 backdrop-blur-xl border border-white/10 rounded-[20px] w-fit overflow-x-auto scrollbar-hide max-w-full">
+                <div className="flex gap-2 p-1 bg-white/5 border border-white/10 rounded-[20px] w-fit overflow-x-auto scrollbar-hide max-w-full">
                     {tools.map((tool) => {
                         const active = isActive(tool.href, tool.exact);
                         return (
