@@ -18,6 +18,7 @@ import {
 } from '@/app/actions/reset';
 import { DeleteUserModal } from '@/components/admin/DeleteUserModal';
 import { EditProfileModal } from '@/components/profile/EditProfileModal';
+import { TelemetryManager } from './settings/TelemetryManager';
 
 interface Profile {
     id: string;
@@ -37,7 +38,7 @@ const ROLES = [
 ];
 
 export function AdminUnifiedClient() {
-    const [activeTab, setActiveTab] = useState<'papeis' | 'perigo'>('papeis');
+    const [activeTab, setActiveTab] = useState<'papeis' | 'perigo' | 'telemetria'>('papeis');
     
     // Profiles State
     const [profiles, setProfiles] = useState<Profile[]>([]);
@@ -244,11 +245,22 @@ export function AdminUnifiedClient() {
                     className={`flex items-center gap-2.5 px-6 py-3 rounded-[16px] text-[10px] font-black uppercase tracking-widest transition-all ${
                         activeTab === 'perigo'
                             ? 'bg-red-600 text-white shadow-lg shadow-red-900/20'
-                            : 'text-gray-500 hover:text-red-500 hover:bg-red-500/5'
+                            : 'text-gray-500 hover:text-red-500 hover:bg-neutral-800'
                     }`}
                 >
                     <span className="material-symbols-outlined text-sm">dangerous</span>
                     Zona de Perigo
+                </button>
+                <button
+                    onClick={() => setActiveTab('telemetria')}
+                    className={`flex items-center gap-2.5 px-6 py-3 rounded-[16px] text-[10px] font-black uppercase tracking-widest transition-all ${
+                        activeTab === 'telemetria'
+                            ? 'bg-brand-blue text-white shadow-lg shadow-brand-blue/20'
+                            : 'text-gray-500 hover:text-white hover:bg-neutral-800'
+                    }`}
+                >
+                    <span className="material-symbols-outlined text-sm">analytics</span>
+                    Telemetria & Dados
                 </button>
             </div>
 
@@ -356,7 +368,7 @@ export function AdminUnifiedClient() {
                         </div>
                     )}
                 </section>
-            ) : (
+            ) : activeTab === 'perigo' ? (
                 <section className="animate-in fade-in slide-in-from-bottom-4 duration-500">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         {/* Reset Nuclear */}
@@ -458,6 +470,10 @@ export function AdminUnifiedClient() {
                             </button>
                         </div>
                     </section>
+                </section>
+            ) : (
+                <section className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+                    <TelemetryManager />
                 </section>
             )}
 
