@@ -36,8 +36,8 @@ interface HistoryItem {
     scheduled_at: string | null;
     sent_at: string | null;
     sender: {
-        display_name: string;
-        pseudonym: string;
+        full_name: string;
+        username: string;
     };
 }
 
@@ -72,7 +72,7 @@ export default function NotificacoesManager() {
     // User Search Logic
     useEffect(() => {
         const handler = setTimeout(async () => {
-            if (formData.targetType === 'user' && searchQuery.length >= 2) {
+            if (formData.targetType === 'user' && searchQuery.length >= 1) {
                 setIsSearching(true);
                 const results = await searchUsersForNotification(searchQuery);
                 setSearchResults(results);
@@ -245,14 +245,14 @@ export default function NotificacoesManager() {
                                                                 type="button"
                                                                 onClick={() => {
                                                                     setFormData({ ...formData, targetValue: u.id });
-                                                                    setSearchQuery(`${u.display_name} (@${u.pseudonym})`);
+                                                                    setSearchQuery(`${u.full_name} (@${u.username})`);
                                                                     setSearchResults([]);
                                                                 }}
                                                                 className="w-full p-4 hover:bg-white/5 flex items-center justify-between border-b border-white/5 last:border-0 text-left group"
                                                             >
                                                                 <div>
-                                                                    <p className="text-sm font-bold text-white group-hover:text-brand-blue transition-colors">{u.display_name}</p>
-                                                                    <p className="text-[10px] text-gray-500 font-bold uppercase leading-none mt-1">@{u.pseudonym} • {u.user_category}</p>
+                                                                    <p className="text-sm font-bold text-white group-hover:text-brand-blue transition-colors">{u.full_name}</p>
+                                                                    <p className="text-[10px] text-gray-500 font-bold uppercase leading-none mt-1">@{u.username} • {u.user_category}</p>
                                                                 </div>
                                                                 {formData.targetValue === u.id && <CheckCircle2 className="w-4 h-4 text-brand-blue" />}
                                                             </button>

@@ -139,7 +139,7 @@ export async function fetchAdminNotificationHistory() {
 
     const { data, error } = await supabase
         .from('admin_notifications')
-        .select('*, sender:profiles!sender_id(display_name, pseudonym)')
+        .select('*, sender:profiles!sender_id(full_name, username)')
         .order('created_at', { ascending: false })
         .limit(50);
 
@@ -152,14 +152,14 @@ export async function fetchAdminNotificationHistory() {
 // ============================================================
 
 export async function searchUsersForNotification(query: string) {
-    if (!query || query.length < 2) return [];
+    if (!query || query.length < 1) return [];
 
     const supabase = await createServerSupabase();
 
     const { data, error } = await supabase
         .from('profiles')
-        .select('id, display_name, pseudonym, user_category')
-        .or(`display_name.ilike.%${query}%,pseudonym.ilike.%${query}%`)
+        .select('id, full_name, username, user_category')
+        .or(`full_name.ilike.%${query}%,username.ilike.%${query}%`)
         .limit(10);
 
     if (error) return [];
