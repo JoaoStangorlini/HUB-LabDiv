@@ -5,9 +5,12 @@ import Link from "next/link";
 import Image from "next/image";
 import { MainLayoutWrapper } from "@/components/layout/MainLayoutWrapper";
 import { MediaCard, MediaCardProps } from "@/components/MediaCard";
-import { Megaphone, ArrowRight, UserPlus, Award, Star, ExternalLink, BookOpen, Route, Rocket, Smartphone, Gamepad2, Database, Users, Mic, Shield, Map, Layout, MessageSquare, Book, Calculator, Settings, Link2, Globe, Video, Briefcase, Accessibility, Building, ScrollText, FileText, Network, ChevronLeft, ChevronRight, GraduationCap, Microscope, HelpCircle, Sparkles, Trophy, Calendar } from 'lucide-react';
+import { Megaphone, ArrowRight, UserPlus, Award, Star, ExternalLink, BookOpen, Route, Rocket, Smartphone, Gamepad2, Database, Users, Mic, Shield, Map, Layout, MessageSquare, Book, Calculator, Settings, Link2, Globe, Video, Briefcase, Accessibility, Building, ScrollText, FileText, Network, ChevronLeft, ChevronRight, GraduationCap, Microscope, HelpCircle, Sparkles, Trophy, Calendar, Info, Library } from 'lucide-react';
 import { SobreFeedbackCard } from './SobreFeedbackCard';
 import { Profile } from '@/types';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { LabDivView } from '@/components/labdiv/LabDivView';
+import { useTelemetry } from '@/hooks/useTelemetry';
 
 interface SobreClientProps {
     initialTestimonials: MediaCardProps[];
@@ -17,8 +20,28 @@ interface SobreClientProps {
 type PersonaType = 'visitante' | 'curioso' | 'aluno_usp' | 'pesquisador';
 
 export function SobreClient({ initialTestimonials, profile }: SobreClientProps) {
+    const router = useRouter();
+    const searchParams = useSearchParams();
+    const { trackEvent } = useTelemetry();
     const scrollContainerRef = React.useRef<HTMLDivElement>(null);
     const [activePersonaOverride, setActivePersonaOverride] = React.useState<PersonaType | null>(null);
+    const [activeTab, setActiveTab] = React.useState<'sobre' | 'labdiv'>('labdiv');
+
+    // Sync state with URL
+    React.useEffect(() => {
+        const tab = searchParams.get('tab');
+        if (tab === 'sobre' || tab === 'labdiv') {
+            setActiveTab(tab);
+        }
+    }, [searchParams]);
+
+    const handleTabChange = (tab: 'sobre' | 'labdiv') => {
+        setActiveTab(tab);
+        const params = new URLSearchParams(searchParams);
+        params.set('tab', tab);
+        router.push(`/sobre?${params.toString()}`, { scroll: false });
+        trackEvent('TAB_CHANGE', { tab, hub: 'institucional' });
+    };
 
     const scrollLocal = (direction: 'left' | 'right') => {
         if (scrollContainerRef.current) {
@@ -44,6 +67,37 @@ export function SobreClient({ initialTestimonials, profile }: SobreClientProps) 
         <MainLayoutWrapper
             rightSidebar={<SobreFeedbackCard />}
         >
+            <div className="max-w-7xl mx-auto px-4 py-8">
+                {/* Segmented Control for Institucional Hub */}
+                <div className="flex justify-center mb-12">
+                    <div className="bg-[#1e1e1e]/60 backdrop-blur-md p-1 rounded-2xl border border-white/5 flex gap-1">
+                        <button
+                            onClick={() => handleTabChange('labdiv')}
+                            className={`flex items-center gap-2 px-8 py-3 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${
+                                activeTab === 'labdiv'
+                                    ? 'bg-brand-blue text-white shadow-lg shadow-brand-blue/20'
+                                    : 'text-gray-500 hover:text-white hover:bg-white/5'
+                            }`}
+                        >
+                            <Library className="w-4 h-4" />
+                            Lab-Div
+                        </button>
+                        <button
+                            onClick={() => handleTabChange('sobre')}
+                            className={`flex items-center gap-2 px-8 py-3 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${
+                                activeTab === 'sobre'
+                                    ? 'bg-white text-black shadow-lg'
+                                    : 'text-gray-500 hover:text-white hover:bg-white/5'
+                            }`}
+                        >
+                            <Info className="w-4 h-4" />
+                            Sobre o HUB LabDiv
+                        </button>
+                    </div>
+                </div>
+
+                {activeTab === 'sobre' ? (
+                    <div className="animate-in fade-in slide-in-from-bottom-5 duration-700">
 
             {/* Hero Section */}
             <div className="text-center mb-20">
@@ -83,7 +137,7 @@ export function SobreClient({ initialTestimonials, profile }: SobreClientProps) 
                                         Persona: Pesquisador
                                     </div>
                                     <h2 className="text-3xl font-black uppercase italic tracking-tighter">Amplie o Impacto da sua Ciência</h2>
-                                    <p className="text-gray-600 dark:text-gray-400">Use o Hub para recrutar novos talentos via <Link href="/lab?tab=match" className="text-brand-yellow font-bold underline decoration-brand-yellow/30 hover:decoration-brand-yellow decoration-2 underline-offset-4">Match Acadêmico</Link>, divulgar resultados em tempo real no Fluxo e participar de competições na <Link href="/arena" className="text-brand-red font-bold underline decoration-brand-red/30 hover:decoration-brand-red decoration-2 underline-offset-4">Researcher Arena</Link>.</p>
+                                    <p className="text-gray-600 dark:text-gray-400">Use o Hub para recrutar novos talentos via <Link href="/lab?tab=match" className="text-brand-yellow font-bold underline decoration-brand-yellow/30 hover:decoration-brand-yellow decoration-2 underline-offset-4">Match Acadêmico</Link>, divulgar resultados em tempo real na Comunidade e participar de competições na <Link href="/arena" className="text-brand-red font-bold underline decoration-brand-red/30 hover:decoration-brand-red decoration-2 underline-offset-4">Researcher Arena</Link>.</p>
                                     <div className="flex flex-wrap gap-4 pt-4">
                                         <div className="flex items-center gap-3 bg-white/5 p-4 rounded-2xl border border-white/5">
                                             <Microscope className="w-8 h-8 text-brand-yellow" />
@@ -228,10 +282,10 @@ export function SobreClient({ initialTestimonials, profile }: SobreClientProps) 
                             Motor de Engajamento
                         </div>
                         <h2 className="text-3xl md:text-4xl font-black uppercase italic tracking-tighter mb-6 leading-none">
-                            O Fluxo <span className="text-brand-blue text-transparent bg-clip-text bg-gradient-to-r from-brand-blue to-brand-red">Interativo</span>
+                            A Comunidade <span className="text-brand-blue text-transparent bg-clip-text bg-gradient-to-r from-brand-blue to-brand-red">Interativa</span>
                         </h2>
                         <p className="text-lg text-gray-600 dark:text-gray-400 font-medium leading-relaxed mb-6">
-                            Não somos apenas uma vitrine; somos uma conversa viva. O **Fluxo** integra o material produzido pelo Lab-Div, a excelência das nossas mentorias e a espontaneidade da comunidade em uma timeline dinâmica.
+                            Não somos apenas uma vitrine; somos uma conversa viva. A **Comunidade** integra o material produzido pelo Lab-Div, a excelência das nossas mentorias e a espontaneidade da rede em uma timeline dinâmica.
                         </p>
                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                             <div className="p-4 rounded-2xl bg-gray-50 dark:bg-white/5 border border-white/5 hover:border-brand-blue/20 transition-colors">
@@ -249,7 +303,7 @@ export function SobreClient({ initialTestimonials, profile }: SobreClientProps) 
                         </div>
                     </div>
                     <Link href="/" className="shrink-0 w-full md:w-auto bg-brand-blue text-white px-10 py-6 rounded-3xl font-black uppercase italic tracking-tighter hover:scale-105 hover:shadow-2xl hover:shadow-brand-blue/20 transition-all flex items-center justify-center gap-3">
-                        Entrar no Fluxo
+                        Ver Comunidade
                         <ArrowRight className="w-6 h-6" />
                     </Link>
                 </div>
@@ -335,12 +389,12 @@ export function SobreClient({ initialTestimonials, profile }: SobreClientProps) 
                     <div className="size-10 md:size-12 rounded-xl md:rounded-2xl bg-brand-blue/10 flex items-center justify-center mb-4 md:mb-6 group-hover:scale-110 transition-transform">
                         <span className="material-symbols-outlined text-brand-blue text-xl md:text-2xl">grain</span>
                     </div>
-                    <h4 className="text-sm md:text-xl font-black uppercase italic tracking-tight mb-2 md:mb-4">O Fluxo</h4>
+                    <h4 className="text-sm md:text-xl font-black uppercase italic tracking-tight mb-2 md:mb-4">A Comunidade</h4>
                     <p className="text-gray-500 text-[10px] md:text-sm leading-relaxed mb-4 md:mb-6 flex-1">
-                        O pulso do IFUSP em tempo real. Uma timeline dinâmica que transforma a divulgação científica em comunicação interativa, reunindo materiais do Lab-Div, contribuições da comunidade e mentorados em um só lugar.
+                        O pulso do IFUSP em tempo real. Uma timeline dinâmica que transforma a divulgação científica em comunicação interativa, reunindo materiais do Lab-Div, contribuições da rede e mentorados em um só lugar.
                     </p>
                     <Link href="/" className="text-[10px] font-black uppercase tracking-widest text-brand-blue flex items-center gap-1 md:gap-2 group/link mt-auto">
-                        <span className="hidden sm:inline">Entrar no </span>Fluxo <ArrowRight className="size-3 group-hover/link:translate-x-1 transition-transform" />
+                        <span className="hidden sm:inline">Ver </span>Comunidade <ArrowRight className="size-3 group-hover/link:translate-x-1 transition-transform" />
                     </Link>
                 </div>
 
@@ -537,7 +591,7 @@ export function SobreClient({ initialTestimonials, profile }: SobreClientProps) 
                             <div className="bg-[#11141a] rounded-2xl p-6 border border-white/5 flex flex-col h-full">
                                 <span className="text-[10px] uppercase font-black tracking-widest text-green-400 mb-2 flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></div> Status Atual</span>
                                 <h4 className="font-bold text-white mb-2">Submissões Colaborativas</h4>
-                                <p className="text-xs text-slate-500 flex-1">Formulários de captação de registros de celulares e interações assíncronas de pesquisadores (O Fluxo).</p>
+                                <p className="text-xs text-slate-500 flex-1">Formulários de captação de registros de celulares e interações assíncronas de pesquisadores (A Comunidade).</p>
                             </div>
                             <div className="bg-brand-red/5 rounded-2xl p-6 border border-brand-red/10 flex flex-col h-full relative overflow-hidden">
                                 <div className="absolute top-0 right-0 w-24 h-24 bg-brand-red/10 blur-2xl rounded-full translate-x-1/2 -translate-y-1/2"></div>
@@ -596,8 +650,8 @@ export function SobreClient({ initialTestimonials, profile }: SobreClientProps) 
                         <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div className="bg-[#11141a] rounded-2xl p-6 border border-white/5 flex flex-col h-full">
                                 <span className="text-[10px] uppercase font-black tracking-widest text-green-400 mb-2 flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></div> Status Atual</span>
-                                <h4 className="font-bold text-white mb-2">Fluxo & Catálogo Core</h4>
-                                <p className="text-xs text-slate-500 flex-1">Feed contínuo e interativo (Fluxo) aliado à estabilidade fundamental do repositório Padrão Ouro IFUSP.</p>
+                                <h4 className="font-bold text-white mb-2">Comunidade & Catálogo Core</h4>
+                                <p className="text-xs text-slate-500 flex-1">Feed contínuo e interativo (Comunidade) aliado à estabilidade fundamental do repositório Padrão Ouro IFUSP.</p>
                             </div>
                             <div className="bg-brand-blue/5 rounded-2xl p-6 border border-brand-blue/10 flex flex-col h-full relative overflow-hidden">
                                 <div className="absolute top-0 right-0 w-24 h-24 bg-brand-blue/10 blur-2xl rounded-full translate-x-1/2 -translate-y-1/2"></div>
@@ -750,7 +804,7 @@ export function SobreClient({ initialTestimonials, profile }: SobreClientProps) 
                                 <div className="absolute top-0 right-0 w-24 h-24 bg-brand-yellow/10 blur-2xl rounded-full translate-x-1/2 -translate-y-1/2"></div>
                                 <span className="text-[10px] uppercase font-black tracking-widest text-brand-yellow mb-2 relative z-10 flex items-center gap-2"><Rocket className="w-3 h-3" /> Roadmap Futuro</span>
                                 <h4 className="font-bold text-brand-yellow mb-2 relative z-10">Hierarquia de Acesso</h4>
-                                <p className="text-xs text-slate-400 flex-1 relative z-10">Implementação de diferentes painéis administrativos divididos entre Administração Global e Moderadores de Fluxo.</p>
+                                <p className="text-xs text-slate-400 flex-1 relative z-10">Implementação de diferentes painéis administrativos divididos entre Administração Global e Moderadores de Conteúdo (Comunidade).</p>
                             </div>
                         </div>
                     </div>
@@ -843,6 +897,11 @@ export function SobreClient({ initialTestimonials, profile }: SobreClientProps) 
                         </div>
                     </div>
                 </div>
+            </div>
+                    </div>
+                ) : (
+                    <LabDivView />
+                )}
             </div>
         </MainLayoutWrapper>
     );

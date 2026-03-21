@@ -8,22 +8,18 @@ import { NavItem, AppRoutes } from '@/types/navigation';
 import FocusLock from 'react-focus-lock';
 
 const navItems: (NavItem & { color?: string })[] = [
-    { name: 'Fluxo', href: AppRoutes.HOME, icon: 'grain', color: 'brand-blue' },
-    { name: 'Emaranhamento', href: AppRoutes.EMARANHAMENTO, icon: 'hub', color: 'brand-blue' },
+    { name: 'Comunidade', href: '/', icon: 'groups', color: 'brand-red' },
+    { name: 'Explorar', href: '/explorar', icon: 'search', color: 'brand-yellow' },
     { name: 'Lançar', href: AppRoutes.ENVAR, icon: 'rocket_launch', isAction: true, color: 'brand-blue' },
-    { name: 'Wiki', href: AppRoutes.WIKI, icon: 'menu_book', color: 'brand-yellow' },
+    { name: 'HUB LabDiv', href: '/sobre', icon: 'info', color: 'brand-blue' },
     { name: 'Mais', href: '#', icon: 'add', isDrawerTrigger: true, color: 'brand-blue' },
 ];
-
 const drawerLinks: (NavItem & { color?: string })[] = [
-    { name: 'Laboratório Pessoal', href: AppRoutes.LAB, icon: 'science', isPrimary: true, color: 'brand-blue' },
-    { name: 'Logs do IFUSP', href: AppRoutes.DROPS, icon: 'edit_document', color: 'brand-red' },
-    { name: 'Ferramentas Acadêmicas', href: '/ferramentas', icon: 'calendar_month', color: 'brand-blue' },
-    { name: 'Pergunte', href: AppRoutes.PERGUNTAS, icon: 'help_outline', color: 'brand-blue' },
-    { name: 'Colisor', href: AppRoutes.COLISOR, icon: 'auto_awesome', color: 'brand-yellow' },
-    { name: 'Mapa', href: AppRoutes.MAPA, icon: 'map', color: 'brand-red' },
-    { name: 'Sobre', href: '/sobre', icon: 'info', color: 'brand-blue' },
-    { name: 'LabDiv', href: AppRoutes.ARQUIVO_LABDIV, icon: 'campaign', color: 'brand-blue' },
+    { name: 'Central de Interações', href: '/interacao?tab=emaranhamento', icon: 'hub', isPrimary: true, color: 'brand-blue' },
+    { name: 'Explorar Hub', href: '/explorar', icon: 'search', color: 'brand-yellow' },
+    { name: 'Ferramentas Acadêmicas', href: '/ferramentas', icon: 'construction', color: 'brand-blue' },
+    { name: 'Sobre o HUB LabDiv', href: '/sobre', icon: 'info', color: 'brand-blue' },
+    { name: 'Telemetria Admin', href: '/admin', icon: 'analytics', color: 'brand-blue' },
 ];
 
 /**
@@ -157,9 +153,9 @@ export const BottomNavBar = () => {
                                         <div className="size-12 rounded-full bg-white/20 flex items-center justify-center">
                                             <span className="material-symbols-outlined">{link.icon}</span>
                                         </div>
-                                        <div className="flex flex-col">
+                                        <div className="flex flex-col text-left">
                                             <span className="font-bold">{link.name}</span>
-                                            <span className="text-xs opacity-80">Editar dados e currículo técnico</span>
+                                            <span className="text-xs opacity-80">Nexus de conexões e chats</span>
                                         </div>
                                         <span className="material-symbols-outlined ml-auto">chevron_right</span>
                                     </Link>

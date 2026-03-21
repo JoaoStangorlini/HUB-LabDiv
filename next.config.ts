@@ -25,7 +25,6 @@ const nextConfig: NextConfig = {
   async redirects() {
     return [
       { source: '/perfil', destination: '/lab', permanent: true },
-      { source: '/comunidade', destination: '/colisor', permanent: true },
       { source: '/dms', destination: '/emaranhamento', permanent: true },
       { source: '/timeline', destination: '/fluxo', permanent: true },
       { source: '/guia', destination: '/manual', permanent: true },

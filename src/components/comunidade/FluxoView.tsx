@@ -2,39 +2,35 @@
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { MediaCard, MediaCardProps } from './MediaCard';
-import { SkeletonCard } from './ui/SkeletonCard';
+import { MediaCard, MediaCardProps } from '@/components/MediaCard';
+import { SkeletonCard } from '@/components/ui/SkeletonCard';
 import { fetchSubmissions } from '@/app/actions/submissions';
 import { checkUserLikes, checkUserSaves } from '@/app/actions/media';
 import { useAuth } from '@/providers/AuthProvider';
-import { FeaturedCarousel } from './FeaturedCarousel';
+import { FeaturedCarousel } from '@/components/FeaturedCarousel';
 import {
     Sparkles,
     ChevronLeft,
     ChevronRight,
     SearchX,
-    ChevronDown,
+    Minus,
+    Plus,
     Zap,
     Image as ImageIcon,
     Video,
     FileText,
-    BarChart,
     FolderArchive,
     Edit3,
-    Plus,
-    Minus,
-    Flame,
     Satellite,
     Atom
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FluxoFeedbackCard } from '@/app/fluxo/FluxoFeedbackCard';
-
 import { useSearch } from '@/providers/SearchProvider';
 import { CATEGORIES as CATEGORY_LIST, CATEGORY_STYLES, DEFAULT_STYLE } from '@/lib/constants';
 import { useTelemetry } from '@/hooks/useTelemetry';
 
-interface HomeClientViewProps {
+interface FluxoViewProps {
     initialItems: MediaCardProps[];
     initialHasMore: boolean;
     initialCategory?: string;
@@ -45,7 +41,7 @@ interface HomeClientViewProps {
     initialSavedIds?: string[];
 }
 
-export const HomeClientView = ({
+export const FluxoView = ({
     initialItems,
     initialHasMore,
     initialCategory = 'Todos',
@@ -54,7 +50,7 @@ export const HomeClientView = ({
     trendingTags = [],
     initialLikedIds = [],
     initialSavedIds = []
-}: HomeClientViewProps) => {
+}: FluxoViewProps) => {
     const router = useRouter();
     const { query: searchQuery, setQuery: setSearchQuery } = useSearch();
     const { trackEvent } = useTelemetry();
@@ -100,7 +96,8 @@ export const HomeClientView = ({
             setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 10);
 
             // Calculate active page index (0, 1, or 2)
-            const page = Math.round((scrollLeft / (scrollWidth - clientWidth)) * 2);
+            const scrollRange = scrollWidth - clientWidth;
+            const page = scrollRange > 0 ? Math.round((scrollLeft / scrollRange) * 2) : 0;
             setActivePageIndex(page);
         }
     };
@@ -118,7 +115,6 @@ export const HomeClientView = ({
         };
     }, [trendingItems]);
 
-    // Fetch user likes and saves on client side to populate hearts and stars
     useEffect(() => {
         if (!user) {
             setLikedIds(new Set());
@@ -150,8 +146,6 @@ export const HomeClientView = ({
         fetchInteractions();
     }, [user, items, trendingItems, featuredItems]);
 
-    // Removed duplicate client-side useEffect for performance
-
     const scrollTrending = (direction: 'left' | 'right') => {
         if (trendingScrollRef.current) {
             const scrollAmount = window.innerWidth > 768 ? 600 : 300;
@@ -163,7 +157,7 @@ export const HomeClientView = ({
     };
 
     const categories = ['Todos', 'Lab-Div', 'Mentorados Lab-Div', 'Laboratórios', 'Pesquisadores', 'Bastidores da Ciência', 'Eventos', 'Nossa História', 'Uso Didático', 'Convivência', 'Central de Anotações', 'Mural do Deu Ruim', 'Outros'];
-    const currentYear = 2026; // Fixed for Hub 3.1.5 context
+    const currentYear = 2026;
     const years = ['Todos', ...Array.from({ length: currentYear - 1934 + 1 }, (_, i) => (currentYear - i).toString())];
 
     const mediaTypeOptions = [
@@ -176,7 +170,6 @@ export const HomeClientView = ({
         { label: 'Outros', value: 'other', icon: Sparkles, color: 'gray-500' },
     ];
 
-    // Sync filters with data fetching
     const [debouncedQuery, setDebouncedQuery] = useState(searchQuery);
     useEffect(() => {
         const timer = setTimeout(() => setDebouncedQuery(searchQuery), 400);
@@ -206,12 +199,10 @@ export const HomeClientView = ({
             }
         };
 
-        // Telemetry for no results
         if (!isLoading && items.length === 0 && debouncedQuery) {
             trackEvent('SEARCH_FAIL', { query: debouncedQuery });
         }
 
-        // Don't run on mount if we already have initialItems and no custom filters
         if (debouncedQuery === '' && selectedCategories.length === 1 && selectedCategories[0] === 'Todos' && selectedMediaTypes.length === 0 && selectedYears.length === 1 && selectedYears[0] === 'Todos') {
             setItems(initialItems);
             setHasMore(initialHasMore);
@@ -244,64 +235,26 @@ export const HomeClientView = ({
         }
     };
 
-
-
     return (
-        <div className="space-y-4">
-            {/* HERÓI / INTRODUÇÃO */}
-            <header className="relative pt-12 pb-24 flex-shrink-0 overflow-hidden rounded-[40px]">
-                {/* Degradê sutil nas cores da marca */}
-                <div className="absolute inset-0 pointer-events-none">
-                    <div className="absolute top-0 left-0 w-[500px] h-[500px] bg-brand-blue/8 rounded-full blur-[80px] -translate-x-1/3 -translate-y-1/4"></div>
-                    <div className="absolute top-1/3 left-1/2 w-[400px] h-[400px] bg-brand-yellow/6 rounded-full blur-[80px] -translate-x-1/2"></div>
-                    <div className="absolute bottom-0 right-0 w-[500px] h-[500px] bg-brand-red/8 rounded-full blur-[80px] translate-x-1/3 translate-y-1/4"></div>
-                </div>
+        <div className="space-y-4 pt-8">
+            {/* New Blue Logs-style Header for Fluxo */}
+            <div className="flex flex-col gap-3 relative mb-12">
+                <div className="absolute -top-10 -left-10 w-40 h-40 bg-brand-blue/5 rounded-full blur-[60px] pointer-events-none"></div>
+                <h1 className="text-5xl font-black uppercase italic tracking-tighter text-brand-blue flex items-center gap-4 relative z-10">
+                    <Zap className="w-12 h-12 fill-brand-blue" />
+                    Fluxo
+                </h1>
+                <p className="text-gray-500 font-bold uppercase tracking-widest text-[10px] border-l-2 border-brand-blue pl-4 max-w-lg">
+                    O ecossistema IFUSP em movimento. Documentação colaborativa e registro histórico da nossa ciência.
+                </p>
+            </div>
 
-                <div className="max-w-4xl mx-auto px-4 relative z-10 text-center">
-                    <div
-                        className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-blue/10 border border-brand-blue/20 text-brand-blue text-[10px] font-black uppercase tracking-widest mb-6 animate-fade-in-up"
-                    >
-                        <span className="w-1.5 h-1.5 rounded-full bg-brand-blue animate-pulse"></span>
-                        Excelência Científica
-                    </div>
-
-                    <h1
-                        className="font-display font-black text-4xl md:text-6xl tracking-tighter mb-6 text-gray-900 dark:text-white leading-[0.9] uppercase italic animate-fade-in-up"
-                        style={{ animationDelay: '0.1s' }}
-                    >
-                        Hub de Comunicação Científica <br />
-                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-blue via-brand-yellow to-brand-red">Lab-Div</span>
-                    </h1>
-
-                    {/* Mobile Feedback Card - Pós H1 */}
-                    <FluxoFeedbackCard className="block lg:hidden mb-8" />
-
-                    <p
-                        className="text-base md:text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto leading-relaxed font-medium animate-fade-in-up"
-                        style={{ animationDelay: '0.2s' }}
-                    >
-                        Hub de Comunicação Científica do Lab-Div - Um projeto para melhorar a comunicação do IF-USP e reunir em um FLUXO interativo o arquivo de material de divulgação do Lab-Div e de toda a comunidade — de dentro e fora do instituto.
-                    </p>
-                </div>
-            </header>
-
-            {/* DESTAQUES (V8.0 optimized) */}
-            {featuredItems.length > 0 && !debouncedQuery && selectedCategories.includes('Todos') && (
-                <section className="mb-8">
-                    <FeaturedCarousel items={featuredItems} highlightQuery={searchQuery} />
-                </section>
-            )}
-
-
-
-            {/* FILTROS (Restaurados) */}
-            <section className="z-40 bg-transparent py-4 -mx-4 px-4 border-b border-gray-100 dark:border-gray-800/50 mb-8">
+            <section className="z-40 bg-transparent py-4 -mx-4 px-4 border-b border-gray-100 dark:border-gray-800/50 mb-8 overflow-x-hidden">
                 <div className="flex flex-col gap-6">
-                    {/* Formato */}
                     <div className="flex items-center gap-4">
                         <span className="text-[10px] uppercase tracking-widest text-gray-400 shrink-0">Formato:</span>
                         <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
-                            {mediaTypeOptions.map((option, idx) => {
+                            {mediaTypeOptions.map((option) => {
                                 const isActive = selectedMediaTypes.includes(option.value);
                                 const Icon = option.icon;
                                 const activeColor = option.color;
@@ -319,11 +272,10 @@ export const HomeClientView = ({
                         </div>
                     </div>
 
-                    {/* Categoria */}
                     <div className="flex items-center gap-4">
                         <span className="text-[10px] uppercase tracking-widest text-gray-400 shrink-0">Categorias:</span>
                         <div className="flex flex-wrap gap-2">
-                            {(showAllCategories ? categories : categories.slice(0, 6)).map((c, idx) => {
+                            {(showAllCategories ? categories : categories.slice(0, 6)).map((c) => {
                                 const isActive = selectedCategories.includes(c);
                                 return (
                                     <button
@@ -355,14 +307,12 @@ export const HomeClientView = ({
                         </div>
                     </div>
 
-                    {/* Ano */}
                     <div className="flex items-center gap-4">
                         <span className="text-[10px] uppercase tracking-widest text-gray-400 shrink-0">Ano:</span>
                         <div className="flex flex-wrap gap-2 grow">
                             {(showAllYears ? years : years.slice(0, 10)).map((y, idx) => {
                                 const isActive = selectedYears.includes(y);
                                 const filterColors = ['brand-blue', 'brand-yellow', 'brand-red'];
-                                // Give 'Todos' a neutral primary but cycle the others
                                 const activeColor = y === 'Todos' ? 'brand-blue' : filterColors[idx % filterColors.length];
                                 return (
                                     <button
@@ -396,105 +346,15 @@ export const HomeClientView = ({
                 </div>
             </section>
 
-            {/* EM ÓRBITA NO IFUSP (Trending Horizontal - Mover abaixo dos filtros) */}
-            {!debouncedQuery && selectedCategories.includes('Todos') && trendingItems.length > 0 && (
-                <section className="w-full py-8 bg-white dark:bg-card-dark rounded-[40px] border border-gray-100 dark:border-gray-800/50 shadow-sm mb-12">
-                    <div className="px-8">
-                        <div className="flex items-center justify-between mb-8">
-                            <div className="flex flex-col">
-                                <h2 className="text-xl font-black uppercase tracking-widest text-gray-900 dark:text-white flex items-center gap-2">
-                                    <Satellite className="w-5 h-5 text-brand-blue" />
-                                    Em Órbita no <span className="text-brand-blue">IFUSP</span>
-                                </h2>
-                                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-tighter mt-1">Contribuições em destaque na comunidade</p>
-                            </div>
 
-                            <div className="flex items-center gap-4">
-                                {/* PONTO DE NAVEGAÇÃO COLORIDO */}
-                                <div className="flex gap-2 px-3 py-1.5 rounded-full bg-white/50 dark:bg-card-dark/50 backdrop-blur-md border border-gray-100 dark:border-gray-800/50">
-                                    {[0, 1, 2].map((i) => {
-                                        const isActive = activePageIndex === i;
-                                        const colors = ['bg-brand-yellow', 'bg-brand-blue', 'bg-brand-red'];
-                                        return (
-                                            <div
-                                                key={i}
-                                                className={`w-2.5 h-2.5 rounded-full transition-all duration-500 ${isActive ? `${colors[i]} scale-125 shadow-lg brightness-110` : 'bg-gray-300 dark:bg-gray-600 opacity-40 scale-90'}`}
-                                            />
-                                        );
-                                    })}
-                                </div>
 
-                                <div className="flex gap-2">
-                                    <button
-                                        onClick={() => scrollTrending('left')}
-                                        className="p-2 rounded-full bg-gray-50 dark:bg-gray-800 hover:bg-brand-blue hover:text-white transition-all disabled:opacity-20"
-                                        disabled={!canScrollLeft}
-                                    >
-                                        <ChevronLeft className="w-4 h-4" />
-                                    </button>
-                                    <button
-                                        onClick={() => scrollTrending('right')}
-                                        className="p-2 rounded-full bg-gray-50 dark:bg-gray-800 hover:bg-brand-blue hover:text-white transition-all disabled:opacity-20"
-                                        disabled={!canScrollRight}
-                                    >
-                                        <ChevronRight className="w-4 h-4" />
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div
-                            ref={trendingScrollRef}
-                            className="flex gap-4 overflow-x-auto pb-4 no-scrollbar snap-x snap-mandatory scroll-smooth"
-                        >
-                            {trendingItems.map((item, index) => (
-                                <div
-                                    key={item.post.id}
-                                    className="min-w-[280px] md:min-w-[320px] snap-start"
-                                >
-                                    <MediaCard post={item.post} priority={false} isLikedByUser={likedIds.has(item.post.id)} isSavedByUser={savedIds.has(item.post.id)} highlightQuery={searchQuery} setIsSyncing={setIsSyncing} />
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                </section>
-            )}
-
-            {/* FEED PRINCIPAL */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 min-h-[600px]">
+            <div className="grid grid-cols-1 gap-8 min-h-[600px] max-w-2xl mx-auto">
                 {items.length > 0 ? (
                     items.map((item, index) => {
                         const isAboveFold = index < 2;
-
-                        if (isAboveFold) {
-                            return (
-                                <div key={item.post.id}>
-                                    <MediaCard
-                                        post={item.post}
-                                        priority={true}
-                                        isLikedByUser={likedIds.has(item.post.id)}
-                                        isSavedByUser={savedIds.has(item.post.id)}
-                                        highlightQuery={searchQuery}
-                                        setIsSyncing={setIsSyncing}
-                                    />
-                                </div>
-                            );
-                        }
-
                         return (
-                            <div
-                                key={item.post.id}
-                                className="animate-fade-in-up"
-                                style={{ animationDelay: `${(index % 6) * 0.1}s` }}
-                            >
-                                <MediaCard
-                                    post={item.post}
-                                    priority={false}
-                                    isLikedByUser={likedIds.has(item.post.id)}
-                                    isSavedByUser={savedIds.has(item.post.id)}
-                                    highlightQuery={searchQuery}
-                                    setIsSyncing={setIsSyncing}
-                                />
+                            <div key={item.post.id} className={!isAboveFold ? "animate-fade-in-up" : ""} style={!isAboveFold ? { animationDelay: `${(index % 6) * 0.1}s` } : undefined}>
+                                <MediaCard post={item.post} priority={isAboveFold} isLikedByUser={likedIds.has(item.post.id)} isSavedByUser={savedIds.has(item.post.id)} highlightQuery={searchQuery} setIsSyncing={setIsSyncing} />
                             </div>
                         );
                     })
@@ -506,23 +366,16 @@ export const HomeClientView = ({
                     </div>
                 ) : null}
 
-                {/* Skeletons for Load More */}
                 {(isLoading || isLoadingMore) && (
-                    <div className="col-span-full grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
-                        {[1, 2, 3, 4].map((i) => (
-                            <SkeletonCard key={i} />
-                        ))}
+                    <div className="col-span-full grid grid-cols-1 gap-8">
+                        {[1, 2].map((i) => <SkeletonCard key={i} />)}
                     </div>
                 )}
             </div>
 
             {hasMore && !isLoading && !isLoadingMore && (
                 <div className="flex justify-center pt-8">
-                    <button
-                        onClick={loadMore}
-                        disabled={isLoadingMore}
-                        className="group relative px-10 py-4 bg-brand-blue text-white rounded-full font-black uppercase tracking-widest shadow-2xl hover:scale-105 active:scale-95 transition-all disabled:opacity-50 overflow-hidden"
-                    >
+                    <button onClick={loadMore} disabled={isLoadingMore} className="group relative px-10 py-4 bg-brand-blue text-white rounded-full font-black uppercase tracking-widest shadow-2xl hover:scale-105 active:scale-95 transition-all disabled:opacity-50 overflow-hidden">
                         <span className="relative z-10 flex items-center gap-2">
                             <Zap className="w-5 h-5 fill-current" />
                             Expandir Acervo
@@ -532,47 +385,22 @@ export const HomeClientView = ({
                 </div>
             )}
 
-            {/* Sincronizador Atômico (Canto Superior Direito) */}
             <AnimatePresence>
                 {isSyncing && (
-                    <motion.div
-                        initial={{ opacity: 0, x: 50, scale: 0.9 }}
-                        animate={{ opacity: 1, x: 0, scale: 1 }}
-                        exit={{ opacity: 0, x: 50, scale: 0.9 }}
-                        className="fixed top-24 right-6 z-[200] bg-black/80 backdrop-blur-xl border border-blue-500/30 rounded-2xl p-4 flex items-center gap-4 shadow-[0_0_30px_rgba(0,163,255,0.15)]"
-                    >
+                    <motion.div initial={{ opacity: 0, x: 50, scale: 0.9 }} animate={{ opacity: 1, x: 0, scale: 1 }} exit={{ opacity: 0, x: 50, scale: 0.9 }} className="fixed top-24 right-6 z-[200] bg-black/80 backdrop-blur-xl border border-blue-500/30 rounded-2xl p-4 flex items-center gap-4 shadow-[0_0_30px_rgba(0,163,255,0.15)]">
                         <div className="relative w-10 h-10 flex items-center justify-center">
-                            <motion.div
-                                animate={{ rotate: 360 }}
-                                transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
-                                className="absolute inset-0 border border-blue-500/30 rounded-full"
-                            />
+                            <motion.div animate={{ rotate: 360 }} transition={{ duration: 4, repeat: Infinity, ease: "linear" }} className="absolute inset-0 border border-blue-500/30 rounded-full" />
                             <div className="relative">
-                                <motion.div
-                                    animate={{ scale: [1, 1.2, 1] }}
-                                    transition={{ duration: 1, repeat: Infinity }}
-                                    className="w-2 h-2 bg-blue-500 rounded-full shadow-[0_0_10px_#00A3FF]"
-                                />
+                                <motion.div animate={{ scale: [1, 1.2, 1] }} transition={{ duration: 1, repeat: Infinity }} className="w-2 h-2 bg-blue-500 rounded-full shadow-[0_0_10px_#00A3FF]" />
                                 <Atom className="absolute -top-3 -left-3 w-8 h-8 text-white/10 animate-pulse" />
                             </div>
                         </div>
                         <div className="flex flex-col pr-2">
-                            <h2 className="text-[10px] font-black font-mono text-white uppercase tracking-[0.2em]">
-                                Sinc_Atômico
-                            </h2>
-                            <p className="text-[8px] font-mono text-gray-400 uppercase tracking-widest leading-none">
-                                Atualizando_Comunidade_IFUSP...
-                            </p>
+                            <h2 className="text-[10px] font-black font-mono text-white uppercase tracking-[0.2em]">Sinc_Atômico</h2>
+                            <p className="text-[8px] font-mono text-gray-400 uppercase tracking-widest leading-none">Atualizando_Partículas...</p>
                         </div>
-
-                        {/* Barra de Carregamento (4s) */}
                         <div className="absolute bottom-0 left-0 right-0 h-1 bg-white/5 rounded-b-2xl overflow-hidden">
-                            <motion.div
-                                initial={{ width: 0 }}
-                                animate={{ width: "100%" }}
-                                transition={{ duration: 4, ease: "linear" }}
-                                className="h-full bg-blue-500 shadow-[0_0_10px_#3b82f6]"
-                            />
+                            <motion.div initial={{ width: 0 }} animate={{ width: "100%" }} transition={{ duration: 4, ease: "linear" }} className="h-full bg-blue-500 shadow-[0_0_10px_#3b82f6]" />
                         </div>
                     </motion.div>
                 )}
@@ -580,4 +408,3 @@ export const HomeClientView = ({
         </div>
     );
 };
-

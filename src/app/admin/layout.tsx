@@ -19,24 +19,45 @@ export default function AdminLayout({
         return () => document.body.classList.remove('admin-page');
     }, []);
 
+    const [role, setRole] = React.useState<string | null>(null);
+
+    React.useEffect(() => {
+        const fetchRole = async () => {
+            const { createClientSupabase } = await import('@/lib/supabase/client');
+            const supabase = createClientSupabase();
+            const { data: { user } } = await supabase.auth.getUser();
+            if (user) {
+                const { data: profile } = await supabase
+                    .from('profiles')
+                    .select('role')
+                    .eq('id', user.id)
+                    .single();
+                setRole(profile?.role || 'user');
+            }
+        };
+        fetchRole();
+    }, []);
+
     const navLinks = [
         { name: 'Torre de Controle', href: '/admin', icon: 'security' },
         { name: 'Gerenciador de Acervo', href: '/admin/acervo', icon: 'collections_bookmark' },
         { name: 'Submissões Pendentes', href: '/admin/pendentes', icon: 'assignment' },
         { name: 'Arena de Desafios', href: '/admin/desafios', icon: 'emoji_events' },
-        { name: 'Aprovação de Perfis', href: '/admin/profiles', icon: 'manage_accounts' },
+        { name: 'Aprovação de Perfis', href: '/admin/profiles', icon: 'manage_accounts', adminOnly: true },
         { name: 'Validação de Adoções', href: '/admin/adocoes', icon: 'favorite' },
-        { name: 'Gerenciamento de Papéis', href: '/admin/papeis', icon: 'admin_panel_settings' },
         { name: 'Pergunte a um Cientista', href: '/admin/perguntas', icon: 'quiz' },
         { name: 'Moderação de Comentários', href: '/admin/comentarios', icon: 'chat_bubble' },
         { name: 'Central de Anomalias', href: '/admin/reports', icon: 'bug_report' },
-        { name: 'Trilhas de Aprendizagem', href: '/admin/trilhas', icon: 'route' },
+        { name: 'Trilhas de Aprendizagem', href: '/admin/trilhas', icon: 'route', adminOnly: true },
         { name: 'Narração & TTS', href: '/admin/narracao', icon: 'record_voice_over' },
         { name: 'Peer Review', href: '/admin/correcoes', icon: 'spellcheck' },
-        { name: 'Telemetria & Dados', href: '/admin/telemetria', icon: 'analytics' },
+        { name: 'Telemetria & Dados', href: '/admin/telemetria', icon: 'analytics', adminOnly: true },
         { name: 'Oportunidades', href: '/admin/oportunidades', icon: 'event' },
         { name: 'Logs do IFUSP', href: '/admin/drops', icon: 'forum' },
+        { name: 'Configurações Admin', href: '/admin/config', icon: 'admin_panel_settings', adminOnly: true },
     ];
+
+    const filteredLinks = navLinks.filter(link => !link.adminOnly || role === 'admin');
 
 
     return (
@@ -85,7 +106,7 @@ export default function AdminLayout({
                     </div>
 
                     <nav className="flex flex-col gap-1.5 overflow-y-auto max-h-[calc(100vh-200px)] no-scrollbar">
-                        {navLinks.map((link) => {
+                        {filteredLinks.map((link) => {
                             const isActive = pathname === link.href;
                             return (
                                 <Link

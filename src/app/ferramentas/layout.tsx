@@ -17,7 +17,9 @@ export default async function FerramentasLayout({ children }: { children: React.
             userId={user.id}
             rightSidebar={<FerramentasFeedbackCard />}
         >
-            <ToolsSubNav />
+            <div className="mb-8">
+                <ToolsSubNav />
+            </div>
             {children}
         </MainLayoutWrapper>
     );

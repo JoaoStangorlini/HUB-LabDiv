@@ -1,27 +1,5 @@
-import { fetchSubmissions } from '@/app/actions/submissions';
-import MapClient from './MapClient';
-import { MainLayoutWrapper } from '@/components/layout/MainLayoutWrapper';
-import { MapaFeedbackCard } from './MapaFeedbackCard';
+import { redirect } from 'next/navigation';
 
-export const metadata = {
-    title: 'Mapa do Instituto | Hub Lab-Div',
-    description: 'Explore as mídias geolocalizadas no campus do IFUSP.',
-};
-
-export default async function MapPage() {
-    const { items } = await fetchSubmissions({
-        page: 1,
-        limit: 100,
-        query: '',
-        sort: 'recentes'
-    });
-
-    return (
-        <MainLayoutWrapper
-            focusMode={false}
-            rightSidebar={<MapaFeedbackCard />}
-        >
-            <MapClient initialItems={items as any} />
-        </MainLayoutWrapper>
-    );
+export default function MapaRedirect() {
+    redirect('/explorar?tab=mapa');
 }

@@ -17,24 +17,8 @@ const ResetSchema = z.object({
  * Executa o reset total do sistema: DB + Storage + Cache.
  */
 export async function executeNuclearReset(formData: FormData) {
-    // 1. Double-Lock Authentication (Admin Role + Secret Key)
-    const supabase = await createServerSupabase();
-    const { data: { user } } = await supabase.auth.getUser();
-
-    if (!user) {
-        return { success: false, error: 'Acesso negado. Usuário não autenticado.' };
-    }
-
-    // Fetch profile role
-    const { data: profile } = await supabase
-        .from('profiles')
-        .select('role')
-        .eq('id', user.id)
-        .single();
-
-    if (!profile || profile.role !== 'admin') {
-        return { success: false, error: 'Acesso negado. Apenas administradores podem iniciar o Protocolo Zero Kelvin.' };
-    }
+    const check = await verifyAdmin();
+    if (!check.success) return check;
 
     const rawData = {
         secret_key: formData.get('secret_key'),
@@ -51,28 +35,111 @@ export async function executeNuclearReset(formData: FormData) {
     }
 
     try {
-        console.warn('[V3.1.0] PROTOCOLO ZERO KELVIN INICIADO POR:', user.email);
+        console.warn('[V4.0] RESET NUCLEAR TOTAL INICIADO POR:', check.user!.email);
 
         // 2. Limpeza de Storage (Cloudinary)
-        // Purging submissions and reproductions folders
-        const submissionPurge = await purgeStorageFolder('assets/submissions');
-        const reproductionPurge = await purgeStorageFolder('reproductions');
-
-        if (!submissionPurge.success || !reproductionPurge.success) {
-            console.error('[V4.0] Falha parcial no storage reset:', submissionPurge.error, reproductionPurge.error);
-        }
+        await purgeStorageFolder('assets/submissions');
+        await purgeStorageFolder('reproductions');
 
         // 3. Limpeza de Banco de Dados (TRUNCATE CASCADE via RPC v4)
+        const supabase = await createServerSupabase();
         const { error: dbError } = await supabase.rpc('nuclear_reset_v4');
 
-        if (dbError) {
-            throw new Error(`Erro no banco de dados: ${dbError.message}`);
-        }
+        if (dbError) throw new Error(`Erro no banco de dados: ${dbError.message}`);
 
         revalidatePath('/');
         return { success: true, message: 'Protocolo Zero Kelvin V4.0 concluído. Sistema em Vácuo Absoluto.' };
     } catch (error: any) {
         console.error('[V4.0] FALHA CRÍTICA NO RESET NUCLEAR:', error);
-        return { success: false, error: 'Falha catastrófica durante o reset. Contate a infraestrutura.' };
+        return { success: false, error: 'Falha catastrófica durante o reset.' };
     }
+}
+
+/**
+ * 👤 WIPE DE PERFIS: Reseta usuários e auth, mantém trilhas.
+ */
+export async function executeProfileWipe(formData: FormData) {
+    const check = await verifyAdmin();
+    if (!check.success) return check;
+
+    if (formData.get('secret_key') !== process.env.ADMIN_PASSWORD) {
+        return { success: false, error: 'Chave secreta inválida.' };
+    }
+
+    const supabase = await createServerSupabase();
+    const { error } = await supabase.rpc('reset_only_profiles');
+
+    if (error) return { success: false, error: error.message };
+
+    revalidatePath('/admin');
+    return { success: true, message: 'Wipe de Perfis concluído.' };
+}
+
+/**
+ * 📦 WIPE DE CONTEÚDO: Apaga posts, logs, comentários e perguntas.
+ */
+export async function executeContentWipe(formData: FormData) {
+    const check = await verifyAdmin();
+    if (!check.success) return check;
+
+    if (formData.get('secret_key') !== process.env.ADMIN_PASSWORD) {
+        return { success: false, error: 'Chave secreta inválida.' };
+    }
+
+    try {
+        await purgeStorageFolder('assets/submissions');
+        await purgeStorageFolder('reproductions');
+
+        const supabase = await createServerSupabase();
+        const { error } = await supabase.rpc('reset_only_content');
+
+        if (error) return { success: false, error: error.message };
+
+        revalidatePath('/');
+        return { success: true, message: 'Wipe de Conteúdo concluído.' };
+    } catch (e: any) {
+        return { success: false, error: e.message };
+    }
+}
+
+/**
+ * 🎯 BUSCA E DESTRUIÇÃO: Deleta UID específico.
+ */
+export async function executeSpecificUserWipe(targetUid: string, secretKey: string) {
+    const check = await verifyAdmin();
+    if (!check.success) return check;
+
+    if (secretKey !== process.env.ADMIN_PASSWORD) {
+        return { success: false, error: 'Chave secreta inválida.' };
+    }
+
+    const supabase = await createServerSupabase();
+    const { error } = await supabase.rpc('delete_specific_user', { target_uid: targetUid });
+
+    if (error) return { success: false, error: error.message };
+
+    revalidatePath('/admin/profiles');
+    return { success: true, message: `Usuário ${targetUid} removido com sucesso.` };
+}
+
+/**
+ * Utility to verify admin permission before critical actions
+ */
+async function verifyAdmin() {
+    const supabase = await createServerSupabase();
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (!user) return { success: false, error: 'Não autenticado.' };
+
+    const { data: profile } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', user.id)
+        .single();
+
+    if (!profile || profile.role !== 'admin') {
+        return { success: false, error: 'Acesso restrito a Administradores.' };
+    }
+
+    return { success: true, user };
 }

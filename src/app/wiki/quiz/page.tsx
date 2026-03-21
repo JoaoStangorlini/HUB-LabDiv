@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import { MainLayoutWrapper } from '@/components/layout/MainLayoutWrapper';
 import { Zap, Brain, Lock, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
-import { wikiCells, institutoCell } from '../page'; // Reuse cells from Wiki home
+import { wikiCells, institutoCell } from '@/components/wiki/WikiView'; // Reuse cells from Wiki view
 
 const LOCKED_CELLS = ['pesquisa', 'carreira', 'ifusp', 'instituto'];
 

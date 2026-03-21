@@ -68,8 +68,8 @@ export function CorrectionModal({ selection, onClose, onSave }: CorrectionModalP
                 <div className="p-6 space-y-4">
                     <div className="flex items-center justify-between">
                         <h3 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                            <span className="material-symbols-outlined text-brand-red">spellcheck</span>
-                            Sugerir Melhoria / Correção
+                            <span className="material-symbols-outlined text-brand-red">rate_review</span>
+                            Sugerir Correção <span className="text-xs opacity-50 uppercase tracking-widest ml-1">(Peer Review)</span>
                         </h3>
                         <button onClick={onClose} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
                             <span className="material-symbols-outlined">close</span>

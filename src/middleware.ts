@@ -35,10 +35,11 @@ export async function middleware(request: NextRequest) {
     // Performance: Only refresh auth token on routes that need it
     // Public routes skip getUser() to save ~100-200ms TTFB
     const isPublicRoute = pathname === '/' ||
-        pathname.startsWith('/wiki') ||
-        pathname.startsWith('/arquivo') ||
+        pathname.startsWith('/explorar') ||
+        pathname.startsWith('/comunidade') ||
         pathname.startsWith('/sobre') ||
         pathname.startsWith('/fluxo') ||
+        pathname.startsWith('/drops') ||
         pathname.startsWith('/api/og');
 
     if (!isPublicRoute) {
@@ -91,16 +92,29 @@ export async function middleware(request: NextRequest) {
             return applyHeaders(NextResponse.redirect(loginUrl));
         }
 
-        // Verify admin role in profiles table
+        // Verify role in profiles table
         const { data: profile } = await supabase
             .from('profiles')
             .select('role')
             .eq('id', user.id)
             .single();
 
-        if (!profile || profile.role !== 'admin') {
+        const role = profile?.role || 'user';
+
+        // 1. If not admin nor moderator, kick out
+        if (role !== 'admin' && role !== 'moderator') {
             const homeUrl = new URL('/', request.url);
             return applyHeaders(NextResponse.redirect(homeUrl));
+        }
+
+        // 2. Strict Admin-only routes
+        const isAdminOnlyRoute = pathname.startsWith('/admin/perigo') || 
+                               pathname.startsWith('/admin/profiles') ||
+                               pathname.startsWith('/admin/trails');
+        
+        if (isAdminOnlyRoute && role !== 'admin') {
+            const adminHomeUrl = new URL('/admin', request.url);
+            return applyHeaders(NextResponse.redirect(adminHomeUrl));
         }
     }
 

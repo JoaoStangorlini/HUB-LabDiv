@@ -6,7 +6,17 @@ import { m, AnimatePresence } from 'framer-motion';
 import { exportElementToPDF } from '@/lib/pdf-export';
 import { toast } from 'react-hot-toast';
 
-export function ReadingToolbar({ submissionTitle, submissionId, authors }: { submissionTitle: string; submissionId: string; authors: string }) {
+export function ReadingToolbar({ 
+    submissionTitle, 
+    submissionId, 
+    authors,
+    onCorrection
+}: { 
+    submissionTitle: string; 
+    submissionId: string; 
+    authors: string;
+    onCorrection?: (text?: string, range?: Range) => void;
+}) {
     const {
         isFocusMode, setFocusMode,
         isPresentationMode, setPresentationMode,
@@ -17,28 +27,7 @@ export function ReadingToolbar({ submissionTitle, submissionId, authors }: { sub
     const [isVisible, setIsVisible] = useState(true);
     const [isExporting, setIsExporting] = useState(false);
     const [showTtsPopup, setShowTtsPopup] = useState(false);
-    const [citeCopied, setCiteCopied] = useState(false);
 
-    const handleCopyCitation = async () => {
-        const year = new Date().getFullYear();
-        const citation = `${authors.toUpperCase()}. ${submissionTitle}. Hub Lab-Div IF-USP, ${year}. Disponível em: ${window.location.origin}/arquivo/${submissionId}`;
-        try {
-            await navigator.clipboard.writeText(citation);
-            setCiteCopied(true);
-            toast.success('Citação ABNT copiada!');
-            setTimeout(() => setCiteCopied(false), 2000);
-        } catch (err) {
-            const textarea = document.createElement('textarea');
-            textarea.value = citation;
-            document.body.appendChild(textarea);
-            textarea.select();
-            document.execCommand('copy');
-            document.body.removeChild(textarea);
-            setCiteCopied(true);
-            toast.success('Citação ABNT copiada!');
-            setTimeout(() => setCiteCopied(false), 2000);
-        }
-    };
 
     return (
         <div className={`fixed bottom-28 xl:bottom-8 left-1/2 -translate-x-1/2 z-[90] transition-all duration-500 ${isFocusMode ? 'focus-toolbar' : ''}`}>
@@ -124,13 +113,14 @@ export function ReadingToolbar({ submissionTitle, submissionId, authors }: { sub
                     </AnimatePresence>
                 </div>
 
-                {/* ABNT Citation Button */}
+                <div className="w-px h-6 bg-gray-200 dark:bg-gray-700 mx-1" />
+
+                {/* Sugguest Correction (Peer Review) */}
                 <ToolbarButton
-                    icon={citeCopied ? 'check' : 'format_quote'}
-                    label={citeCopied ? 'Copiado' : 'Citar'}
-                    onClick={handleCopyCitation}
-                    color="gray-500"
-                    active={citeCopied}
+                    icon="rate_review"
+                    label="Sugerir Correção"
+                    onClick={() => onCorrection?.()}
+                    color="brand-blue"
                 />
 
 

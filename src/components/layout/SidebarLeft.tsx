@@ -29,24 +29,15 @@ import { supabase } from '@/lib/supabase';
 import { useTelemetry } from '@/hooks/useTelemetry';
 
 const mainLinks = [
-    { name: 'Fluxo', href: AppRoutes.HOME, icon: <span className="material-symbols-outlined text-2xl">grain</span>, color: 'brand-blue' },
-    { name: 'Logs do IFUSP', href: '/drops', icon: <span className="material-symbols-outlined text-2xl">edit_document</span>, color: 'brand-red' },
-    { name: 'Lab-Div', href: '/arquivo-labdiv', icon: <span className="material-symbols-outlined text-2xl">campaign</span>, color: 'brand-yellow' },
-    { name: 'Grande Colisor', href: '/colisor', icon: <span className="material-symbols-outlined text-2xl">hub</span>, color: 'brand-red' },
-    { name: 'Wiki', href: AppRoutes.WIKI, icon: <span className="material-symbols-outlined text-2xl">menu_book</span>, color: 'brand-blue' },
-    { name: 'Mapa', href: '/mapa', icon: <span className="material-symbols-outlined text-2xl">map</span>, color: 'brand-blue' },
+    { name: 'Comunidade', href: '/', icon: <span className="material-symbols-outlined text-2xl">groups</span>, color: 'brand-red' },
+    { name: 'Explorar Hub', href: '/explorar', icon: <span className="material-symbols-outlined text-2xl">search</span>, color: 'brand-yellow' },
+    { name: 'Sobre o HUB LabDiv', href: '/sobre', icon: <span className="material-symbols-outlined text-2xl">info</span>, color: 'brand-blue' },
 ];
 
 const categoryLinks = [
     { name: 'Ferramentas Acadêmicas', href: '/ferramentas', icon: <span className="material-symbols-outlined text-2xl">construction</span>, color: 'brand-blue', role: 'aluno_usp' },
     { name: 'Como Ingressar', href: '/ingresso', icon: <span className="material-symbols-outlined text-2xl">login</span>, color: 'brand-yellow', role: 'curioso' },
     { name: 'Observatório de Pesquisa', href: '/arena', icon: <span className="material-symbols-outlined text-2xl">visibility</span>, color: 'brand-red', role: 'pesquisador' },
-];
-
-const bottomLinks = [
-    { name: 'Pergunte', href: '/perguntas', icon: <span className="material-symbols-outlined text-2xl">help_outline</span>, color: 'brand-yellow' },
-    { name: 'Lab Pessoal', href: '/lab', icon: <span className="material-symbols-outlined text-2xl">science</span>, color: 'brand-yellow' },
-    { name: 'Sobre', href: '/sobre', icon: <span className="material-symbols-outlined text-2xl">info</span>, color: 'brand-red' },
 ];
 
 const secondaryLinks = [
@@ -189,55 +180,39 @@ export const SidebarLeft = ({ userId }: { userId?: string }) => {
                 })}
 
                 <div className="h-px bg-gray-100 dark:bg-white/5 my-2 mx-4" />
-
-                {/* Bottom Links */}
-                {bottomLinks.map((link) => {
-                    const isActive = pathname === link.href;
-                    const colorMap: Record<string, { bg: string; text: string; border: string; hoverBorder: string }> = {
-                        'brand-blue': { bg: 'bg-brand-blue/10', text: 'text-brand-blue', border: 'border-l-brand-blue', hoverBorder: 'hover:border-l-brand-blue' },
-                        'brand-red': { bg: 'bg-brand-red/10', text: 'text-brand-red', border: 'border-l-brand-red', hoverBorder: 'hover:border-l-brand-red' },
-                        'brand-yellow': { bg: 'bg-brand-yellow/10', text: 'text-brand-yellow', border: 'border-l-brand-yellow', hoverBorder: 'hover:border-l-brand-yellow' },
-                    };
-                    const c = colorMap[link.color] || colorMap['brand-blue'];
-                    return (
-                        <Link
-                            key={link.href}
-                            href={link.href}
-                            onClick={() => trackEvent('TAB_CHANGE', { tab: link.name, href: link.href })}
-                            className={`flex items-center gap-4 px-4 py-3 rounded-2xl transition-all group border-l-[3px] ${isActive
-                                ? `${c.bg} ${c.text} ${c.border}`
-                                : `border-l-transparent ${c.hoverBorder} text-gray-500 hover:bg-gray-100 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-white`
-                                }`}
-                        >
-                            <span className={`transition-transform group-hover:scale-110 ${isActive ? c.text : ''}`}>
-                                {link.icon}
-                            </span>
-                            <span className={`font-bold text-base ${isActive ? 'text-gray-900 dark:text-white' : ''}`}>
-                                {link.name}
-                            </span>
-                        </Link>
-                    );
-                })}
             </nav>
 
-            {/* Entanglement Section */}
+            {/* Interaction Section */}
             <div className="px-4 mt-4">
                 <Link
-                    href="/emaranhamento"
-                    className={`flex items-center gap-4 px-4 py-3 rounded-2xl transition-all group mb-4 border-l-[3px] ${pathname === '/emaranhamento' ? 'bg-brand-blue text-white shadow-lg shadow-brand-blue/20 border-l-brand-blue' : 'border-l-transparent hover:border-l-brand-blue text-gray-500 hover:bg-gray-100 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-white'}`}
+                    href="/interacao?tab=emaranhamento"
+                    onClick={() => trackEvent('TAB_CHANGE', { tab: 'Central de Interações', hub: 'sidebar' })}
+                    className={`flex items-center gap-4 px-4 py-3 rounded-2xl transition-all group mb-4 border-l-[3px] ${pathname.startsWith('/interacao') ? 'bg-brand-blue text-white shadow-lg shadow-brand-blue/20 border-l-brand-blue' : 'border-l-transparent hover:border-l-brand-blue text-gray-500 hover:bg-gray-100 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-white'}`}
                 >
-                    <span className="material-symbols-outlined text-2xl group-hover:scale-110 transition-transform">cyclone</span>
+                    <span className="material-symbols-outlined text-2xl group-hover:scale-110 transition-transform">hub</span>
                     <div className="flex flex-col overflow-hidden">
-                        <span className="font-bold text-sm">Emaranhamento</span>
-                        <span className="text-[9px] opacity-60 uppercase tracking-wider font-bold truncate">Conversas Ativas</span>
+                        <span className="font-bold text-sm">Central de Interações</span>
+                        <span className="text-[9px] opacity-60 uppercase tracking-wider font-bold truncate">Nexus de Conexões</span>
                     </div>
-                    {recentEntanglements.length > 0 && (
-                        <div className="ml-auto flex items-center gap-1.5">
-                            <span className="text-[9px] font-black bg-white/20 px-1.5 py-0.5 rounded-full">{recentEntanglements.length}</span>
-                            <div className="size-1.5 rounded-full bg-brand-blue animate-pulse" />
-                        </div>
-                    )}
                 </Link>
+
+                {/* Quick Access Buttons */}
+                <div className="grid grid-cols-2 gap-2 mb-4">
+                    <Link
+                        href="/interacao?tab=lab"
+                        className="flex flex-col items-center justify-center p-2 rounded-xl bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/5 hover:border-brand-blue/30 transition-all text-center group"
+                    >
+                        <span className="material-symbols-outlined text-lg text-brand-blue mb-1">person</span>
+                        <span className="text-[9px] font-black uppercase tracking-tighter text-gray-500 group-hover:text-gray-900 dark:group-hover:text-white">Laboratório</span>
+                    </Link>
+                    <Link
+                        href="/interacao?tab=perguntas"
+                        className="flex flex-col items-center justify-center p-2 rounded-xl bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/5 hover:border-brand-blue/30 transition-all text-center group"
+                    >
+                        <span className="material-symbols-outlined text-lg text-brand-blue mb-1">quiz</span>
+                        <span className="text-[9px] font-black uppercase tracking-tighter text-gray-500 group-hover:text-gray-900 dark:group-hover:text-white">Pergunte</span>
+                    </Link>
+                </div>
 
                 <h2 className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 mb-4 ml-1">Partículas Emaranhadas</h2>
                 <div className="space-y-3">

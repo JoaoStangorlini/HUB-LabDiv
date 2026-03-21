@@ -28,7 +28,7 @@ export function TextSelectionHandler({ onComment, onNote, onCorrection }: Select
                 setCurrentRange(range);
                 setPosition({
                     x: rect.left + rect.width / 2,
-                    y: rect.top + window.scrollY - 10,
+                    y: rect.top - 10,
                     show: true
                 });
             } else {
@@ -87,8 +87,8 @@ export function TextSelectionHandler({ onComment, onNote, onCorrection }: Select
                     />
                     <div className="w-px h-8 bg-white/10" />
                     <ActionButton
-                        icon="spellcheck"
-                        label="Corrigir"
+                        icon="rate_review"
+                        label="Sugerir Correção"
                         onClick={() => handleAction('correction')}
                     />
                 </m.div>

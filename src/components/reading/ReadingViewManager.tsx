@@ -79,14 +79,18 @@ export function ReadingViewManager({ submission, children }: ReadingViewManagerP
         setActiveModal('note');
     };
 
-    const handleCorrection = async (text: string, range: Range) => {
+    const handleCorrection = async (text?: string, range?: Range) => {
         const { data: { session } } = await supabase.auth.getSession();
         if (!session) {
             setActiveModal('auth');
             return;
         }
 
-        setSelectionData({ text, hash: '', submissionId: submission.id });
+        setSelectionData({ 
+            text: text || 'Geral (sem texto específico selecionado)', 
+            hash: '', 
+            submissionId: submission.id 
+        });
         setActiveModal('correction');
     };
 
@@ -134,6 +138,7 @@ export function ReadingViewManager({ submission, children }: ReadingViewManagerP
                     submissionTitle={submission.title}
                     submissionId={submission.id}
                     authors={submission.authors}
+                    onCorrection={handleCorrection}
                 />
             )}
 
