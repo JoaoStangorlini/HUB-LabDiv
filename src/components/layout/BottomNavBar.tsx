@@ -11,15 +11,13 @@ const navItems: (NavItem & { color?: string })[] = [
     { name: 'Comunidade', href: '/', icon: 'groups', color: 'brand-red' },
     { name: 'Explorar', href: '/explorar', icon: 'search', color: 'brand-yellow' },
     { name: 'Lançar', href: AppRoutes.ENVAR, icon: 'rocket_launch', isAction: true, color: 'brand-blue' },
-    { name: 'HUB LabDiv', href: '/sobre', icon: 'info', color: 'brand-blue' },
+    { name: 'Ferramentas', href: '/ferramentas', icon: 'construction', color: 'brand-blue' },
     { name: 'Mais', href: '#', icon: 'add', isDrawerTrigger: true, color: 'brand-blue' },
 ];
 const drawerLinks: (NavItem & { color?: string })[] = [
     { name: 'Central de Interações', href: '/interacao?tab=emaranhamento', icon: 'hub', isPrimary: true, color: 'brand-blue' },
-    { name: 'Explorar Hub', href: '/explorar', icon: 'search', color: 'brand-yellow' },
-    { name: 'Ferramentas Acadêmicas', href: '/ferramentas', icon: 'construction', color: 'brand-blue' },
     { name: 'Sobre o HUB LabDiv', href: '/sobre', icon: 'info', color: 'brand-blue' },
-    { name: 'Telemetria Admin', href: '/admin', icon: 'analytics', color: 'brand-blue' },
+    { name: 'Admin', href: '/admin', icon: 'analytics', color: 'brand-blue' },
 ];
 
 /**

@@ -136,16 +136,16 @@ export default function AdminDashboardOverview() {
             count: counts.comentariosPendentes,
             icon: 'chat_bubble',
             color: 'electric' as const,
-            href: '/admin/comentarios',
+            href: '/admin/moderacao?tab=comentarios',
             urgent: counts.comentariosPendentes > 0,
         },
         {
-            title: 'Narrações',
-            subtitle: 'Faltantes (TTS)',
-            count: counts.narracoesFaltantes,
-            icon: 'record_voice_over',
-            color: 'yellow' as const,
-            href: '/admin/narracao',
+            title: 'Auditório Hub',
+            subtitle: 'Gerenciador de Acervo',
+            count: counts.aprovados,
+            icon: 'collections_bookmark',
+            color: 'electric' as const,
+            href: '/admin/moderacao?tab=acervo',
             urgent: false,
         },
         {
@@ -172,7 +172,7 @@ export default function AdminDashboardOverview() {
             count: counts.tagsTotal,
             icon: 'sell',
             color: 'red' as const,
-            href: '/admin/acervo',
+            href: '/admin/moderacao?tab=acervo',
             urgent: false,
         },
         {
@@ -254,7 +254,7 @@ export default function AdminDashboardOverview() {
                 <>
                     {/* ─── Submission Status Row ─── */}
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <Link href="/admin/pendentes" className="relative group bg-white/40 dark:bg-card-dark/5 backdrop-blur-md rounded-3xl p-6 border border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-xl hover:border-brand-yellow/30 transition-all overflow-hidden cursor-pointer">
+                        <Link href="/admin/moderacao?tab=submissoes" className="relative group bg-white/40 dark:bg-card-dark/5 backdrop-blur-md rounded-3xl p-6 border border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-xl hover:border-brand-yellow/30 transition-all overflow-hidden cursor-pointer">
                             <div className="absolute top-0 right-0 w-32 h-32 bg-brand-yellow/5 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2 group-hover:bg-brand-yellow/10 transition-colors"></div>
                             <div className="relative z-10 flex flex-col gap-4">
                                 <div className="flex items-center justify-between">
