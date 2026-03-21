@@ -72,9 +72,9 @@ export default function NotificacoesManager() {
     // User Search Logic
     useEffect(() => {
         const handler = setTimeout(async () => {
-            if (formData.targetType === 'user' && searchQuery.length >= 1) {
+            if (formData.targetType === 'user' && searchQuery.trim().length >= 1) {
                 setIsSearching(true);
-                const results = await searchUsersForNotification(searchQuery);
+                const results = await searchUsersForNotification(searchQuery.trim());
                 setSearchResults(results);
                 setIsSearching(false);
             } else {
@@ -213,7 +213,7 @@ export default function NotificacoesManager() {
                                         initial={{ opacity: 0, height: 0 }}
                                         animate={{ opacity: 1, height: 'auto' }}
                                         exit={{ opacity: 0, height: 0 }}
-                                        className="space-y-2 overflow-hidden relative"
+                                        className="space-y-2 relative"
                                     >
                                         <label className="text-[10px] font-black uppercase text-gray-500 tracking-widest block px-1">Buscar Usuário</label>
                                         <div className="relative">

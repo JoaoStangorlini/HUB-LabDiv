@@ -152,7 +152,8 @@ export async function fetchAdminNotificationHistory() {
 // ============================================================
 
 export async function searchUsersForNotification(query: string) {
-    if (!query || query.length < 1) return [];
+    const cleanQuery = query.trim();
+    if (!cleanQuery) return [];
 
     const supabase = await createServerSupabase();
 
