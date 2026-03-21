@@ -5,8 +5,9 @@ import { AcervoManager } from './moderacao/AcervoManager';
 import { SubmissionsManager } from './moderacao/SubmissionsManager';
 import { CommentsManager } from './moderacao/CommentsManager';
 import { CorrectionsManager } from './moderacao/CorrectionsManager';
+import { NarrationManager } from './moderacao/NarrationManager';
 
-type ModerationTab = 'acervo' | 'submissoes' | 'comentarios' | 'correcoes';
+type ModerationTab = 'acervo' | 'submissoes' | 'comentarios' | 'correcoes' | 'narracao';
 
 export function AdminModerationClient() {
     const [activeTab, setActiveTab] = useState<ModerationTab>('submissoes');
@@ -15,6 +16,7 @@ export function AdminModerationClient() {
         { id: 'submissoes', label: 'Submissões', icon: 'assignment' },
         { id: 'acervo', label: 'Acervo Hub', icon: 'collections_bookmark' },
         { id: 'comentarios', label: 'Comentários', icon: 'chat_bubble' },
+        { id: 'narracao', label: 'Narração & TTS', icon: 'record_voice_over' },
         { id: 'correcoes', label: 'Peer Review', icon: 'spellcheck' },
     ];
 
@@ -56,6 +58,7 @@ export function AdminModerationClient() {
                 {activeTab === 'submissoes' && <SubmissionsManager />}
                 {activeTab === 'comentarios' && <CommentsManager />}
                 {activeTab === 'correcoes' && <CorrectionsManager />}
+                {activeTab === 'narracao' && <NarrationManager />}
             </section>
         </div>
     );
