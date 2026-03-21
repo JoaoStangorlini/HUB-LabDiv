@@ -829,6 +829,17 @@ export default function FerramentasClient({ profile }: { profile: any }) {
                                                 setEvents(prev => prev.filter(e => e.id !== eventId));
                                                 await CalendarActions.deleteCalendarEvent(eventId);
                                                 toast.success('Evento removido');
+                                                return;
+                                            }
+                                        }
+                                        // If dropped outside calendar but not on trash, revert
+                                        const calendarEl = info.el?.closest('.fc');
+                                        if (calendarEl) {
+                                            const calRect = calendarEl.getBoundingClientRect();
+                                            const x = info.jsEvent.clientX;
+                                            const y = info.jsEvent.clientY;
+                                            if (x < calRect.left || x > calRect.right || y < calRect.top || y > calRect.bottom) {
+                                                info.revert?.();
                                             }
                                         }
                                     }}
