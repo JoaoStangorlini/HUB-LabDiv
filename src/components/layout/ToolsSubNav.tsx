@@ -2,13 +2,12 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Calendar, Route, UserSearch, Map } from 'lucide-react';
+import { Calendar, Route, UserSearch } from 'lucide-react';
 
 const tools = [
     { name: 'Grade Horária', href: '/ferramentas', icon: Calendar, exact: true },
     { name: 'Trilhas', href: '/ferramentas/trilhas', icon: Route, exact: false },
     { name: 'Match Acadêmico', href: '/ferramentas/match', icon: UserSearch, exact: true },
-    { name: 'Mapa Interativo', href: '/ferramentas/mapa', icon: Map, exact: true },
 ];
 
 export function ToolsSubNav() {
