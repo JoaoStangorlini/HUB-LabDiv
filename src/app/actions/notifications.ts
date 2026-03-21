@@ -1,9 +1,10 @@
 'use server';
 
-import { supabase } from '@/lib/supabase';
+import { createServerSupabase } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
 
 export async function fetchNotifications(userId: string) {
+    const supabase = await createServerSupabase();
     const { data, error } = await supabase
         .from('notifications')
         .select('*')
@@ -16,6 +17,7 @@ export async function fetchNotifications(userId: string) {
 }
 
 export async function markNotificationAsRead(notificationId: string) {
+    const supabase = await createServerSupabase();
     const { error } = await supabase
         .from('notifications')
         .update({ is_read: true })
@@ -25,6 +27,7 @@ export async function markNotificationAsRead(notificationId: string) {
 }
 
 export async function getUnreadCount(userId: string) {
+    const supabase = await createServerSupabase();
     const { count, error } = await supabase
         .from('notifications')
         .select('*', { count: 'exact', head: true })
