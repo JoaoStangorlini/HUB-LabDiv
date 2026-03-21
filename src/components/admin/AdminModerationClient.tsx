@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { AcervoManager } from './moderacao/AcervoManager';
 import { SubmissionsManager } from './moderacao/SubmissionsManager';
 import { CommentsManager } from './moderacao/CommentsManager';
@@ -10,7 +11,9 @@ import { NarrationManager } from './moderacao/NarrationManager';
 type ModerationTab = 'acervo' | 'submissoes' | 'comentarios' | 'correcoes' | 'narracao';
 
 export function AdminModerationClient() {
-    const [activeTab, setActiveTab] = useState<ModerationTab>('submissoes');
+    const searchParams = useSearchParams();
+    const initialTab = (searchParams.get('tab') as ModerationTab) || 'submissoes';
+    const [activeTab, setActiveTab] = useState<ModerationTab>(initialTab);
 
     const tabs = [
         { id: 'submissoes', label: 'Submissões', icon: 'assignment' },
