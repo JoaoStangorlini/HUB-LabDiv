@@ -32,9 +32,9 @@ function LoginContent() {
                 },
             };
 
-            // Hard-Lock Domain for USP track
-            if (track === 'usp') {
-                // queryParams.hd = 'usp.br';
+            // Hard-Lock Domain Hint for Aluno USP track
+            if (track === 'usp' && category === 'aluno_usp') {
+                options.queryParams.hd = 'usp.br';
             }
 
             const { error } = await supabase.auth.signInWithOAuth({
