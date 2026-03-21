@@ -382,7 +382,7 @@ export default function FerramentasClient({ profile }: { profile: any }) {
 
             <div className="bg-transparent min-h-[600px] rounded-[40px] overflow-hidden">
                 <div className="p-8 h-full flex flex-col gap-12">
-                    <div className={`space-y-6 enrollment-section print:hidden transition-all duration-500 overflow-hidden ${viewMode === 'view' ? 'max-h-0 opacity-0 pointer-events-none' : 'max-h-[2000px] opacity-100'}`}>
+                    <div id="enrollment-drop-zone" className={`space-y-6 enrollment-section print:hidden transition-all duration-500 overflow-hidden ${viewMode === 'view' ? 'max-h-0 opacity-0 pointer-events-none' : 'max-h-[2000px] opacity-100'}`}>
                         <div className="flex items-center justify-between">
                             <h4 className="text-sm font-black uppercase text-brand-blue tracking-widest flex items-center gap-2">
                                 <GraduationCap className="w-4 h-4" />
@@ -818,11 +818,13 @@ export default function FerramentasClient({ profile }: { profile: any }) {
                                         const res = await CalendarActions.upsertCalendarEvent(updatedEvent);
                                     }}
                                     eventDragStop={async (info: any) => {
+                                        const x = info.jsEvent.clientX;
+                                        const y = info.jsEvent.clientY;
+
+                                        // Check if dropped on trash zone
                                         const trashEl = document.getElementById('calendar-trash');
                                         if (trashEl) {
                                             const rect = trashEl.getBoundingClientRect();
-                                            const x = info.jsEvent.clientX;
-                                            const y = info.jsEvent.clientY;
                                             if (x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom) {
                                                 const eventId = info.event.id;
                                                 info.event.remove();
@@ -832,14 +834,18 @@ export default function FerramentasClient({ profile }: { profile: any }) {
                                                 return;
                                             }
                                         }
-                                        // If dropped outside calendar but not on trash, revert
-                                        const calendarEl = info.el?.closest('.fc');
-                                        if (calendarEl) {
-                                            const calRect = calendarEl.getBoundingClientRect();
-                                            const x = info.jsEvent.clientX;
-                                            const y = info.jsEvent.clientY;
-                                            if (x < calRect.left || x > calRect.right || y < calRect.top || y > calRect.bottom) {
-                                                info.revert?.();
+
+                                        // Check if dropped on enrollment section (Suas Matrículas)
+                                        const enrollEl = document.getElementById('enrollment-drop-zone');
+                                        if (enrollEl) {
+                                            const rect = enrollEl.getBoundingClientRect();
+                                            if (x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom) {
+                                                const eventId = info.event.id;
+                                                info.event.remove();
+                                                setEvents(prev => prev.filter(e => e.id !== eventId));
+                                                await CalendarActions.deleteCalendarEvent(eventId);
+                                                toast.success('Bloco devolvido às matrículas');
+                                                return;
                                             }
                                         }
                                     }}
