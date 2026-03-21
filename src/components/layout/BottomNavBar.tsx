@@ -6,14 +6,9 @@ import { usePathname } from 'next/navigation';
 import { useNavigationStore } from '@/store/useNavigationStore';
 import { NavItem, AppRoutes } from '@/types/navigation';
 import FocusLock from 'react-focus-lock';
+import { useAuth } from '@/providers/AuthProvider';
+import { supabase } from '@/lib/supabase';
 
-const navItems: (NavItem & { color?: string })[] = [
-    { name: 'Comunidade', href: '/', icon: 'groups', color: 'brand-red' },
-    { name: 'Explorar', href: '/explorar', icon: 'search', color: 'brand-yellow' },
-    { name: 'Lançar', href: AppRoutes.ENVAR, icon: 'rocket_launch', isAction: true, color: 'brand-blue' },
-    { name: 'Ferramentas', href: '/ferramentas', icon: 'construction', color: 'brand-blue' },
-    { name: 'Mais', href: '#', icon: 'add', isDrawerTrigger: true, color: 'brand-blue' },
-];
 const drawerLinks: (NavItem & { color?: string })[] = [
     { name: 'Central de Interações', href: '/interacao?tab=emaranhamento', icon: 'hub', isPrimary: true, color: 'brand-blue' },
     { name: 'Sobre o HUB LabDiv', href: '/sobre', icon: 'info', color: 'brand-blue' },
@@ -26,8 +21,52 @@ const drawerLinks: (NavItem & { color?: string })[] = [
  */
 export const BottomNavBar = () => {
     const pathname = usePathname();
+    const { user: authUser } = useAuth();
     const { isDrawerOpen, setDrawerOpen, closeAll } = useNavigationStore();
     const drawerRef = useRef<HTMLDivElement>(null);
+    const [userCategory, setUserCategory] = React.useState<'aluno_usp' | 'pesquisador' | 'curioso'>('curioso');
+
+    // V8.0 Role-Based Navigation Protocol
+    useEffect(() => {
+        const fetchCategory = async () => {
+            if (!authUser) {
+                setUserCategory('curioso');
+                return;
+            }
+
+            const { data: profile } = await supabase
+                .from('profiles')
+                .select('user_category, is_usp_member')
+                .eq('id', authUser.id)
+                .single();
+
+            const isUspMember = profile?.is_usp_member || authUser.email?.endsWith('@usp.br') || authUser.email?.endsWith('@if.usp.br');
+            const category = profile?.user_category;
+
+            if (['pesquisador', 'docente_pesquisador'].includes(category)) {
+                setUserCategory('pesquisador');
+            } else if (isUspMember || ['aluno_usp', 'licenciatura', 'bacharelado', 'pos_graduacao'].includes(category)) {
+                setUserCategory('aluno_usp');
+            } else {
+                setUserCategory('curioso');
+            }
+        };
+
+        fetchCategory();
+    }, [authUser]);
+
+    const dynamicNavItems = [
+        { name: 'Comunidade', href: '/', icon: 'groups', color: 'brand-red' },
+        { name: 'Explorar', href: '/explorar', icon: 'search', color: 'brand-yellow' },
+        { name: 'Lançar', href: AppRoutes.ENVAR, icon: 'rocket_launch', isAction: true, color: 'brand-blue' },
+        ...(userCategory === 'pesquisador' 
+            ? [{ name: 'Pesquisa', href: '/arena', icon: 'visibility', color: 'brand-red' }]
+            : userCategory === 'aluno_usp'
+            ? [{ name: 'Ferramentas', href: '/ferramentas', icon: 'construction', color: 'brand-blue' }]
+            : [{ name: 'Ingressar', href: '/ingresso', icon: 'login', color: 'brand-yellow' }]
+        ),
+        { name: 'Mais', href: '#', icon: 'add', isDrawerTrigger: true, color: 'brand-blue' },
+    ];
 
     // V8.0 Body Scroll Lock Protocol
     useEffect(() => {
@@ -49,7 +88,7 @@ export const BottomNavBar = () => {
         closeAll();
     }, [pathname, closeAll]);
 
-    if (!navItems?.length) return null;
+    if (!dynamicNavItems?.length) return null;
 
     return (
         <>
@@ -58,7 +97,7 @@ export const BottomNavBar = () => {
                 style={{ touchAction: 'pan-y' }} // V8.0 Native Scroll Performance
             >
                 <nav className="max-w-md mx-auto h-16 bg-white/60 dark:bg-gray-900/60 backdrop-blur-3xl rounded-[32px] border border-white/30 dark:border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.3)] flex items-center justify-around px-1 pointer-events-auto overflow-visible">
-                    {navItems.map((item) => {
+                    {dynamicNavItems.map((item) => {
                         const isActive = pathname === item.href;
                         const activeColor = item.color || 'brand-blue';
 

@@ -205,6 +205,9 @@ export default async function ArquivoItemPage({ params }: PageProps) {
             <MainLayoutWrapper focusMode={true}>
                 <ReadingViewManager submission={submission}>
                     <main id="main-content" className="flex-1 max-w-5xl mx-auto w-full py-8 sm:py-12 px-4 outline-none">
+                        <ViewTracker submissionId={submission.id} />
+                        {user?.id && <ReadingHistoryTracker submissionId={submission.id} userId={user.id} />}
+                        
                         <Breadcrumbs items={breadcrumbItems} />
 
                         {/* ─── Card de Introdução ao Índice (Hierarquia: 2º após Fogo) ─── */}

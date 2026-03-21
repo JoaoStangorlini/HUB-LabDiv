@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Microscope, X, Sparkles, Send, Loader2 } from 'lucide-react';
 import { updateProfile } from '@/app/actions/profiles';
 import { toast } from 'react-hot-toast';
+import { useRouter } from 'next/navigation';
 
 interface ICInterestModalProps {
     isOpen: boolean;
@@ -20,6 +21,7 @@ interface ICInterestModalProps {
 export function ICInterestModal({ isOpen, onClose, initialData }: ICInterestModalProps) {
     const [formData, setFormData] = useState(initialData);
     const [isSaving, setIsSaving] = useState(false);
+    const router = useRouter();
 
     const handleSave = async () => {
         setIsSaving(true);
@@ -29,7 +31,8 @@ export function ICInterestModal({ isOpen, onClose, initialData }: ICInterestModa
                 ...formData
             });
             if (res.success) {
-                toast.success('Cápsula de Interesse enviada para a Arena!');
+                toast.success('Interesse de IC enviado para a Arena!');
+                router.refresh();
                 onClose();
             } else {
                 toast.error(res.error || 'Erro ao salvar informações');
@@ -62,7 +65,7 @@ export function ICInterestModal({ isOpen, onClose, initialData }: ICInterestModa
                                         <Microscope className="text-brand-red w-7 h-7" />
                                     </div>
                                     <div>
-                                        <h3 className="text-xl font-display font-black text-gray-900 dark:text-white uppercase tracking-tight">Cápsula Científica</h3>
+                                        <h3 className="text-xl font-display font-black text-gray-900 dark:text-white uppercase tracking-tight">Interesse de IC</h3>
                                         <p className="text-[10px] text-brand-red font-bold uppercase tracking-widest">Sinalizar Interesse em Pesquisa</p>
                                     </div>
                                 </div>
@@ -92,13 +95,19 @@ export function ICInterestModal({ isOpen, onClose, initialData }: ICInterestModa
                                 </div>
                                 <div className="space-y-2">
                                     <label className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 ml-1">Departamento de Preferência</label>
-                                    <input 
-                                        type="text"
-                                        placeholder="Ex: DFMA, FNC, FGE..."
+                                    <select 
                                         value={formData.ic_preferred_department || ''}
                                         onChange={(e) => setFormData({ ...formData, ic_preferred_department: e.target.value })}
-                                        className="w-full bg-gray-50 dark:bg-black/20 border border-gray-100 dark:border-white/10 rounded-2xl px-5 py-4 text-sm focus:outline-none focus:ring-2 focus:ring-brand-red/20 transition-all font-bold dark:text-white"
-                                    />
+                                        className="w-full bg-gray-50 dark:bg-black/20 border border-gray-100 dark:border-white/10 rounded-2xl px-5 py-4 text-sm focus:outline-none focus:ring-2 focus:ring-brand-red/20 transition-all font-bold dark:text-white appearance-none cursor-pointer"
+                                    >
+                                        <option value="" disabled className="dark:bg-[#1E1E1E]">Selecione um departamento...</option>
+                                        <option value="DFMA" className="dark:bg-[#1E1E1E]">DFMA - Física Matemática</option>
+                                        <option value="FEP" className="dark:bg-[#1E1E1E]">FEP - Física Experimental</option>
+                                        <option value="FGE" className="dark:bg-[#1E1E1E]">FGE - Física Geral</option>
+                                        <option value="FMA" className="dark:bg-[#1E1E1E]">FMA - Física dos Materiais e Mecânica</option>
+                                        <option value="FMT" className="dark:bg-[#1E1E1E]">FMT - Física Aplicada (FAP/FMT)</option>
+                                        <option value="FNC" className="dark:bg-[#1E1E1E]">FNC - Física Nuclear</option>
+                                    </select>
                                 </div>
                                 <div className="space-y-2">
                                     <label className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 ml-1">Laboratório Desejado</label>

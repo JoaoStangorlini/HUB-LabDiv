@@ -5,6 +5,7 @@ import { supabase } from '@/lib/supabase';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { fetchUserSubmissions } from '@/app/actions/submissions';
 import { fetchUserAcademicdata } from '@/app/actions/disciplines'; 
+import { getUserInterest } from '@/app/actions/recommendations';
 import { PostDTO } from '@/dtos/media';
 import { getAvatarUrl } from '@/lib/utils';
 import { parseMediaUrl, getYoutubeThumbnail, getOptimizedUrl } from '@/lib/media-utils';
@@ -41,6 +42,7 @@ function LabContent() {
     const [adoptionStatus, setAdoptionStatus] = useState<'pending' | 'approved' | null>(null);
     const [academicData, setAcademicData] = useState<any>(null);
     const [followStats, setFollowStats] = useState({ followers: 0, following: 0 });
+    const [topInterest, setTopInterest] = useState<string | null>(null);
 
     const handleShare = async () => {
         const origin = typeof window !== 'undefined' ? window.location.origin : '';
@@ -176,6 +178,10 @@ function LabContent() {
                         setAcademicData(academicRes.data);
                     }
                 }
+
+                // Fetch top interest
+                const interest = await getUserInterest(targetUserId);
+                setTopInterest(interest);
             } catch (error) {
                 console.error("Error loading lab data:", error);
             } finally {
@@ -267,22 +273,6 @@ function LabContent() {
                                     </div>
                                 ) : (
                                     <div className="flex flex-wrap items-center gap-2">
-                                        <button
-                                            onClick={() => router.push('/lab')}
-                                            className="px-4 py-2 bg-gray-100 dark:bg-white/5 hover:bg-gray-200 dark:hover:bg-white/10 text-gray-600 dark:text-gray-300 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2"
-                                        >
-                                            <span className="material-symbols-outlined text-sm">person</span>
-                                            Meu Perfil
-                                        </button>
-
-                                        <button 
-                                            onClick={handleShare}
-                                            className="px-4 py-2 bg-brand-blue text-white hover:scale-105 transition-all rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2 shadow-lg shadow-brand-blue/20"
-                                        >
-                                            <Share2 className="w-3.5 h-3.5" />
-                                            Compartilhar Lab
-                                        </button>
-
                                         {currentUserProfile?.available_to_mentor && viewedProfile?.seeking_mentor && (
                                             <button
                                                 onClick={async () => {
@@ -318,6 +308,12 @@ function LabContent() {
                             <div className="pt-2 text-sm text-gray-600 dark:text-gray-300 font-medium">
                                 {viewedProfile?.id === currentUser.id && <p>{currentUser.email}</p>}
                                 <div className="mt-1 flex flex-wrap gap-2">
+                                    {topInterest && (
+                                        <span className="px-2 py-0.5 bg-brand-blue/20 text-brand-blue text-[10px] font-black rounded uppercase border border-brand-blue/30 flex items-center gap-1 shadow-sm">
+                                            <Star className="w-3 h-3 fill-current" />
+                                            Foco: {topInterest}
+                                        </span>
+                                    )}
                                     {viewedProfile?.institute && (
                                         <span className="px-2 py-0.5 bg-brand-blue/10 text-brand-blue text-[10px] font-bold rounded uppercase">
                                             {viewedProfile.institute}

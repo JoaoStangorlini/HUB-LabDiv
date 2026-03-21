@@ -10,7 +10,8 @@ import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { updateProfile } from '@/app/actions/profiles';
 
-type Tab = 'challenges' | 'suggestions';
+type Tab = 'challenges' | 'suggestions' | 'match';
+import { MatchAcademicoTab } from '@/components/profile/MatchAcademicoTab';
 
 import { ArenaFeedbackCard } from './ArenaFeedbackCard';
 
@@ -186,6 +187,16 @@ export default function ArenaClient({ profile }: { profile: any }) {
                     <Lightbulb className="w-4 h-4" />
                     Melhorias HUB
                 </button>
+                <button
+                    onClick={() => setActiveTab('match')}
+                    className={`px-6 py-4 text-[10px] font-black uppercase tracking-widest transition-all border-b-2 flex items-center gap-2 whitespace-nowrap ${activeTab === 'match'
+                        ? 'border-brand-yellow text-brand-yellow'
+                        : 'border-transparent text-gray-500 hover:text-white'
+                        }`}
+                >
+                    <UserPlus className="w-4 h-4" />
+                    Match Acadêmico
+                </button>
             </div>
 
             {isLoading ? (
@@ -286,6 +297,12 @@ export default function ArenaClient({ profile }: { profile: any }) {
                                     </p>
                                 </div>
                             </div>
+                        </div>
+                    )}
+                    
+                    {activeTab === 'match' && (
+                        <div className="animate-in fade-in duration-700">
+                             <MatchAcademicoTab profile={profile} />
                         </div>
                     )}
                 </div>

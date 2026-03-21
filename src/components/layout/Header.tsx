@@ -189,18 +189,22 @@ export function Header() {
                     {/* Left: Branding */}
                     <Link href="/" className="flex items-center gap-3 group shrink-0" onClick={closeAll}>
                         <div className="flex items-center gap-3">
-                            <div className="relative group-hover:scale-110 transition-transform duration-500">
+                            <div className="relative w-9 h-9 flex-shrink-0 group-hover:scale-110 transition-transform duration-500">
                                 <div className="absolute -inset-1 bg-gradient-to-r from-brand-red via-brand-blue to-brand-yellow rounded-lg blur opacity-0 group-hover:opacity-40 transition-opacity animate-premium-glow"></div>
-                                <Image src="/labdiv-logo.png" alt="Hub Lab-Div" width={40} height={40} className="relative w-10 h-10 object-contain rounded-lg shadow-2xl" priority />
+                                <div className="relative w-full h-full">
+                                    <div className="absolute w-[60%] h-[75%] bg-brand-blue rounded-[2px] top-0 left-0 z-0 shadow-sm"></div>
+                                    <div className="absolute w-[60%] h-[75%] bg-brand-red rounded-[2px] bottom-0 right-0 z-0 translate-y-1 shadow-sm"></div>
+                                    <div className="absolute w-[60%] h-[60%] bg-brand-yellow rounded-full top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 shadow-md border-2 border-white dark:border-[#1A1A1A]"></div>
+                                </div>
                             </div>
-                            <div className="flex flex-col leading-none">
-                                <div className="text-2xl font-[900] tracking-tighter uppercase flex items-center gap-1 group-hover:animate-metallic-shine">
-                                    <span className="text-gray-900 dark:text-white">HUB</span>
-                                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-red via-brand-blue to-brand-yellow opacity-90 group-hover:opacity-100 transition-opacity">LAB-DIV</span>
+                            <div className="flex flex-col -space-y-1">
+                                <div className="text-xl font-sans font-bold tracking-tight flex items-center gap-1.5 leading-tight">
+                                    <span className="text-gray-900 dark:text-white">Hub</span>
+                                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-red via-brand-blue to-brand-yellow font-black">Lab-Div</span>
                                 </div>
                                 <div className="flex items-center gap-2 mt-0.5">
-                                    <span className="text-[10px] font-bold text-gray-500/80 uppercase tracking-widest">Instituto de Física</span>
-                                    <span className="text-[8px] font-black px-1.5 py-0.5 rounded bg-gray-100 dark:bg-white/10 text-gray-400">v3.1.5</span>
+                                    <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">Instituto de Física</span>
+                                    <span className="text-[8px] font-black px-1.5 py-0.5 rounded bg-gray-100 dark:bg-white/10 text-gray-400/80">v3.1.5</span>
                                 </div>
                             </div>
                         </div>

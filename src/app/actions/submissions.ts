@@ -16,6 +16,7 @@ export interface AdminUpdate {
     category?: string;
     description?: string;
     tags?: string[];
+    isotopes?: string[];
     media_url?: string | string[];
     external_link?: string | null;
     technical_details?: string | null;

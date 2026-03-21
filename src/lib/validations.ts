@@ -10,6 +10,7 @@ export const SubmissionSchema = z.object({
     media_url: z.string().min(1, "URL de mídia é obrigatória"), // Can be JSON string or single URL
     video_url: z.string().optional().nullable(),
     tags: z.array(z.string()).max(10, "Máximo de 10 tags permitidas").default([]),
+    isotopes: z.array(z.string()).max(10, "Máximo de 10 isótopos permitidos").default([]),
     location_name: z.string().optional().nullable(),
     location_lat: z.number().optional().nullable(),
     location_lng: z.number().optional().nullable(),

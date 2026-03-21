@@ -272,6 +272,9 @@ export async function updateProfileAsAdmin(profileId: string, updates: Partial<P
             seeking_assistant: updates.seeking_assistant,
             research_line: updates.research_line,
             interest_area: updates.interest_area,
+            ic_research_area: updates.ic_research_area,
+            ic_preferred_department: updates.ic_preferred_department,
+            ic_preferred_lab: updates.ic_preferred_lab,
             office_room: updates.office_room,
             laboratory_name: updates.laboratory_name,
             department: updates.department
@@ -481,11 +484,11 @@ export async function fetchStudentsSeekingIC() {
 
     if (!user) return { error: 'Não autorizado' };
 
-    const { data, error } = await supabase
+    const { data: rawData, error } = await supabase
         .from('profiles')
-        .select('id, full_name, username, use_nickname, avatar_url, course, institute, entrance_year, bio, whatsapp, email, xp, level, is_labdiv')
-        .eq('seeking_ic', true)
-        .eq('review_status', 'approved')
+        .select('*, pending_edits')
+        .or('seeking_ic.eq.true,pending_edits->>seeking_ic.eq.true')
+        .in('review_status', ['approved', 'pending'])
         .eq('is_visible', true)
         .order('created_at', { ascending: false });
 
@@ -493,6 +496,12 @@ export async function fetchStudentsSeekingIC() {
         console.error('Error fetching students for IC:', error);
         return { error: 'Erro ao buscar alunos interessados em IC' };
     }
+
+    // Merge pending edits so researchers see real-time updates (especially during testing)
+    const data = (rawData || []).map(p => ({
+        ...p,
+        ...(p.pending_edits || {})
+    }));
 
     return { success: true, data };
 }
@@ -503,11 +512,11 @@ export async function fetchResearchersSeekingAssistants() {
 
     if (!user) return { error: 'Não autorizado' };
 
-    const { data, error } = await supabase
+    const { data: rawData, error } = await supabase
         .from('profiles')
-        .select('id, full_name, username, use_nickname, avatar_url, course, institute, bio, whatsapp, email, xp, level, is_labdiv, research_line, office_room, laboratory_name, department, seeking_assistant')
-        .eq('seeking_assistant', true)
-        .eq('review_status', 'approved')
+        .select('*, pending_edits')
+        .or('seeking_assistant.eq.true,pending_edits->>seeking_assistant.eq.true')
+        .in('review_status', ['approved', 'pending'])
         .eq('is_visible', true)
         .order('created_at', { ascending: false });
 
@@ -515,6 +524,12 @@ export async function fetchResearchersSeekingAssistants() {
         console.error('Error fetching researchers:', error);
         return { error: 'Erro ao buscar pesquisadores buscando ajudantes' };
     }
+
+    // Merge pending edits for real-time visibility
+    const data = (rawData || []).map(p => ({
+        ...p,
+        ...(p.pending_edits || {})
+    }));
 
     return { success: true, data };
 }
@@ -525,34 +540,40 @@ export async function getStudentMiniPortfolio(studentId: string) {
 
     if (!user) return { error: 'Não autorizado' };
 
-    // Fetch profile details
-    const { data: profile, error: pError } = await supabase
+    // Fetch profile details - Select * to ensure we get everything and pending_edits
+    const { data: rawProfile, error: pError } = await supabase
         .from('profiles')
-        .select('areas_of_interest, artistic_interests, bio, full_name, username, use_nickname, avatar_url, course, institute, entrance_year, user_category, research_line, office_room, laboratory_name, department, seeking_assistant, seeking_ic, ic_research_area, ic_preferred_department, ic_preferred_lab')
+        .select('*, pending_edits')
         .eq('id', studentId)
         .single();
 
-    if (pError) return { error: 'Perfil não encontrado' };
+    if (pError || !rawProfile) return { error: 'Perfil não encontrado' };
+
+    // Merge pending_edits for real-time consistency
+    const profile = {
+        ...rawProfile,
+        ...(rawProfile.pending_edits || {})
+    };
 
     // Fetch completed disciplines
     const { data: completed, error: cError } = await supabase
         .from('user_completed_trails')
-        .select('trail:learning_trails(id, title, course_code, axis)')
+        .select('learning_trails(id, title, course_code, axis)')
         .eq('user_id', studentId);
 
     // Fetch current disciplines
     const { data: current, error: curError } = await supabase
         .from('user_trail_progress')
-        .select('trail:learning_trails(id, title, course_code, axis)')
+        .select('learning_trails(id, title, course_code, axis)')
         .eq('user_id', studentId)
         .eq('status', 'cursando');
 
     return {
         success: true,
         data: {
-            profile,
-            completed: (completed || []).map((c: any) => c.trail),
-            current: (current || []).map((c: any) => c.trail)
+            profile: profile as Profile,
+            completed: (completed || []).map((c: any) => c.learning_trails).filter(Boolean),
+            current: (current || []).map((c: any) => c.learning_trails).filter(Boolean)
         }
     };
 }

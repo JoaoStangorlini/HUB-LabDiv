@@ -25,5 +25,11 @@ export default async function FerramentasMatchPage() {
         redirect('/lab');
     }
 
-    return <MatchAcademicoTab profile={profile} />;
+    // Merge pending edits so the user sees their latest interest signal immediately
+    const mergedProfile = {
+        ...profile,
+        ...(profile.pending_edits || {})
+    };
+
+    return <MatchAcademicoTab profile={mergedProfile} />;
 }
