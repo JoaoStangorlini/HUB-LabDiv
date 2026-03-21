@@ -153,7 +153,7 @@ export const BottomNavBar = () => {
                                         </div>
                                         <div className="flex flex-col text-left">
                                             <span className="font-bold">{link.name}</span>
-                                            <span className="text-xs opacity-80">Nexus de conexões e chats</span>
+                                            <span className="text-xs opacity-80">Lab Pessoal, Pergunte a um Cientista e chats</span>
                                         </div>
                                         <span className="material-symbols-outlined ml-auto">chevron_right</span>
                                     </Link>

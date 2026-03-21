@@ -34,7 +34,7 @@ export function MainLayoutWrapper({ children, focusMode = false, wide = false, u
                     </aside>
 
                     {/* Content Area */}
-                    <main className={`flex-1 ${wide ? 'max-w-[1400px]' : 'max-w-[800px]'} w-full px-4 sm:px-6 pt-20 pb-8 lg:pb-12 transition-all duration-500`}>
+                    <main className={`flex-1 ${wide ? 'max-w-[1400px]' : 'max-w-[800px]'} w-full px-4 sm:px-6 pt-16 pb-8 lg:pb-12 transition-all duration-500`}>
                         {children}
                     </main>
 
