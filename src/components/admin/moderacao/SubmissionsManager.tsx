@@ -10,11 +10,9 @@ import toast from 'react-hot-toast';
 import { useNotify } from '@/hooks/useNotify';
 import { z } from 'zod';
 import { updateSubmissionAdmin } from '@/app/actions/submissions';
-import { SubmissionSchema } from '@/lib/validations';
-import { useRouter } from 'next/navigation';
 import { AdminPostDTO, mapToAdminPostDTO } from '@/dtos/media';
 import {
-    LayoutDashboard, Search, Inbox, ChevronLeft,
+    Search, Inbox, ChevronLeft,
     ChevronRight, Bookmark, Check, X, RotateCcw,
     FileEdit, Save, AlertTriangle, Loader2
 } from 'lucide-react';
@@ -151,8 +149,7 @@ function CarouselSection({
     );
 }
 
-/* ─── Main Page ─── */
-export default function AdminSubmissionsPage() {
+export function SubmissionsManager() {
     const [allSubmissions, setAllSubmissions] = useState<AdminPostDTO[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [selectedItem, setSelectedItem] = useState<AdminPostDTO | null>(null);
@@ -166,15 +163,7 @@ export default function AdminSubmissionsPage() {
     // Searching & Debounce
     const [searchQuery, setSearchQuery] = useState('');
     const [debouncedSearch, setDebouncedSearch] = useState('');
-    const [user, setUser] = useState<any>(null);
-    const router = useRouter();
     const notify = useNotify();
-
-    useEffect(() => {
-        supabase.auth.getUser().then(({ data: { user } }) => {
-            setUser(user);
-        });
-    }, []);
 
     const fetchAll = useCallback(async (query: string = '') => {
         setIsLoading(true);
@@ -322,20 +311,8 @@ export default function AdminSubmissionsPage() {
     };
 
     return (
-        <div className="p-4 sm:p-8 max-w-[1600px] mx-auto space-y-10">
-            {/* Header & Search */}
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-                <div className="flex-1">
-                    <div className="flex items-center gap-2 text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">
-                        <LayoutDashboard className="w-5 h-5" />
-                        <span>Dashboard</span>
-                        <span className="text-gray-300 dark:text-gray-600">/</span>
-                        <span className="text-brand-blue">Gerenciamento</span>
-                    </div>
-                    <h1 className="text-3xl font-display font-bold text-gray-900 dark:text-white tracking-tight">Mesa de Cirurgia (Admin)</h1>
-                    <p className="text-gray-500 dark:text-gray-400 mt-1">Busque, edite e revise todas as submissões em tempo real.</p>
-                </div>
-
+        <div className="space-y-10">
+            <div className="flex justify-end">
                 <div className="w-full md:w-96 relative group">
                     <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-brand-blue w-5 h-5 transition-colors" />
                     <input
@@ -360,20 +337,6 @@ export default function AdminSubmissionsPage() {
                 </div>
             ) : (
                 <>
-                    <Link
-                        href="/admin/acervo"
-                        className="flex items-center gap-4 p-5 bg-white/40 dark:bg-card-dark/5 backdrop-blur-md rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-xl hover:border-brand-blue/40 transition-all group cursor-pointer"
-                    >
-                        <div className="w-14 h-14 flex items-center justify-center rounded-2xl bg-brand-blue/10 text-brand-blue group-hover:bg-brand-blue group-hover:text-white transition-all">
-                            <Bookmark className="w-8 h-8" />
-                        </div>
-                        <div className="flex-1">
-                            <h3 className="text-lg font-bold text-gray-900 dark:text-white group-hover:text-brand-blue transition-colors">Gerenciador de Acervo</h3>
-                            <p className="text-sm text-gray-500">Edite, filtre por autor e gerencie todas as submissões em um só lugar</p>
-                        </div>
-                        <ChevronRight className="w-6 h-6 text-gray-300 group-hover:text-brand-blue group-hover:translate-x-1 transition-all" />
-                    </Link>
-
                     <CarouselSection
                         title="Submissões Pendentes"
                         icon={RotateCcw}

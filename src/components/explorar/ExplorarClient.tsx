@@ -51,12 +51,14 @@ export function ExplorarClient({ mapItems, oportunidades }: ExplorarClientProps)
 
     const tabs = [
         { id: 'wiki', label: 'Wiki Hub', icon: BookOpen, color: 'brand-blue' },
+        { id: 'mapa', label: 'Mapa Interativo', icon: MapLucide, color: 'brand-yellow' },
         { id: 'colisor', label: 'Grande Colisor', icon: Sparkles, color: 'brand-red' },
     ];
 
     const getFeedbackCard = () => {
         switch (activeTab) {
             case 'wiki': return <WikiFeedbackCard />;
+            case 'mapa': return <MapaFeedbackCard />;
             case 'colisor': return <ColisorFeedbackCard />;
         }
     };
@@ -99,6 +101,11 @@ export function ExplorarClient({ mapItems, oportunidades }: ExplorarClientProps)
                         transition={{ duration: 0.3 }}
                     >
                         {activeTab === 'wiki' && <WikiView />}
+                        {activeTab === 'mapa' && (
+                            <div className="w-full h-full min-h-[700px]">
+                                <MapClient initialItems={mapItems} />
+                            </div>
+                        )}
                         {activeTab === 'colisor' && (
                             <div className="mt-8">
                                 <ColisorClientView oportunidades={oportunidades} />

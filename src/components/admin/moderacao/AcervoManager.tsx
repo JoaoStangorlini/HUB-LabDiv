@@ -5,17 +5,17 @@ import { supabase } from '@/lib/supabase';
 import { MediaCard } from '@/components/MediaCard';
 import { AdminSubmissionLightbox } from '@/components/AdminSubmissionLightbox';
 import { CATEGORIES } from '@/app/enviar/constants';
-import { fetchAdminSubmissions, updateSubmissionAdmin } from '@/app/actions/submissions';
+import { updateSubmissionAdmin } from '@/app/actions/submissions';
 import { AdminPostDTO, mapToAdminPostDTO } from '@/dtos/media';
 import {
     LayoutDashboard, Search, Filter, UserSearch,
     CheckCircle, XCircle, Clock, Trash2,
-    CheckCheck, Sparkles, RefreshCw, ChevronDown,
-    FileEdit, X, Save, AlertTriangle, Loader2, Star, Trophy
+    CheckCheck, ChevronDown,
+    FileEdit, X, Save, AlertTriangle, Loader2, Trophy, Star
 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 
-export default function GerenciadorAcervoPage() {
+export function AcervoManager() {
     const [allSubmissions, setAllSubmissions] = useState<AdminPostDTO[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState('');
@@ -32,7 +32,6 @@ export default function GerenciadorAcervoPage() {
 
     const fetchAll = useCallback(async () => {
         setIsLoading(true);
-        // Using common fetcher for consistency
         const { data, error } = await supabase
             .from('submissions')
             .select('*')
@@ -198,18 +197,8 @@ export default function GerenciadorAcervoPage() {
     };
 
     return (
-        <div className="p-4 sm:p-8 max-w-[1600px] mx-auto space-y-8">
-            {/* Header */}
-            <div>
-                <div className="flex items-center gap-2 text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">
-                    <LayoutDashboard className="w-5 h-5" />
-                    <span>Dashboard</span>
-                    <span className="text-gray-300 dark:text-gray-600">/</span>
-                    <span className="text-brand-blue">Gerenciador de Acervo</span>
-                </div>
-                <h1 className="text-3xl font-display font-bold text-gray-900 dark:text-white tracking-tight">Gerenciador de Acervo e Autores</h1>
-                <p className="text-gray-500 dark:text-gray-400 mt-1">Visualize, edite e filtre todas as submissões do banco de dados.</p>
-            </div>
+        <div className="space-y-8">
+            {/* Header Content removed as it will be in the Client shell */}
 
             {/* Filtros */}
             <div className="bg-white/40 dark:bg-card-dark/5 backdrop-blur-md p-5 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm flex flex-col md:flex-row gap-4">
