@@ -69,8 +69,8 @@ export function SobreClient({ initialTestimonials, profile }: SobreClientProps) 
         >
             <div className="max-w-7xl mx-auto px-4 py-8">
                 {/* Segmented Control for Institucional Hub */}
-                <div className="flex justify-center mb-12">
-                    <div className="bg-[#1e1e1e]/60 backdrop-blur-md p-1 rounded-2xl border border-white/5 flex gap-1">
+                <div className="flex justify-center mb-12 sticky top-16 z-40 py-2">
+                    <div className="bg-[#1e1e1e]/80 backdrop-blur-xl p-1 rounded-2xl border border-white/5 flex gap-1 shadow-lg">
                         <button
                             onClick={() => handleTabChange('labdiv')}
                             className={`flex items-center gap-2 px-8 py-3 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${
